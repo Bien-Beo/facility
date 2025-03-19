@@ -1,0 +1,16 @@
+/backend/target/
+
+/backend/src/main/resources/application.properties
+/backend/src/main/resources/application.yml
+
+/frontend-swing/out/
+/frontend-swing/build/
+
+.idea/
+.vscode/
+.classpath
+.project
+.settings/
+
+.DS_Store
+Thumbs.db
