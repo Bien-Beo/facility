@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<HBox spacing="0"
+      stylesheets="@../styles/style.css, @../styles/login.css"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.utc2.facilityui.controller.LoginController">
+
+    <!-- Phần hình ảnh -->
+    <StackPane fx:id="imageContainer" styleClass="image-container">
+        <ImageView fx:id="backgroundImage" fitWidth="400" fitHeight="500" preserveRatio="true"/>
+    </StackPane>
+
+    <!-- Phần form login -->
+    <VBox alignment="CENTER" spacing="15" styleClass="login-container">
+        <Label text="Facility Management System" styleClass="title"/>
+        <Label text="Login" styleClass="subtitle"/>
+        <TextField fx:id="usernameField" promptText="Username"/>
+        <PasswordField fx:id="passwordField" promptText="Password"/>
+        <Button text="Login" fx:id="loginButton" onAction="#handleLogin"/>
+        <Label fx:id="messageLabel" textFill="red"/>
+    </VBox>
+
+</HBox>

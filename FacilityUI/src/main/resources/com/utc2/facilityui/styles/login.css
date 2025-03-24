@@ -1,0 +1,22 @@
+.image-container {
+    -fx-background-color: #000;
+    -fx-pref-width: 400px;
+    -fx-pref-height: 500px;
+}
+
+.login-container {
+    -fx-padding: 40px;
+    -fx-pref-width: 400px;
+    -fx-background-color: #ffffff;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 10, 0.5, 0, 2);
+}
+
+.title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.subtitle {
+    -fx-font-size: 16px;
+    -fx-text-fill: #666;
+}
