@@ -2,11 +2,13 @@ package com.utc2.facility.main;
 
 import com.utc2.facility.component.Header;
 import com.utc2.facility.component.Menu;
+import com.utc2.facility.form.FormHome;
 import com.utc2.facility.swing.MenuItem;
 import com.utc2.facility.swing.PopupMenu;
 import com.utc2.facility.event.EventMenuSelected;
 import com.utc2.facility.event.EventShowPopupMenu;
 import com.utc2.facility.form.MainForm;
+import com.utc2.facility.view.LoginView;
 import net.miginfocom.swing.MigLayout;
 import org.jdesktop.animation.timing.TimingTarget;
 import org.jdesktop.animation.timing.TimingTargetAdapter;
@@ -15,10 +17,8 @@ import org.jdesktop.animation.timing.Animator;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import net.miginfocom.swing.MigLayout;
-import org.jdesktop.animation.timing.Animator;
-import org.jdesktop.animation.timing.TimingTarget;
-import org.jdesktop.animation.timing.TimingTargetAdapter;
+
+import javax.swing.*;
 
 public class Main extends javax.swing.JFrame {
     
@@ -27,8 +27,17 @@ public class Main extends javax.swing.JFrame {
     private Header header;
     private MainForm main;
     private Animator animator;
+    private static boolean isAuthenticated = false;
+
+    public static void setAuthenticated(boolean status) {
+        isAuthenticated = status;
+    }
 
     public Main() {
+        if (!isAuthenticated) {
+            JOptionPane.showMessageDialog(null, "Bạn chưa đăng nhập!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            System.exit(0); // Thoát chương trình nếu mở trực tiếp
+        }
         initComponents();
         init();
     }
@@ -44,6 +53,19 @@ public class Main extends javax.swing.JFrame {
             @Override
             public void menuSelected(int menuIndex, int subMenuIndex) {
                 System.out.println("Menu index: " + menuIndex + ", Sub menu index: " + subMenuIndex);
+                if (menuIndex == 0) {
+                    if (subMenuIndex == 0) {
+                        //main.showRoom();
+                        main.showForm(new FormHome());
+                    }
+//                    else if (subMenuIndex == 1) {
+//                        main.showRoomType();
+//                    } else if (subMenuIndex == 2) {
+//                        main.showRoomStatus();
+//                    } else if (subMenuIndex == 3) {
+//                        main.showRoomService();
+//                    }
+                }
             }
         });
 
@@ -58,6 +80,7 @@ public class Main extends javax.swing.JFrame {
                 popup.setVisible(true);
             }
         });
+
         menu.initMenuItem();
         bg.add(menu, "w 230!, spany 2");
         bg.add(header, "h 50!, wrap");
@@ -81,6 +104,7 @@ public class Main extends javax.swing.JFrame {
                 menu.setEnableMenu(true);
             }
         };
+
         animator = new Animator(500, target);
         animator.setResolution(0);
         animator.setDeceleration(0.5f);
@@ -97,6 +121,9 @@ public class Main extends javax.swing.JFrame {
                 }
             }
         });
+
+        //Start with this form
+        main.showForm(new FormHome());
     }
 
     @SuppressWarnings("unchecked")
@@ -161,7 +188,8 @@ public class Main extends javax.swing.JFrame {
 
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Main().setVisible(true);
+                LoginView loginView = new LoginView();
+                loginView.setVisible(true);
             }
         });
     }
