@@ -1,29 +1,80 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Font?>
 
-<HBox spacing="0"
-      stylesheets="@../styles/style.css, @../styles/login.css"
-      xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.utc2.facilityui.controller.LoginController">
-
-    <!-- Phần hình ảnh -->
-    <StackPane fx:id="imageContainer" styleClass="image-container">
-        <ImageView fx:id="backgroundImage" fitWidth="400" fitHeight="500" preserveRatio="true"/>
-    </StackPane>
-
-    <!-- Phần form login -->
-    <VBox alignment="CENTER" spacing="15" styleClass="login-container">
-        <Label text="Facility Management System" styleClass="title"/>
-        <Label text="Login" styleClass="subtitle"/>
-        <TextField fx:id="usernameField" promptText="Username"/>
-        <PasswordField fx:id="passwordField" promptText="Password"/>
-        <Button text="Login" fx:id="loginButton" onAction="#handleLogin"/>
-        <Label fx:id="messageLabel" textFill="red"/>
-    </VBox>
-
+<HBox alignment="TOP_CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="586.0" prefWidth="1181.0" xmlns="http://javafx.com/javafx/21.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <SplitPane dividerPositions="0.5" prefHeight="506.0" prefWidth="1205.0" stylesheets="@../styles/login.css">
+        <items>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="598.0" prefWidth="500.0">
+                <children>
+                    <ImageView fitHeight="600.0" fitWidth="1000.0" pickOnBounds="true" preserveRatio="false" AnchorPane.bottomAnchor="-2.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="-223.0" AnchorPane.topAnchor="0.0">
+                        <image>
+                            <Image url="@../images/background_login.jpg" />
+                        </image>
+                    </ImageView>
+                </children>
+            </AnchorPane>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="200.0">
+               <children>
+                  <Label alignment="CENTER" contentDisplay="CENTER" layoutX="79.2" layoutY="136.8" prefHeight="50.0" prefWidth="355.0" text="Login Account" textAlignment="CENTER" AnchorPane.leftAnchor="79.0" AnchorPane.rightAnchor="66.0" AnchorPane.topAnchor="180.0">
+                     <font>
+                        <Font size="36.0" />
+                     </font>
+                  </Label>
+                  <Label alignment="CENTER" contentDisplay="CENTER" layoutX="60.0" layoutY="393.0" prefHeight="40.0" prefWidth="380.0" text="The password must be minimum of 5 character long" textAlignment="CENTER" wrapText="true" AnchorPane.leftAnchor="60.0" AnchorPane.rightAnchor="60.0" />
+                  <StackPane layoutX="60.0" layoutY="274.0" prefHeight="50.0" prefWidth="200.0" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="100.0">
+                     <children>
+                           <TextField fx:id="username" prefHeight="50.0" prefWidth="342.0" promptText="Username">
+                               <font>
+                                   <Font size="18.0" />
+                               </font>
+                               <padding>
+                                   <Insets left="40.0" />
+                               </padding>
+                           </TextField>
+                         <FontAwesomeIconView glyphName="USER" size="24">
+                             <StackPane.alignment>CENTER_LEFT</StackPane.alignment>
+                             <StackPane.margin>
+                                 <Insets left="10.0" />
+                             </StackPane.margin>
+                         </FontAwesomeIconView>
+                     </children>
+                  </StackPane>
+                   <StackPane layoutX="60.0" layoutY="343.0" prefHeight="50.0" prefWidth="206.0" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="100.0">
+                       <children>
+                           <PasswordField fx:id="password" prefHeight="50.0" prefWidth="206.0" promptText="Password">
+                               <font>
+                                   <Font size="18.0" />
+                               </font>
+                               <padding>
+                                   <Insets left="40.0" />
+                               </padding>
+                           </PasswordField>
+                           <FontAwesomeIconView glyphName="LOCK" size="24">
+                               <StackPane.alignment>CENTER_LEFT</StackPane.alignment>
+                               <StackPane.margin>
+                                   <Insets left="10.0" />
+                               </StackPane.margin>
+                           </FontAwesomeIconView>
+                       </children>
+                   </StackPane>
+                  <Button layoutX="100.0" layoutY="444.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="390.0" text="Button" />
+               </children>
+            </AnchorPane>
+        </items>
+      </SplitPane>
+   </children>
 </HBox>
