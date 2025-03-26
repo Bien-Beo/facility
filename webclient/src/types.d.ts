@@ -383,7 +383,7 @@ type DashboardData = {
 };
 
 type LoginData = {
-  employeeId: number | null;
+  username: string | null;
   password: string;
 };
 

@@ -8,10 +8,10 @@ import {
   createRoutesFromElements,
 } from "react-router-dom";
 
-// import Layout from "./components/Layout";
+import Layout from "./components/Layout";
 // import PageNotFound from "./components/PageNotFound";
-// import { RequireAuth } from "./components/RequireAuth";
-// import RouteError from "./components/RouteError";
+//import { RequireAuth } from "./components/RequireAuth";
+import RouteError from "./components/RouteError";
 // import AdminBookingsPage from "./pages/AdminBookingsPage";
 // import AdminFacilitiesPage from "./pages/AdminFacilitiesPage";
 // import DashboardPage from "./pages/DashboardPage";
@@ -37,11 +37,11 @@ declare module "@tanstack/react-query" {
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-      <Route path="/auth">
+      <Route path = "/auth">
         <Route
-          path="login"
-          element={<LoginPage />}
-          //errorElement={<RouteError />}
+          path = "login"
+          element = {<LoginPage />}
+          errorElement = {<RouteError />}
         />
       </Route>
 
