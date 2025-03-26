@@ -1,7 +1,14 @@
-import { FC, FormEvent, JSX, MouseEvent, useEffect, useState } from "react";
+import React, {
+  FC,
+  FormEvent,
+  MouseEvent,
+  useEffect,
+  useState,
+  JSX,
+} from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import {
   Button,
   FormControl,
@@ -19,7 +26,7 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useAuth } from "../hooks/useAuth";
 
 const LoginPage: FC = (): JSX.Element => {
-  const [id, setId] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [isError, setIsError] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -32,7 +39,7 @@ const LoginPage: FC = (): JSX.Element => {
 
   const mutation = useMutation({
     mutationFn: (data: LoginData) =>
-      axios.post(`${import.meta.env.VITE_APP_SERVER_URL}/auth/login`, data, {
+      axios.post(`${import.meta.env.VITE_APP_SERVER_URL}/auth/token`, data, {
         withCredentials: true,
       }),
     onSuccess: (data) => {
@@ -40,7 +47,7 @@ const LoginPage: FC = (): JSX.Element => {
       localStorage.setItem("token-info", JSON.stringify(data.data));
       navigate(redirectPath, { replace: true, preventScrollReset: true });
     },
-    onError: (error: AxiosError) => {
+    onError: (error) => {
       if (error.response) {
         const errorData = error.response.data as ErrorMessage;
         setError(errorData.error.message);
@@ -62,7 +69,7 @@ const LoginPage: FC = (): JSX.Element => {
     password.length < 5 ? setIsError(true) : setIsError(false);
     !isError &&
       mutation.mutate({
-        employeeId: parseInt(id! as string),
+        username: username,
         password: password,
       });
   };
@@ -109,12 +116,12 @@ const LoginPage: FC = (): JSX.Element => {
           className="flex flex-col gap-4 max-w-[660px]"
         >
           <TextField
-            id="id"
-            label="Enter Employee ID"
+            id="username"
+            label="Enter Username"
             variant="outlined"
             className="w-full"
-            value={id}
-            onChange={(e) => setId(e.target.value)}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             required
           />
           <FormControl variant="outlined" fullWidth>
