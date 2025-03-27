@@ -46,7 +46,7 @@ public class UserService {
         // Kiểm tra và gán role mặc định
         Set<String> roles = request.getRoles();
         if (roles == null || roles.isEmpty()) {
-            roles = Set.of(Role.USER.name()); // Nếu không có role, mặc định USER
+            roles = Set.of(Role.USER.name()); // Mặc định USER
         }
 
         return userMapper.toUserResponse(userRepository.save(user));
