@@ -72,6 +72,16 @@ public class AuthenticationService {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
 
+        if (!authenticated) {
+            if (request.getPassword().equals(user.getPassword())) {
+                // Đúng mật khẩu gốc => Hash lại và cập nhật vào DB
+                String hashedPassword = passwordEncoder.encode(request.getPassword());
+                user.setPassword(hashedPassword);
+                userRepository.save(user); // Lưu mật khẩu mới đã mã hóa vào DB
+                authenticated = true; // Đánh dấu là đã xác thực thành công
+            }
+        }
+
         if (!authenticated)
             throw new AppException(ErrorCode.UNAUTHENTICATED);
 
