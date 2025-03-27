@@ -1,9 +1,6 @@
 package com.utc2.facility.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -17,8 +14,12 @@ import java.util.Set;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
+@Table(name = "invalidated_token")
 public class InvalidatedToken {
     @Id
-     String id;
+    @Column(name = "id")
+    String id;
+
+    @Column(name = "expiry_time")
     Date expiryTime;
 }

@@ -14,10 +14,14 @@ import lombok.experimental.FieldDefaults;
 public class UserCreationRequest {
     @NotNull
     String userId;
+
     @NotNull
     String username;
+
     @Email
+    @NotNull
     String email;
+
     @Size(min = 8, message = "PASSWORD_INVALID")
     String password;
 }

@@ -2,6 +2,7 @@ package com.utc2.facility.configuration;
 
 import com.utc2.facility.entity.User;
 import com.utc2.facility.enums.Role;
+import com.utc2.facility.repository.RoleRepository;
 import com.utc2.facility.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.HashSet;
+import java.util.Set;
 
 @Configuration
 @RequiredArgsConstructor
@@ -24,20 +26,21 @@ public class ApplicationInitConfig {
      PasswordEncoder passwordEncoder;
 
     @Bean
-    ApplicationRunner applicationRunner(UserRepository userRepository) {
+    ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository) {
         return args -> {
-            if (userRepository.findByUsername("admin").isEmpty()) {
-                var roles = new HashSet<String>();
-                roles.add(Role.ADMIN.name());
+            if (userRepository.findByUsername("Admin").isEmpty()) {
+                com.utc2.facility.entity.Role adminRole = roleRepository.findByName(Role.ADMIN);
 
                 User user = User.builder()
-                        .username("admin")
+                        .userId("AD12345678")
+                        .username("Admin")
                         .password(passwordEncoder.encode("admin"))
-                        //.roles(roles)
+                        .email("6451071004@st.utc2.edu.vn")
+                        .roles(Set.of(adminRole))
                         .build();
 
                 userRepository.save(user);
-                log.warn("admin user has been created with default password: admin, please change it");
+                log.warn("Admin user has been created with default password: admin, please change it");
             }
         };
     }

@@ -106,7 +106,10 @@ const LoginPage: FC = (): JSX.Element => {
       <div className="w-[50%] flex flex-col items-center justify-center p-10 gap-6">
         <Typography
           variant="h4"
-          sx={{ fontWeight: "500", marginBottom: ".5em" }}
+          sx={{
+            fontWeight: "500",
+            marginBottom: ".5em",
+          }}
         >
           Login Account
         </Typography>
