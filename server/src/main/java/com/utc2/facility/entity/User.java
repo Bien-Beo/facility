@@ -4,6 +4,7 @@ import java.util.Set;
 
 import jakarta.persistence.*;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -14,6 +15,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
+@Table(name = "user")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -25,7 +27,8 @@ public class User {
     @Column(name = "username", columnDefinition = "VARCHAR(255) COLLATE utf8mb4_unicode_ci")
      String username;
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true, nullable = false)
+    @NotNull
      String email;
 
     @Column(name = "password")

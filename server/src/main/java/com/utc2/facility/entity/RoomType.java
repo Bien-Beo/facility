@@ -14,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
+@Table(name = "room_type")
 public class RoomType {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

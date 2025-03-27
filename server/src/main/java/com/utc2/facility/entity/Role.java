@@ -13,11 +13,15 @@ import java.util.Set;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "Role")
+@Table(name = "role")
 public class Role {
     @Id
-     String name;
-     String description;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "name", length = 36)
+    com.utc2.facility.enums.Role name;
+
+    @Column(name = "description")
+    String description;
 
      @ManyToMany
      Set<Permission> permissions;

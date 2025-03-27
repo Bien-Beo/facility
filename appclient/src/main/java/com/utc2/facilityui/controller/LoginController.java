@@ -3,9 +3,6 @@ package com.utc2.facilityui.controller;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.utc2.facilityui.auth.TokenStorage;
-import com.utc2.facilityui.helper.IconHelper;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -14,14 +11,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import okhttp3.*;
 
 import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
 
 public class LoginController {
     @FXML private TextField username;
@@ -30,47 +23,10 @@ public class LoginController {
     @FXML private Label messageLabel;
 
     private static final String LOGIN_URL = "http://localhost:8080/facility/auth/token";
-    private static final String VERIFY_TOKEN_URL = "http://localhost:8080/facility/auth/introspect";
     private final OkHttpClient client = new OkHttpClient();
 
     @FXML
-    private void initialize() {
-        checkTokenAndRedirect();
-    }
-
-    private void checkTokenAndRedirect() {
-        String token = TokenStorage.getToken();
-        if (token == null || token.isEmpty()) return;
-
-        // Tạo JSON chứa token
-        String json = "{\"token\":\"" + token + "\"}";
-        RequestBody body = RequestBody.create(json, MediaType.get("application/json; charset=utf-8"));
-
-        Request request = new Request.Builder()
-                .url(VERIFY_TOKEN_URL)
-                .post(body)
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                System.out.println("Không thể kết nối tới server!");
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful() && response.body() != null) {
-                    String responseBody = response.body().string();
-                    JsonObject jsonObject = JsonParser.parseString(responseBody).getAsJsonObject();
-
-                    // Kiểm tra xem token còn hiệu lực không
-                    if (jsonObject.has("active") && jsonObject.get("active").getAsBoolean()) {
-                        Platform.runLater(() -> switchToDashboard());
-                    }
-                }
-            }
-        });
-    }
+    private void initialize() {}
 
     @FXML
     private void handleLogin() {

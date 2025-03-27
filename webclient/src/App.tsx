@@ -8,6 +8,9 @@ import {
   createRoutesFromElements,
 } from "react-router-dom";
 
+import { useMemo } from "react";
+import useMediaQuery from "@mui/material/useMediaQuery";
+
 import Layout from "./components/Layout";
 // import PageNotFound from "./components/PageNotFound";
 //import { RequireAuth } from "./components/RequireAuth";
@@ -187,14 +190,30 @@ const router = createBrowserRouter(
   )
 );
 
-const theme = createTheme({
-  typography: {
-    fontFamily: "Poppins, sans-serif",
-  },
-});
+// const theme = createTheme({
+//   typography: {
+//     fontFamily: "Poppins, sans-serif",
+//   },
+// });
 
 const queryClient = new QueryClient();
+
 function App() {
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+
+  const theme = useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode: prefersDarkMode ? "dark" : "light",
+        },
+        typography: {
+          fontFamily: "Poppins, sans-serif",
+        },
+      }),
+    [prefersDarkMode]
+  );
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
