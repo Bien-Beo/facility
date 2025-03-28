@@ -52,7 +52,7 @@ public class Main extends Application {
 
                     Platform.runLater(() -> {
                         if (isActive) {
-                            loadScene(stage, "/com/utc2/facilityui/view/dashboard.fxml");
+                            loadScene(stage, "/com/utc2/facilityui/view/home.fxml");
                         } else {
                             loadScene(stage, "/com/utc2/facilityui/view/login.fxml");
                         }

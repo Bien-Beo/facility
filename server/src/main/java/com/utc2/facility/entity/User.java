@@ -34,6 +34,9 @@ public class User {
     @Column(name = "password")
      String password;
 
+    @Column(name = "avatar")
+    String avatar;
+
     @ManyToMany
     Set<Role> roles;
 }

@@ -13,23 +13,23 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="519.0" prefWidth="912.0" stylesheets="@../styles/mainUI.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane fx:controller="com.utc2.facilityui.controller.HomeController" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="519.0" prefWidth="912.0" stylesheets="@../styles/mainUI.css" xmlns="http://javafx.com/javafx/21.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <BorderPane layoutX="7.0" layoutY="57.0" prefHeight="544.0" prefWidth="796.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <left>
             <AnchorPane prefHeight="555.0" prefWidth="182.0" styleClass="nav-form" BorderPane.alignment="CENTER">
                <children>
-                  <ImageView fitHeight="53.0" fitWidth="54.0" layoutX="70.0" layoutY="59.0" pickOnBounds="true" preserveRatio="true">
+                  <ImageView fx:id="imgAvatar" fitHeight="53.0" fitWidth="54.0" layoutX="70.0" layoutY="59.0" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@../images/Man-1-icon.png" />
                      </image>
                   </ImageView>
-                  <Label layoutX="75.0" layoutY="127.0" text="Admin" textFill="WHITE">
+                  <Label fx:id="lbUsername" layoutX="75.0" layoutY="127.0" text="Admin" textFill="WHITE">
                      <font>
                         <Font name="Tahoma" size="18.0" />
                      </font>
                   </Label>
-                  <Label layoutX="74.0" layoutY="159.0" prefHeight="17.0" prefWidth="45.0" text="ID:...." textFill="WHITE" />
+                  <Label fx:id="lbUserId" layoutX="74.0" layoutY="159.0" prefHeight="17.0" prefWidth="45.0" text="ID:...." textFill="WHITE" />
                   <Button fx:id="btnFacilities" layoutY="201.0" mnemonicParsing="false" prefHeight="55.0" prefWidth="185.0" styleClass="button1-click-change" text="Facilities" />
                   <Button fx:id="btnLogout" layoutY="409.0" mnemonicParsing="false" prefHeight="55.0" prefWidth="185.0" styleClass="button1" text="Logout" />
                   <Button fx:id="btnMyBooking" layoutY="274.0" mnemonicParsing="false" prefHeight="55.0" prefWidth="185.0" styleClass="button1" text="My Booking" />
