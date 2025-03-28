@@ -22,6 +22,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -33,17 +35,19 @@ public class UserService {
      RoleRepository roleRepository;
     PasswordEncoder passwordEncoder;
 
-    public UserResponse createUser(UserCreationRequest resquest) {
-        if (userRepository.existsByUserId(resquest.getUserId()))
+    @PreAuthorize("hasRole('ADMIN')")
+    public UserResponse createUser(UserCreationRequest request) {
+        if (userRepository.existsByUserId(request.getUserId()))
             throw new AppException(ErrorCode.USER_EXISTED);
 
-        User user = userMapper.toUser(resquest);
+        User user = userMapper.toUser(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        HashSet<String> roles = new HashSet<>();
-        roles.add(Role.USER.name());
-
-        //user.setRoles(roles);
+        // Kiểm tra và gán role mặc định
+        Set<String> roles = request.getRoles();
+        if (roles == null || roles.isEmpty()) {
+            roles = Set.of(Role.USER.name()); // Mặc định USER
+        }
 
         return userMapper.toUserResponse(userRepository.save(user));
     }

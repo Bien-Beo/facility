@@ -20,7 +20,7 @@ public class LoginController {
     @FXML private TextField username;
     @FXML private PasswordField password;
     @FXML private Button loginButton;
-    @FXML private Label messageLabel;
+    @FXML private Label lbMessage;
 
     private static final String LOGIN_URL = "http://localhost:8080/facility/auth/token";
     private final OkHttpClient client = new OkHttpClient();
@@ -34,7 +34,7 @@ public class LoginController {
         String password = this.password.getText();
 
         if (username.isEmpty() || password.isEmpty()) {
-            messageLabel.setText("Vui lòng nhập tài khoản và mật khẩu!");
+            lbMessage.setText("Vui lòng nhập tài khoản và mật khẩu!");
             return;
         }
 
@@ -52,7 +52,7 @@ public class LoginController {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                Platform.runLater(() -> messageLabel.setText("Lỗi kết nối server!"));
+                Platform.runLater(() -> lbMessage.setText("Lỗi kết nối server!"));
             }
 
             @Override
@@ -64,19 +64,20 @@ public class LoginController {
                     if (jsonObject.has("result") && jsonObject.getAsJsonObject("result").has("token")) {
                         String token = jsonObject.getAsJsonObject("result").get("token").getAsString();
                         TokenStorage.setToken(token);
+                        System.out.println("Token: " + token);
 
                         Platform.runLater(() -> switchToDashboard());
                         return;
                     }
                 }
-                Platform.runLater(() -> messageLabel.setText("Sai tài khoản hoặc mật khẩu!"));
+                Platform.runLater(() -> lbMessage.setText("Sai tài khoản hoặc mật khẩu!"));
             }
         });
     }
 
     private void switchToDashboard() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/utc2/facilityui/view/dashboard.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/utc2/facilityui/view/home.fxml"));
             Scene scene = new Scene(loader.load());
 
             Stage stage = (Stage) username.getScene().getWindow();
@@ -85,7 +86,7 @@ public class LoginController {
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
-            messageLabel.setText("Lỗi chuyển màn hình!");
+            lbMessage.setText("Lỗi chuyển màn hình!");
         }
     }
 }

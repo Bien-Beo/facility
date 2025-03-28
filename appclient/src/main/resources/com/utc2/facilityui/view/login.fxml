@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 
-<HBox fx:controller="com.utc2.facilityui.controller.LoginController" alignment="TOP_CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="586.0" prefWidth="1181.0" xmlns="http://javafx.com/javafx/21.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<HBox alignment="TOP_CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="586.0" prefWidth="1181.0" xmlns="http://javafx.com/javafx/21.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.LoginController">
    <children>
       <SplitPane dividerPositions="0.5" prefHeight="506.0" prefWidth="1205.0" stylesheets="@../styles/login.css">
         <items>
@@ -25,6 +25,7 @@
                             <Image url="@../images/background_login.jpg" />
                         </image>
                     </ImageView>
+                  <Label fx:id="lbMessage" layoutX="114.0" layoutY="275.0" prefHeight="50.0" prefWidth="362.0" text="Label" />
                 </children>
             </AnchorPane>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="200.0">
