@@ -42,11 +42,14 @@ const LoginPage: FC = (): JSX.Element => {
       axios.post(`${import.meta.env.VITE_APP_SERVER_URL}/auth/token`, data, {
         withCredentials: true,
       }),
-    onSuccess: (data) => {
-      auth?.login(data.data);
-      localStorage.setItem("token-info", JSON.stringify(data.data));
-      navigate(redirectPath, { replace: true, preventScrollReset: true });
-    },
+      onSuccess: (data) => {
+        const result = data.data.result;
+        if (result?.token) {
+          auth?.login(result);
+          localStorage.setItem("token-info", JSON.stringify(result));
+          navigate(redirectPath, { replace: true, preventScrollReset: true });
+        }
+      },
     onError: (error) => {
       if (error.response) {
         const errorData = error.response.data as ErrorMessage;

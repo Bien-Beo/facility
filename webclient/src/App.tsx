@@ -13,11 +13,11 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 
 import Layout from "./components/Layout";
 // import PageNotFound from "./components/PageNotFound";
-//import { RequireAuth } from "./components/RequireAuth";
+import { RequireAuth } from "./components/RequireAuth";
 import RouteError from "./components/RouteError";
 // import AdminBookingsPage from "./pages/AdminBookingsPage";
 // import AdminFacilitiesPage from "./pages/AdminFacilitiesPage";
-// import DashboardPage from "./pages/DashboardPage";
+import DashboardPage from "./pages/DashboardPage";
 // import FMApprovalsPage from "./pages/FMApprovalsPage";
 // import FMBookingsPage from "./pages/FMBookingsPage";
 // import FMCancellationsPage from "./pages/FMCancellationPage";
@@ -48,7 +48,7 @@ const router = createBrowserRouter(
         />
       </Route>
 
-      {/* <Route
+      <Route
         path="/"
         element={
           <RequireAuth GD={false} FM={false}>
@@ -57,7 +57,7 @@ const router = createBrowserRouter(
         }
         errorElement={<RouteError />}
       >
-        <Route
+        {/* <Route
           path="auth/reset-password"
           element={
             <RequireAuth GD={false} FM={false}>
@@ -65,7 +65,7 @@ const router = createBrowserRouter(
             </RequireAuth>
           }
           errorElement={<RouteError />}
-        />
+        /> */}
 
         <Route
           index
@@ -77,7 +77,7 @@ const router = createBrowserRouter(
           errorElement={<RouteError />}
         />
 
-        <Route path="facility">
+        {/* <Route path="facility">
           <Route
             path=":id"
             element={
@@ -87,9 +87,9 @@ const router = createBrowserRouter(
             }
             errorElement={<RouteError />}
           />
-        </Route>
+        </Route> */}
 
-        <Route path="bookings">
+        {/* <Route path="bookings">
           <Route
             path="gd"
             element={
@@ -183,9 +183,9 @@ const router = createBrowserRouter(
             }
             errorElement={<RouteError />}
           />
-        </Route>
+        </Route> */}
       </Route>  
-      <Route path="*" element={<PageNotFound />} /> */}
+      {/* <Route path="*" element={<PageNotFound />} /> */}
     </>
   )
 );

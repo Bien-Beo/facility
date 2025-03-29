@@ -22,6 +22,7 @@ import PasswordIcon from "@mui/icons-material/Password";
 
 import ErrorComponent from "./Error";
 import { useAuth } from "../hooks/useAuth";
+import { API } from "../api";
 
 const Navigation: FC = (): JSX.Element => {
   const auth = useAuth();
@@ -42,9 +43,11 @@ const Navigation: FC = (): JSX.Element => {
   const { data, isPending, isError, error } = useQuery<NavigationProps>({
     queryKey: ["navigation"],
     queryFn: async () => {
-      const response = await axios.get<NavigationProps>(
+      console.log("Auth User:", auth?.user);
+      console.log("User ID:", auth?.user?.userId);
+      const response = await API.get<NavigationProps>(
         `${import.meta.env.VITE_APP_SERVER_URL}/dashboard/count/${
-          auth?.user?.employeeId
+          auth?.user?.userId
         }`,
         {
           withCredentials: true,
@@ -78,13 +81,13 @@ const Navigation: FC = (): JSX.Element => {
       <div className="w-full flex flex-col justify-between items-center pt-4 pb-8 gap-2 flex-wrap">
         <Avatar
           sx={{ width: "80px", height: "80px" }}
-          src={auth?.user?.image}
+          src={auth?.user?.avatar}
           alt="avatar-image"
         />
         <div className="w-fit flex flex-col justify-center">
-          <Typography variant="h5">{auth?.user?.name}</Typography>
+          <Typography variant="h5">{auth?.user?.username}</Typography>
           <Typography variant="subtitle1" className="font-normal">
-            ID: {auth?.user?.employeeId}
+            ID: {auth?.user?.userId}
           </Typography>
         </div>
       </div>

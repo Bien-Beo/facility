@@ -39,5 +39,11 @@ public class User {
 
     @ManyToMany
     Set<Role> roles;
+
+    @OneToMany(mappedBy = "facilityManager", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    Set<Room> managedRooms;
+
+    @ManyToMany
+    Set<Equipment> managedEquipments;
 }
 
