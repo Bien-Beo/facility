@@ -1,39 +1,41 @@
 
-
+.root {
+    -fx-font-size: 2vw; /* Kích thước chữ theo tỷ lệ cửa sổ */
+}
 .nav-form{
-    -fx-background-color: #3B4282;
+    -fx-background-color:  #00275e;
 }
 .button1{
-    -fx-text-alignment: left;
-    -fx-background-color: #363d7a;
+    -fx-background-color:  #00275e;
     -fx-cursor: hand;
-    -fx-font-family: "Arial";
     -fx-font-size:14px;
     -fx-text-fill: white;
-
+    -fx-font-weight: bold;
+    -fx-border-color:  #071654;
 
 }
 .button1:hover{
-    -fx-background-color : #555dc6;
+    -fx-background-color : #003d8f;
     -fx-border-color: #CDD1D6;
-    -fx-border-width:  1px 1 px 1px 1px;
+    -fx-border-color: #091c6c;
     -fx-text-fill: black;
 }
 .button1-click-change{
-    -fx-background-color:#7886C7;
-    -fx-border-color: white;
-    -fx-font-family: "Arial";
+    -fx-background-color: #004eba;
+    -fx-border-color: black;
+    -fx-font-size:14px;
+    -fx-font-weight: bold;
+    -fx-border-color:  #071654;
     -fx-border-width: 0px 0px 0px 2px;
 }
 .button1:pressed{
-    -fx-background-color:#7886C7;
-    -fx-border-color: white;
-    -fx-font-family: "Arial";
+    -fx-background-color:#004eba;
+    -fx-border-color: black;
     -fx-border-width: 0px 0px 0px 2px;
 }
 .button1:focused{
-    -fx-background-color:#7886C7;
-    -fx-border-color: white;
+    -fx-background-color:#004eba;
+    -fx-border-color: black;
     -fx-border-width: 0px 0px 0px 2px;
 }
 .form-content{
