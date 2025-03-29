@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.Date;
+
 @Getter
 @Setter
 @Builder
@@ -25,20 +27,40 @@ public class Equipment {
     @Column(name = "description")
     String description;
 
-    @Column(name = "total_quantity", nullable = false)
-    int totalQuantity;
-
-    @Column(name = "available_quantity", nullable = false)
-    int availableQuantity;
-
-    @Column(name = "is_room_specific", nullable = false)
-    boolean isRoomSpecific;
+    @ManyToOne
+    @JoinColumn(name = "room_id")
+    private Room room;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     EquipmentStatus status;
 
+    @Column(name = "img")
+    private String img;
+
+    @Column(name = "slug", unique = true)
+    private String slug;
+
+    @Column(name = "is_active")
+    private Boolean isActive = true;
+
+    @Column(nullable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt = new Date();
+
+    @Column(name = "update_at")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date updatedAt;
+
+    @Column(name = "deleted_at")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date deletedAt;
+
     @ManyToOne
     @JoinColumn(name = "equipment_type_id", nullable = false)
     EquipmentType equipmentType;
+
+    @ManyToOne
+    @JoinColumn(name = "equipment_manager_id")
+    private User equipmentManager;
 }
