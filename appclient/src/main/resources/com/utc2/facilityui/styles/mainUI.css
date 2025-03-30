@@ -55,6 +55,23 @@
     -fx-text-fill:#004eba;
 
 }
+.card-booking{
+
+    -fx-border-color: #004eba;
+    -fx-border-width: 0px 0px 0px 10px;
+    -fx-background-radius: 15px;
+}
+.card-booking1{
+    -fx-background-color: #d6e8ff;
+}
+.card-booking2{
+    -fx-text-fill:gray;
+}
+.button-cancel{
+    -fx-background-color: #b52828;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
 .shadow{
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 6,0,0,0);
 }
@@ -62,6 +79,7 @@
     -fx-background-color: #fff;
     -fx-background-radius: 8px;
 }
+
 /*
 
 */
