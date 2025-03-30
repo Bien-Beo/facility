@@ -19,7 +19,7 @@
                <children>
                   <AnchorPane prefHeight="49.0" prefWidth="745.0">
                      <children>
-                        <Label layoutX="357.0" layoutY="6.0" text="Rooms">
+                        <Label alignment="CENTER" layoutX="2.0" layoutY="6.0" prefHeight="45.0" prefWidth="773.0" text="Rooms">
                            <font>
                               <Font size="30.0" />
                            </font>
@@ -35,7 +35,7 @@
                         </Label>
                         <ScrollPane prefHeight="246.0" prefWidth="774.0">
                            <content>
-                              <HBox fx:id="classRoom" alignment="CENTER_LEFT" prefHeight="205.0" prefWidth="1000.0" spacing="10.0">
+                              <HBox fx:id="cardClassRoom" alignment="CENTER_LEFT" prefHeight="205.0" prefWidth="1000.0" spacing="10.0">
                                  <padding>
                                     <Insets left="5.0" top="7.0" />
                                  </padding>
@@ -49,7 +49,7 @@
                         <Label prefHeight="25.0" prefWidth="779.0" style="-fx-font-size: 16px; -fx-font-weight: bold;" text=" Meeting Room" />
                         <ScrollPane prefHeight="248.0" prefWidth="769.0">
                            <content>
-                              <HBox fx:id="meetingRoom" alignment="CENTER_LEFT" prefHeight="219.0" prefWidth="1000.0" spacing="10.0">
+                              <HBox fx:id="cardMeetingRoom" alignment="CENTER_LEFT" prefHeight="219.0" prefWidth="1000.0" spacing="10.0">
                                  <padding>
                                     <Insets left="5.0" top="7.0" />
                                  </padding>
@@ -63,7 +63,7 @@
                         <Label prefHeight="25.0" prefWidth="791.0" style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Lab Room" />
                         <ScrollPane prefHeight="248.0" prefWidth="774.0">
                            <content>
-                              <HBox fx:id="labRoom" alignment="CENTER_LEFT" prefHeight="228.0" prefWidth="1000.0" spacing="10.0">
+                              <HBox fx:id="cardLabRoom" alignment="CENTER_LEFT" prefHeight="228.0" prefWidth="1000.0" spacing="10.0">
                                  <padding>
                                     <Insets left="5.0" top="7.0" />
                                  </padding>
