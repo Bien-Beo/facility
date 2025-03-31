@@ -46,7 +46,7 @@ public class BorrowRequestController {
     }
 
     @DeleteMapping("/{borrowRequestId}")
-    ApiResponse<Void> deleteEquipment(@PathVariable String borrowRequestId) {
+    ApiResponse<Void> deleteBorrowRequest(@PathVariable String borrowRequestId) {
         borrowRequestService.deleteBorrowRequest(borrowRequestId);
         return ApiResponse.<Void>builder()
                 .result(null)
