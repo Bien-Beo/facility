@@ -45,6 +45,8 @@ public class EquipmentService {
         equipment.setEquipmentType(equipmentType);
         equipment.setRoom(room);
 
+        System.out.println("Equipment: " + equipment);
+
         return equipmentMapper.toEquipmentResponse(equipmentRepository.save(equipment));
     }
 
