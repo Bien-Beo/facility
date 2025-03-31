@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,6 +40,21 @@ public class RoomController {
     ApiResponse<List<RoomResponse>> getRooms() {
         return ApiResponse.<List<RoomResponse>>builder()
                 .result(roomService.getRooms())
+                .build();
+    }
+
+    @DeleteMapping("/{slug}")
+    ApiResponse<Void> deleteRoom(@PathVariable String slug) {
+        roomService.deleteRoom(slug);
+        return ApiResponse.<Void>builder()
+                .result(null)
+                .build();
+    }
+
+    @PutMapping("/{slug}")
+    ApiResponse<RoomResponse> updateRoom(@RequestBody @Valid RoomCreationRequest request, @PathVariable String slug)  {
+        return ApiResponse.<RoomResponse>builder()
+                .result(roomService.updateRoom(request, slug))
                 .build();
     }
 }
