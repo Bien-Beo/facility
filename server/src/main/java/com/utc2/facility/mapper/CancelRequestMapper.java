@@ -1,6 +1,7 @@
 package com.utc2.facility.mapper;
 
 import com.utc2.facility.dto.request.CancelRequestCreationRequest;
+import com.utc2.facility.dto.request.CancelRequestUpdateRequest;
 import com.utc2.facility.dto.response.CancelRequestResponse;
 import com.utc2.facility.entity.CancelRequest;
 import org.mapstruct.Mapper;
@@ -15,7 +16,5 @@ public interface CancelRequestMapper {
 
     CancelRequest toCancelRequest(CancelRequestCreationRequest request);
 
-    @Mapping(target = "borrowRequest", ignore = true)
-    @Mapping(target = "user", ignore = true)
-    void updateCancelRequest(@MappingTarget CancelRequest cancelRequest, CancelRequestCreationRequest request);
+    void updateCancelRequest(@MappingTarget CancelRequest cancelRequest, CancelRequestUpdateRequest request);
 }

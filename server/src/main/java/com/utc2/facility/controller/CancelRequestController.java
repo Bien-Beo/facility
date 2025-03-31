@@ -1,11 +1,9 @@
 package com.utc2.facility.controller;
 
 import com.utc2.facility.dto.request.ApiResponse;
-import com.utc2.facility.dto.request.BorrowRequestCreationRequest;
 import com.utc2.facility.dto.request.CancelRequestCreationRequest;
-import com.utc2.facility.dto.response.BorrowRequestResponse;
+import com.utc2.facility.dto.request.CancelRequestUpdateRequest;
 import com.utc2.facility.dto.response.CancelRequestResponse;
-import com.utc2.facility.service.BorrowRequestService;
 import com.utc2.facility.service.CancelRequestService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -17,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/borrow-request")
+@RequestMapping("/cancel-request")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
@@ -45,7 +43,7 @@ public class CancelRequestController {
                 .build();
     }
 
-    @GetMapping("/borrow-request/{borrowRequestId}")
+    @GetMapping("/borrow/{borrowRequestId}")
     ApiResponse<CancelRequestResponse> getCancelRequestByBorrowRequestId(@PathVariable String borrowRequestId) {
         return ApiResponse.<CancelRequestResponse>builder()
                 .result(cancelRequestService.getCancelRequestByBorrowRequestId(borrowRequestId))
@@ -67,8 +65,8 @@ public class CancelRequestController {
                 .build();
     }
 
-    @PutMapping("/{borrowRequestId}")
-    ApiResponse<CancelRequestResponse> updateCancelRequest(@RequestBody @Valid CancelRequestCreationRequest request, @PathVariable String cancelRequestId)  {
+    @PutMapping("/{cancelRequestId}")
+    ApiResponse<CancelRequestResponse> updateCancelRequest(@RequestBody @Valid CancelRequestUpdateRequest request, @PathVariable String cancelRequestId)  {
         return ApiResponse.<CancelRequestResponse>builder()
                 .result(cancelRequestService.updateCancelRequest(cancelRequestId, request))
                 .build();

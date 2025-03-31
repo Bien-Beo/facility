@@ -2,6 +2,7 @@ package com.utc2.facility.service;
 
 import com.utc2.facility.dto.request.BorrowRequestCreationRequest;
 import com.utc2.facility.dto.request.CancelRequestCreationRequest;
+import com.utc2.facility.dto.request.CancelRequestUpdateRequest;
 import com.utc2.facility.dto.response.BorrowRequestResponse;
 import com.utc2.facility.dto.response.CancelRequestResponse;
 import com.utc2.facility.entity.BorrowRequest;
@@ -86,17 +87,10 @@ public class CancelRequestService {
         cancelRequestRepository.delete(cancelRequest);
     }
 
-    public CancelRequestResponse updateCancelRequest(@Param("id") String id, CancelRequestCreationRequest request) {
+    public CancelRequestResponse updateCancelRequest(@Param("id") String id, CancelRequestUpdateRequest request) {
         CancelRequest cancelRequest = cancelRequestRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.CANCEL_REQUEST_NOT_FOUND));
 
-        User user = userRepository.findByUserId(request.getUserId())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        BorrowRequest borrowRequest = borrowRequestRepository.findById(request.getBorrowRequestId())
-                .orElseThrow(() -> new AppException(ErrorCode.BORROW_REQUEST_NOT_FOUND));
-
-        cancelRequest.setUser(user);
-        cancelRequest.setBorrowRequest(borrowRequest);
         cancelRequestMapper.updateCancelRequest(cancelRequest, request);
 
         return cancelRequestMapper.toCancelRequestResponse(cancelRequestRepository.save(cancelRequest));
