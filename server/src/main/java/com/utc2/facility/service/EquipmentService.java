@@ -9,6 +9,7 @@ import com.utc2.facility.exception.AppException;
 import com.utc2.facility.exception.ErrorCode;
 import com.utc2.facility.mapper.EquipmentMapper;
 import com.utc2.facility.repository.*;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -68,6 +69,8 @@ public class EquipmentService {
     public EquipmentResponse updateEquipment(EquipmentCreationRequest request, String slug) {
         Equipment equipment = equipmentRepository.findBySlug(slug)
                 .orElseThrow(() -> new AppException(ErrorCode.EQUIPMENT_NOT_FOUND));
+
+        equipmentMapper.updateEquipment(equipment, request);
 
         if (request.getEquipmentTypeName() != null) {
             EquipmentType equipmentType = equipmentTypeRepository.findByName(request.getEquipmentTypeName())

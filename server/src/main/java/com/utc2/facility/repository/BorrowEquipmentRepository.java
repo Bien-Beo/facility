@@ -1,0 +1,23 @@
+package com.utc2.facility.repository;
+
+import com.utc2.facility.entity.BorrowEquipment;
+import com.utc2.facility.entity.BorrowRequest;
+import com.utc2.facility.entity.Equipment;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public interface BorrowEquipmentRepository extends JpaRepository<BorrowEquipment, String> {
+    Optional<BorrowEquipment> findByBorrowRequest(BorrowRequest borrowRequest);
+    Optional<BorrowEquipment> findByEquipment(Equipment equipment);
+    List<BorrowEquipment> findByBorrowRequestId(@Param("borrowRequestId") String borrowRequestId);
+    List<BorrowEquipment> findByEquipmentId(@Param("equipmentId") String equipmentId);
+//    List<BorrowRequest> findByUserId(String userId);
+//    List<BorrowRequest> findByBorrowDate(LocalDateTime borrowDate);
+//    List<BorrowRequest> findByReturnDate(LocalDateTime returnDate);
+}
