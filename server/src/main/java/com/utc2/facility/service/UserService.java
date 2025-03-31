@@ -63,7 +63,7 @@ public class UserService {
 
     public UserResponse updateUser(String userId, UserUpdateRequest resquest) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         userMapper.updateUser(user, resquest);
         user.setPassword(passwordEncoder.encode(resquest.getPassword()));
