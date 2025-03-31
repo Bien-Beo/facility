@@ -17,7 +17,11 @@ public enum ErrorCode {
     UNAUTHORIZED(1008, "You don't have permission", HttpStatus.FORBIDDEN),
     ROOM_EXISTED(1009, "Room existed", HttpStatus.CONFLICT),
     ROOM_TYPE_NOT_FOUND(1010, "Room type not found", HttpStatus.NOT_FOUND),
-    ROLE_NOT_FOUND(1011, "Role not found", HttpStatus.NOT_FOUND),
+    ROOM_NOT_FOUND (1011, "Room not found", HttpStatus.NOT_FOUND),
+    ROLE_NOT_FOUND(1012, "Role not found", HttpStatus.NOT_FOUND),
+    BUILDING_NOT_FOUND(1013, "Building not found", HttpStatus.NOT_FOUND),
+    EQUIPMENT_TYPE_NOT_FOUND(1014, "Equipment type not found", HttpStatus.NOT_FOUND),
+    EQUIPMENT_NOT_FOUND(1015, "Equipment not found", HttpStatus.NOT_FOUND),
     ;
 
     private int code;

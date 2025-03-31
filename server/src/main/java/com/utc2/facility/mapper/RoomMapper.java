@@ -13,7 +13,9 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface RoomMapper {
-    @Mapping(target = "roomTypeName", source = "room.roomType.name")
+    @Mapping(target = "buildingName", source = "building.name")
+    @Mapping(target = "nameFacilityManager", source = "facilityManager.username")
+    @Mapping(target = "roomTypeName", source = "roomType.name")
     RoomResponse toRoomResponse(Room room);
 
     Room toRoom(RoomCreationRequest request);
