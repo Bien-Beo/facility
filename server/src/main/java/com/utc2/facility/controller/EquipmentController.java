@@ -1,60 +1,61 @@
 package com.utc2.facility.controller;
 
 import com.utc2.facility.dto.request.ApiResponse;
+import com.utc2.facility.dto.request.EquipmentCreationRequest;
 import com.utc2.facility.dto.request.RoomCreationRequest;
+import com.utc2.facility.dto.response.EquipmentResponse;
 import com.utc2.facility.dto.response.RoomResponse;
-import com.utc2.facility.service.RoomService;
+import com.utc2.facility.service.EquipmentService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/rooms")
+@RequestMapping("/equipments")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class RoomController {
-    RoomService roomService;
+public class EquipmentController {
+    EquipmentService equipmentService;
 
     @PostMapping
-    ApiResponse<RoomResponse> createRoom(@RequestBody @Valid RoomCreationRequest request) {
-        return ApiResponse.<RoomResponse>builder()
-                .result(roomService.createRoom(request))
+    ApiResponse<EquipmentResponse> createEquipment(@RequestBody @Valid EquipmentCreationRequest request) {
+        return ApiResponse.<EquipmentResponse>builder()
+                .result(equipmentService.createEquipment(request))
                 .build();
     }
 
-    @GetMapping("/{roomName}")
-    ApiResponse<RoomResponse> getRoom(@PathVariable String roomName) {
-        return ApiResponse.<RoomResponse>builder()
-                .result(roomService.getRoomByName(roomName))
+    @GetMapping("/{equipmentName}")
+    ApiResponse<EquipmentResponse> getEquipment(@PathVariable String equipmentName) {
+        return ApiResponse.<EquipmentResponse>builder()
+                .result(equipmentService.getEquipmentByName(equipmentName))
                 .build();
     }
 
     @GetMapping
-    ApiResponse<List<RoomResponse>> getRooms() {
-        return ApiResponse.<List<RoomResponse>>builder()
-                .result(roomService.getRooms())
+    ApiResponse<List<EquipmentResponse>> getEquipments() {
+        return ApiResponse.<List<EquipmentResponse>>builder()
+                .result(equipmentService.getEquipments())
                 .build();
     }
 
     @DeleteMapping("/{slug}")
-    ApiResponse<Void> deleteRoom(@PathVariable String slug) {
-        roomService.deleteRoom(slug);
+    ApiResponse<Void> deleteEquipment(@PathVariable String slug) {
+        equipmentService.deleteEquipment(slug);
         return ApiResponse.<Void>builder()
                 .result(null)
                 .build();
     }
 
     @PutMapping("/{slug}")
-    ApiResponse<RoomResponse> updateRoom(@RequestBody @Valid RoomCreationRequest request, @PathVariable String slug)  {
-        return ApiResponse.<RoomResponse>builder()
-                .result(roomService.updateRoom(request, slug))
+    ApiResponse<EquipmentResponse> updateEquipment(@RequestBody @Valid EquipmentCreationRequest request, @PathVariable String slug)  {
+        return ApiResponse.<EquipmentResponse>builder()
+                .result(equipmentService.updateEquipment(request, slug))
                 .build();
     }
 }

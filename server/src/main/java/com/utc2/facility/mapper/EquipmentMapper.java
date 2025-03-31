@@ -1,22 +1,18 @@
 package com.utc2.facility.mapper;
 
-import com.utc2.facility.dto.request.RoomCreationRequest;
-import com.utc2.facility.dto.response.RoomResponse;
+import com.utc2.facility.dto.request.EquipmentCreationRequest;
+import com.utc2.facility.dto.response.EquipmentResponse;
+import com.utc2.facility.entity.Equipment;
 import com.utc2.facility.entity.Room;
-import com.utc2.facility.entity.RoomType;
-import com.utc2.facility.exception.AppException;
-import com.utc2.facility.exception.ErrorCode;
-import com.utc2.facility.repository.RoomTypeRepository;
-import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
-public interface RoomMapper {
-    @Mapping(target = "buildingName", source = "building.name")
-    @Mapping(target = "nameFacilityManager", source = "facilityManager.username")
-    @Mapping(target = "roomTypeName", source = "roomType.name")
-    RoomResponse toRoomResponse(Room room);
+public interface EquipmentMapper {
+    @Mapping(target = "equipmentTypeName", source = "equipmentType.name")
+    @Mapping(target = "nameFacilityManager", source = "equipmentManager.username")
+    @Mapping(target = "roomName", source = "room.name")
+    EquipmentResponse toEquipmentResponse(Equipment equipment);
 
-    Room toRoom(RoomCreationRequest request);
+    Equipment toEquipment(EquipmentCreationRequest request);
 }

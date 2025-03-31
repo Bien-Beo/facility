@@ -1,5 +1,6 @@
 package com.utc2.facility.repository;
 
+import com.utc2.facility.entity.Equipment;
 import com.utc2.facility.entity.Room;
 import com.utc2.facility.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,13 +12,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface RoomRepository extends JpaRepository<Room, String> {
-    boolean existsByName(String name);
-    Optional<Room> findByName(String name);
-    Optional<Room> findBySlug(String slug);
+public interface EquipmentRepository extends JpaRepository<Equipment, String> {
+    Optional<Equipment> findByName(String name);
+    Optional<Equipment> findBySlug(String slug);
 
-    @Query("SELECT COUNT(r) FROM Room r WHERE r.facilityManager.userId = :userId")
-    int countRoomsManagedByUser(@Param("userId") String userId);
+    @Query("SELECT e FROM Equipment e WHERE e.room = :room")
+    List<Equipment> findByRoom(@Param("room") Room room);
 
-    List<Room> findByFacilityManager(User facilityManager);
+//    @Query("SELECT COUNT(r) FROM Room r WHERE r.facilityManager.userId = :userId")
+//    int countRoomsManagedByUser(@Param("userId") String userId);
+
 }

@@ -1,19 +1,14 @@
 package com.utc2.facility.service;
 
+import com.utc2.facility.dto.request.EquipmentCreationRequest;
 import com.utc2.facility.dto.request.RoomCreationRequest;
+import com.utc2.facility.dto.response.EquipmentResponse;
 import com.utc2.facility.dto.response.RoomResponse;
-import com.utc2.facility.dto.response.UserResponse;
-import com.utc2.facility.entity.Building;
-import com.utc2.facility.entity.Room;
-import com.utc2.facility.entity.RoomType;
-import com.utc2.facility.entity.User;
+import com.utc2.facility.entity.*;
 import com.utc2.facility.exception.AppException;
 import com.utc2.facility.exception.ErrorCode;
-import com.utc2.facility.mapper.RoomMapper;
-import com.utc2.facility.repository.BuildingRepository;
-import com.utc2.facility.repository.RoomRepository;
-import com.utc2.facility.repository.RoomTypeRepository;
-import com.utc2.facility.repository.UserRepository;
+import com.utc2.facility.mapper.EquipmentMapper;
+import com.utc2.facility.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -27,74 +22,72 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class RoomService {
+public class EquipmentService {
 
-    RoomRepository roomRepository;
-    RoomTypeRepository roomTypeRepository;
-    BuildingRepository buildingRepository;
+    EquipmentRepository equipmentRepository;
     UserRepository userRepository;
-    RoomMapper roomMapper;
+    EquipmentTypeRepository equipmentTypeRepository;
+    RoomRepository roomRepository;
+    EquipmentMapper equipmentMapper;
 
     @PreAuthorize("hasRole('ADMIN')")
-    public RoomResponse createRoom(RoomCreationRequest request) {
-        if (roomRepository.existsByName(request.getName()))
-            throw new AppException(ErrorCode.ROOM_EXISTED);
+    public EquipmentResponse createEquipment(EquipmentCreationRequest request) {
 
-        Building building = buildingRepository.findByName(request.getBuildingName())
-                .orElseThrow(() -> new AppException(ErrorCode.BUILDING_NOT_FOUND));
-        RoomType roomType = roomTypeRepository.findByName(request.getNameTypeRoom())
-                .orElseThrow(() -> new AppException(ErrorCode.ROOM_TYPE_NOT_FOUND));
-        User facilityManager = userRepository.findByUserId(request.getFacilityManagerId())
+        User equipmentManager = userRepository.findByUserId(request.getEquipmentManagerId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        EquipmentType equipmentType = equipmentTypeRepository.findByName(request.getEquipmentTypeName())
+                .orElseThrow(() -> new AppException(ErrorCode.EQUIPMENT_TYPE_NOT_FOUND));
+        Room room = roomRepository.findByName(request.getRoomName())
+                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
 
-        Room room = roomMapper.toRoom(request);
-        room.setBuilding(building);
-        room.setRoomType(roomType);
-        room.setFacilityManager(facilityManager);
+        Equipment equipment = equipmentMapper.toEquipment(request);
+        equipment.setEquipmentManager(equipmentManager);
+        equipment.setEquipmentType(equipmentType);
+        equipment.setRoom(room);
 
-        return roomMapper.toRoomResponse(roomRepository.save(room));
+        return equipmentMapper.toEquipmentResponse(equipmentRepository.save(equipment));
     }
 
-    public RoomResponse getRoomByName(String name) {
-        return roomMapper.toRoomResponse(roomRepository.findByName(name)
-                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND)));
+    public EquipmentResponse getEquipmentByName(String name) {
+        return equipmentMapper.toEquipmentResponse(equipmentRepository.findByName(name)
+                .orElseThrow(() -> new AppException(ErrorCode.EQUIPMENT_NOT_FOUND)));
     }
 
-    public List<RoomResponse> getRooms() {
-        return roomRepository.findAll().stream().map(roomMapper::toRoomResponse).toList();
+    public List<EquipmentResponse> getEquipments() {
+        return equipmentRepository.findAll().stream().map(equipmentMapper::toEquipmentResponse).toList();
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    public void deleteRoom(String slug) {
-        Room room = roomRepository.findByName(slug)
-                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
-        roomRepository.delete(room);
+    public void deleteEquipment(String slug) {
+        Equipment equipment = equipmentRepository.findByName(slug)
+                .orElseThrow(() -> new AppException(ErrorCode.EQUIPMENT_NOT_FOUND));
+        equipmentRepository.delete(equipment);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    public RoomResponse updateRoom(RoomCreationRequest request, String slug) {
-        Room room = roomRepository.findBySlug(slug)
-                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
+    public EquipmentResponse updateEquipment(EquipmentCreationRequest request, String slug) {
+        Equipment equipment = equipmentRepository.findBySlug(slug)
+                .orElseThrow(() -> new AppException(ErrorCode.EQUIPMENT_NOT_FOUND));
 
-        if (request.getBuildingName() != null) {
-            Building building = buildingRepository.findByName(request.getBuildingName())
-                    .orElseThrow(() -> new AppException(ErrorCode.BUILDING_NOT_FOUND));
-            room.setBuilding(building);
+        if (request.getEquipmentTypeName() != null) {
+            EquipmentType equipmentType = equipmentTypeRepository.findByName(request.getEquipmentTypeName())
+                    .orElseThrow(() -> new AppException(ErrorCode.EQUIPMENT_TYPE_NOT_FOUND));
+            equipment.setEquipmentType(equipmentType);
         }
 
-        if (request.getNameTypeRoom() != null) {
-            RoomType roomType = roomTypeRepository.findByName(request.getNameTypeRoom())
-                    .orElseThrow(() -> new AppException(ErrorCode.ROOM_TYPE_NOT_FOUND));
-            room.setRoomType(roomType);
+        if (request.getRoomName() != null) {
+            Room room = roomRepository.findByName(request.getRoomName())
+                    .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
+            equipment.setRoom(room);
         }
 
-        if (request.getFacilityManagerId() != null) {
-            User facilityManager = userRepository.findByUserId(request.getFacilityManagerId())
+        if (request.getEquipmentManagerId() != null) {
+            User equipmentManager = userRepository.findByUserId(request.getEquipmentManagerId())
                     .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-            room.setFacilityManager(facilityManager);
+            equipment.setEquipmentManager(equipmentManager);
         }
 
-        return roomMapper.toRoomResponse(roomRepository.save(room));
+        return equipmentMapper.toEquipmentResponse(equipmentRepository.save(equipment));
     }
 
 }

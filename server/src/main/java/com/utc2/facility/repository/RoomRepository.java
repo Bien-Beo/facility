@@ -14,6 +14,7 @@ import java.util.Optional;
 public interface RoomRepository extends JpaRepository<Room, String> {
     boolean existsByName(String name);
     Optional<Room> findByName(String name);
+    Optional<Room> findBySlug(String slug);
 
     @Query("SELECT COUNT(r) FROM Room r WHERE r.facilityManager.userId = :userId")
     int countRoomsManagedByUser(@Param("userId") String userId);
