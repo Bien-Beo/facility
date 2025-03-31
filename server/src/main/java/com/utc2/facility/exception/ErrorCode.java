@@ -22,6 +22,7 @@ public enum ErrorCode {
     BUILDING_NOT_FOUND(1013, "Building not found", HttpStatus.NOT_FOUND),
     EQUIPMENT_TYPE_NOT_FOUND(1014, "Equipment type not found", HttpStatus.NOT_FOUND),
     EQUIPMENT_NOT_FOUND(1015, "Equipment not found", HttpStatus.NOT_FOUND),
+    BORROW_REQUEST_NOT_FOUND(1016, "Borrow request not found", HttpStatus.NOT_FOUND),
     ;
 
     private int code;

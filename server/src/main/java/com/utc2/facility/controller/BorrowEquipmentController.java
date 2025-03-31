@@ -2,11 +2,8 @@ package com.utc2.facility.controller;
 
 import com.utc2.facility.dto.request.ApiResponse;
 import com.utc2.facility.dto.request.BorrowRequestCreationRequest;
-import com.utc2.facility.dto.request.EquipmentCreationRequest;
 import com.utc2.facility.dto.response.BorrowRequestResponse;
-import com.utc2.facility.dto.response.EquipmentResponse;
 import com.utc2.facility.service.BorrowRequestService;
-import com.utc2.facility.service.EquipmentService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class BorrowRequestController {
+public class BorrowEquipmentController {
     BorrowRequestService borrowRequestService;
 
     @PostMapping

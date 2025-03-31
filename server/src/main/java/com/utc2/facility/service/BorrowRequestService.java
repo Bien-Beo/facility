@@ -1,96 +1,113 @@
 package com.utc2.facility.service;
 
+import com.utc2.facility.dto.request.BorrowRequestCreationRequest;
 import com.utc2.facility.dto.request.EquipmentCreationRequest;
-import com.utc2.facility.dto.request.RoomCreationRequest;
+import com.utc2.facility.dto.response.BorrowRequestResponse;
 import com.utc2.facility.dto.response.EquipmentResponse;
-import com.utc2.facility.dto.response.RoomResponse;
 import com.utc2.facility.entity.*;
 import com.utc2.facility.exception.AppException;
 import com.utc2.facility.exception.ErrorCode;
+import com.utc2.facility.mapper.BorrowRequestMapper;
 import com.utc2.facility.mapper.EquipmentMapper;
 import com.utc2.facility.repository.*;
-import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.repository.query.Param;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class EquipmentService {
+public class BorrowRequestService {
 
-    EquipmentRepository equipmentRepository;
+    BorrowRequestRepository borrowRequestRepository;
     UserRepository userRepository;
-    EquipmentTypeRepository equipmentTypeRepository;
     RoomRepository roomRepository;
-    EquipmentMapper equipmentMapper;
+    BorrowRequestMapper borrowRequestMapper;
 
     @PreAuthorize("hasRole('ADMIN')")
-    public EquipmentResponse createEquipment(EquipmentCreationRequest request) {
+    public BorrowRequestResponse createBorrowRequest(BorrowRequestCreationRequest request) {
 
-        User equipmentManager = userRepository.findByUserId(request.getEquipmentManagerId())
+        User user = userRepository.findByUserId(request.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        EquipmentType equipmentType = equipmentTypeRepository.findByName(request.getEquipmentTypeName())
-                .orElseThrow(() -> new AppException(ErrorCode.EQUIPMENT_TYPE_NOT_FOUND));
         Room room = roomRepository.findByName(request.getRoomName())
                 .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
 
-        Equipment equipment = equipmentMapper.toEquipment(request);
-        equipment.setEquipmentManager(equipmentManager);
-        equipment.setEquipmentType(equipmentType);
-        equipment.setRoom(room);
+        BorrowRequest borrowRequest = borrowRequestMapper.toBorrowRequest(request);
+        borrowRequest.setUser(user);
+        borrowRequest.setRoom(room);
 
-        return equipmentMapper.toEquipmentResponse(equipmentRepository.save(equipment));
+        return borrowRequestMapper.toBorrowRequestResponse(borrowRequestRepository.save(borrowRequest));
     }
 
-    public EquipmentResponse getEquipmentByName(String name) {
-        return equipmentMapper.toEquipmentResponse(equipmentRepository.findByName(name)
-                .orElseThrow(() -> new AppException(ErrorCode.EQUIPMENT_NOT_FOUND)));
+    public BorrowRequestResponse getBorrowRequest(@Param("id") String id) {
+        BorrowRequest borrowRequest = borrowRequestRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.BORROW_REQUEST_NOT_FOUND));
+        return borrowRequestMapper.toBorrowRequestResponse(borrowRequest);
     }
 
-    public List<EquipmentResponse> getEquipments() {
-        return equipmentRepository.findAll().stream().map(equipmentMapper::toEquipmentResponse).toList();
+    public List<BorrowRequestResponse> getBorrowRequestByBorrowDate(String borrowDateStr) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime borrowDate = LocalDateTime.parse(borrowDateStr, formatter);
+
+        List<BorrowRequest> borrowRequests = borrowRequestRepository.findByBorrowDate(borrowDate);
+        return borrowRequests.stream()
+                .map(borrowRequestMapper::toBorrowRequestResponse)
+                .toList();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    public void deleteEquipment(String slug) {
-        Equipment equipment = equipmentRepository.findByName(slug)
-                .orElseThrow(() -> new AppException(ErrorCode.EQUIPMENT_NOT_FOUND));
-        equipmentRepository.delete(equipment);
+    public List<BorrowRequestResponse> getBorrowRequestByReturnDate(String returnDateStr) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime returnDate = LocalDateTime.parse(returnDateStr, formatter);
+
+        List<BorrowRequest> borrowRequests = borrowRequestRepository.findByReturnDate(returnDate);
+        return borrowRequests.stream()
+                .map(borrowRequestMapper::toBorrowRequestResponse)
+                .toList();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    public EquipmentResponse updateEquipment(EquipmentCreationRequest request, String slug) {
-        Equipment equipment = equipmentRepository.findBySlug(slug)
-                .orElseThrow(() -> new AppException(ErrorCode.EQUIPMENT_NOT_FOUND));
+    public List<BorrowRequestResponse> getAllBorrowRequests() {
+        List<BorrowRequest> borrowRequests = borrowRequestRepository.findAll();
+        return borrowRequests.stream()
+                .map(borrowRequestMapper::toBorrowRequestResponse)
+                .toList();
+    }
 
-        equipmentMapper.updateEquipment(equipment, request);
+    public List<BorrowRequestResponse> getBorrowRequestByUserId(@Param("userId") String userId) {
+        List<BorrowRequest> borrowRequests = borrowRequestRepository.findByUserId(userId);
+        return borrowRequests.stream()
+                .map(borrowRequestMapper::toBorrowRequestResponse)
+                .toList();
+    }
 
-        if (request.getEquipmentTypeName() != null) {
-            EquipmentType equipmentType = equipmentTypeRepository.findByName(request.getEquipmentTypeName())
-                    .orElseThrow(() -> new AppException(ErrorCode.EQUIPMENT_TYPE_NOT_FOUND));
-            equipment.setEquipmentType(equipmentType);
-        }
+    public void deleteBorrowRequest(@Param("id") String id) {
+        BorrowRequest borrowRequest = borrowRequestRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.BORROW_REQUEST_NOT_FOUND));
+        borrowRequestRepository.delete(borrowRequest);
+    }
 
-        if (request.getRoomName() != null) {
-            Room room = roomRepository.findByName(request.getRoomName())
-                    .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
-            equipment.setRoom(room);
-        }
+    public BorrowRequestResponse updateBorrowRequest(@Param("id") String id, BorrowRequestCreationRequest request) {
+        BorrowRequest borrowRequest = borrowRequestRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.BORROW_REQUEST_NOT_FOUND));
 
-        if (request.getEquipmentManagerId() != null) {
-            User equipmentManager = userRepository.findByUserId(request.getEquipmentManagerId())
-                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-            equipment.setEquipmentManager(equipmentManager);
-        }
+        User user = userRepository.findByUserId(request.getUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        Room room = roomRepository.findByName(request.getRoomName())
+                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
 
-        return equipmentMapper.toEquipmentResponse(equipmentRepository.save(equipment));
+        borrowRequest.setUser(user);
+        borrowRequest.setRoom(room);
+        borrowRequestMapper.updateBorrowRequest(borrowRequest, request);
+
+        return borrowRequestMapper.toBorrowRequestResponse(borrowRequestRepository.save(borrowRequest));
     }
 
 }

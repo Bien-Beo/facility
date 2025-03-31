@@ -1,10 +1,11 @@
 package com.utc2.facility.controller;
 
 import com.utc2.facility.dto.request.ApiResponse;
+import com.utc2.facility.dto.request.BorrowRequestCreationRequest;
 import com.utc2.facility.dto.request.EquipmentCreationRequest;
-import com.utc2.facility.dto.request.RoomCreationRequest;
+import com.utc2.facility.dto.response.BorrowRequestResponse;
 import com.utc2.facility.dto.response.EquipmentResponse;
-import com.utc2.facility.dto.response.RoomResponse;
+import com.utc2.facility.service.BorrowRequestService;
 import com.utc2.facility.service.EquipmentService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -16,46 +17,46 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/equipments")
+@RequestMapping("/borrow-request")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class EquipmentController {
-    EquipmentService equipmentService;
+public class BorrowRequestController {
+    BorrowRequestService borrowRequestService;
 
     @PostMapping
-    ApiResponse<EquipmentResponse> createEquipment(@RequestBody @Valid EquipmentCreationRequest request) {
-        return ApiResponse.<EquipmentResponse>builder()
-                .result(equipmentService.createEquipment(request))
+    ApiResponse<BorrowRequestResponse> createBorrowRequest(@RequestBody @Valid BorrowRequestCreationRequest request) {
+        return ApiResponse.<BorrowRequestResponse>builder()
+                .result(borrowRequestService.createBorrowRequest(request))
                 .build();
     }
 
-    @GetMapping("/{equipmentName}")
-    ApiResponse<EquipmentResponse> getEquipment(@PathVariable String equipmentName) {
-        return ApiResponse.<EquipmentResponse>builder()
-                .result(equipmentService.getEquipmentByName(equipmentName))
+    @GetMapping("/{borrowRequestId}")
+    ApiResponse<BorrowRequestResponse> getBorrowRequest(@PathVariable String borrowRequestId) {
+        return ApiResponse.<BorrowRequestResponse>builder()
+                .result(borrowRequestService.getBorrowRequest(borrowRequestId))
                 .build();
     }
 
     @GetMapping
-    ApiResponse<List<EquipmentResponse>> getEquipments() {
-        return ApiResponse.<List<EquipmentResponse>>builder()
-                .result(equipmentService.getEquipments())
+    ApiResponse<List<BorrowRequestResponse>> getAllBorrowRequest() {
+        return ApiResponse.<List<BorrowRequestResponse>>builder()
+                .result(borrowRequestService.getAllBorrowRequests())
                 .build();
     }
 
-    @DeleteMapping("/{slug}")
-    ApiResponse<Void> deleteEquipment(@PathVariable String slug) {
-        equipmentService.deleteEquipment(slug);
+    @DeleteMapping("/{borrowRequestId}")
+    ApiResponse<Void> deleteEquipment(@PathVariable String borrowRequestId) {
+        borrowRequestService.deleteBorrowRequest(borrowRequestId);
         return ApiResponse.<Void>builder()
                 .result(null)
                 .build();
     }
 
-    @PutMapping("/{slug}")
-    ApiResponse<EquipmentResponse> updateEquipment(@RequestBody @Valid EquipmentCreationRequest request, @PathVariable String slug)  {
-        return ApiResponse.<EquipmentResponse>builder()
-                .result(equipmentService.updateEquipment(request, slug))
+    @PutMapping("/{borrowRequestId}")
+    ApiResponse<BorrowRequestResponse> updateBorrowRequest(@RequestBody @Valid BorrowRequestCreationRequest request, @PathVariable String borrowRequestId)  {
+        return ApiResponse.<BorrowRequestResponse>builder()
+                .result(borrowRequestService.updateBorrowRequest(borrowRequestId, request))
                 .build();
     }
 }

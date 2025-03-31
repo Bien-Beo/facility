@@ -76,6 +76,8 @@ public class RoomService {
         Room room = roomRepository.findBySlug(slug)
                 .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
 
+        roomMapper.updateRoom(room, request);
+
         if (request.getBuildingName() != null) {
             Building building = buildingRepository.findByName(request.getBuildingName())
                     .orElseThrow(() -> new AppException(ErrorCode.BUILDING_NOT_FOUND));
