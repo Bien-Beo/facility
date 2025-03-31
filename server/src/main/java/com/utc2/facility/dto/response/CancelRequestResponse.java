@@ -1,36 +1,33 @@
 package com.utc2.facility.dto.response;
 
 import com.utc2.facility.entity.BorrowRequest;
-import com.utc2.facility.entity.Equipment;
+import com.utc2.facility.entity.CancelRequest;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
-public class BorrowRequestResponse {
+public class CancelRequestResponse {
     String id;
+    String borrowRequestId;
     String userName;
-    String roomName;
     String reason;
-    LocalDateTime borrowDate;
-    LocalDateTime returnDate;
     String status;
+    LocalDateTime createdAt;
 
-    public static BorrowRequestResponse fromEntity(BorrowRequest borrowRequest) {
-        return BorrowRequestResponse.builder()
-                .id(borrowRequest.getId())
-                .userName(borrowRequest.getUser() != null ? borrowRequest.getUser().getUsername() : null)
-                .roomName(borrowRequest.getRoom() != null ? borrowRequest.getRoom().getName() : null)
-                .reason(borrowRequest.getReason())
-                .borrowDate(borrowRequest.getBorrowDate())
-                .returnDate(borrowRequest.getReturnDate())
-                .status(borrowRequest.getStatus().name())
+    public static CancelRequestResponse fromEntity(CancelRequest cancelRequest) {
+        return CancelRequestResponse.builder()
+                .id(cancelRequest.getId())
+                .borrowRequestId(cancelRequest.getBorrowRequest().getId())
+                .userName(cancelRequest.getUser().getUsername())
+                .reason(cancelRequest.getReason())
+                .status(cancelRequest.getStatus().name())
+                .createdAt(cancelRequest.getCreatedAt())
                 .build();
     }
 }

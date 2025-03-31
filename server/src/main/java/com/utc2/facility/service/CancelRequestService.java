@@ -1,15 +1,21 @@
 package com.utc2.facility.service;
 
 import com.utc2.facility.dto.request.BorrowRequestCreationRequest;
-import com.utc2.facility.dto.request.EquipmentCreationRequest;
+import com.utc2.facility.dto.request.CancelRequestCreationRequest;
 import com.utc2.facility.dto.response.BorrowRequestResponse;
-import com.utc2.facility.dto.response.EquipmentResponse;
-import com.utc2.facility.entity.*;
+import com.utc2.facility.dto.response.CancelRequestResponse;
+import com.utc2.facility.entity.BorrowRequest;
+import com.utc2.facility.entity.CancelRequest;
+import com.utc2.facility.entity.Room;
+import com.utc2.facility.entity.User;
 import com.utc2.facility.exception.AppException;
 import com.utc2.facility.exception.ErrorCode;
 import com.utc2.facility.mapper.BorrowRequestMapper;
-import com.utc2.facility.mapper.EquipmentMapper;
-import com.utc2.facility.repository.*;
+import com.utc2.facility.mapper.CancelRequestMapper;
+import com.utc2.facility.repository.BorrowRequestRepository;
+import com.utc2.facility.repository.CancelRequestRepository;
+import com.utc2.facility.repository.RoomRepository;
+import com.utc2.facility.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -26,88 +32,74 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class BorrowRequestService {
+public class CancelRequestService {
 
-    BorrowRequestRepository borrowRequestRepository;
+    CancelRequestRepository cancelRequestRepository;
     UserRepository userRepository;
-    RoomRepository roomRepository;
-    BorrowRequestMapper borrowRequestMapper;
+    BorrowRequestRepository borrowRequestRepository;
+    CancelRequestMapper cancelRequestMapper;
 
     @PreAuthorize("hasRole('ADMIN')")
-    public BorrowRequestResponse createBorrowRequest(BorrowRequestCreationRequest request) {
+    public CancelRequestResponse createCancelRequest(CancelRequestCreationRequest request) {
 
         User user = userRepository.findByUserId(request.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        Room room = roomRepository.findByName(request.getRoomName())
-                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
-
-        BorrowRequest borrowRequest = borrowRequestMapper.toBorrowRequest(request);
-        borrowRequest.setUser(user);
-        borrowRequest.setRoom(room);
-
-        return borrowRequestMapper.toBorrowRequestResponse(borrowRequestRepository.save(borrowRequest));
-    }
-
-    public BorrowRequestResponse getBorrowRequest(@Param("id") String id) {
-        BorrowRequest borrowRequest = borrowRequestRepository.findById(id)
+        BorrowRequest borrowRequest = borrowRequestRepository.findById(request.getBorrowRequestId())
                 .orElseThrow(() -> new AppException(ErrorCode.BORROW_REQUEST_NOT_FOUND));
-        return borrowRequestMapper.toBorrowRequestResponse(borrowRequest);
+
+        CancelRequest cancelRequest = cancelRequestMapper.toCancelRequest(request);
+        cancelRequest.setUser(user);
+        cancelRequest.setBorrowRequest(borrowRequest);
+
+        return cancelRequestMapper.toCancelRequestResponse(cancelRequestRepository.save(cancelRequest));
     }
 
-    public List<BorrowRequestResponse> getBorrowRequestByBorrowDate(String borrowDateStr) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime borrowDate = LocalDateTime.parse(borrowDateStr, formatter);
+    public CancelRequestResponse getCancelRequest(@Param("id") String id) {
+        CancelRequest cancelRequest = cancelRequestRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.CANCEL_REQUEST_NOT_FOUND));
+        return cancelRequestMapper.toCancelRequestResponse(cancelRequest);
+    }
 
-        List<BorrowRequest> borrowRequests = borrowRequestRepository.findByBorrowDate(borrowDate);
-        return borrowRequests.stream()
-                .map(borrowRequestMapper::toBorrowRequestResponse)
+    public CancelRequestResponse getCancelRequestByBorrowRequestId(String borrowRequestId) {
+        CancelRequest cancelRequest = cancelRequestRepository.findByBorrowRequestId(borrowRequestId)
+                .orElseThrow(() -> new AppException(ErrorCode.CANCEL_REQUEST_NOT_FOUND));
+        return cancelRequestMapper.toCancelRequestResponse(cancelRequest);
+    }
+
+    public List<CancelRequestResponse> getAllCancelRequests() {
+        List<CancelRequest> cancelRequests = cancelRequestRepository.findAll();
+        return cancelRequests.stream()
+                .map(cancelRequestMapper::toCancelRequestResponse)
                 .toList();
     }
 
-    public List<BorrowRequestResponse> getBorrowRequestByReturnDate(String returnDateStr) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime returnDate = LocalDateTime.parse(returnDateStr, formatter);
-
-        List<BorrowRequest> borrowRequests = borrowRequestRepository.findByReturnDate(returnDate);
-        return borrowRequests.stream()
-                .map(borrowRequestMapper::toBorrowRequestResponse)
+    public List<CancelRequestResponse> getCancelRequestByUserId(@Param("userId") String userId) {
+        List<CancelRequest> cancelRequests = cancelRequestRepository.findByUserId(userId);
+        return cancelRequests.stream()
+                .map(cancelRequestMapper::toCancelRequestResponse)
                 .toList();
     }
 
-    public List<BorrowRequestResponse> getAllBorrowRequests() {
-        List<BorrowRequest> borrowRequests = borrowRequestRepository.findAll();
-        return borrowRequests.stream()
-                .map(borrowRequestMapper::toBorrowRequestResponse)
-                .toList();
+    public void deleteCancelRequest(@Param("id") String id) {
+        CancelRequest cancelRequest = cancelRequestRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.CANCEL_REQUEST_NOT_FOUND));
+        cancelRequestRepository.delete(cancelRequest);
     }
 
-    public List<BorrowRequestResponse> getBorrowRequestByUserId(@Param("userId") String userId) {
-        List<BorrowRequest> borrowRequests = borrowRequestRepository.findByUserId(userId);
-        return borrowRequests.stream()
-                .map(borrowRequestMapper::toBorrowRequestResponse)
-                .toList();
-    }
-
-    public void deleteBorrowRequest(@Param("id") String id) {
-        BorrowRequest borrowRequest = borrowRequestRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.BORROW_REQUEST_NOT_FOUND));
-        borrowRequestRepository.delete(borrowRequest);
-    }
-
-    public BorrowRequestResponse updateBorrowRequest(@Param("id") String id, BorrowRequestCreationRequest request) {
-        BorrowRequest borrowRequest = borrowRequestRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.BORROW_REQUEST_NOT_FOUND));
+    public CancelRequestResponse updateCancelRequest(@Param("id") String id, CancelRequestCreationRequest request) {
+        CancelRequest cancelRequest = cancelRequestRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.CANCEL_REQUEST_NOT_FOUND));
 
         User user = userRepository.findByUserId(request.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        Room room = roomRepository.findByName(request.getRoomName())
-                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
+        BorrowRequest borrowRequest = borrowRequestRepository.findById(request.getBorrowRequestId())
+                .orElseThrow(() -> new AppException(ErrorCode.BORROW_REQUEST_NOT_FOUND));
 
-        borrowRequest.setUser(user);
-        borrowRequest.setRoom(room);
-        borrowRequestMapper.updateBorrowRequest(borrowRequest, request);
+        cancelRequest.setUser(user);
+        cancelRequest.setBorrowRequest(borrowRequest);
+        cancelRequestMapper.updateCancelRequest(cancelRequest, request);
 
-        return borrowRequestMapper.toBorrowRequestResponse(borrowRequestRepository.save(borrowRequest));
+        return cancelRequestMapper.toCancelRequestResponse(cancelRequestRepository.save(cancelRequest));
     }
 
 }

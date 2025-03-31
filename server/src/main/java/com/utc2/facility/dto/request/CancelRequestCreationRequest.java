@@ -1,11 +1,9 @@
 package com.utc2.facility.dto.request;
 
-import com.utc2.facility.enums.BorrowRequestStatus;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -13,11 +11,14 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class BorrowRequestCreationRequest {
+public class CancelRequestCreationRequest {
+    String borrowRequestId;
+
     String userId;
-    String roomName;
+
+    @NotNull
     String reason;
-    LocalDateTime borrowDate;
-    LocalDateTime returnDate;
+
+    @NotNull
     String status;
 }

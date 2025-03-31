@@ -2,11 +2,11 @@ package com.utc2.facility.controller;
 
 import com.utc2.facility.dto.request.ApiResponse;
 import com.utc2.facility.dto.request.BorrowRequestCreationRequest;
-import com.utc2.facility.dto.request.EquipmentCreationRequest;
+import com.utc2.facility.dto.request.CancelRequestCreationRequest;
 import com.utc2.facility.dto.response.BorrowRequestResponse;
-import com.utc2.facility.dto.response.EquipmentResponse;
+import com.utc2.facility.dto.response.CancelRequestResponse;
 import com.utc2.facility.service.BorrowRequestService;
-import com.utc2.facility.service.EquipmentService;
+import com.utc2.facility.service.CancelRequestService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -21,42 +21,56 @@ import java.util.List;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class BorrowRequestController {
-    BorrowRequestService borrowRequestService;
+public class CancelRequestController {
+    CancelRequestService cancelRequestService;
 
     @PostMapping
-    ApiResponse<BorrowRequestResponse> createBorrowRequest(@RequestBody @Valid BorrowRequestCreationRequest request) {
-        return ApiResponse.<BorrowRequestResponse>builder()
-                .result(borrowRequestService.createBorrowRequest(request))
+    ApiResponse<CancelRequestResponse> createCancelRequest(@RequestBody @Valid CancelRequestCreationRequest request) {
+        return ApiResponse.<CancelRequestResponse>builder()
+                .result(cancelRequestService.createCancelRequest(request))
                 .build();
     }
 
-    @GetMapping("/{borrowRequestId}")
-    ApiResponse<BorrowRequestResponse> getBorrowRequest(@PathVariable String borrowRequestId) {
-        return ApiResponse.<BorrowRequestResponse>builder()
-                .result(borrowRequestService.getBorrowRequest(borrowRequestId))
+    @GetMapping("/{cancelRequestId}")
+    ApiResponse<CancelRequestResponse> getCancelRequest(@PathVariable String cancelRequestId) {
+        return ApiResponse.<CancelRequestResponse>builder()
+                .result(cancelRequestService.getCancelRequest(cancelRequestId))
+                .build();
+    }
+
+    @GetMapping("/user/{userId}")
+    ApiResponse<List<CancelRequestResponse>> getCancelRequestByUserId(@PathVariable String userId) {
+        return ApiResponse.<List<CancelRequestResponse>>builder()
+                .result(cancelRequestService.getCancelRequestByUserId(userId))
+                .build();
+    }
+
+    @GetMapping("/borrow-request/{borrowRequestId}")
+    ApiResponse<CancelRequestResponse> getCancelRequestByBorrowRequestId(@PathVariable String borrowRequestId) {
+        return ApiResponse.<CancelRequestResponse>builder()
+                .result(cancelRequestService.getCancelRequestByBorrowRequestId(borrowRequestId))
                 .build();
     }
 
     @GetMapping
-    ApiResponse<List<BorrowRequestResponse>> getAllBorrowRequest() {
-        return ApiResponse.<List<BorrowRequestResponse>>builder()
-                .result(borrowRequestService.getAllBorrowRequests())
+    ApiResponse<List<CancelRequestResponse>> getAllCancelRequest() {
+        return ApiResponse.<List<CancelRequestResponse>>builder()
+                .result(cancelRequestService.getAllCancelRequests())
                 .build();
     }
 
-    @DeleteMapping("/{borrowRequestId}")
-    ApiResponse<Void> deleteEquipment(@PathVariable String borrowRequestId) {
-        borrowRequestService.deleteBorrowRequest(borrowRequestId);
+    @DeleteMapping("/{cancelRequestId}")
+    ApiResponse<Void> deleteCancelRequest(@PathVariable String cancelRequestId) {
+        cancelRequestService.deleteCancelRequest(cancelRequestId);
         return ApiResponse.<Void>builder()
                 .result(null)
                 .build();
     }
 
     @PutMapping("/{borrowRequestId}")
-    ApiResponse<BorrowRequestResponse> updateBorrowRequest(@RequestBody @Valid BorrowRequestCreationRequest request, @PathVariable String borrowRequestId)  {
-        return ApiResponse.<BorrowRequestResponse>builder()
-                .result(borrowRequestService.updateBorrowRequest(borrowRequestId, request))
+    ApiResponse<CancelRequestResponse> updateCancelRequest(@RequestBody @Valid CancelRequestCreationRequest request, @PathVariable String cancelRequestId)  {
+        return ApiResponse.<CancelRequestResponse>builder()
+                .result(cancelRequestService.updateCancelRequest(cancelRequestId, request))
                 .build();
     }
 }
