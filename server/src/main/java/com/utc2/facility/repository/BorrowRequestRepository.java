@@ -14,8 +14,8 @@ import java.util.Optional;
 
 @Repository
 public interface BorrowRequestRepository extends JpaRepository<BorrowRequest, String> {
-    Optional<BorrowRequest> findByUser(@Param("user") String user);
-    Optional<BorrowRequest> findByRoom(@Param("room") String room);
+//    Optional<BorrowRequest> findByUser(@Param("user") String user);
+//    Optional<BorrowRequest> findByRoom(@Param("room") String room);
     List<BorrowRequest> findByUserId(String userId);
     List<BorrowRequest> findByBorrowDate(LocalDateTime borrowDate);
     List<BorrowRequest> findByReturnDate(LocalDateTime returnDate);

@@ -1,24 +1,24 @@
 package com.utc2.facility.mapper;
 
+import com.utc2.facility.dto.request.BorrowEquipmentCreationRequest;
 import com.utc2.facility.dto.request.BorrowRequestCreationRequest;
-import com.utc2.facility.dto.request.EquipmentCreationRequest;
+import com.utc2.facility.dto.response.BorrowEquipmentResponse;
 import com.utc2.facility.dto.response.BorrowRequestResponse;
-import com.utc2.facility.dto.response.EquipmentResponse;
+import com.utc2.facility.entity.BorrowEquipment;
 import com.utc2.facility.entity.BorrowRequest;
-import com.utc2.facility.entity.Equipment;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
-public interface BorrowRequestMapper {
-    @Mapping(target = "userName", source = "user.username")
-    @Mapping(target = "roomName", source = "room.name")
-    BorrowRequestResponse toBorrowRequestResponse(BorrowRequest borrowRequest);
+public interface BorrowEquipmentMapper {
+    @Mapping(target = "borrowRequestId", source = "borrowRequest.id")
+    @Mapping(target = "equipmentName", source = "equipment.name")
+    BorrowEquipmentResponse toBorrowEquipmentResponse(BorrowEquipment borrowEquipment);
 
-    BorrowRequest toBorrowRequest(BorrowRequestCreationRequest request);
+    BorrowEquipment toBorrowEquipment(BorrowEquipmentCreationRequest request);
 
-    @Mapping(target = "room", ignore = true)
-    @Mapping(target = "user", ignore = true)
-    void updateBorrowRequest(@MappingTarget BorrowRequest borrowRequest, BorrowRequestCreationRequest request);
+    @Mapping(target = "borrowRequest", ignore = true)
+    @Mapping(target = "equipment", ignore = true)
+    void updateBorrowEquipment(@MappingTarget BorrowEquipment borrowEquipment, BorrowEquipmentCreationRequest request);
 }

@@ -46,7 +46,7 @@ public class Equipment {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
-     Date createdAt = new Date();
+     Date createdAt;
 
     @Column(name = "update_at")
     @Temporal(TemporalType.TIMESTAMP)
@@ -63,4 +63,14 @@ public class Equipment {
     @ManyToOne
     @JoinColumn(name = "equipment_manager_id")
      User equipmentManager;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = new Date();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = new Date();
+    }
 }

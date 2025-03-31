@@ -1,15 +1,16 @@
 package com.utc2.facility.service;
 
+import com.utc2.facility.dto.request.BorrowEquipmentCreationRequest;
 import com.utc2.facility.dto.request.BorrowRequestCreationRequest;
-import com.utc2.facility.dto.request.EquipmentCreationRequest;
+import com.utc2.facility.dto.response.BorrowEquipmentResponse;
 import com.utc2.facility.dto.response.BorrowRequestResponse;
-import com.utc2.facility.dto.response.EquipmentResponse;
 import com.utc2.facility.entity.*;
 import com.utc2.facility.exception.AppException;
 import com.utc2.facility.exception.ErrorCode;
-import com.utc2.facility.mapper.BorrowRequestMapper;
-import com.utc2.facility.mapper.EquipmentMapper;
-import com.utc2.facility.repository.*;
+import com.utc2.facility.mapper.BorrowEquipmentMapper;
+import com.utc2.facility.repository.BorrowEquipmentRepository;
+import com.utc2.facility.repository.BorrowRequestRepository;
+import com.utc2.facility.repository.EquipmentRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -26,88 +27,78 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class BorrowRequestService {
+public class BorrowEquipmentService {
 
+    BorrowEquipmentRepository borrowEquipmentRepository;
     BorrowRequestRepository borrowRequestRepository;
-    UserRepository userRepository;
-    RoomRepository roomRepository;
-    BorrowRequestMapper borrowRequestMapper;
+    EquipmentRepository equipmentRepository;
+    BorrowEquipmentMapper borrowEquipmentMapper;
 
     @PreAuthorize("hasRole('ADMIN')")
-    public BorrowRequestResponse createBorrowRequest(BorrowRequestCreationRequest request) {
+    public BorrowEquipmentResponse createBorrowEquipment(BorrowEquipmentCreationRequest request) {
 
-        User user = userRepository.findByUserId(request.getUserId())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        Room room = roomRepository.findByName(request.getRoomName())
-                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
-
-        BorrowRequest borrowRequest = borrowRequestMapper.toBorrowRequest(request);
-        borrowRequest.setUser(user);
-        borrowRequest.setRoom(room);
-
-        return borrowRequestMapper.toBorrowRequestResponse(borrowRequestRepository.save(borrowRequest));
-    }
-
-    public BorrowRequestResponse getBorrowRequest(@Param("id") String id) {
-        BorrowRequest borrowRequest = borrowRequestRepository.findById(id)
+        BorrowRequest borrowRequest = borrowRequestRepository.findById(request.getBorrowRequestId())
                 .orElseThrow(() -> new AppException(ErrorCode.BORROW_REQUEST_NOT_FOUND));
-        return borrowRequestMapper.toBorrowRequestResponse(borrowRequest);
+        Equipment equipment = equipmentRepository.findById(request.getEquipmentId())
+                .orElseThrow(() -> new AppException(ErrorCode.EQUIPMENT_NOT_FOUND));
+
+        BorrowEquipment borrowEquipment = borrowEquipmentMapper.toBorrowEquipment(request);
+        borrowEquipment.setBorrowRequest(borrowRequest);
+        borrowEquipment.setEquipment(equipment);
+
+        return borrowEquipmentMapper.toBorrowEquipmentResponse(borrowEquipmentRepository.save(borrowEquipment));
     }
 
-    public List<BorrowRequestResponse> getBorrowRequestByBorrowDate(String borrowDateStr) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime borrowDate = LocalDateTime.parse(borrowDateStr, formatter);
+    public BorrowEquipmentResponse getBorrowEquipment(@Param("id") String id) {
+        BorrowEquipment borrowEquipment = borrowEquipmentRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.BORROW_EQUIPMENT_NOT_FOUND));
+        return borrowEquipmentMapper.toBorrowEquipmentResponse(borrowEquipment);
+    }
 
-        List<BorrowRequest> borrowRequests = borrowRequestRepository.findByBorrowDate(borrowDate);
-        return borrowRequests.stream()
-                .map(borrowRequestMapper::toBorrowRequestResponse)
+    public List<BorrowEquipmentResponse> getBorrowEquipmentByBorrowRequestId(@Param("borrowRequestId") String borrowRequestId) {
+        List<BorrowEquipment> borrowEquipments = borrowEquipmentRepository.findByBorrowRequestId(borrowRequestId);
+        return borrowEquipments.stream()
+                .map(borrowEquipmentMapper::toBorrowEquipmentResponse)
                 .toList();
     }
 
-    public List<BorrowRequestResponse> getBorrowRequestByReturnDate(String returnDateStr) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime returnDate = LocalDateTime.parse(returnDateStr, formatter);
-
-        List<BorrowRequest> borrowRequests = borrowRequestRepository.findByReturnDate(returnDate);
-        return borrowRequests.stream()
-                .map(borrowRequestMapper::toBorrowRequestResponse)
+    public List<BorrowEquipmentResponse> getAllBorrowEquipments() {
+        List<BorrowEquipment> borrowEquipments = borrowEquipmentRepository.findAll();
+        return borrowEquipments.stream()
+                .map(borrowEquipmentMapper::toBorrowEquipmentResponse)
                 .toList();
     }
 
-    public List<BorrowRequestResponse> getAllBorrowRequests() {
-        List<BorrowRequest> borrowRequests = borrowRequestRepository.findAll();
-        return borrowRequests.stream()
-                .map(borrowRequestMapper::toBorrowRequestResponse)
+    public List<BorrowEquipmentResponse> getBorrowEquipmentByEquipmentName(@Param("equipmentName") String equipmentName) {
+        Equipment equipment = equipmentRepository.findByName(equipmentName)
+                .orElseThrow(() -> new AppException(ErrorCode.EQUIPMENT_NOT_FOUND));
+
+        List<BorrowEquipment> borrowEquipments = borrowEquipmentRepository.findByEquipmentId(equipment.getId());
+        return borrowEquipments.stream()
+                .map(borrowEquipmentMapper::toBorrowEquipmentResponse)
                 .toList();
     }
 
-    public List<BorrowRequestResponse> getBorrowRequestByUserId(@Param("userId") String userId) {
-        List<BorrowRequest> borrowRequests = borrowRequestRepository.findByUserId(userId);
-        return borrowRequests.stream()
-                .map(borrowRequestMapper::toBorrowRequestResponse)
-                .toList();
+    public void deleteBorrowEquipment(@Param("id") String id) {
+        BorrowEquipment borrowEquipment = borrowEquipmentRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.BORROW_EQUIPMENT_NOT_FOUND));
+        borrowEquipmentRepository.delete(borrowEquipment);
     }
 
-    public void deleteBorrowRequest(@Param("id") String id) {
-        BorrowRequest borrowRequest = borrowRequestRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.BORROW_REQUEST_NOT_FOUND));
-        borrowRequestRepository.delete(borrowRequest);
-    }
+    public BorrowEquipmentResponse updateBorrowEquipment(@Param("id") String id, BorrowEquipmentCreationRequest request) {
+        BorrowEquipment borrowEquipment = borrowEquipmentRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.BORROW_EQUIPMENT_NOT_FOUND));
 
-    public BorrowRequestResponse updateBorrowRequest(@Param("id") String id, BorrowRequestCreationRequest request) {
-        BorrowRequest borrowRequest = borrowRequestRepository.findById(id)
+        Equipment equipment = equipmentRepository.findById(request.getEquipmentId())
+                .orElseThrow(() -> new AppException(ErrorCode.EQUIPMENT_NOT_FOUND));
+        BorrowRequest borrowRequest = borrowRequestRepository.findById(request.getBorrowRequestId())
                 .orElseThrow(() -> new AppException(ErrorCode.BORROW_REQUEST_NOT_FOUND));
 
-        User user = userRepository.findByUserId(request.getUserId())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        Room room = roomRepository.findByName(request.getRoomName())
-                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
+        borrowEquipment.setEquipment(equipment);
+        borrowEquipment.setBorrowRequest(borrowRequest);
+        borrowEquipmentMapper.updateBorrowEquipment(borrowEquipment, request);
 
-        borrowRequest.setUser(user);
-        borrowRequest.setRoom(room);
-        borrowRequestMapper.updateBorrowRequest(borrowRequest, request);
-
-        return borrowRequestMapper.toBorrowRequestResponse(borrowRequestRepository.save(borrowRequest));
+        return borrowEquipmentMapper.toBorrowEquipmentResponse(borrowEquipmentRepository.save(borrowEquipment));
     }
 
 }
