@@ -3,7 +3,7 @@ package com.utc2.facility.service;
 import com.utc2.facility.dto.request.RepairRoomRequestCreationRequest;
 import com.utc2.facility.dto.response.RepairRoomRequestResponse;
 import com.utc2.facility.entity.*;
-import com.utc2.facility.enums.RepairRoomStatus;
+import com.utc2.facility.enums.RepairStatus;
 import com.utc2.facility.exception.AppException;
 import com.utc2.facility.exception.ErrorCode;
 import com.utc2.facility.mapper.RepairRoomRequestMapper;
@@ -22,7 +22,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class RepairRequestService {
+public class RepairRoomRequestService {
 
     RepairRoomRequestRepository repairRoomRequestRepository;
     UserRepository userRepository;
@@ -40,7 +40,7 @@ public class RepairRequestService {
         RepairRoomRequest repairRoomRequest = repairRoomRequestMapper.toRepairRoomRequest(request);
         repairRoomRequest.setRoom(room);
         repairRoomRequest.setUser(user);
-        repairRoomRequest.setStatus(RepairRoomStatus.PENDING);
+        repairRoomRequest.setStatus(RepairStatus.PENDING);
 
         return repairRoomRequestMapper.toRepairRoomRequestResponse(repairRoomRequestRepository.save(repairRoomRequest));
     }
