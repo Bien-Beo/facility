@@ -1,24 +1,19 @@
 package com.utc2.facility.mapper;
 
-import com.utc2.facility.dto.request.CancelRequestCreationRequest;
-import com.utc2.facility.dto.request.CancelRequestUpdateRequest;
-import com.utc2.facility.dto.request.RepairRequestCreationRequest;
-import com.utc2.facility.dto.response.CancelRequestResponse;
-import com.utc2.facility.dto.response.RepairRequestResponse;
-import com.utc2.facility.entity.CancelRequest;
-import com.utc2.facility.entity.RepairRequest;
+import com.utc2.facility.dto.request.RepairRoomRequestCreationRequest;
+import com.utc2.facility.dto.response.RepairRoomRequestResponse;
+import com.utc2.facility.entity.RepairRoomRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
-public interface RepairRequestMapper {
+public interface RepairRoomRequestMapper {
     @Mapping(target = "userName", source = "user.username")
     @Mapping(target = "roomName", source = "room.name")
-    @Mapping(target = "equipmentName", source = "equipment.name")
-    RepairRequestResponse toRepairRequestResponse(RepairRequest repairRequest);
+    RepairRoomRequestResponse toRepairRoomRequestResponse(RepairRoomRequest repairRoomRequest);
 
-    RepairRequest toRepairRequest(RepairRequestCreationRequest request);
+    RepairRoomRequest toRepairRoomRequest(RepairRoomRequestCreationRequest request);
 
-    void updateRepairRequest(@MappingTarget RepairRequest repairRequest, RepairRequestCreationRequest request);
+    void updateRepairRoomRequest(@MappingTarget RepairRoomRequest repairRoomRequest, RepairRoomRequestCreationRequest request);
 }

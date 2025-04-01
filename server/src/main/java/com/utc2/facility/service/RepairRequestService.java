@@ -1,22 +1,13 @@
 package com.utc2.facility.service;
 
-import com.utc2.facility.dto.request.BorrowRequestCreationRequest;
-import com.utc2.facility.dto.request.CancelRequestCreationRequest;
-import com.utc2.facility.dto.request.CancelRequestUpdateRequest;
-import com.utc2.facility.dto.response.BorrowRequestResponse;
-import com.utc2.facility.dto.response.CancelRequestResponse;
-import com.utc2.facility.entity.BorrowRequest;
-import com.utc2.facility.entity.CancelRequest;
-import com.utc2.facility.entity.Room;
-import com.utc2.facility.entity.User;
+import com.utc2.facility.dto.request.RepairRoomRequestCreationRequest;
+import com.utc2.facility.dto.response.RepairRoomRequestResponse;
+import com.utc2.facility.entity.*;
+import com.utc2.facility.enums.RepairRoomStatus;
 import com.utc2.facility.exception.AppException;
 import com.utc2.facility.exception.ErrorCode;
-import com.utc2.facility.mapper.BorrowRequestMapper;
-import com.utc2.facility.mapper.CancelRequestMapper;
-import com.utc2.facility.repository.BorrowRequestRepository;
-import com.utc2.facility.repository.CancelRequestRepository;
-import com.utc2.facility.repository.RoomRepository;
-import com.utc2.facility.repository.UserRepository;
+import com.utc2.facility.mapper.RepairRoomRequestMapper;
+import com.utc2.facility.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -25,75 +16,74 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class CancelRequestService {
+public class RepairRequestService {
 
-    CancelRequestRepository cancelRequestRepository;
+    RepairRoomRequestRepository repairRoomRequestRepository;
     UserRepository userRepository;
-    BorrowRequestRepository borrowRequestRepository;
-    CancelRequestMapper cancelRequestMapper;
+    EquipmentRepository equipmentRepository;
+    RoomRepository roomRepository;
+    RepairRoomRequestMapper repairRoomRequestMapper;
 
     @PreAuthorize("hasRole('ADMIN')")
-    public CancelRequestResponse createCancelRequest(CancelRequestCreationRequest request) {
-
+    public RepairRoomRequestResponse createRepairRoomRequest(RepairRoomRequestCreationRequest request) {
+        Room room = roomRepository.findByName(request.getRoomName())
+                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
         User user = userRepository.findByUserId(request.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        BorrowRequest borrowRequest = borrowRequestRepository.findById(request.getBorrowRequestId())
-                .orElseThrow(() -> new AppException(ErrorCode.BORROW_REQUEST_NOT_FOUND));
 
-        CancelRequest cancelRequest = cancelRequestMapper.toCancelRequest(request);
-        cancelRequest.setUser(user);
-        cancelRequest.setBorrowRequest(borrowRequest);
+        RepairRoomRequest repairRoomRequest = repairRoomRequestMapper.toRepairRoomRequest(request);
+        repairRoomRequest.setRoom(room);
+        repairRoomRequest.setUser(user);
+        repairRoomRequest.setStatus(RepairRoomStatus.PENDING);
 
-        return cancelRequestMapper.toCancelRequestResponse(cancelRequestRepository.save(cancelRequest));
+        return repairRoomRequestMapper.toRepairRoomRequestResponse(repairRoomRequestRepository.save(repairRoomRequest));
     }
 
-    public CancelRequestResponse getCancelRequest(@Param("id") String id) {
-        CancelRequest cancelRequest = cancelRequestRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.CANCEL_REQUEST_NOT_FOUND));
-        return cancelRequestMapper.toCancelRequestResponse(cancelRequest);
+    public RepairRoomRequestResponse getRepairRoomRequest(@Param("id") String id) {
+        RepairRoomRequest repairRoomRequest = repairRoomRequestRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.REPAIR_REQUEST_NOT_FOUND));
+        return repairRoomRequestMapper.toRepairRoomRequestResponse(repairRoomRequest);
     }
 
-    public CancelRequestResponse getCancelRequestByBorrowRequestId(String borrowRequestId) {
-        CancelRequest cancelRequest = cancelRequestRepository.findByBorrowRequestId(borrowRequestId)
-                .orElseThrow(() -> new AppException(ErrorCode.CANCEL_REQUEST_NOT_FOUND));
-        return cancelRequestMapper.toCancelRequestResponse(cancelRequest);
+    public RepairRoomRequestResponse getRepairRoomRequestByRoomName(@Param("roomName") String roomName) {
+        RepairRoomRequest repairRoomRequest = repairRoomRequestRepository.findByRoomName(roomName)
+                .orElseThrow(() -> new AppException(ErrorCode.REPAIR_REQUEST_NOT_FOUND));
+        return repairRoomRequestMapper.toRepairRoomRequestResponse(repairRoomRequest);
     }
 
-    public List<CancelRequestResponse> getAllCancelRequests() {
-        List<CancelRequest> cancelRequests = cancelRequestRepository.findAll();
-        return cancelRequests.stream()
-                .map(cancelRequestMapper::toCancelRequestResponse)
+    public List<RepairRoomRequestResponse> getAllRepairRoomRequests() {
+        List<RepairRoomRequest> repairRoomRequests = repairRoomRequestRepository.findAll();
+        return repairRoomRequests.stream()
+                .map(repairRoomRequestMapper::toRepairRoomRequestResponse)
                 .toList();
     }
 
-    public List<CancelRequestResponse> getCancelRequestByUserId(@Param("userId") String userId) {
-        List<CancelRequest> cancelRequests = cancelRequestRepository.findByUserId(userId);
-        return cancelRequests.stream()
-                .map(cancelRequestMapper::toCancelRequestResponse)
+    public List<RepairRoomRequestResponse> getRepairRoomRequestByUserId(@Param("userId") String userId) {
+        List<RepairRoomRequest> repairRoomRequests = repairRoomRequestRepository.findByUserId(userId);
+        return repairRoomRequests.stream()
+                .map(repairRoomRequestMapper::toRepairRoomRequestResponse)
                 .toList();
     }
 
-    public void deleteCancelRequest(@Param("id") String id) {
-        CancelRequest cancelRequest = cancelRequestRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.CANCEL_REQUEST_NOT_FOUND));
-        cancelRequestRepository.delete(cancelRequest);
+    public void deleteRepairRoomRequest(@Param("id") String id) {
+        RepairRoomRequest repairRoomRequest = repairRoomRequestRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.REPAIR_REQUEST_NOT_FOUND));
+        repairRoomRequestRepository.delete(repairRoomRequest);
     }
 
-    public CancelRequestResponse updateCancelRequest(@Param("id") String id, CancelRequestUpdateRequest request) {
-        CancelRequest cancelRequest = cancelRequestRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.CANCEL_REQUEST_NOT_FOUND));
-
-        cancelRequestMapper.updateCancelRequest(cancelRequest, request);
-
-        return cancelRequestMapper.toCancelRequestResponse(cancelRequestRepository.save(cancelRequest));
-    }
+//    public RepairRequestResponse updateRepairRequest(@Param("id") String id, CancelRequestUpdateRequest request) {
+//        CancelRequest cancelRequest = cancelRequestRepository.findById(id)
+//                .orElseThrow(() -> new AppException(ErrorCode.CANCEL_REQUEST_NOT_FOUND));
+//
+//        cancelRequestMapper.updateCancelRequest(cancelRequest, request);
+//
+//        return cancelRequestMapper.toCancelRequestResponse(cancelRequestRepository.save(cancelRequest));
+//    }
 
 }

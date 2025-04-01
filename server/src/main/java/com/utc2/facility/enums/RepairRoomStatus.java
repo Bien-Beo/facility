@@ -1,5 +1,5 @@
 package com.utc2.facility.enums;
 
-public enum RepairStatus {
+public enum RepairRoomStatus {
     PENDING, APPROVED, REJECTED, COMPLETED
 }

@@ -1,6 +1,6 @@
 package com.utc2.facility.entity;
 
-import com.utc2.facility.enums.RepairStatus;
+import com.utc2.facility.enums.RepairRoomStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "repair_request")
-public class RepairRequest {
+@Table(name = "repair_room_request")
+public class RepairRoomRequest {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -27,22 +27,15 @@ public class RepairRequest {
     Room room;
 
     @ManyToOne
-    @JoinColumn(name = "equipment_id")
-    Equipment equipment;
-
-    @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     User user;
 
     @Column(name = "description", nullable = false, columnDefinition = "TEXT")
     String description;
 
-    @Column(name = "is_room_issue", nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
-    Boolean isRoomIssue = false;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    RepairStatus status;
+    RepairRoomStatus status = RepairRoomStatus.PENDING;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     LocalDateTime createdAt;

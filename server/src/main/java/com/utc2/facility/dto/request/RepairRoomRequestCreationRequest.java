@@ -9,18 +9,11 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class RepairRequestCreationRequest {
+public class RepairRoomRequestCreationRequest {
     String roomName;
-
-    String equipmentId;
 
     String userId;
 
     @NotNull
     String description;
-
-    @Builder.Default
-    Boolean isRoomIssue = false;
-
-    String status;
 }
