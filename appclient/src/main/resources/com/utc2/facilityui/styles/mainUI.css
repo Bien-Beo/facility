@@ -15,24 +15,24 @@
     -fx-background-color : #003d8f;
     -fx-border-color: #CDD1D6;
     -fx-border-color: #091c6c;
-    -fx-text-fill: black;
+    -fx-text-fill: white;
 }
 .button1-click-change{
     -fx-background-color: #004eba;
-    -fx-border-color: black;
     -fx-font-size:14px;
     -fx-font-weight: bold;
-    -fx-border-color:  #071654;
+    -fx-border-color: white;
+    -fx-text-fill: white;
     -fx-border-width: 0px 0px 0px 2px;
 }
 .button1:pressed{
     -fx-background-color:#004eba;
-    -fx-border-color: black;
+    -fx-border-color: white;
     -fx-border-width: 0px 0px 0px 2px;
 }
 .button1:focused{
     -fx-background-color:#004eba;
-    -fx-border-color: black;
+    -fx-border-color: white;
     -fx-border-width: 0px 0px 0px 2px;
 }
 .form-content{
