@@ -8,11 +8,11 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="711.0" prefWidth="830.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" style="-fx-border-radius: none;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <ScrollPane fitToWidth="true" layoutY="-4.0" prefHeight="718.0" prefWidth="830.0">
+      <ScrollPane fitToWidth="true" layoutY="-4.0" prefHeight="503.0" prefWidth="830.0">
          <content>
-            <VBox prefHeight="960.0" prefWidth="814.0" spacing="20">
+            <VBox prefHeight="960.0" prefWidth="815.0" spacing="20">
                <padding>
                   <Insets bottom="20" left="20" right="20" top="20" />
                </padding>
