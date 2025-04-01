@@ -1,13 +1,17 @@
 package com.utc2.facility.service;
 
+import com.utc2.facility.dto.request.RepairEquipmentRequestCreationRequest;
 import com.utc2.facility.dto.request.RepairRoomRequestCreationRequest;
+import com.utc2.facility.dto.response.RepairEquipmentRequestResponse;
 import com.utc2.facility.dto.response.RepairRoomRequestResponse;
 import com.utc2.facility.entity.*;
 import com.utc2.facility.enums.RepairStatus;
 import com.utc2.facility.exception.AppException;
 import com.utc2.facility.exception.ErrorCode;
-import com.utc2.facility.mapper.RepairRoomRequestMapper;
-import com.utc2.facility.repository.*;
+import com.utc2.facility.mapper.RepairEquipmentRequestMapper;
+import com.utc2.facility.repository.EquipmentRepository;
+import com.utc2.facility.repository.RepairEquipmentRequestRepository;
+import com.utc2.facility.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -22,59 +26,52 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class RepairRoomRequestService {
+public class RepairEquipmentRequestService {
 
-    RepairRoomRequestRepository repairRoomRequestRepository;
+    RepairEquipmentRequestRepository repairEquipmentRequestRepository;
     UserRepository userRepository;
     EquipmentRepository equipmentRepository;
-    RoomRepository roomRepository;
-    RepairRoomRequestMapper repairRoomRequestMapper;
+    RepairEquipmentRequestMapper repairEquipmentRequestMapper;
 
     @PreAuthorize("hasRole('ADMIN')")
-    public RepairRoomRequestResponse createRepairRoomRequest(RepairRoomRequestCreationRequest request) {
-        Room room = roomRepository.findByName(request.getRoomName())
-                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
+    public RepairEquipmentRequestResponse createRepairEquipmentRequest(RepairEquipmentRequestCreationRequest request) {
         User user = userRepository.findByUserId(request.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        Equipment equipment = equipmentRepository.findById(request.getEquipmentId())
+                .orElseThrow(() -> new AppException(ErrorCode.EQUIPMENT_NOT_FOUND));
 
-        RepairRoomRequest repairRoomRequest = repairRoomRequestMapper.toRepairRoomRequest(request);
-        repairRoomRequest.setRoom(room);
-        repairRoomRequest.setUser(user);
-        repairRoomRequest.setStatus(RepairStatus.PENDING);
+        RepairEquipmentRequest repairEquipmentRequest = repairEquipmentRequestMapper.toRepairEquipmentRequest(request);
+        repairEquipmentRequest.setEquipment(equipment);
+        repairEquipmentRequest.setUser(user);
+        repairEquipmentRequest.setStatus(RepairStatus.PENDING);
 
-        return repairRoomRequestMapper.toRepairRoomRequestResponse(repairRoomRequestRepository.save(repairRoomRequest));
+        return repairEquipmentRequestMapper.toRepairEquipmentRequestResponse(repairEquipmentRequestRepository.save(repairEquipmentRequest));
     }
 
-    public RepairRoomRequestResponse getRepairRoomRequest(@Param("id") String id) {
-        RepairRoomRequest repairRoomRequest = repairRoomRequestRepository.findById(id)
+    public RepairEquipmentRequestResponse getRepairEquipmentRequest(@Param("id") String id) {
+        RepairEquipmentRequest repairEquipmentRequest = repairEquipmentRequestRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.REPAIR_REQUEST_NOT_FOUND));
-        return repairRoomRequestMapper.toRepairRoomRequestResponse(repairRoomRequest);
+        return repairEquipmentRequestMapper.toRepairEquipmentRequestResponse(repairEquipmentRequest);
     }
 
-    public RepairRoomRequestResponse getRepairRoomRequestByRoomName(@Param("roomName") String roomName) {
-        RepairRoomRequest repairRoomRequest = repairRoomRequestRepository.findByRoomName(roomName)
-                .orElseThrow(() -> new AppException(ErrorCode.REPAIR_REQUEST_NOT_FOUND));
-        return repairRoomRequestMapper.toRepairRoomRequestResponse(repairRoomRequest);
-    }
-
-    public List<RepairRoomRequestResponse> getAllRepairRoomRequests() {
-        List<RepairRoomRequest> repairRoomRequests = repairRoomRequestRepository.findAll();
-        return repairRoomRequests.stream()
-                .map(repairRoomRequestMapper::toRepairRoomRequestResponse)
+    public List<RepairEquipmentRequestResponse> getAllRepairEquipmentRequests() {
+        List<RepairEquipmentRequest> repairEquipmentRequests = repairEquipmentRequestRepository.findAll();
+        return repairEquipmentRequests.stream()
+                .map(repairEquipmentRequestMapper::toRepairEquipmentRequestResponse)
                 .toList();
     }
 
-    public List<RepairRoomRequestResponse> getRepairRoomRequestByUserId(@Param("userId") String userId) {
-        List<RepairRoomRequest> repairRoomRequests = repairRoomRequestRepository.findByUserId(userId);
-        return repairRoomRequests.stream()
-                .map(repairRoomRequestMapper::toRepairRoomRequestResponse)
+    public List<RepairEquipmentRequestResponse> getRepairEquipmentRequestByUserId(@Param("userId") String userId) {
+        List<RepairEquipmentRequest> repairEquipmentRequests = repairEquipmentRequestRepository.findByUserId(userId);
+        return repairEquipmentRequests.stream()
+                .map(repairEquipmentRequestMapper::toRepairEquipmentRequestResponse)
                 .toList();
     }
 
-    public void deleteRepairRoomRequest(@Param("id") String id) {
-        RepairRoomRequest repairRoomRequest = repairRoomRequestRepository.findById(id)
+    public void deleteRepairEquipmentRequest(@Param("id") String id) {
+        RepairEquipmentRequest repairEquipmentRequest = repairEquipmentRequestRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.REPAIR_REQUEST_NOT_FOUND));
-        repairRoomRequestRepository.delete(repairRoomRequest);
+        repairEquipmentRequestRepository.delete(repairEquipmentRequest);
     }
 
 //    public RepairRequestResponse updateRepairRequest(@Param("id") String id, CancelRequestUpdateRequest request) {

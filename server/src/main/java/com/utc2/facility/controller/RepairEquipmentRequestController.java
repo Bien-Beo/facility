@@ -1,9 +1,11 @@
 package com.utc2.facility.controller;
 
 import com.utc2.facility.dto.request.ApiResponse;
+import com.utc2.facility.dto.request.RepairEquipmentRequestCreationRequest;
 import com.utc2.facility.dto.request.RepairRoomRequestCreationRequest;
+import com.utc2.facility.dto.response.RepairEquipmentRequestResponse;
 import com.utc2.facility.dto.response.RepairRoomRequestResponse;
-import com.utc2.facility.service.RepairRequestService;
+import com.utc2.facility.service.RepairEquipmentRequestService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -14,51 +16,44 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/repair-room-request")
+@RequestMapping("/repair-equipment-request")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class RepairRoomRequestController {
-    RepairRequestService repairRequestService;
+public class RepairEquipmentRequestController {
+    RepairEquipmentRequestService repairEquipmentRequestService;
 
     @PostMapping
-    ApiResponse<RepairRoomRequestResponse> createRepairRequest(@RequestBody @Valid RepairRoomRequestCreationRequest request) {
-        return ApiResponse.<RepairRoomRequestResponse>builder()
-                .result(repairRequestService.createRepairRoomRequest(request))
+    ApiResponse<RepairEquipmentRequestResponse> createRepairEquipmentRequest(@RequestBody @Valid RepairEquipmentRequestCreationRequest request) {
+        return ApiResponse.<RepairEquipmentRequestResponse>builder()
+                .result(repairEquipmentRequestService.createRepairEquipmentRequest(request))
                 .build();
     }
 
-    @GetMapping("/{repairRoomRequestId}")
-    ApiResponse<RepairRoomRequestResponse> getRepairRoomRequest(@PathVariable String repairRoomRequestId) {
-        return ApiResponse.<RepairRoomRequestResponse>builder()
-                .result(repairRequestService.getRepairRoomRequest(repairRoomRequestId))
+    @GetMapping("/{repairEquipmentRequestId}")
+    ApiResponse<RepairEquipmentRequestResponse> getRepairEquipmentRequest(@PathVariable String repairEquipmentRequestId) {
+        return ApiResponse.<RepairEquipmentRequestResponse>builder()
+                .result(repairEquipmentRequestService.getRepairEquipmentRequest(repairEquipmentRequestId))
                 .build();
     }
 
     @GetMapping("/user/{userId}")
-    ApiResponse<List<RepairRoomRequestResponse>> getRepairRoomRequestByUserId(@PathVariable String userId) {
-        return ApiResponse.<List<RepairRoomRequestResponse>>builder()
-                .result(repairRequestService.getRepairRoomRequestByUserId(userId))
-                .build();
-    }
-
-    @GetMapping("/room/{roomName}")
-    ApiResponse<RepairRoomRequestResponse> getRepairRoomRequestByRoomName(@PathVariable String roomName) {
-        return ApiResponse.<RepairRoomRequestResponse>builder()
-                .result(repairRequestService.getRepairRoomRequestByRoomName(roomName))
+    ApiResponse<List<RepairEquipmentRequestResponse>> getRepairEquipmentRequestByUserId(@PathVariable String userId) {
+        return ApiResponse.<List<RepairEquipmentRequestResponse>>builder()
+                .result(repairEquipmentRequestService.getRepairEquipmentRequestByUserId(userId))
                 .build();
     }
 
     @GetMapping
-    ApiResponse<List<RepairRoomRequestResponse>> getAllRepairRoomRequest() {
-        return ApiResponse.<List<RepairRoomRequestResponse>>builder()
-                .result(repairRequestService.getAllRepairRoomRequests())
+    ApiResponse<List<RepairEquipmentRequestResponse>> getAllRepairEquipmentRequest() {
+        return ApiResponse.<List<RepairEquipmentRequestResponse>>builder()
+                .result(repairEquipmentRequestService.getAllRepairEquipmentRequests())
                 .build();
     }
 
-    @DeleteMapping("/{repairRoomRequestId}")
-    ApiResponse<Void> deleteRepairRoomRequest(@PathVariable String repairRoomRequestId) {
-        repairRequestService.deleteRepairRoomRequest(repairRoomRequestId);
+    @DeleteMapping("/{repairEquipmentRequestId}")
+    ApiResponse<Void> deleteRepairEquipmentRequest(@PathVariable String repairEquipmentRequestId) {
+        repairEquipmentRequestService.deleteRepairEquipmentRequest(repairEquipmentRequestId);
         return ApiResponse.<Void>builder()
                 .result(null)
                 .build();

@@ -1,6 +1,6 @@
 package com.utc2.facility.entity;
 
-import com.utc2.facility.enums.RepairRoomStatus;
+import com.utc2.facility.enums.RepairStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -35,7 +35,7 @@ public class RepairRoomRequest {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    RepairRoomStatus status = RepairRoomStatus.PENDING;
+    RepairStatus status = RepairStatus.PENDING;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     LocalDateTime createdAt;

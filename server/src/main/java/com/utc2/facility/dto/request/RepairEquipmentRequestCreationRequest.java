@@ -9,8 +9,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class RepairRoomRequestCreationRequest {
-    String roomName;
+public class RepairEquipmentRequestCreationRequest {
+    String equipmentId;
 
     String userId;
 
