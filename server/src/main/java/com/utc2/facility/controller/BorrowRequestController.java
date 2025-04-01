@@ -2,11 +2,8 @@ package com.utc2.facility.controller;
 
 import com.utc2.facility.dto.request.ApiResponse;
 import com.utc2.facility.dto.request.BorrowRequestCreationRequest;
-import com.utc2.facility.dto.request.EquipmentCreationRequest;
 import com.utc2.facility.dto.response.BorrowRequestResponse;
-import com.utc2.facility.dto.response.EquipmentResponse;
 import com.utc2.facility.service.BorrowRequestService;
-import com.utc2.facility.service.EquipmentService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +42,13 @@ public class BorrowRequestController {
                 .build();
     }
 
+    @GetMapping("/user/{userId}")
+    ApiResponse<List<BorrowRequestResponse>> getBorrowRequestByUserId(@PathVariable String userId) {
+        return ApiResponse.<List<BorrowRequestResponse>>builder()
+                .result(borrowRequestService.getBorrowRequestByUserId(userId))
+                .build();
+    }
+
     @DeleteMapping("/{borrowRequestId}")
     ApiResponse<Void> deleteBorrowRequest(@PathVariable String borrowRequestId) {
         borrowRequestService.deleteBorrowRequest(borrowRequestId);
@@ -57,6 +61,27 @@ public class BorrowRequestController {
     ApiResponse<BorrowRequestResponse> updateBorrowRequest(@RequestBody @Valid BorrowRequestCreationRequest request, @PathVariable String borrowRequestId)  {
         return ApiResponse.<BorrowRequestResponse>builder()
                 .result(borrowRequestService.updateBorrowRequest(borrowRequestId, request))
+                .build();
+    }
+
+    @PutMapping("/{borrowRequestId}/approve")
+    ApiResponse<BorrowRequestResponse> approveBorrowRequest(@PathVariable String borrowRequestId) {
+        return ApiResponse.<BorrowRequestResponse>builder()
+                .result(borrowRequestService.approveBorrowRequest(borrowRequestId))
+                .build();
+    }
+
+    @PutMapping("/{borrowRequestId}/reject")
+    ApiResponse<BorrowRequestResponse> rejectBorrowRequest(@PathVariable String borrowRequestId) {
+        return ApiResponse.<BorrowRequestResponse>builder()
+                .result(borrowRequestService.rejectBorrowRequest(borrowRequestId))
+                .build();
+    }
+
+    @PutMapping("/{borrowRequestId}/return")
+    ApiResponse<BorrowRequestResponse> returnRoom(@PathVariable String borrowRequestId) {
+        return ApiResponse.<BorrowRequestResponse>builder()
+                .result(borrowRequestService.returnRoom(borrowRequestId))
                 .build();
     }
 }

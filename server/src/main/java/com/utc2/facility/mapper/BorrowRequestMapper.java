@@ -1,11 +1,8 @@
 package com.utc2.facility.mapper;
 
 import com.utc2.facility.dto.request.BorrowRequestCreationRequest;
-import com.utc2.facility.dto.request.EquipmentCreationRequest;
 import com.utc2.facility.dto.response.BorrowRequestResponse;
-import com.utc2.facility.dto.response.EquipmentResponse;
 import com.utc2.facility.entity.BorrowRequest;
-import com.utc2.facility.entity.Equipment;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

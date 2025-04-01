@@ -16,5 +16,6 @@ public class BorrowRequestUpdateRequest {
     String reason;
     LocalDateTime borrowDate;
     LocalDateTime returnDate;
+    LocalDateTime expectedReturnDate;
     String status;
 }
