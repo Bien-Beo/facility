@@ -18,6 +18,7 @@ import java.util.List;
 public class RoomType {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", length = 36)
      String id;
 
     @Column(name = "type_name", unique = true, columnDefinition = "VARCHAR(255) COLLATE utf8mb4_unicode_ci")
