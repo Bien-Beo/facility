@@ -23,12 +23,12 @@ public class RepairRequest {
     String id;
 
     @ManyToOne
-    @JoinColumn(name = "room_id", nullable = false)
+    @JoinColumn(name = "room_id")
     Room room;
 
     @ManyToOne
     @JoinColumn(name = "equipment_id")
-    Equipment equipment; // Có thể null nếu báo hỏng phòng
+    Equipment equipment;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -37,8 +37,8 @@ public class RepairRequest {
     @Column(name = "description", nullable = false, columnDefinition = "TEXT")
     String description;
 
-    @Column(name = "is_room_issue", nullable = false)
-    Boolean isRoomIssue; // TRUE: lỗi phòng, FALSE: lỗi thiết bị
+    @Column(name = "is_room_issue", nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
+    Boolean isRoomIssue = false;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
