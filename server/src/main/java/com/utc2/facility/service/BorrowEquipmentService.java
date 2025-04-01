@@ -5,6 +5,7 @@ import com.utc2.facility.dto.request.BorrowRequestCreationRequest;
 import com.utc2.facility.dto.response.BorrowEquipmentResponse;
 import com.utc2.facility.dto.response.BorrowRequestResponse;
 import com.utc2.facility.entity.*;
+import com.utc2.facility.enums.BorrowRequestStatus;
 import com.utc2.facility.exception.AppException;
 import com.utc2.facility.exception.ErrorCode;
 import com.utc2.facility.mapper.BorrowEquipmentMapper;

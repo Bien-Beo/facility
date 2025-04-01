@@ -43,6 +43,15 @@ public class BorrowRequestService {
             throw new AppException(ErrorCode.ROOM_UNAVAILABLE);
         }
 
+        // Kiểm tra nếu thời gian mượn không hợp lệ (phải lớn hơn hiện tại ít nhất 1 tiếng)
+        if (request.getBorrowDate().isBefore(LocalDateTime.now().plusHours(1))) {
+            throw new AppException(ErrorCode.BORROW_TIME_INVALID);
+        }
+
+        if (request.getExpectedReturnDate().isBefore(request.getBorrowDate().plusHours(1))) {
+            throw new AppException(ErrorCode.BORROW_RETURN_TIME_INVALID);
+        }
+
         User user = userRepository.findByUserId(request.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
@@ -59,6 +68,13 @@ public class BorrowRequestService {
     public BorrowRequestResponse getBorrowRequest(@Param("id") String id) {
         BorrowRequest borrowRequest = borrowRequestRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.BORROW_REQUEST_NOT_FOUND));
+
+        if (borrowRequest.getBorrowDate().isBefore(LocalDateTime.now()) && borrowRequest.getStatus() == BorrowRequestStatus.PENDING) {
+            borrowRequest.setStatus(BorrowRequestStatus.REJECTED);
+            borrowRequestRepository.save(borrowRequest);
+            throw new AppException(ErrorCode.BORROW_REQUEST_EXPIRED);
+        }
+
         return borrowRequestMapper.toBorrowRequestResponse(borrowRequest);
     }
 
