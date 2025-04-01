@@ -19,5 +19,8 @@ public class BorrowRequestCreationRequest {
     String reason;
     LocalDateTime borrowDate;
     LocalDateTime returnDate;
+
+    @NotNull
+    LocalDateTime expectedReturnDate;
     String status;
 }

@@ -20,6 +20,7 @@ public class BorrowRequestResponse {
     String reason;
     LocalDateTime borrowDate;
     LocalDateTime returnDate;
+    LocalDateTime expectedReturnDate;
     String status;
 
     public static BorrowRequestResponse fromEntity(BorrowRequest borrowRequest) {
@@ -30,6 +31,7 @@ public class BorrowRequestResponse {
                 .reason(borrowRequest.getReason())
                 .borrowDate(borrowRequest.getBorrowDate())
                 .returnDate(borrowRequest.getReturnDate())
+                .expectedReturnDate(borrowRequest.getExpectedReturnDate())
                 .status(borrowRequest.getStatus().name())
                 .build();
     }
