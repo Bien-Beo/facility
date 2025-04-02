@@ -16,4 +16,6 @@ public class RepairEquipmentRequestCreationRequest {
 
     @NotNull
     String description;
+
+    //test
 }
