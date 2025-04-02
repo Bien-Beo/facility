@@ -14,24 +14,24 @@
 .button1:hover{
     -fx-background-color : #003d8f;
     -fx-border-color: #091c6c;
-    -fx-text-fill: white;
+    -fx-text-fill: black;
 }
 .button1-click-change{
     -fx-background-color: #004eba;
+    -fx-border-color: black;
     -fx-font-size:14px;
     -fx-font-weight: bold;
-    -fx-border-color: white;
-    -fx-text-fill: white;
+    -fx-border-color:  #071654;
     -fx-border-width: 0px 0px 0px 2px;
 }
 .button1:pressed{
     -fx-background-color:#004eba;
-    -fx-border-color: white;
+    -fx-border-color: black;
     -fx-border-width: 0px 0px 0px 2px;
 }
 .button1:focused{
     -fx-background-color:#004eba;
-    -fx-border-color: white;
+    -fx-border-color: black;
     -fx-border-width: 0px 0px 0px 2px;
 }
 .form-content{
