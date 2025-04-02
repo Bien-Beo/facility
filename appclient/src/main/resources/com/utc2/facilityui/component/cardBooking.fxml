@@ -11,8 +11,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-
-<AnchorPane prefHeight="197.0" prefWidth="762.0" stylesheets="@../styles/mainUI.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.view.CardBooking">
+<AnchorPane prefHeight="197.0" prefWidth="762.0" stylesheets="@../styles/mainUI.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.CardBookingController">
    <styleClass>
       <String fx:value="card-booking" />
       <String fx:value="card-booking1" />
@@ -26,7 +25,7 @@
                <left>
                   <AnchorPane prefHeight="200.0" prefWidth="512.0" BorderPane.alignment="CENTER">
                      <children>
-                        <Label fx:id="nameBooking" layoutX="44.0" layoutY="14.0" prefHeight="39.0" prefWidth="186.0" text="Courtyard | Lunch">
+                        <Label fx:id="nameBooking" layoutX="44.0" layoutY="14.0" prefHeight="39.0" prefWidth="459.0" text="Courtyard | Lunch">
                            <font>
                               <Font name="System Bold" size="20.0" />
                            </font>
