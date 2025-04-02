@@ -11,7 +11,7 @@ public class MainUI extends Application {
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("/com/utc2/facilityui/view/home.fxml"));
         primaryStage.setTitle("Facility UI");
-        primaryStage.setScene(new Scene(root, 1065, 492));
+        primaryStage.setScene(new Scene(root, 1065, 497));
         primaryStage.show();
     }
 

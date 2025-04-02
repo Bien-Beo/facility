@@ -60,7 +60,7 @@
                               <Font size="13.0" />
                            </font>
                         </Text>
-                        <Text fx:id="dateBooking" layoutX="78.0" layoutY="93.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Thu Apr 25 2024" wrappingWidth="425.13671875">
+                        <Text fx:id="dateBooking" layoutX="80.0" layoutY="93.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Thu Apr 25 2024" wrappingWidth="413.13671875">
                            <font>
                               <Font size="13.0" />
                            </font>
@@ -86,12 +86,12 @@
                <center>
                   <AnchorPane prefHeight="200.0" prefWidth="242.0" BorderPane.alignment="CENTER">
                      <children>
-                        <Label layoutX="48.0" layoutY="32.0" prefHeight="27.0" prefWidth="126.0" styleClass="card-booking2" text="State the reson:">
+                        <Label layoutX="24.0" layoutY="34.0" prefHeight="27.0" prefWidth="126.0" styleClass="card-booking2" text="State the reson:">
                            <font>
                               <Font size="14.0" />
                            </font>
                         </Label>
-                        <Label layoutX="48.0" layoutY="67.0" prefHeight="33.0" prefWidth="155.0" style="-fx-border-color: rgba(184, 184, 184, 0.78); -fx-border-radius: 1px;" styleClass="card-booking2" text="Remark*">
+                        <Label layoutX="24.0" layoutY="67.0" prefHeight="33.0" prefWidth="155.0" style="-fx-border-color: rgba(184, 184, 184, 0.78); -fx-border-radius: 1px;" styleClass="card-booking2" text="Remark*">
                            <font>
                               <Font size="14.0" />
                            </font>
@@ -99,7 +99,7 @@
                               <Insets left="10.0" />
                            </padding>
                         </Label>
-                        <Button fx:id="btnCancel" layoutX="48.0" layoutY="124.0" lineSpacing="10.0" mnemonicParsing="false" prefHeight="32.0" prefWidth="156.0" styleClass="button-cancel" text="CANCEL">
+                        <Button fx:id="btnCancel" layoutX="23.0" layoutY="123.0" lineSpacing="10.0" mnemonicParsing="false" prefHeight="32.0" prefWidth="156.0" styleClass="button-cancel" text="CANCEL">
                            <graphic>
                               <ImageView fitHeight="22.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
                                  <image>
