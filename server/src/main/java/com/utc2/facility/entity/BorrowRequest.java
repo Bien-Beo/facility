@@ -34,11 +34,8 @@ public class BorrowRequest {
     @Column(name = "borrow_date", nullable = false)
     LocalDateTime borrowDate;
 
-    @Column(name = "return_date")
+    @Column(name = "return_date", nullable = false)
     LocalDateTime returnDate;
-
-    @Column(name = "expected_return_date", nullable = false)
-    LocalDateTime expectedReturnDate;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 50, nullable = false)

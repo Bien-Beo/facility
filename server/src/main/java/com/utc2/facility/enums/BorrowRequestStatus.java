@@ -4,6 +4,5 @@ public enum BorrowRequestStatus {
     PENDING,
     APPROVED,
     REJECTED,
-    CANCELLED,
-    COMPLETED
+    CANCELLED
 }

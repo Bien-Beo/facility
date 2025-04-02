@@ -1,87 +1,72 @@
 package com.utc2.facilityui.controller;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.utc2.facilityui.model.ButtonNav;
-import com.utc2.facilityui.model.User;
-import com.utc2.facilityui.response.ApiResponse;
-import com.utc2.facilityui.service.UserServices;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Button;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import javafx.fxml.Initializable;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.text.Text;
+import javafx.scene.layout.VBox;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Type;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 
-public class InfoPersonController {
-
-    @FXML private AnchorPane btn;
-    @FXML public Button buttonNav;
-    @FXML private ImageView imgButtonNav;
-
-    public void setData(ButtonNav bntNav) throws IOException {
-        if (bntNav.getImageSrc() != null) {
-            InputStream imgStream = getClass().getResourceAsStream(bntNav.getImageSrc());
-            if (imgStream != null) {
-                Image image = new Image(imgStream);
-                imgButtonNav.setImage(image);
-            } else {
-                System.err.println("Không tìm thấy ảnh: " + bntNav.getImageSrc());
-            }
-        }
-        buttonNav.setText(bntNav.getName());
-        // Thêm sự kiện click để chuyển trang
-        buttonNav.setOnAction(event -> loadPage(bntNav.getName()));
-    }
-
-    private void loadPage(String pageName) {
+public class InfoPersonController implements Initializable {
+    @FXML
+    private VBox putbtn;
+    private List<ButtonNav> recentLyAdded;
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        recentLyAdded = recentLyAdded();  // Fix lỗi NullPointerException
         try {
-            // Tìm mainCenter từ scene graph
-            AnchorPane mainCenter = (AnchorPane) btn.getScene().lookup("#mainCenter");
-            if (mainCenter == null) {
-                System.err.println("Không tìm thấy mainCenter");
-                return;
+            for (ButtonNav btnNav : recentLyAdded) {
+                FXMLLoader fxmlLoader = new FXMLLoader();
+                fxmlLoader.setLocation(getClass().getResource("/com/utc2/facilityui/component/buttonNav.fxml"));
+
+                AnchorPane btn = fxmlLoader.load();
+                ButtonNavController controller = fxmlLoader.getController();
+                controller.setData(btnNav);
+
+                putbtn.getChildren().add(btn);
             }
-
-            // Load trang mới
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/utc2/facilityui/view/" + getPageFile(pageName)));
-            AnchorPane newPage = loader.load();
-
-            // Xóa nội dung cũ và thêm trang mới vào mainCenter
-            mainCenter.getChildren().clear();
-            mainCenter.getChildren().add(newPage);
-
-            // Set anchors để trang mới lấp đầy mainCenter
-            AnchorPane.setTopAnchor(newPage, 0.0);
-            AnchorPane.setBottomAnchor(newPage, 0.0);
-            AnchorPane.setLeftAnchor(newPage, 0.0);
-            AnchorPane.setRightAnchor(newPage, 0.0);
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Lỗi khi chuyển trang: " + pageName);
         }
     }
 
-    private String getPageFile(String pageName) {
-        return switch (pageName.toLowerCase()) {
-            case "rooms" -> "rooms.fxml";
-            case "equipments" -> "equipments.fxml";
-            case "my bookings" -> "myBookings.fxml";
-            case "maintenance" -> "maintenance.fxml";
-            case "reset password" -> "resetPassword.fxml";
-            case "logout" -> "login.fxml";
-            default -> "home.fxml";
-        };
+    private List<ButtonNav> recentLyAdded(){
+        List<ButtonNav> ls = new ArrayList<>();
+        ButtonNav btn = new ButtonNav();
+        btn.setName("Rooms");
+        btn.setImageSrc("/com/utc2/facilityui/images/medal.png");
+        ls.add(btn);
+
+        btn = new ButtonNav();
+        btn.setName("Equipments");
+        btn.setImageSrc("/com/utc2/facilityui/images/equipment.png");
+        ls.add(btn);
+
+        btn = new ButtonNav();
+        btn.setName("My Bookings");
+        btn.setImageSrc("/com/utc2/facilityui/images/booking.png");
+        ls.add(btn);
+
+        btn = new ButtonNav();
+        btn.setName("Maintenance");
+        btn.setImageSrc("/com/utc2/facilityui/images/myRequest.png");
+        ls.add(btn);
+
+        btn = new ButtonNav();
+        btn.setName("Reset Password");
+        btn.setImageSrc("/com/utc2/facilityui/images/password.png");
+        ls.add(btn);
+
+        btn = new ButtonNav();
+        btn.setName("Logout");
+        btn.setImageSrc("/com/utc2/facilityui/images/logout.png");
+        ls.add(btn);
+        return ls;
     }
-
 }
-
-
