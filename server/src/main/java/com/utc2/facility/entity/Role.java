@@ -14,7 +14,7 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "role")
-public class Role {
+public class Role {//
     @Id
     @Enumerated(EnumType.STRING)
     @Column(name = "name", length = 36)

@@ -15,7 +15,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "permission")
-public class Permission {
+public class Permission {//
     @Id
     @Column(name = "name", length = 50)
      String name;

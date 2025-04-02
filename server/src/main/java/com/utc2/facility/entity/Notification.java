@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "notification")
-public class Notification {
+public class Notification {//
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

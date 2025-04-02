@@ -18,4 +18,4 @@ public class UserResponse {
      String username;
      String email;
      Set<Role> roles;
-}
+}//

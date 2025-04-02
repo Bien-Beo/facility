@@ -35,4 +35,4 @@ public class RoomCreationRequest {
     String slug;
 
     String nameTypeRoom;
-}
+}//

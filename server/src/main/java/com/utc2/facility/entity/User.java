@@ -16,7 +16,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "user")
-public class User {
+public class User {//
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
      String id;

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface RoomRepository extends JpaRepository<Room, String> {
+public interface RoomRepository extends JpaRepository<Room, String> {//
     boolean existsByName(String name);
     Optional<Room> findByName(String name);
     Optional<Room> findBySlug(String slug);

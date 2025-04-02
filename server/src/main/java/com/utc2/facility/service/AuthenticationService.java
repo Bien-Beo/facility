@@ -42,7 +42,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class AuthenticationService {
+public class AuthenticationService {//
     UserRepository userRepository;
     InvalidatedTokeRepository invalidatedTokeRepository;
 
