@@ -118,6 +118,10 @@
     -fx-background-radius: 1px 1px 1px 1px;
     -fx-text-fill: white;
 }
+.bntAdd{
+    -fx-background-color: #74f474;
+
+}
 
 .table-view:focused {
     -fx-focus-color: transparent;
