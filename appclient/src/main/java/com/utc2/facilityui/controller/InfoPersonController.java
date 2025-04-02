@@ -4,7 +4,6 @@ import com.utc2.facilityui.model.ButtonNav;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 
@@ -14,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class Controller implements Initializable {
+public class InfoPersonController implements Initializable {
     @FXML
     private VBox putbtn;
     private List<ButtonNav> recentLyAdded;
@@ -27,7 +26,7 @@ public class Controller implements Initializable {
                 fxmlLoader.setLocation(getClass().getResource("/com/utc2/facilityui/component/buttonNav.fxml"));
 
                 AnchorPane btn = fxmlLoader.load();
-                InfoPersonController controller = fxmlLoader.getController();
+                ButtonNavController controller = fxmlLoader.getController();
                 controller.setData(btnNav);
 
                 putbtn.getChildren().add(btn);
