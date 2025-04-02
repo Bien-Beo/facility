@@ -1,7 +1,4 @@
 
-.root {
-    -fx-font-size: 2vw; /* Kích thước chữ theo tỷ lệ cửa sổ */
-}
 .nav-form{
     -fx-background-color:  #00275e;
 }
@@ -16,26 +13,25 @@
 }
 .button1:hover{
     -fx-background-color : #003d8f;
-    -fx-border-color: #CDD1D6;
     -fx-border-color: #091c6c;
-    -fx-text-fill: black;
+    -fx-text-fill: white;
 }
 .button1-click-change{
     -fx-background-color: #004eba;
-    -fx-border-color: black;
     -fx-font-size:14px;
     -fx-font-weight: bold;
-    -fx-border-color:  #071654;
+    -fx-border-color: white;
+    -fx-text-fill: white;
     -fx-border-width: 0px 0px 0px 2px;
 }
 .button1:pressed{
     -fx-background-color:#004eba;
-    -fx-border-color: black;
+    -fx-border-color: white;
     -fx-border-width: 0px 0px 0px 2px;
 }
 .button1:focused{
     -fx-background-color:#004eba;
-    -fx-border-color: black;
+    -fx-border-color: white;
     -fx-border-width: 0px 0px 0px 2px;
 }
 .form-content{
@@ -46,11 +42,59 @@
     -fx-border-color: #7886C7;
     -fx-border-width: 0px 0px 2px 0px;
 }
+.card-header{
+   -fx-text-fill:#004eba;
+    -fx-font-size: 16px;
+}
+.card-header{
+    -fx-text-fill:#004eba;
+    -fx-font-weight: bold;
+}
+.card-footer{
+    -fx-text-fill:#004eba;
+
+}
+.card-booking{
+
+    -fx-border-color: #004eba;
+    -fx-border-width: 0px 0px 0px 10px;
+    -fx-background-radius: 15px;
+}
+.card-booking1{
+    -fx-background-color: #d6e8ff;
+}
+.card-booking2{
+    -fx-text-fill:gray;
+}
+.card-Acceptbooking{
+
+    -fx-border-color: #2fa536;
+    -fx-border-width: 0px 0px 0px 10px;
+    -fx-background-radius: 10px;
+}
+.card-Acceptbooking1{
+    -fx-background-color: #e5ffe6;
+}
+
+.button-cancel{
+    -fx-background-color: #b52828;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+.shadow{
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 6,0,0,0);
+}
+.white-bg{
+    -fx-background-color: #fff;
+    -fx-background-radius: 8px;
+}
+
 /*
 
 */
 .button2
 {
+    -fx-cursor: hand;
     -fx-background-color : #FFFFFF;
     -fx-background-radius :  1px 1 px 1px 1px;
     -fx-border-color: #CDD1D6;
@@ -59,7 +103,7 @@
 }
 .button2:hover
 {
-    -fx-background-color : #EBE9F6 ;
+    -fx-background-color : #9e90f8;
     -fx-border-color: #CDD1D6;
     -fx-border-width:  1px 1 px 1px 1px;
 }
