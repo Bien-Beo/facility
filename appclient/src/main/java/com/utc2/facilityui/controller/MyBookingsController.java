@@ -87,8 +87,8 @@ public class MyBookingsController implements Initializable {
         acceptBookings.setTimeBooking("13:00 PM - 05:30 PM");
         acceptBookings.setRequestBooking("Wed Apr 2 2025, 11:58 AM");
         acceptBookings.setStatusBooking("Pending Approval");
-        acceptBookings.addApprovalByManager("Ngoc Bien at Tue Apr 1 2025, 12:06 PM"); // FM approval
-        acceptBookings.addApprovalByManager("Nhat Tan at Tue Apr 1 2025, 10:06 PM"); // GD approval
+        acceptBookings.setApprovalByGD("Ngoc Bien at Tue Apr 1 2025, 12:06 PM");
+        acceptBookings.setApprovalByFM("Nhat Tan at Tue Apr 1 2025, 10:06 PM");
         ls.add(acceptBookings);
 
 
@@ -99,8 +99,8 @@ public class MyBookingsController implements Initializable {
         acceptBookings.setTimeBooking("13:00 PM - 05:30 PM");
         acceptBookings.setRequestBooking("Wed Apr 2 2025, 11:58 AM");
         acceptBookings.setStatusBooking("Pending Approval");
-        acceptBookings.addApprovalByManager("Ngoc Bien at Tue Apr 1 2025, 12:06 PM");
-        acceptBookings.addApprovalByManager("Nhat Tan at Tue Apr 1 2025, 10:06 PM");
+        acceptBookings.setApprovalByGD("Ngoc Bien at Tue Apr 1 2025, 12:06 PM");
+        acceptBookings.setApprovalByFM("Nhat Tan at Tue Apr 1 2025, 10:06 PM");
         ls.add(acceptBookings);
 
         acceptBookings = new CardAcceptBooking();
@@ -110,8 +110,8 @@ public class MyBookingsController implements Initializable {
         acceptBookings.setTimeBooking("13:00 PM - 05:30 PM");
         acceptBookings.setRequestBooking("Wed Apr 2 2025, 11:58 AM");
         acceptBookings.setStatusBooking("Pending Approval");
-        acceptBookings.addApprovalByManager("Ngoc Bien at Tue Apr 1 2025, 12:06 PM");
-        acceptBookings.addApprovalByManager("Nhat Tan at Tue Apr 1 2025, 10:06 PM");
+        acceptBookings.setApprovalByGD("Ngoc Bien at Tue Apr 1 2025, 12:06 PM");
+        acceptBookings.setApprovalByFM("Nhat Tan at Tue Apr 1 2025, 10:06 PM");
         ls.add(acceptBookings);
         return ls;
     }
