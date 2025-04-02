@@ -1,37 +1,37 @@
 
 .nav-form{
-    -fx-background-color:  #00275e;
+    -fx-background-color:  #525eda;
 }
 .button1{
-    -fx-background-color:  #00275e;
+      -fx-background-color: #525eda;;
     -fx-cursor: hand;
     -fx-font-size:14px;
     -fx-text-fill: white;
     -fx-font-weight: bold;
-    -fx-border-color:  #071654;
+    -fx-border-color: #4c57cc;
 
 }
 .button1:hover{
-    -fx-background-color : #003d8f;
-    -fx-border-color: #091c6c;
-    -fx-text-fill: black;
+    -fx-background-color : #656cff;
+    -fx-border-color: #CDD1D6;
+    -fx-text-fill: white;
 }
 .button1-click-change{
-    -fx-background-color: #004eba;
-    -fx-border-color: black;
+    -fx-background-color: #98a9ff;
     -fx-font-size:14px;
     -fx-font-weight: bold;
-    -fx-border-color:  #071654;
+    -fx-border-color: white;
+    -fx-text-fill: white;
     -fx-border-width: 0px 0px 0px 2px;
 }
 .button1:pressed{
-    -fx-background-color:#004eba;
-    -fx-border-color: black;
+    -fx-background-color:#98a9ff;
+    -fx-border-color: white;
     -fx-border-width: 0px 0px 0px 2px;
 }
 .button1:focused{
-    -fx-background-color:#004eba;
-    -fx-border-color: black;
+    -fx-background-color:#98a9ff;
+    -fx-border-color: white;
     -fx-border-width: 0px 0px 0px 2px;
 }
 .form-content{
@@ -80,6 +80,7 @@
     -fx-background-color: #b52828;
     -fx-text-fill: white;
     -fx-font-weight: bold;
+    -fx-cursor: hand;
 }
 .shadow{
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 6,0,0,0);

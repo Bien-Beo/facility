@@ -8,9 +8,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" style="-fx-border-radius: none;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.RoomsController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="507.0" prefWidth="830.0" style="-fx-border-radius: none;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.RoomsController">
    <children>
-      <ScrollPane fitToWidth="true" layoutY="-4.0" prefHeight="503.0" prefWidth="830.0">
+      <ScrollPane fitToWidth="true" layoutY="-4.0" prefHeight="514.0" prefWidth="830.0">
          <content>
             <VBox prefHeight="960.0" prefWidth="815.0" spacing="20">
                <padding>

@@ -40,32 +40,32 @@ public class InfoPersonController implements Initializable {
         List<ButtonNav> ls = new ArrayList<>();
         ButtonNav btn = new ButtonNav();
         btn.setName("Rooms");
-        btn.setImageSrc("/com/utc2/facilityui/images/medal.png");
+        btn.setImageSrc("/com/utc2/facilityui/images/medal-outline-icon.png");
         ls.add(btn);
 
         btn = new ButtonNav();
         btn.setName("Equipments");
-        btn.setImageSrc("/com/utc2/facilityui/images/equipment.png");
+        btn.setImageSrc("/com/utc2/facilityui/images/light-bulb.png");
         ls.add(btn);
 
         btn = new ButtonNav();
         btn.setName("My Bookings");
-        btn.setImageSrc("/com/utc2/facilityui/images/booking.png");
+        btn.setImageSrc("/com/utc2/facilityui/images/List-Check-icon.png");
         ls.add(btn);
 
         btn = new ButtonNav();
         btn.setName("Maintenance");
-        btn.setImageSrc("/com/utc2/facilityui/images/myRequest.png");
+        btn.setImageSrc("/com/utc2/facilityui/images/maintenance-icon.png");
         ls.add(btn);
 
         btn = new ButtonNav();
         btn.setName("Reset Password");
-        btn.setImageSrc("/com/utc2/facilityui/images/password.png");
+        btn.setImageSrc("/com/utc2/facilityui/images/rotation-lock.png");
         ls.add(btn);
 
         btn = new ButtonNav();
         btn.setName("Logout");
-        btn.setImageSrc("/com/utc2/facilityui/images/logout.png");
+        btn.setImageSrc("/com/utc2/facilityui/images/logout-icon.png");
         ls.add(btn);
         return ls;
     }
