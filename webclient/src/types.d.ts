@@ -141,10 +141,11 @@ interface AuthProviderProps {
 
 interface RequireAuthProps {
   children: ReactNode;
-  GD: boolean;
-  FM: boolean;
+  Technician: boolean;
+  FacilityManagement: boolean;
   Admin?: boolean;
-  noAdmin?: boolean;
+  User?: boolean;
+  //noAdmin?: boolean;
 }
 
 // interface EventInfoProps {
