@@ -59,10 +59,10 @@ public class RepairEquipmentRequestController {
                 .build();
     }
 
-//    @PutMapping("/{cancelRequestId}")
-//    ApiResponse<CancelRequestResponse> updateCancelRequest(@RequestBody @Valid CancelRequestUpdateRequest request, @PathVariable String cancelRequestId)  {
-//        return ApiResponse.<CancelRequestResponse>builder()
-//                .result(cancelRequestService.updateCancelRequest(cancelRequestId, request))
-//                .build();
-//    }
+    @PutMapping("/{cancelRequestId}")
+    ApiResponse<CancelRequestResponse> updateCancelRequest(@RequestBody @Valid CancelRequestUpdateRequest request, @PathVariable String cancelRequestId)  {
+        return ApiResponse.<CancelRequestResponse>builder()
+                .result(cancelRequestService.updateCancelRequest(cancelRequestId, request))
+                .build();
+    }
 }
