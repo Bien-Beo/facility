@@ -10,7 +10,6 @@ import com.utc2.facility.repository.RoomTypeRepository;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface RoomMapper {//
@@ -20,9 +19,4 @@ public interface RoomMapper {//
     RoomResponse toRoomResponse(Room room);
 
     Room toRoom(RoomCreationRequest request);
-
-    @Mapping(target = "roomType", ignore = true)
-    @Mapping(target = "building", ignore = true)
-    @Mapping(target = "facilityManager", ignore = true)
-    void updateRoom(@MappingTarget Room room, RoomCreationRequest request);
 }

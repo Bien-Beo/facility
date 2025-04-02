@@ -6,7 +6,6 @@ import com.utc2.facility.entity.Equipment;
 import com.utc2.facility.entity.Room;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface EquipmentMapper {//
@@ -16,9 +15,4 @@ public interface EquipmentMapper {//
     EquipmentResponse toEquipmentResponse(Equipment equipment);
 
     Equipment toEquipment(EquipmentCreationRequest request);
-
-    @Mapping(target = "equipmentType", ignore = true)
-    @Mapping(target = "room", ignore = true)
-    @Mapping(target = "equipmentManager", ignore = true)
-    void updateEquipment(@MappingTarget Equipment equipment, EquipmentCreationRequest request);
 }

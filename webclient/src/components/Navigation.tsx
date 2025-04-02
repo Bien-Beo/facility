@@ -43,8 +43,6 @@ const Navigation: FC = (): JSX.Element => {
   const { data, isPending, isError, error } = useQuery<NavigationProps>({
     queryKey: ["navigation"],
     queryFn: async () => {
-      console.log("Auth User:", auth?.user);
-      console.log("User ID:", auth?.user?.userId);
       const response = await API.get<NavigationProps>(
         `${import.meta.env.VITE_APP_SERVER_URL}/dashboard/count/${
           auth?.user?.userId

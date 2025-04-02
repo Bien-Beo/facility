@@ -3,7 +3,6 @@ package com.utc2.facility.repository;
 import com.utc2.facility.entity.Equipment;
 import com.utc2.facility.entity.Room;
 import com.utc2.facility.entity.User;
-import org.mapstruct.MappingTarget;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
