@@ -25,7 +25,7 @@ public class EquipmentResponse {
     Boolean isActive;
     Date createdAt;
     Date updatedAt;
-    Date deletedAt;
+    Date deletedAt;//
 
     public static EquipmentResponse fromEntity(Equipment equipment) {
         return EquipmentResponse.builder()

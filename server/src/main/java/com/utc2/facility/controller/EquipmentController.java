@@ -22,7 +22,7 @@ import java.util.List;
 @Slf4j
 public class EquipmentController {
     EquipmentService equipmentService;
-
+//
     @PostMapping
     ApiResponse<EquipmentResponse> createEquipment(@RequestBody @Valid EquipmentCreationRequest request) {
         return ApiResponse.<EquipmentResponse>builder()

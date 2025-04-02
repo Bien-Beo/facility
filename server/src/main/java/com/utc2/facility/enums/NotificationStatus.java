@@ -1,5 +1,5 @@
 package com.utc2.facility.enums;
 
-public enum NotificationStatus {
+public enum NotificationStatus {//
     UNREAD, READ
 }

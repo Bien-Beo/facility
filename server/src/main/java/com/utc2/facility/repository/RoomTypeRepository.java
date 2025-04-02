@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface RoomTypeRepository extends JpaRepository<RoomType, String> {
+public interface RoomTypeRepository extends JpaRepository<RoomType, String> {//
     boolean existsByName(String name);
     Optional<RoomType> findByName(String name);
 }

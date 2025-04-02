@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class DashboardService {
+public class DashboardService {//
     RoomRepository roomRepository;
 
     public List<Map<String, Object>> getDashboard() {
