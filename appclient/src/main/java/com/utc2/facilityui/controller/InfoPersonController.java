@@ -1,6 +1,11 @@
 package com.utc2.facilityui.controller;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.utc2.facilityui.model.ButtonNav;
+import com.utc2.facilityui.model.User;
+import com.utc2.facilityui.response.ApiResponse;
+import com.utc2.facilityui.service.UserServices;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
@@ -8,9 +13,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.text.Text;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +27,7 @@ public class InfoPersonController {
     @FXML public Button buttonNav;
     @FXML private ImageView imgButtonNav;
 
-    public void setData(ButtonNav bntNav) {
+    public void setData(ButtonNav bntNav) throws IOException {
         if (bntNav.getImageSrc() != null) {
             InputStream imgStream = getClass().getResourceAsStream(bntNav.getImageSrc());
             if (imgStream != null) {
@@ -34,6 +41,7 @@ public class InfoPersonController {
         // Thêm sự kiện click để chuyển trang
         buttonNav.setOnAction(event -> loadPage(bntNav.getName()));
     }
+
     private void loadPage(String pageName) {
         try {
             // Tìm mainCenter từ scene graph
