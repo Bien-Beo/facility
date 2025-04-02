@@ -9,7 +9,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
-public interface EquipmentMapper {
+public interface EquipmentMapper {//
     @Mapping(target = "equipmentTypeName", source = "equipmentType.name")
     @Mapping(target = "nameFacilityManager", source = "equipmentManager.username")
     @Mapping(target = "roomName", source = "room.name")

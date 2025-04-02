@@ -16,4 +16,4 @@ public class RepairRoomRequestCreationRequest {
 
     @NotNull
     String description;
-}
+}//

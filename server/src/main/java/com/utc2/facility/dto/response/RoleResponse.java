@@ -15,3 +15,4 @@ public class RoleResponse {
      String description;
      Set<PermissionResponse> permissions;
 }
+//

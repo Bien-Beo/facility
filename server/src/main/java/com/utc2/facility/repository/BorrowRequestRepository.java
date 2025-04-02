@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface BorrowRequestRepository extends JpaRepository<BorrowRequest, String> {
+public interface BorrowRequestRepository extends JpaRepository<BorrowRequest, String> {//
     List<BorrowRequest> findByUserId(String userId);
     List<BorrowRequest> findByBorrowDate(LocalDateTime borrowDate);
     List<BorrowRequest> findByReturnDate(LocalDateTime returnDate);

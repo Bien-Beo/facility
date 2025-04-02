@@ -28,7 +28,7 @@ public class RoomResponse {
     Date createdAt;
     Date updatedAt;
     Date deletedAt;
-
+//
     public static RoomResponse fromEntity(Room room) {
         return RoomResponse.builder()
                 .id(room.getId())

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface CancelRequestRepository extends JpaRepository<CancelRequest, String> {
+public interface CancelRequestRepository extends JpaRepository<CancelRequest, String> {//
     List<CancelRequest> findByUserId(String userId);
     Optional<CancelRequest> findByBorrowRequestId(String borrowRequestId);
 }

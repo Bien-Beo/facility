@@ -24,4 +24,4 @@ public class BorrowEquipmentResponse {
                 .equipmentName(borrowEquipment.getEquipment().getName() == null ? null : borrowEquipment.getEquipment().getName())
                 .build();
     }
-}
+}//

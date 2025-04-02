@@ -26,7 +26,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class RepairEquipmentRequestService {
+public class RepairEquipmentRequestService {//
 
     RepairEquipmentRequestRepository repairEquipmentRequestRepository;
     UserRepository userRepository;

@@ -1,6 +1,6 @@
 package com.utc2.facility.enums;
 
-public enum BorrowRequestStatus {
+public enum BorrowRequestStatus {//
     PENDING,
     APPROVED,
     REJECTED,

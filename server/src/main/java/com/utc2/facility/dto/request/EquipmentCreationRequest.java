@@ -26,4 +26,4 @@ public class EquipmentCreationRequest {
     String equipmentTypeName;
 
     String equipmentManagerId;
-}
+}//

@@ -11,7 +11,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
-public interface RepairEquipmentRequestMapper {
+public interface RepairEquipmentRequestMapper {//
     @Mapping(target = "userName", source = "user.username")
     @Mapping(target = "equipmentName", source = "equipment.name")
     RepairEquipmentRequestResponse toRepairEquipmentRequestResponse(RepairEquipmentRequest request);

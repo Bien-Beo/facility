@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface BorrowEquipmentRepository extends JpaRepository<BorrowEquipment, String> {
+public interface BorrowEquipmentRepository extends JpaRepository<BorrowEquipment, String> {//
     Optional<BorrowEquipment> findByBorrowRequest(BorrowRequest borrowRequest);
     Optional<BorrowEquipment> findByEquipment(Equipment equipment);
     List<BorrowEquipment> findByBorrowRequestId(@Param("borrowRequestId") String borrowRequestId);

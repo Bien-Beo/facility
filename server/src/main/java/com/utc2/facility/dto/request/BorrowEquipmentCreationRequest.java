@@ -13,4 +13,4 @@ import java.time.LocalDateTime;
 public class BorrowEquipmentCreationRequest {
     String borrowRequestId;
     String equipmentId;
-}
+}//

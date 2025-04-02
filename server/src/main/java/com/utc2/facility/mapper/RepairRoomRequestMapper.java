@@ -8,7 +8,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
-public interface RepairRoomRequestMapper {
+public interface RepairRoomRequestMapper {//
     @Mapping(target = "userName", source = "user.username")
     @Mapping(target = "roomName", source = "room.name")
     RepairRoomRequestResponse toRepairRoomRequestResponse(RepairRoomRequest repairRoomRequest);

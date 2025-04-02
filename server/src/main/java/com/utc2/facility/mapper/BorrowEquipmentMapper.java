@@ -11,7 +11,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
-public interface BorrowEquipmentMapper {
+public interface BorrowEquipmentMapper {//
     @Mapping(target = "borrowRequestId", source = "borrowRequest.id")
     @Mapping(target = "equipmentName", source = "equipment.name")
     BorrowEquipmentResponse toBorrowEquipmentResponse(BorrowEquipment borrowEquipment);

@@ -28,4 +28,4 @@ public class EquipmentType {
 
     @OneToMany(mappedBy = "equipmentType", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<Equipment> equipmentList;
-}
+}//

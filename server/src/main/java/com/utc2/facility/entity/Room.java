@@ -21,7 +21,7 @@ import java.util.Set;
 @Entity
 @Table(name = "room")
 public class Room {
-    @Id
+    @Id//
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", length = 36)
     String id;

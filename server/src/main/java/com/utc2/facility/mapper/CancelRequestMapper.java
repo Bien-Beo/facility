@@ -9,7 +9,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
-public interface CancelRequestMapper {
+public interface CancelRequestMapper {//
     @Mapping(target = "userName", source = "user.username")
     @Mapping(target = "borrowRequestId", source = "borrowRequest.id")
     CancelRequestResponse toCancelRequestResponse(CancelRequest cancelRequest);

@@ -29,5 +29,5 @@ public class RepairEquipmentRequestResponse {
                 .status(repairEquipmentRequest.getStatus().name())
                 .createdAt(repairEquipmentRequest.getCreatedAt())
                 .build();
-    }
+    }//
 }

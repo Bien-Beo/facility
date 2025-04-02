@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface RepairRoomRequestRepository extends JpaRepository<RepairRoomRequest, String> {
+public interface RepairRoomRequestRepository extends JpaRepository<RepairRoomRequest, String> {/// /
     List<RepairRoomRequest> findByUserId(String userId);
     Optional<RepairRoomRequest> findByRoomName(String roomName);
 }

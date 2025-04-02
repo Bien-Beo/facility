@@ -25,4 +25,4 @@ public class BorrowEquipment {
     @ManyToOne
     @JoinColumn(name = "equipment_id", nullable = false)
     Equipment equipment;
-}
+}//

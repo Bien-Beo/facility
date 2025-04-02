@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface RepairEquipmentRequestRepository extends JpaRepository<RepairEquipmentRequest, String> {
+public interface RepairEquipmentRequestRepository extends JpaRepository<RepairEquipmentRequest, String> {//
     List<RepairEquipmentRequest> findByUserId(String userId);
     List<RepairEquipmentRequest> findByEquipmentId(String equipmentId);
     Optional<RepairEquipmentRequest> findByEquipmentName(String equipmentName);

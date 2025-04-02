@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "repair_equipment_request")
-public class RepairEquipmentRequest {
+public class RepairEquipmentRequest {//
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

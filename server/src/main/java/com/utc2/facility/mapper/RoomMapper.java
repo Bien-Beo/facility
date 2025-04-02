@@ -13,7 +13,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
-public interface RoomMapper {
+public interface RoomMapper {//
     @Mapping(target = "buildingName", source = "building.name")
     @Mapping(target = "nameFacilityManager", source = "facilityManager.username")
     @Mapping(target = "roomTypeName", source = "roomType.name")

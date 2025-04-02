@@ -73,4 +73,4 @@ public class Equipment {
     protected void onUpdate() {
         this.updatedAt = new Date();
     }
-}
+}//
