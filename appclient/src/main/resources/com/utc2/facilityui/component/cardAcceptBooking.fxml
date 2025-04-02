@@ -11,7 +11,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="255.0" prefWidth="762.0" stylesheets="@../styles/mainUI.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.view.CardBooking">
+<AnchorPane prefHeight="226.0" prefWidth="762.0" stylesheets="@../styles/mainUI.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.CardAcceptBookingController">
     <styleClass>
         <String fx:value="card-Acceptbooking" />
         <String fx:value="card-Acceptbooking" />
@@ -21,11 +21,11 @@
     <children>
         <AnchorPane prefHeight="200.0" prefWidth="762.0" styleClass="card-Acceptbooking1" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
-                <BorderPane prefHeight="255.0" prefWidth="752.0">
+                <BorderPane prefHeight="221.0" prefWidth="752.0">
                     <left>
                         <AnchorPane prefHeight="255.0" prefWidth="533.0" BorderPane.alignment="CENTER">
                             <children>
-                                <Label fx:id="nameBooking" layoutX="44.0" layoutY="14.0" prefHeight="39.0" prefWidth="186.0" text="Courtyard | Lunch">
+                                <Label fx:id="nameBooking" layoutX="44.0" layoutY="14.0" prefHeight="39.0" prefWidth="459.0" text="Courtyard | Lunch">
                                     <font>
                                         <Font name="System Bold" size="20.0" />
                                     </font>
@@ -60,7 +60,7 @@
                               <Font name="System Bold" size="13.0" />
                            </font>
                         </Label>
-                                <Text fx:id="purposeBooking" layoutX="112.0" layoutY="73.0" strokeType="OUTSIDE" strokeWidth="0.0" text="A lunch party" wrappingWidth="395.13671875">
+                                <Text fx:id="purposeBooking" layoutX="100.0" layoutY="73.0" strokeType="OUTSIDE" strokeWidth="0.0" text="A lunch party" wrappingWidth="395.13671875">
                                     <font>
                                         <Font size="13.0" />
                                     </font>
@@ -106,12 +106,12 @@
                     <center>
                         <AnchorPane prefHeight="200.0" prefWidth="242.0" BorderPane.alignment="CENTER">
                             <children>
-                                <Label layoutY="70.0" prefHeight="27.0" prefWidth="126.0" styleClass="card-booking2" text="State the reson:">
+                                <Label layoutX="1.0" layoutY="55.0" prefHeight="27.0" prefWidth="126.0" styleClass="card-booking2" text="State the reson:">
                                     <font>
                                         <Font size="14.0" />
                                     </font>
                                 </Label>
-                                <Label layoutX="1.0" layoutY="111.0" prefHeight="33.0" prefWidth="155.0" style="-fx-border-color: rgba(184, 184, 184, 0.78); -fx-border-radius: 1px;" styleClass="card-booking2" text="Remark*">
+                                <Label layoutX="1.0" layoutY="94.0" prefHeight="33.0" prefWidth="155.0" style="-fx-border-color: rgba(184, 184, 184, 0.78); -fx-border-radius: 1px;" styleClass="card-booking2" text="Remark*">
                                     <font>
                                         <Font size="14.0" />
                                     </font>
@@ -119,7 +119,7 @@
                                         <Insets left="10.0" />
                                     </padding>
                                 </Label>
-                                <Button fx:id="btnCancel" layoutY="157.0" lineSpacing="10.0" mnemonicParsing="false" prefHeight="32.0" prefWidth="156.0" styleClass="button-cancel" text="CANCEL">
+                                <Button fx:id="btnCancel" layoutY="144.0" lineSpacing="10.0" mnemonicParsing="false" prefHeight="32.0" prefWidth="156.0" styleClass="button-cancel" text="CANCEL">
                                     <graphic>
                                         <ImageView fitHeight="22.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
                                             <image>

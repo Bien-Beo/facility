@@ -19,7 +19,6 @@ import lombok.experimental.FieldDefaults;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", length = 36)
      String id;
 
     @Column(name = "user_id", unique = true)

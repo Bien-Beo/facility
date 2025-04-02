@@ -7,7 +7,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<VBox prefHeight="500.0" prefWidth="213.0" stylesheets="@../styles/mainUI.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.Controller">
+<VBox prefHeight="500.0" prefWidth="213.0" stylesheets="@../styles/mainUI.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.InfoPersonController">
    <children>
       <AnchorPane prefHeight="499.0" prefWidth="196.0" styleClass="nav-form" VBox.vgrow="ALWAYS">
          <children>

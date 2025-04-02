@@ -74,7 +74,7 @@ public class HomeController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/utc2/facilityui/view/rooms.fxml"));
             AnchorPane roomsPage = loader.load();
             mainCenter.getChildren().setAll(roomsPage);
-            
+
             // Set anchors
             AnchorPane.setTopAnchor(roomsPage, 0.0);
             AnchorPane.setBottomAnchor(roomsPage, 0.0);
@@ -85,4 +85,3 @@ public class HomeController {
         }
     }
 }
-

@@ -1,73 +1,36 @@
 package com.utc2.facilityui.controller;
 
-import com.utc2.facilityui.model.ButtonNav;
+import com.utc2.facilityui.model.CardInfo;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
-
-public class Controller implements Initializable {
+public class Controller {
     @FXML
-    private VBox putbtn;
-    private List<ButtonNav> recentLyAdded;
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        recentLyAdded = recentLyAdded();  // Fix lỗi NullPointerException
-        try {
-            for (ButtonNav btnNav : recentLyAdded) {
-                FXMLLoader fxmlLoader = new FXMLLoader();
-                fxmlLoader.setLocation(getClass().getResource("/com/utc2/facilityui/component/buttonNav.fxml"));
+    private Label nameManager;
 
-                AnchorPane btn = fxmlLoader.load();
-                InfoPersonController controller = fxmlLoader.getController();
-                controller.setData(btnNav);
+    @FXML
+    private Label roleManager;
 
-                putbtn.getChildren().add(btn);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    @FXML
+    private ImageView roomImg;
 
-    private List<ButtonNav> recentLyAdded(){
-        List<ButtonNav> ls = new ArrayList<>();
-        ButtonNav btn = new ButtonNav();
-        btn.setName("Rooms");
-        btn.setImageSrc("/com/utc2/facilityui/images/medal.png");
-        ls.add(btn);
+    @FXML
+    private Label nameRoom;
 
-        btn = new ButtonNav();
-        btn.setName("Equipments");
-        btn.setImageSrc("/com/utc2/facilityui/images/equipment.png");
-        ls.add(btn);
+    @FXML
+    private Button showInfo;
+    @FXML
+    private AnchorPane card;
 
-        btn = new ButtonNav();
-        btn.setName("My Bookings");
-        btn.setImageSrc("/com/utc2/facilityui/images/booking.png");
-        ls.add(btn);
-
-        btn = new ButtonNav();
-        btn.setName("Maintenance");
-        btn.setImageSrc("/com/utc2/facilityui/images/myRequest.png");
-        ls.add(btn);
-
-        btn = new ButtonNav();
-        btn.setName("Reset Password");
-        btn.setImageSrc("/com/utc2/facilityui/images/password.png");
-        ls.add(btn);
-
-        btn = new ButtonNav();
-        btn.setName("Logout");
-        btn.setImageSrc("/com/utc2/facilityui/images/logout.png");
-        ls.add(btn);
-        return ls;
+    public void setData(CardInfo cardinfo) {
+       Image image = new Image(getClass().getResourceAsStream(cardinfo.getImgSrc()));
+        roomImg.setImage(image);
+        nameRoom.setText(cardinfo.getNameCard());
+        roleManager.setText(cardinfo.getRoleManager());
+        nameManager.setText(cardinfo.getNameManager());
     }
 }
