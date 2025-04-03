@@ -16,6 +16,7 @@ module com.utc2.facilityui {
 
     exports com.utc2.facilityui.controller;
     opens com.utc2.facilityui.controller to javafx.fxml;
+    opens com.utc2.facilityui.chatbot to javafx.fxml;
     exports com.utc2.facilityui.app;
     opens com.utc2.facilityui.app to javafx.fxml;
     opens com.utc2.facilityui.service to javafx.fxml;

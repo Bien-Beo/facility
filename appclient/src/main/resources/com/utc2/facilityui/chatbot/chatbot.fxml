@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="10" alignment="CENTER" xmlns="http://javafx.com/javafx/8.0" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.utc2.facilityui.chatbot.ChatbotController">
+
+    <TextArea fx:id="chatOutput" prefHeight="300" prefWidth="400" editable="false" wrapText="true"/>
+    <HBox spacing="5">
+        <TextField fx:id="userInput" prefWidth="300"/>
+        <Button fx:id="sendButton" text="Gửi" onAction="#sendMessage"/>
+    </HBox>
+</VBox>
