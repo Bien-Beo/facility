@@ -5,9 +5,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 
 @Getter
-public enum ErrorCode {//
+public enum ErrorCode {
     UNCATEGORIZED_EXCEPTION(9999, "Uncategorized Exception", HttpStatus.INTERNAL_SERVER_ERROR),
     INVALID_KEY(1001, "Uncategorized error", HttpStatus.BAD_REQUEST),
+    INVALID_LOGIN(1030, "Username or password not existed", HttpStatus.NOT_FOUND),
     USER_EXISTED(1002, "User existed", HttpStatus.CONFLICT),
     USER_NOT_EXISTED(1003, "User not existed", HttpStatus.NOT_FOUND),
     USERNAME_INVALID(1004, "Username must be at least 3 characters", HttpStatus.BAD_REQUEST),

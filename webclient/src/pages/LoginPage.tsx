@@ -53,7 +53,7 @@ const LoginPage: FC = (): JSX.Element => {
     onError: (error) => {
       if (error.response) {
         const errorData = error.response.data as ErrorMessage;
-        setError(errorData.error.message);
+        setError(errorData.message);
       }
       console.log(error);
     },
@@ -69,12 +69,16 @@ const LoginPage: FC = (): JSX.Element => {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
-    password.length < 5 ? setIsError(true) : setIsError(false);
-    !isError &&
-      mutation.mutate({
-        username: username,
-        password: password,
-      });
+    if (password.length < 5) {
+      setIsError(true);
+      return;
+    }
+  
+  setIsError(false);
+  mutation.mutate({
+    username: username,
+    password: password,
+  });
   };
 
   useEffect(() => {
@@ -159,7 +163,7 @@ const LoginPage: FC = (): JSX.Element => {
             </FormHelperText>
             {error && (
               <FormHelperText error={true}>
-                Invalid employee ID or password
+                {error ? error : "Invalid User ID or password"}
               </FormHelperText>
             )}
           </FormControl>
