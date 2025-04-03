@@ -1,7 +1,6 @@
 package com.utc2.facility.dto.response;
 
 import com.utc2.facility.entity.RepairEquipmentRequest;
-import com.utc2.facility.entity.RepairRoomRequest;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

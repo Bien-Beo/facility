@@ -7,6 +7,25 @@ interface FacilityCardProps {
   manager: string;
 }
 
+// interface LoginData {
+//   username: string;
+//   password: string;
+// }
+
+// interface LoginResponse {
+//   code: number;
+//   result: {
+//     token: string;
+//     authenticated: boolean;
+//   };
+// }
+
+// interface ErrorMessage {
+//   error: {
+//     message: string;
+//   };
+// }
+
 // interface AddEventModalProps {
 //   isOpen: boolean;
 //   setIsOpen: (isOpen: boolean) => void;
@@ -121,13 +140,39 @@ interface FacilityCardProps {
 //   slug: string;
 // }
 
-interface User {
-  username: string;
-  userId: string;
-  email: string;
-  avatar: string;
-  role: string;
+interface Permission {
+  name: string;
+  description: string;
 }
+
+interface Role {
+  name: string;
+  description: string;
+  permissions: Permission[];
+}
+
+interface User {
+  id: string;
+  userId: string;
+  username: string;
+  email: string;
+  roles: Array<{
+    name: string;
+    description: string;
+    permissions: Array<{
+      name: string;
+      description: string;
+    }>;
+  }>;
+}
+
+// interface User {
+//   username: string;
+//   userId: string;
+//   email: string;
+//   avatar: string;
+//   role: string;
+// }
 
 interface AuthContextType {
   user: User | null;
