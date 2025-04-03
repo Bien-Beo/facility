@@ -15,7 +15,7 @@ public class MainUI extends Application {
 //        primaryStage.setScene(new Scene(root, 1065, 497));
 //        primaryStage.show();
 //    }
-
+//
     @Override
     public void start(Stage primaryStage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/utc2/facilityui/chatbot/chatbot.fxml"));
