@@ -1,8 +1,11 @@
 package com.utc2.facility.service;
 
+import com.utc2.facility.dto.response.EquipmentResponse;
 import com.utc2.facility.dto.response.NavigationResponse;
 import com.utc2.facility.dto.response.RoomResponse;
+import com.utc2.facility.entity.Equipment;
 import com.utc2.facility.entity.Room;
+import com.utc2.facility.repository.EquipmentRepository;
 import com.utc2.facility.repository.RoomRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +21,9 @@ import java.util.stream.Collectors;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class DashboardService {//
     RoomRepository roomRepository;
+    EquipmentRepository equipmentRepository;
 
-    public List<Map<String, Object>> getDashboard() {
+    public List<Map<String, Object>> getDashboardDefault() {
         List<Room> rooms = roomRepository.findAll();
 
         // Nhóm phòng theo loại
@@ -32,6 +36,22 @@ public class DashboardService {//
                 .map(entry -> Map.of(
                         "type", entry.getKey(),
                         "room", entry.getValue()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public List<Map<String, Object>> getDashboardEquipment() {
+        List<Equipment> equipments = equipmentRepository.findAll();
+
+        return equipments.stream()
+                .collect(Collectors.groupingBy(
+                        equipment -> equipment.getEquipmentType() != null ? equipment.getEquipmentType().getName() : "Không xác định",
+                        Collectors.mapping(EquipmentResponse::fromEntity, Collectors.toList())
+                ))
+                .entrySet().stream()
+                .map(entry -> Map.of(
+                        "type", entry.getKey(),
+                        "equipment", entry.getValue()
                 ))
                 .collect(Collectors.toList());
     }

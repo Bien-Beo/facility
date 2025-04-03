@@ -2,7 +2,6 @@ package com.utc2.facility.service;
 
 import com.utc2.facility.dto.request.RoomCreationRequest;
 import com.utc2.facility.dto.response.RoomResponse;
-import com.utc2.facility.dto.response.UserResponse;
 import com.utc2.facility.entity.Building;
 import com.utc2.facility.entity.Room;
 import com.utc2.facility.entity.RoomType;
@@ -55,8 +54,8 @@ public class RoomService {//
         return roomMapper.toRoomResponse(roomRepository.save(room));
     }
 
-    public RoomResponse getRoomByName(String name) {
-        return roomMapper.toRoomResponse(roomRepository.findByName(name)
+    public RoomResponse getRoomBySlug(String slug) {
+        return roomMapper.toRoomResponse(roomRepository.findBySlug(slug)
                 .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND)));
     }
 

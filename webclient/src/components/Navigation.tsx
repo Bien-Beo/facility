@@ -133,7 +133,42 @@ const Navigation: FC = (): JSX.Element => {
                       variant: "body1",
                       component: "li",
                     }}
-                    primary="Facilities"
+                    primary="Rooms"
+                  />
+                </ListItemButton>
+              )}
+            </NavLink>
+            <Divider color="#0c0051" />
+          </>
+        )}
+
+        {role !== "ADMIN" && role !== "TECHNICIAN" && (
+          <>
+            <NavLink to="/dashboard/equipment">
+              {({ isActive }) => (
+                <ListItemButton
+                  className="flex gap-3"
+                  sx={{
+                    paddingLeft: "1.4em",
+                    paddingBlock: "1.4em",
+                    borderLeft: isActive ? "4px solid white" : "",
+                    color: "white",
+                    backgroundColor: isActive
+                      ? " rgb(255, 255, 255, 0.02)"
+                      : "",
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: "0px" }}>
+                    <WorkspacePremiumIcon
+                      sx={{ width: "26px", height: "26px", color: "white" }}
+                    />
+                  </ListItemIcon>
+                  <ListItemText
+                    primaryTypographyProps={{
+                      variant: "body1",
+                      component: "li",
+                    }}
+                    primary="Equipments"
                   />
                 </ListItemButton>
               )}
