@@ -31,14 +31,28 @@ const Navigation: FC = (): JSX.Element => {
   const [cancellationCount, setCancellationCount] = useState<number>(0);
 
   const mutation = useMutation({
-    mutationFn: () =>
-      axios.post(`${import.meta.env.VITE_APP_SERVER_URL}/auth/logout`, {
-        withCredentials: true,
-      }),
+    mutationFn: () => {
+      const token = localStorage.getItem("token"); // Lấy token từ localStorage
+  
+      if (!token) {
+        return Promise.reject(new Error("No token found"));
+      }
+  
+      return axios.post(
+        `${import.meta.env.VITE_APP_SERVER_URL}/auth/logout`,
+        { token }, // Gửi token vào body
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    },
     onError: (error) => {
-      console.log(error);
+      console.log("Logout error:", error);
     },
   });
+  
 
   const { data, isPending, isError, error } = useQuery<NavigationProps>({
     queryKey: ["navigation"],
@@ -93,7 +107,7 @@ const Navigation: FC = (): JSX.Element => {
 
       {/* Facilities */}
       <List component="nav" disablePadding>
-        {role !== "ADMIN" && (
+        {role !== "ADMIN" && role !== "TECHNICIAN" && (
           <>
             <NavLink to="/">
               {({ isActive }) => (
@@ -194,8 +208,74 @@ const Navigation: FC = (): JSX.Element => {
           </>
         )}
 
+        {/* Technician */}
+        {role === "TECHNICIAN" && (
+          <>
+            <NavLink to="/technician/facilities">
+              {({ isActive }) => (
+                <ListItemButton
+                  className={"flex gap-3"}
+                  sx={{
+                    paddingLeft: "1.4em",
+                    paddingBlock: "1.4em",
+                    borderLeft: isActive ? "4px solid white" : "",
+                    color: "white",
+                    backgroundColor: isActive
+                      ? " rgb(255, 255, 255, 0.02)"
+                      : "",
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: "0px" }}>
+                    <WorkspacePremiumIcon
+                      sx={{ width: "26px", height: "26px", color: "white" }}
+                    />
+                  </ListItemIcon>
+                  <ListItemText
+                    primaryTypographyProps={{
+                      variant: "body1",
+                      component: "li",
+                    }}
+                    primary="Maintenance Facilities"
+                  />
+                </ListItemButton>
+              )}
+            </NavLink>
+            <Divider color="#0c0051" />
+            <NavLink to="/technician/bookings">
+              {({ isActive }) => (
+                <ListItemButton
+                  className="flex gap-3"
+                  sx={{
+                    paddingLeft: "1.4em",
+                    paddingBlock: "1.4em",
+                    borderLeft: isActive ? "4px solid white" : "",
+                    color: "white",
+                    backgroundColor: isActive
+                      ? " rgb(255, 255, 255, 0.02)"
+                      : "",
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: "0px" }}>
+                    <BookmarksIcon
+                      sx={{ width: "26px", height: "26px", color: "white" }}
+                    />
+                  </ListItemIcon>
+                  <ListItemText
+                    primaryTypographyProps={{
+                      variant: "body1",
+                      component: "li",
+                    }}
+                    primary="Maintenance"
+                  />
+                </ListItemButton>
+              )}
+            </NavLink>
+            <Divider color="#0c0051" />
+          </>
+        )}
+
         {/* My bookings */}
-        {role !== "ADMIN" && (
+        {role !== "ADMIN" && role !== "TECHNICIAN" && (
           <>
             <NavLink to="/user/mybookings">
               {({ isActive }) => (
@@ -268,19 +348,19 @@ const Navigation: FC = (): JSX.Element => {
                       component: "li",
                     }}
                     primary="Approval Requests"
-                  />
+                  />  
                 </ListItemButton>
               )}
             </NavLink>
             <Divider color="#0c0051" />
           </>
         )}
-        {role !== "USER" && role !== "ADMIN" && (
+        {role !== "USER" && role !== "TECHNICIAN" && (
           <>
             <NavLink
               to={`/facility-management/cancellations/${
-                role === "GROUP_DIRECTOR"
-                  ? "gd"
+                role === "ADMIN"
+                  ? "ad"
                   : role === "FACILITY_MANAGER"
                   ? "fm"
                   : ""
@@ -320,13 +400,14 @@ const Navigation: FC = (): JSX.Element => {
           </>
         )}
 
-        {(role === "GROUP_DIRECTOR" || role === "FACILITY_MANAGER") && (
+        {/* Bookings ADMIN and FM */}
+        {(role === "ADMIN" || role === "FM") && (
           <>
             <NavLink
               to={`/bookings/${
-                role === "GROUP_DIRECTOR"
-                  ? "gd"
-                  : role === "FACILITY_MANAGER"
+                role === "ADMIN"
+                  ? "ad"
+                  : role === "FM"
                   ? "fm"
                   : ""
               }`}
@@ -392,6 +473,8 @@ const Navigation: FC = (): JSX.Element => {
         </NavLink>
         <Divider color="#0c0051" />
 
+
+        {/* Logout */}
         <ListItemButton
           className="flex gap-3"
           sx={{
@@ -399,9 +482,13 @@ const Navigation: FC = (): JSX.Element => {
             paddingBlock: "1.4em",
             color: "white",
           }}
-          onClick={() => {
-            mutation.mutate();
-            auth?.logout();
+          onClick={async () => {
+            try {
+              await mutation.mutateAsync(); // Chờ API logout hoàn thành
+              auth?.logout(); // Sau đó mới logout client
+            } catch (error) {
+              console.log("Logout failed:", error);
+            }
           }}
         >
           <ListItemIcon sx={{ minWidth: "0px" }}>
