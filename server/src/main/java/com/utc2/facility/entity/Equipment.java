@@ -29,32 +29,32 @@ public class Equipment {
 
     @ManyToOne
     @JoinColumn(name = "room_id")
-    private Room room;
+     Room room;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     EquipmentStatus status;
 
     @Column(name = "img")
-    private String img;
+     String img;
 
     @Column(name = "slug", unique = true)
-    private String slug;
+     String slug;
 
     @Column(name = "is_active")
-    private Boolean isActive = true;
+     Boolean isActive = true;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    private Date createdAt = new Date();
+     Date createdAt;
 
     @Column(name = "update_at")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date updatedAt;
+     Date updatedAt;
 
     @Column(name = "deleted_at")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date deletedAt;
+     Date deletedAt;
 
     @ManyToOne
     @JoinColumn(name = "equipment_type_id", nullable = false)
@@ -62,5 +62,15 @@ public class Equipment {
 
     @ManyToOne
     @JoinColumn(name = "equipment_manager_id")
-    private User equipmentManager;
-}
+     User equipmentManager;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = new Date();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = new Date();
+    }
+}//

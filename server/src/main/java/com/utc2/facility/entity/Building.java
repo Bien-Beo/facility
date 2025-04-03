@@ -25,4 +25,4 @@ public class Building {
 
     @OneToMany(mappedBy = "building", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Room> rooms;
-}
+}//

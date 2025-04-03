@@ -21,7 +21,7 @@ import java.util.List;
 @Slf4j
 public class RoomController {
     RoomService roomService;
-
+//
     @PostMapping
     ApiResponse<RoomResponse> createRoom(@RequestBody @Valid RoomCreationRequest request) {
         return ApiResponse.<RoomResponse>builder()

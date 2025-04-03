@@ -7,6 +7,25 @@ interface FacilityCardProps {
   manager: string;
 }
 
+// interface LoginData {
+//   username: string;
+//   password: string;
+// }
+
+// interface LoginResponse {
+//   code: number;
+//   result: {
+//     token: string;
+//     authenticated: boolean;
+//   };
+// }
+
+// interface ErrorMessage {
+//   error: {
+//     message: string;
+//   };
+// }
+
 // interface AddEventModalProps {
 //   isOpen: boolean;
 //   setIsOpen: (isOpen: boolean) => void;
@@ -121,9 +140,21 @@ interface FacilityCardProps {
 //   slug: string;
 // }
 
+interface Permission {
+  name: string;
+  description: string;
+}
+
+interface Role {
+  name: string;
+  description: string;
+  permissions: Permission[];
+}
+
 interface User {
-  username: string;
+  id: string;
   userId: string;
+  username: string;
   email: string;
   avatar: string;
   role: string;
@@ -133,6 +164,7 @@ interface AuthContextType {
   user: User | null;
   login: (authData: { token: string; authenticated: boolean }) => Promise<void>;
   logout: () => void;
+  loadingUser: boolean;
 }
 
 interface AuthProviderProps {
@@ -141,10 +173,11 @@ interface AuthProviderProps {
 
 interface RequireAuthProps {
   children: ReactNode;
-  GD: boolean;
-  FM: boolean;
+  Technician: boolean;
+  FacilityManagement: boolean;
   Admin?: boolean;
-  noAdmin?: boolean;
+  User?: boolean;
+  //noAdmin?: boolean;
 }
 
 // interface EventInfoProps {
@@ -332,10 +365,8 @@ interface AddFacilityDataProps {
 // }
 
 interface ErrorMessage {
-  error: {
     message: string;
     status: number | null;
-  };
 }
 
 interface ErrorProps {

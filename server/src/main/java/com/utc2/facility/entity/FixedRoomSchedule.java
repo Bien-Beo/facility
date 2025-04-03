@@ -19,7 +19,7 @@ import java.time.LocalTime;
                 columnNames = {"room_id", "day_of_week", "start_time", "end_time", "semester", "academic_year"}
         )
 )
-public class FixedRoomSchedule {
+public class FixedRoomSchedule {//
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", length = 36)

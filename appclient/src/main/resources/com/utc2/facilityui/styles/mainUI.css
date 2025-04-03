@@ -118,11 +118,15 @@
     -fx-background-radius: 1px 1px 1px 1px;
     -fx-text-fill: white;
 }
-.bntAdd{
+.bntAddBooking{
     -fx-background-color: #74f474;
 
 }
-
+.bntAdd{
+    -fx-background-color: #2fa536;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
 .table-view:focused {
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;

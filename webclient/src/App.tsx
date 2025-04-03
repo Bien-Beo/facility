@@ -51,7 +51,7 @@ const router = createBrowserRouter(
       <Route
         path="/"
         element={
-          <RequireAuth GD={false} FM={false}>
+          <RequireAuth Technician={false} FacilityManagement={false}>
             <Layout />
           </RequireAuth>
         }
@@ -70,7 +70,7 @@ const router = createBrowserRouter(
         <Route
           index
           element={
-            <RequireAuth GD={false} FM={false} noAdmin={true}>
+            <RequireAuth Technician={false} FacilityManagement={false} User={true}>
               <DashboardPage />
             </RequireAuth>
           }

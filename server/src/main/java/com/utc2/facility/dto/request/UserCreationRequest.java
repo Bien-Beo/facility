@@ -27,5 +27,5 @@ public class UserCreationRequest {
     @Size(min = 8, message = "PASSWORD_INVALID")
     String password;
 
-    Set<String> roles;
-}
+    String role;
+}//
