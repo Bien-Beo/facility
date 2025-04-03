@@ -1,7 +1,6 @@
 package com.utc2.facility.repository;
 
 import com.utc2.facility.entity.RepairEquipmentRequest;
-import com.utc2.facility.entity.RepairRoomRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

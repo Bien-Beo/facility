@@ -16,29 +16,30 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "user")
-public class User {//
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-     String id;
+    String id;
 
-    @Column(name = "user_id", unique = true)
-     String userId;
+    @Column(name = "user_id", unique = true, nullable = false)
+    String userId;
 
     @Column(name = "username", columnDefinition = "VARCHAR(255) COLLATE utf8mb4_unicode_ci")
-     String username;
+    String username;
 
     @Column(name = "email", unique = true, nullable = false)
     @NotNull
-     String email;
+    String email;
 
     @Column(name = "password")
-     String password;
+    String password;
 
     @Column(name = "avatar")
     String avatar;
 
-    @ManyToMany
-    Set<Role> roles;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_name", nullable = false)
+    Role role;
 
     @OneToMany(mappedBy = "facilityManager", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     Set<Room> managedRooms;
@@ -46,4 +47,3 @@ public class User {//
     @ManyToMany
     Set<Equipment> managedEquipments;
 }
-

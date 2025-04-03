@@ -40,14 +40,11 @@ public class UserService {//
         if (userRepository.existsByUserId(request.getUserId()))
             throw new AppException(ErrorCode.USER_EXISTED);
 
-        User user = userMapper.toUser(request);
+        User user = userMapper.toUser(request, roleRepository);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         // Kiểm tra và gán role mặc định
-        Set<String> roles = request.getRoles();
-        if (roles == null || roles.isEmpty()) {
-            roles = Set.of(Role.USER.name()); // Mặc định USER
-        }
+        request.setRole(Role.USER.name());
 
         return userMapper.toUserResponse(userRepository.save(user));
     }
@@ -58,6 +55,7 @@ public class UserService {//
 
         User user = userRepository.findByUsername(name).orElseThrow(
                 () -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
         return userMapper.toUserResponse(user);
     }
 
@@ -65,11 +63,8 @@ public class UserService {//
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        userMapper.updateUser(user, resquest);
+        userMapper.updateUser(user, resquest, roleRepository);
         user.setPassword(passwordEncoder.encode(resquest.getPassword()));
-
-        var roles = roleRepository.findAllById(resquest.getRoles());
-        user.setRoles(new HashSet<>(roles));
 
         return userMapper.toUserResponse(userRepository.save(user));
     }

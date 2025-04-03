@@ -13,6 +13,6 @@ import java.util.List;
 public class UserUpdateRequest {
      String username;
      String password;
-     List<String> roles;
+     String role;
 }
 //

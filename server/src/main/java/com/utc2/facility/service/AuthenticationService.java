@@ -42,7 +42,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class AuthenticationService {//
+public class AuthenticationService {
     UserRepository userRepository;
     InvalidatedTokeRepository invalidatedTokeRepository;
 
@@ -157,7 +157,7 @@ public class AuthenticationService {//
                 .issueTime(new Date())
                 .expirationTime(new Date(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
                 .jwtID(UUID.randomUUID().toString())
-                .claim("scope", buildScope(user))
+                .claim("scope", "ROLE_" + user.getRole().getName())
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -172,17 +172,17 @@ public class AuthenticationService {//
         }
     }
 
-    private String buildScope(User user) {
-        StringJoiner stringJoiner = new StringJoiner(" ");
-
-        if (!CollectionUtils.isEmpty(user.getRoles()))
-            user.getRoles().forEach(role -> {
-                stringJoiner.add("ROLE_" + role.getName());
-                if (!CollectionUtils.isEmpty(role.getPermissions()))
-                    role.getPermissions()
-                            .forEach(permission -> stringJoiner.add(permission.getName()));
-            });
-
-        return stringJoiner.toString();
-    }
+//    private String buildScope(User user) {
+//        StringJoiner stringJoiner = new StringJoiner(" ");
+//
+//        if (!CollectionUtils.isEmpty(user.getRoles()))
+//            user.getRoles().forEach(role -> {
+//                stringJoiner.add("ROLE_" + role.getName());
+//                if (!CollectionUtils.isEmpty(role.getPermissions()))
+//                    role.getPermissions()
+//                            .forEach(permission -> stringJoiner.add(permission.getName()));
+//            });
+//
+//        return stringJoiner.toString();
+//    }
 }
