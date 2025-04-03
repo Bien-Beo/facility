@@ -68,8 +68,8 @@ const Navigation: FC = (): JSX.Element => {
     const errorData = error.response!.data as ErrorMessage;
     return (
       <ErrorComponent
-        status={errorData.error.status!}
-        message={errorData.error.message}
+        status={errorData.status!}
+        message={errorData.message}
       />
     );
   }
@@ -83,14 +83,15 @@ const Navigation: FC = (): JSX.Element => {
           alt="avatar-image"
         />
         <div className="w-fit flex flex-col justify-center">
-          <Typography variant="h5">{auth?.user?.username}</Typography>
-          <Typography variant="subtitle1" className="font-normal">
+          <Typography variant="h5" className="text-center">{auth?.user?.username}</Typography>
+          <Typography variant="subtitle1" className="font-normal text-center">
             ID: {auth?.user?.userId}
           </Typography>
         </div>
       </div>
       <Divider color="#0c0051" />
 
+      {/* Facilities */}
       <List component="nav" disablePadding>
         {role !== "ADMIN" && (
           <>
@@ -127,6 +128,7 @@ const Navigation: FC = (): JSX.Element => {
           </>
         )}
 
+        {/* Admin management facilities */}
         {role === "ADMIN" && (
           <>
             <NavLink to="/admin/facilities">
@@ -192,9 +194,10 @@ const Navigation: FC = (): JSX.Element => {
           </>
         )}
 
+        {/* My bookings */}
         {role !== "ADMIN" && (
           <>
-            <NavLink to="/employee/mybookings">
+            <NavLink to="/user/mybookings">
               {({ isActive }) => (
                 <ListItemButton
                   className="flex gap-3"
@@ -226,13 +229,15 @@ const Navigation: FC = (): JSX.Element => {
             <Divider color="#0c0051" />
           </>
         )}
-        {role !== "USER" && role !== "ADMIN" && (
+
+        {/* Facility Manager borrow */}
+        {role !== "USER" && role !== "TECHNICIAN" && (
           <>
             <NavLink
-              to={`/employee/approvals/${
-                role === "GROUP_DIRECTOR"
-                  ? "gd"
-                  : role === "FACILITY_MANAGER"
+              to={`/facility-manager/approvals/${
+                role === "ADMIN"
+                  ? "ad"
+                  : role === "FM"
                   ? "fm"
                   : ""
               }`}
@@ -273,7 +278,7 @@ const Navigation: FC = (): JSX.Element => {
         {role !== "USER" && role !== "ADMIN" && (
           <>
             <NavLink
-              to={`/employee/cancellations/${
+              to={`/facility-management/cancellations/${
                 role === "GROUP_DIRECTOR"
                   ? "gd"
                   : role === "FACILITY_MANAGER"
