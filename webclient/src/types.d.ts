@@ -164,6 +164,7 @@ interface AuthContextType {
   user: User | null;
   login: (authData: { token: string; authenticated: boolean }) => Promise<void>;
   logout: () => void;
+  loadingUser: boolean;
 }
 
 interface AuthProviderProps {

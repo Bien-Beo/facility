@@ -45,9 +45,11 @@ const LoginPage: FC = (): JSX.Element => {
       onSuccess: (data) => {
         const result = data.data.result;
         if (result?.token) {
-          auth?.login(result);
           localStorage.setItem("token-info", JSON.stringify(result));
-          navigate(redirectPath, { replace: true, preventScrollReset: true });
+          auth?.login(result);
+          setTimeout(() => {
+            navigate(redirectPath, { replace: true, preventScrollReset: true });
+          }, 100);
         }
       },
     onError: (error) => {
