@@ -1,5 +1,6 @@
 package com.utc2.facility.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.utc2.facility.enums.EquipmentStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -29,6 +30,7 @@ public class Equipment {
 
     @ManyToOne
     @JoinColumn(name = "room_id")
+    @JsonIgnore
      Room room;
 
     @Enumerated(EnumType.STRING)
@@ -58,10 +60,12 @@ public class Equipment {
 
     @ManyToOne
     @JoinColumn(name = "equipment_type_id", nullable = false)
+    @JsonIgnore
     EquipmentType equipmentType;
 
     @ManyToOne
     @JoinColumn(name = "equipment_manager_id")
+    @JsonIgnore
      User equipmentManager;
 
     @PrePersist

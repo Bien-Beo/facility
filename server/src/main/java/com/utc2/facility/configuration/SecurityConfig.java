@@ -32,7 +32,7 @@ public class SecurityConfig {
             "/auth/introspect",
             "/auth/logout",
             "/auth/refresh",
-            "/rooms",
+            "/room",
             "/dashboard",
     };
 
