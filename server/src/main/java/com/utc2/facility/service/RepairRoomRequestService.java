@@ -3,6 +3,7 @@ package com.utc2.facility.service;
 import com.utc2.facility.dto.request.RepairRoomRequestCreationRequest;
 import com.utc2.facility.dto.response.RepairRoomRequestResponse;
 import com.utc2.facility.entity.*;
+import com.utc2.facility.entity.RepairRoomRequest;
 import com.utc2.facility.enums.RepairStatus;
 import com.utc2.facility.exception.AppException;
 import com.utc2.facility.exception.ErrorCode;

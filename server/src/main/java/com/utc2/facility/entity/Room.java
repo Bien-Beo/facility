@@ -37,7 +37,7 @@ public class Room {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "building_id")
     @JsonIgnore
-    private Building building;
+    Building building;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 50, nullable = false)
