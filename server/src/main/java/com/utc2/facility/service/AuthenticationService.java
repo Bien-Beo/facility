@@ -11,7 +11,6 @@ import com.utc2.facility.dto.request.LogoutRequest;
 import com.utc2.facility.dto.request.RefreshRequest;
 import com.utc2.facility.dto.response.AuthenticationResponse;
 import com.utc2.facility.dto.response.IntrospectResponse;
-import com.utc2.facility.dto.response.UserResponse;
 import com.utc2.facility.entity.InvalidatedToken;
 import com.utc2.facility.entity.User;
 import com.utc2.facility.exception.AppException;
@@ -27,15 +26,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
-import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Collection;
 import java.util.Date;
-import java.util.StringJoiner;
 import java.util.UUID;
 
 @Slf4j
@@ -67,7 +62,7 @@ public class AuthenticationService {
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         var user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.INVALID_LOGIN));
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
@@ -83,7 +78,7 @@ public class AuthenticationService {
         }
 
         if (!authenticated)
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
+            throw new AppException(ErrorCode.INVALID_LOGIN);
 
         var token = generateToken(user);
 

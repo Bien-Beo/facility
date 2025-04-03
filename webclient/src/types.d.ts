@@ -156,23 +156,9 @@ interface User {
   userId: string;
   username: string;
   email: string;
-  roles: Array<{
-    name: string;
-    description: string;
-    permissions: Array<{
-      name: string;
-      description: string;
-    }>;
-  }>;
+  avatar: string;
+  role: string;
 }
-
-// interface User {
-//   username: string;
-//   userId: string;
-//   email: string;
-//   avatar: string;
-//   role: string;
-// }
 
 interface AuthContextType {
   user: User | null;
@@ -378,10 +364,8 @@ interface AddFacilityDataProps {
 // }
 
 interface ErrorMessage {
-  error: {
     message: string;
     status: number | null;
-  };
 }
 
 interface ErrorProps {

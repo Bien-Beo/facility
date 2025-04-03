@@ -83,8 +83,8 @@ const Navigation: FC = (): JSX.Element => {
           alt="avatar-image"
         />
         <div className="w-fit flex flex-col justify-center">
-          <Typography variant="h5">{auth?.user?.username}</Typography>
-          <Typography variant="subtitle1" className="font-normal">
+          <Typography variant="h5" className="text-center">{auth?.user?.username}</Typography>
+          <Typography variant="subtitle1" className="font-normal text-center">
             ID: {auth?.user?.userId}
           </Typography>
         </div>
