@@ -18,12 +18,21 @@ import {
       border: "1px solid #dadde9",
     },
   }));
+
+  const statusColors: Record<string, string> = {
+    OPERATIONAL: "text-green-500",
+    BROKEN: "text-red-500",
+    UNDER_MAINTENANCE: "text-yellow-500",
+  };
   
-  const FacilityCard: FC<FacilityCardProps> = ({
+  const RoomCard: FC<RoomCardProps> = ({
     name,
     description,
     img,
     manager,
+    status,
+    capacity,
+    updatedAt,
   }): JSX.Element => {
     return (
       <HtmlTooltip
@@ -55,8 +64,29 @@ import {
               component="h2"
               className="text-primary font-normal text-center"
             >
-              <span className="font-bold">Facility Manager</span>
+              <span className="font-bold">Room Manager</span>
               <br /> {manager}
+            </Typography>
+            <Typography
+                        variant="body1"
+                        component="p"
+                        className={`${statusColors[status]} font-bold`}
+                      >
+                        {status.replace("_", " ")}
+                      </Typography>
+            <Typography
+              variant="body2"
+              component="p"
+              className="text-gray-600 text-center"
+            >
+              Capacity: {capacity} people
+            </Typography>
+            <Typography
+              variant="body2"
+              component="p"
+              className="text-gray-600 text-center"
+            >
+              Last updated: {new Date(updatedAt).toLocaleDateString()}
             </Typography>
           </div>
         </div>
@@ -64,4 +94,4 @@ import {
     );
   };
   
-  export default FacilityCard;
+  export default RoomCard;

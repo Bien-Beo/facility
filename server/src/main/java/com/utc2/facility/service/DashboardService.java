@@ -35,7 +35,7 @@ public class DashboardService {//
                 .entrySet().stream()
                 .map(entry -> Map.of(
                         "type", entry.getKey(),
-                        "room", entry.getValue()
+                        "rooms", entry.getValue()
                 ))
                 .collect(Collectors.toList());
     }
@@ -51,7 +51,7 @@ public class DashboardService {//
                 .entrySet().stream()
                 .map(entry -> Map.of(
                         "type", entry.getKey(),
-                        "equipment", entry.getValue()
+                        "equipments", entry.getValue()
                 ))
                 .collect(Collectors.toList());
     }

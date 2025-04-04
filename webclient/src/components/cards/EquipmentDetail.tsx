@@ -29,16 +29,18 @@ const FacilityDetail: React.FC<FacilityDetailProps> = ({
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogContent className="w-full flex items-center justify-center bg-white p-6">
-        <div className="bg-[url(/1.png)] rounded-2xl shadow-lg w-[800px] flex">
+      <DialogContent className="w-full min-h-96 flex items-center justify-center bg-[url(/1.png)] bg-cover p-6">
+        <div className="w-[800px] flex flex-row gap-x-10">
           {/* Left: Image */}
-          <div className="w-1/2 flex items-center justify-center relative">
-            <div className="absolute top-0 left-0 p-2 text-gray-500 text-sm">360°</div>
+          <div className="rounded-2xl shadow-lg shadow-zinc-800 flex-1/2 flex items-center justify-center relative">
+            <div className="absolute top-0 left-0 p-2 text-gray-500 text-sm">
+                <img className="h-12 w-12 object-scale-down" src="/logo.png" alt="Logo" />
+            </div>
             <img src={img} alt={name} className="w-full max-h-[350px] object-cover rounded-lg" />
           </div>
 
           {/* Right: Details */}
-          <div className="w-1/2 flex flex-col px-6">
+          <div className="rounded-2xl shadow-lg shadow-zinc-800 flex-1/2 flex flex-col px-6 py-6">
             <h1 className="text-2xl font-bold text-gray-900">{name}</h1>
             <p className="text-gray-600 text-sm my-2">{description}</p>
 
