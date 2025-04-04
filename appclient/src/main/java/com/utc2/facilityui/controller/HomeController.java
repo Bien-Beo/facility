@@ -31,43 +31,10 @@ public class HomeController {
 
     @FXML
     public void initialize() {
-        loadUserData();
         loadDefaultPage();
     }
 
-    private void loadUserData() {
-        new Thread(() -> {
-            try {
-                String data = UserServices.getMyInfo();
-                Type userType = new TypeToken<ApiResponse<User>>() {
-                }.getType();
-                ApiResponse<User> apiResponse = gson.fromJson(data, userType);
-                User user = apiResponse.getResult();
 
-                if (user == null || user.getUsername() == null) {
-                    System.out.println("Dữ liệu User không hợp lệ!");
-                    return;
-                }
-
-                Platform.runLater(() -> {
-                    lbUsername.setText(user.getUsername());
-                    lbUserId.setText(user.getUserId());
-
-                    if (user.getAvatar() != null && !user.getAvatar().isEmpty()) {
-                        imgAvatar.setImage(new Image(user.getAvatar(), true));
-                    } else {
-                        imgAvatar.setImage(new Image(Objects.requireNonNull(
-                                getClass().getResourceAsStream("/com/utc2/facilityui/images/Man-1-icon.png")
-                        )));
-                    }
-                });
-
-            } catch (IOException e) {
-                System.out.println("Lỗi khi gọi API hoặc parse dữ liệu!");
-                e.printStackTrace();
-            }
-        }).start();
-    }
 
     private void loadDefaultPage() {
         try {
