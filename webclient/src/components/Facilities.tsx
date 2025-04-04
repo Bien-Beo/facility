@@ -1,13 +1,19 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FC, JSX } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { CircularProgress, Divider, Typography } from "@mui/material";
+import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Typography } from "@mui/material";
 
 import FacilityCard from "./cards/FacilityCard";
 import ErrorComponent from "./Error";
 import { API } from "../api";
+import FacilityDetail from "./cards/FacilityDetail";
 
 const Facilities: FC<FacilitiesProps> = ({ type }): JSX.Element => {
+  const [selectedFacility, setSelectedFacility] = useState<(RoomData & { type: string }) | (EquipmentData & { type: string }) | null>(null);
+  const [open, setOpen] = useState(false);
+
   const { data, isPending, isError, error } = useQuery({
     queryKey: [type],
     queryFn: async (): Promise<DashboardData[]> => {
@@ -51,7 +57,7 @@ const Facilities: FC<FacilitiesProps> = ({ type }): JSX.Element => {
             <Typography variant="h4" component="h2">{section.type}</Typography>
             <Divider color="gray" />
             <div className="w-full flex items-center justify-center flex-wrap">
-              {section[type]?.map((item: RoomData | EquipmentData) => (
+              {/* {section[type]?.map((item: RoomData | EquipmentData) => (
                 <Link to={`/${type}/${item.slug}`} key={item.name}>
                   <FacilityCard
                     name={item.name}
@@ -64,12 +70,51 @@ const Facilities: FC<FacilitiesProps> = ({ type }): JSX.Element => {
                     }
                   />
                 </Link>
-              ))}
+              ))} */}
+
+                {section[type]?.map((item) => (
+                  <div
+                    key={item.name}
+                    onClick={() => {
+                      setSelectedFacility({ ...item, type });
+                      setOpen(true);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <FacilityCard
+                      name={item.name}
+                      description={item.description ?? ""}
+                      img={item.img ?? ""}
+                      manager={
+                        "nameFacilityManager" in item
+                          ? item.nameFacilityManager ?? "Chưa có quản lý"
+                          : "N/A"
+                      }
+                    />
+                  </div>
+                ))}
             </div>
           </div>
         ) : null
       )}
       </div>
+      
+      {selectedFacility && (
+        <FacilityDetail
+          open={open}
+          onClose={() => setOpen(false)}
+          name={selectedFacility.name}
+          description={selectedFacility.description ?? ""}
+          img={selectedFacility.img ?? ""}
+          manager={
+            "nameFacilityManager" in selectedFacility && typeof selectedFacility.nameFacilityManager === "string"
+              ? selectedFacility.nameFacilityManager
+              : "Chưa có quản lý"
+          }
+          slug={selectedFacility.slug}
+          type={selectedFacility.type}
+        />
+      )}
     </div>
   );
 };
