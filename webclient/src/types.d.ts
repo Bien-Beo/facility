@@ -464,7 +464,7 @@ type RoomData = {
   name: string;
   description: string;
   capacity: number;
-  building?: BuildingData;
+  buildingName: string;
   status?: "AVAILABLE" | "BOOKED" | "UNDER_MAINTENANCE";
   img: string;
   slug: string;
