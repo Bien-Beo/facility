@@ -36,18 +36,17 @@ const Rooms: FC = (): JSX.Element => {
     );
   }
 
-  if (isPending) {
+  if (isPending) 
     return (
       <div className="w-full min-h-screen h-full flex flex-col items-center justify-center">
         <CircularProgress />
       </div>
     );
-  }
 
   return (
     <div className="w-full h-full flex flex-col items-center justify-center pt-12 px-6">
       <Typography variant="h2" component="h1">Rooms</Typography>
-      <div className="w-full flex flex-col justify-center items-center flex-wrap pt-4 gap-2">
+      <div className="w-full flex flex-col justify-center items-center flex-wrap pt-4 gap-10">
         {data?.map((section) =>
           Array.isArray(section.rooms) && section.rooms.length > 0 && (
             <div key={section.type} className="w-full flex flex-col gap-2">
@@ -69,11 +68,7 @@ const Rooms: FC = (): JSX.Element => {
                       updatedAt={room.updatedAt ?? ""}
                       building={typeof room.building === "string" ? room.building : "N/A"}
                       equipments={room.equipments ?? []}
-                      status={
-                        room.status === "UNDER_MAINTENANCE" || room.status === "BOOKED"
-                          ? "UNDER_MAINTENANCE"
-                          : room.status ?? "AVAILABLE"
-                      }
+                      status={room.status ?? "AVAILABLE"}
                     />
                   </div>
                 ))}
