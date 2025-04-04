@@ -1,10 +1,26 @@
 // --------INTERFACES--------
 
-interface FacilityCardProps {
+interface RoomCardProps {
   name: string;
   description: string;
   img: string;
   manager: string;
+  capacity: number;
+  building: string;
+  updatedAt: string;
+  nameFacilityManager: string;
+  equipments: EquipmentData[];
+  status: "AVAILABLE" | "BOOKED" | "UNDER_MAINTENANCE";
+}
+
+interface EquipmentCardProps {
+  name: string;
+  description: string;
+  img: string;
+  manager: string;
+  status: "OPERATIONAL" | "BROKEN" | "UNDER_MAINTENANCE";
+  type: string;
+  updatedAt: string;
 }
 
 interface DashboardPageProps {
@@ -496,8 +512,8 @@ type EquipmentData = {
 };
 
 type DashboardData = {
-  room?: RoomData[];
-  equipment?: EquipmentData[];
+  rooms: RoomData[];
+  equipments: EquipmentData[];
   type: string;
 };
 
