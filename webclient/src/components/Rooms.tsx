@@ -66,7 +66,7 @@ const Rooms: FC = (): JSX.Element => {
                       nameFacilityManager={room.nameFacilityManager ?? "Chưa có quản lý"}
                       capacity={room.capacity ?? 0}
                       updatedAt={room.updatedAt ?? ""}
-                      building={typeof room.building === "string" ? room.building : "N/A"}
+                      building={room.buildingName ?? ""}
                       equipments={room.equipments ?? []}
                       status={room.status ?? "AVAILABLE"}
                     />
@@ -82,12 +82,18 @@ const Rooms: FC = (): JSX.Element => {
         <RoomDetail
           open={open}
           onClose={() => setOpen(false)}
-          name={selectedFacility.name}
+          name={selectedFacility.name ?? "Unknown"}
           description={selectedFacility.description ?? ""}
+          capacity={selectedFacility.capacity ?? 0}
+          buildingName={selectedFacility.buildingName ?? ""}
+          status={selectedFacility.status ?? "AVAILABLE"}
+          isActive={selectedFacility.isActive ?? false}
+          createdAt={selectedFacility.createdAt ?? ""}
+          updatedAt={selectedFacility.updatedAt ?? ""}
+          equipments={selectedFacility.equipments ?? []}
           img={selectedFacility.img ?? ""}
           manager={selectedFacility.nameFacilityManager ?? "Chưa có quản lý"}
-          slug={selectedFacility.slug}
-          type={"Unknown"}
+          slug={selectedFacility.slug ?? ""}
         />
       )}
     </div>
