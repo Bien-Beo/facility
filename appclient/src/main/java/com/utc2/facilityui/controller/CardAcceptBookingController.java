@@ -43,15 +43,7 @@ public class CardAcceptBookingController {
         timeBooking.setText(cardAcceptBooking.getTimeBooking());
         requestBooking.setText(cardAcceptBooking.getRequestBooking());
         statusBooking.setText(cardAcceptBooking.getStatusBooking());
-        
-        List<String> approvals = cardAcceptBooking.getApprovalsByManager();
-        if (approvals != null && !approvals.isEmpty()) {
-
-            approvalByFM.setText(approvals.get(0));
-
-            if (approvals.size() > 1) {
-                approvalByGD.setText(approvals.get(1));
-            }
-        }
+        approvalByGD.setText(cardAcceptBooking.getApprovalByGD());
+        approvalByFM.setText(cardAcceptBooking.getApprovalByFM());
     }
 }

@@ -4,39 +4,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CardAcceptBooking extends CardBooking{
-    String approvalByManager;
-    private List<String> approvalsByManager;
-    public CardAcceptBooking( ) {
-        approvalsByManager = new ArrayList<>();
-    }
+    String approvalByFM;
+    String approvalByGD;
 
-    public CardAcceptBooking(String purposeBooking, String nameBooking, String dateBooking, String timeBooking, String requestBooking, String statusBooking, String approvalByManager, List<String> approvalsByManager) {
+    public CardAcceptBooking() {}
+
+    public CardAcceptBooking(String purposeBooking, String nameBooking, String dateBooking, String timeBooking, String requestBooking, String statusBooking, String approvalByFM, String approvalByGD) {
         super(purposeBooking, nameBooking, dateBooking, timeBooking, requestBooking, statusBooking);
-        this.approvalByManager = approvalByManager;
-        this.approvalsByManager = approvalsByManager;
+        this.approvalByFM = approvalByFM;
+        this.approvalByGD = approvalByGD;
     }
 
-    public CardAcceptBooking(String purposeBooking, String nameBooking, String dateBooking, String timeBooking, String requestBooking, String statusBooking, String approvalByManager) {
-        super(purposeBooking, nameBooking, dateBooking, timeBooking, requestBooking, statusBooking);
-        this.approvalByManager = approvalByManager;
+    public String getApprovalByGD() {
+        return approvalByGD;
     }
 
-    public String getApprovalByManager() {
-        return approvalByManager;
+    public void setApprovalByGD(String approvalByGD) {
+        this.approvalByGD = approvalByGD;
     }
 
-    public void setApprovalByManager(String approvalByManager) {
-        this.approvalByManager = approvalByManager;
-    }
-    public List<String> getApprovalsByManager() {
-        return approvalsByManager;
+    public String getApprovalByFM() {
+        return approvalByFM;
     }
 
-    public void setApprovalsByManager(List<String> approvalsByManager) {
-        this.approvalsByManager = approvalsByManager;
-    }
-
-    public void addApprovalByManager(String s) {
-        this.approvalsByManager.add(s);
+    public void setApprovalByFM(String approvalByFM) {
+        this.approvalByFM = approvalByFM;
     }
 }
