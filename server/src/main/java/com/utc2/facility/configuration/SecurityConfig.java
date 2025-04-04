@@ -34,6 +34,7 @@ public class SecurityConfig {
             "/auth/refresh",
             "/room",
             "/dashboard",
+            "/images/**"
     };
 
     @Autowired

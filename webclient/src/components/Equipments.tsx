@@ -1,11 +1,7 @@
 import { useState } from "react";
 import { FC, JSX } from "react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  CircularProgress,
-  Divider,
-  Typography,
-} from "@mui/material";
+import { CircularProgress, Divider, Typography } from "@mui/material";
 
 import ErrorComponent from "./Error";
 import { API } from "../api";
@@ -30,7 +26,6 @@ const Equipments: FC = (): JSX.Element => {
 
   if (isError) {
     console.error("Chi tiết lỗi:", error);
-
     const errorData = error?.response?.data as ErrorMessage | undefined;
 
     return (
@@ -51,7 +46,7 @@ const Equipments: FC = (): JSX.Element => {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center pt-12 px-6">
         <Typography variant="h2" component="h1">Equipments</Typography>
-        <div className="w-full flex flex-col justify-center items-center flex-wrap pt-4 gap-2">
+        <div className="w-full flex flex-col justify-center items-center flex-wrap pt-4 gap-10">
           {data?.map((section) =>
             Array.isArray(section.equipments) && section.equipments.length > 0 && (
               <div key={section.type} className="w-full flex flex-col gap-2">
@@ -67,16 +62,10 @@ const Equipments: FC = (): JSX.Element => {
                         name={equipment.name ?? "Unknown"}
                         description={equipment.description ?? ""}
                         img={equipment.img ?? ""}
-                        manager={"nameFacilityManager" in equipment && typeof equipment.nameFacilityManager === "string"
-                          ? equipment.nameFacilityManager
-                          : "Chưa có quản lý"}
+                        manager={equipment.equipmentManager?.name ?? "Chưa có quản lý"}
                         updatedAt={equipment.updatedAt ?? ""}
-                        status={
-                          equipment.status === "BROKEN" || equipment.status === "OPERATIONAL"
-                            ? "UNDER_MAINTENANCE"
-                            : equipment.status ?? "AVAILABLE"
-                        }
-                        type={"type" in equipment && typeof equipment.type === "string" ? equipment.type : "Unknown"}
+                        status={equipment.status ?? "OPERATIONAL"}
+                        type="equipment"
                       />
                     </div>
                   ))}
@@ -85,26 +74,21 @@ const Equipments: FC = (): JSX.Element => {
             )
           )}
         </div>
-
-      {selectedFacility && (
-        <EquipmentDetail
-          open={open}
-          onClose={() => setOpen(false)}
-          name={selectedFacility.name}
-          description={selectedFacility.description ?? ""}
-          img={selectedFacility.img ?? ""}
-          manager={
-            "nameFacilityManager" in selectedFacility &&
-            typeof selectedFacility.nameFacilityManager === "string"
-              ? selectedFacility.nameFacilityManager
-              : "Chưa có quản lý"
-          }
-          slug={selectedFacility.slug}
-          type={"type" in selectedFacility && typeof selectedFacility.type === "string" ? selectedFacility.type : "Unknown"}
-        />
-      )}
-    </div>
-  );
-};
+  
+        {selectedFacility && (
+          <EquipmentDetail
+            open={open}
+            onClose={() => setOpen(false)}
+            name={selectedFacility.name}
+            description={selectedFacility.description ?? ""}
+            img={selectedFacility.img ?? ""}
+            manager={selectedFacility.equipmentManager?.name ?? "Chưa có quản lý"}
+            slug={selectedFacility.slug}
+            type={"Unknown"}
+          />
+        )}
+      </div>
+    );
+  };
 
 export default Equipments;

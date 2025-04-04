@@ -12,6 +12,12 @@ const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
   },
 }));
 
+const statusBackgroundColors: Record<string, string> = {
+  OPERATIONAL: "text-green-500",
+  BROKEN: "text-red-500",
+  UNDER_MAINTENANCE: "text-yellow-500",
+};
+
 const statusColors: Record<string, string> = {
   OPERATIONAL: "text-green-500",
   BROKEN: "text-red-500",
@@ -41,7 +47,7 @@ const EquipmentCard: FC<EquipmentCardProps> = ({
         </Typography>
       }
     >
-      <div className="w-[200px] h-full min-h-[300px] gap-4 m-6 p-2 pt-4 border-0 border-b-4 border-solid border-primary bg-white flex flex-col items-center justify-evenly shadow-card cursor-pointer rounded-md hover:-translate-y-1 hover:shadow-cardHover transition-all duration-150 ease-in">
+      <div className={`w-[200px] h-full min-h-[300px] gap-4 m-6 p-2 pt-4 border-0 border-b-4 border-solid border-primary bg-white flex flex-col items-center justify-evenly shadow-card cursor-pointer rounded-md hover:-translate-y-1 hover:shadow-cardHover transition-all duration-150 ease-in  ${statusBackgroundColors[status]}`}>
         <img
           src={img || "/default-equipment.png"}
           alt={`${name}-img`}
