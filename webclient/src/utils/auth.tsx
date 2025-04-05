@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect, FC } from "react";
+import { CircularProgress } from "@mui/material";
 
 // Tạo Context
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -56,7 +57,11 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
 
   return (
     <AuthContext.Provider value={{ user, login, logout, loadingUser }}>
-      {!loadingUser ? children : <div>Loading...</div>} 
+      {!loadingUser ? children : 
+        <div className="w-full min-h-screen h-full flex flex-col items-center justify-center">
+          <CircularProgress />
+        </div>
+      } 
     </AuthContext.Provider>
   );
 };

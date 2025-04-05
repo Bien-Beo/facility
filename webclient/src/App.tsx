@@ -30,6 +30,7 @@ import LoginPage from "./pages/LoginPage";
 // import ResetPasswordPage from "./pages/ResetPasswordPage";
 import { AuthProvider } from "./utils/auth";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
+import FacilityPage from "./pages/FacilityPage";
 
 declare module "@tanstack/react-query" {
   interface Register {
@@ -70,24 +71,34 @@ const router = createBrowserRouter(
         <Route
           index
           element={
-            <RequireAuth Technician={false} FacilityManagement={false} User={true}>
-              <DashboardPage />
+            <RequireAuth Technician={false} FacilityManagement={false} User={false}>
+              <DashboardPage type="room" />
             </RequireAuth>
           }
           errorElement={<RouteError />}
         />
 
-        {/* <Route path="facility">
+        <Route
+          path="dashboard/equipment"
+          element={
+            <RequireAuth Technician={false} FacilityManagement={false} User={false}>
+              <DashboardPage type="equipment" />
+            </RequireAuth>
+          }
+          errorElement={<RouteError />}
+        />
+
+        <Route path="room">
           <Route
             path=":id"
             element={
-              <RequireAuth GD={false} FM={false} noAdmin={true}>
+              <RequireAuth Technician={false} FacilityManagement={false} Admin={false}>
                 <FacilityPage />
               </RequireAuth>
             }
             errorElement={<RouteError />}
           />
-        </Route> */}
+        </Route>
 
         {/* <Route path="bookings">
           <Route
