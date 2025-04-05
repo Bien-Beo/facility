@@ -12,4 +12,4 @@ import java.util.List;
 @AllArgsConstructor
 public class DashboardResponse {
     List<RoomResponse> rooms;
-}
+}//

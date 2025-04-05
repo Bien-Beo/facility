@@ -13,18 +13,18 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="551.0" prefWidth="718.0" stylesheets="@../styles/mainUI.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.view.InfoRoom">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="551.0" prefWidth="803.0" stylesheets="@../styles/mainUI.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.InfoRoomController">
    <children>
       <BorderPane prefHeight="617.0" prefWidth="734.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <top>
             <AnchorPane prefHeight="58.0" prefWidth="710.0" BorderPane.alignment="CENTER">
                <children>
-                  <Label alignment="CENTER" layoutX="1.0" layoutY="-1.0" prefHeight="59.0" prefWidth="728.0" text="Information Room">
+                  <Label fx:id="info" alignment="CENTER" layoutX="1.0" layoutY="-1.0" prefHeight="59.0" prefWidth="803.0" text="Information Room">
                      <font>
                         <Font size="18.0" />
                      </font></Label>
-                  <Line endX="365.0" layoutX="344.0" layoutY="55.0" startX="-333.0" />
-                  <Button contentDisplay="RIGHT" layoutX="578.0" layoutY="13.0" mnemonicParsing="false" prefHeight="32.0" prefWidth="121.0" styleClass="bntAdd" text="Add Booking ">
+                  <Line endX="447.0" endY="3.0" layoutX="344.0" layoutY="55.0" startX="-333.0" />
+                  <Button fx:id="buttonAddBooking" contentDisplay="RIGHT" layoutX="640.0" layoutY="14.0" mnemonicParsing="false" prefHeight="32.0" prefWidth="121.0" styleClass="bntAddBooking" text="Add Booking ">
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="23.0" pickOnBounds="true" preserveRatio="true">
                            <viewport>
@@ -39,37 +39,28 @@
                         <Font name="System Bold" size="12.0" />
                      </font>
                   </Button>
-                  <Button contentDisplay="RIGHT" layoutX="33.0" layoutY="8.0" mnemonicParsing="false" prefHeight="29.0" prefWidth="135.0" styleClass="back-button" text="Back Home">
-                     <font>
-                        <Font name="System Bold" size="12.0" />
-                     </font>
-                     <graphic>
-                        <ImageView fitHeight="20.0" fitWidth="23.0" pickOnBounds="true" preserveRatio="true">
-                           <viewport>
-                              <Rectangle2D />
-                           </viewport>
-                           <image>
-                              <Image url="@../images/plus.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                  </Button>
+                  <ImageView fitHeight="31.0" fitWidth="73.0" layoutX="35.0" layoutY="12.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../images/left-arrow.png" />
+                     </image>
+                  </ImageView>
+                  <Button fx:id="buttonBack" layoutX="32.0" layoutY="9.0" mnemonicParsing="false" opacity="0.0" prefHeight="37.0" prefWidth="37.0" text="Button" />
                </children>            </AnchorPane>
          </top>
-         <right>
-            <AnchorPane prefHeight="495.0" prefWidth="735.0" BorderPane.alignment="CENTER">
+         <center>
+            <AnchorPane prefHeight="493.0" prefWidth="785.0" BorderPane.alignment="CENTER">
                <children>
-                  <ImageView fitHeight="183.0" fitWidth="275.0" layoutX="231.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
+                  <ImageView fx:id="img" fitHeight="183.0" fitWidth="275.0" layoutX="258.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@../images/background.jpg" />
                      </image>
                   </ImageView>
-                  <Label layoutX="310.0" layoutY="202.0" prefHeight="25.0" prefWidth="109.0" text="Room 305DN">
+                  <Label fx:id="name" alignment="CENTER" layoutX="-1.0" layoutY="202.0" prefHeight="25.0" prefWidth="803.0" text="Room 305DN">
                      <font>
                         <Font size="16.0" />
                      </font>
                   </Label>
-                  <Label layoutX="251.0" layoutY="227.0" text="(Phòng học số 5 Tầng 3 Dãy Đa năng)">
+                  <Label fx:id="description" alignment="CENTER" layoutX="-3.0" layoutY="227.0" prefHeight="20.0" prefWidth="803.0" text="(Phòng học số 5 Tầng 3 Dãy Đa năng)">
                      <font>
                         <Font size="14.0" />
                      </font>
@@ -79,7 +70,7 @@
                         <Font name="System Bold" size="14.0" />
                      </font>
                   </Label>
-                  <Text layoutX="165.0" layoutY="307.0" strokeType="OUTSIDE" strokeWidth="0.0" text="80" wrappingWidth="28.9375">
+                  <Text fx:id="capacity" layoutX="165.0" layoutY="307.0" strokeType="OUTSIDE" strokeWidth="0.0" text="80" wrappingWidth="28.9375">
                      <font>
                         <Font size="14.0" />
                      </font>
@@ -89,7 +80,7 @@
                         <Font name="System Bold" size="14.0" />
                      </font>
                   </Label>
-                  <Text layoutX="164.0" layoutY="344.0" strokeType="OUTSIDE" strokeWidth="0.0" text="DN" wrappingWidth="28.9375">
+                  <Text fx:id="building" layoutX="164.0" layoutY="344.0" strokeType="OUTSIDE" strokeWidth="0.0" text="DN" wrappingWidth="28.9375">
                      <font>
                         <Font size="14.0" />
                      </font>
@@ -99,7 +90,7 @@
                         <Font name="System Bold" size="14.0" />
                      </font>
                   </Label>
-                  <Text layoutX="180.0" layoutY="377.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Phong hoi thao" wrappingWidth="146.4375">
+                  <Text fx:id="typeRoom" layoutX="180.0" layoutY="377.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Phong hoi thao" wrappingWidth="146.4375">
                      <font>
                         <Font size="14.0" />
                      </font>
@@ -109,37 +100,37 @@
                         <Font name="System Bold" size="14.0" />
                      </font>
                   </Label>
-                  <Text layoutX="148.0" layoutY="409.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Available" wrappingWidth="102.4375">
+                  <Text fx:id="status" layoutX="148.0" layoutY="409.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Available" wrappingWidth="102.4375">
                      <font>
                         <Font size="14.0" />
                      </font>
                   </Text>
-                  <Label layoutX="438.0" layoutY="292.0" text="Facility Manager:">
+                  <Label fx:id="nameFacilityManager" layoutX="498.0" layoutY="292.0" text="Facility Manager:">
                      <font>
                         <Font name="System Bold" size="14.0" />
                      </font>
                   </Label>
-                  <Text layoutX="557.0" layoutY="307.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Ngoc Bien" wrappingWidth="145.4375">
+                  <Text fx:id="nameFManager" layoutX="620.0" layoutY="306.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Ngoc Bien" wrappingWidth="145.4375">
                      <font>
                         <Font size="14.0" />
                      </font>
                   </Text>
-                  <Label layoutX="438.0" layoutY="329.0" text="Creation date :">
+                  <Label layoutX="498.0" layoutY="328.0" text="Creation date :">
                      <font>
                         <Font name="System Bold" size="14.0" />
                      </font>
                   </Label>
-                  <Text layoutX="544.0" layoutY="344.0" strokeType="OUTSIDE" strokeWidth="0.0" text="2025-03-30" wrappingWidth="145.4375">
+                  <Text fx:id="date" layoutX="604.0" layoutY="343.0" strokeType="OUTSIDE" strokeWidth="0.0" text="2025-03-30" wrappingWidth="145.4375">
                      <font>
                         <Font size="14.0" />
                      </font>
                   </Text>
-                  <Label layoutX="437.0" layoutY="362.0" text="Creation date :">
+                  <Label layoutX="498.0" layoutY="361.0" text="Update date :">
                      <font>
                         <Font name="System Bold" size="14.0" />
                      </font>
                   </Label>
-                  <Text layoutX="544.0" layoutY="376.0" strokeType="OUTSIDE" strokeWidth="0.0" text="2025-03-30" wrappingWidth="145.4375">
+                  <Text layoutX="595.0" layoutY="376.0" strokeType="OUTSIDE" strokeWidth="0.0" text="2025-03-30" wrappingWidth="145.4375">
                      <font>
                         <Font size="14.0" />
                      </font>
@@ -149,7 +140,7 @@
                   <Insets right="50.0" />
                </opaqueInsets>
             </AnchorPane>
-         </right>
+         </center>
       </BorderPane>
    </children>
    <styleClass>

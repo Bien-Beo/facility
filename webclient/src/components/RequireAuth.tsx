@@ -9,7 +9,7 @@ export const RequireAuth: FC<RequireAuthProps> = ({
   Technician,
   FacilityManagement,
   Admin,
-  User
+  User,
 }): JSX.Element => {
   const auth = useAuth();
 
@@ -20,14 +20,14 @@ export const RequireAuth: FC<RequireAuthProps> = ({
   try {
     if (Technician && auth?.user?.role !== "TECHNICIAN") {
       return <Navigate to="/" />;
-    } else if (FacilityManagement && auth?.user?.role !== "FACILITY_MANAGER") {
+    } else if (FacilityManagement && auth?.user?.role !== "FM") {
       return <Navigate to="/" />;
     } else if (Admin && auth?.user?.role !== "ADMIN") {
       return <Navigate to="/admin/facilities" />;
     } else if (User && auth?.user?.role !== "USER") {
       return <Navigate to="/" />;
     }
-  } catch (err) {
+  } catch {
     return (
       <ErrorComponent status={401} message="Please log in and try again" />
     );

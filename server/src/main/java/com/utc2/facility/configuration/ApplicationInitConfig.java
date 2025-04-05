@@ -36,7 +36,7 @@ public class ApplicationInitConfig {
                         .username("Admin")
                         .password(passwordEncoder.encode("admin"))
                         .email("6451071004@st.utc2.edu.vn")
-                        .roles(Set.of(adminRole))
+                        .role(adminRole)
                         .build();
 
                 userRepository.save(user);
@@ -44,5 +44,4 @@ public class ApplicationInitConfig {
             }
         };
     }
-
 }

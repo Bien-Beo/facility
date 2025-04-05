@@ -8,7 +8,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
-public interface BorrowRequestMapper {
+public interface BorrowRequestMapper {//
     @Mapping(target = "userName", source = "user.username")
     @Mapping(target = "roomName", source = "room.name")
     BorrowRequestResponse toBorrowRequestResponse(BorrowRequest borrowRequest);

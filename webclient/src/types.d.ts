@@ -1,20 +1,57 @@
 // --------INTERFACES--------
 
-interface FacilityCardProps {
+interface RoomCardProps {
   name: string;
   description: string;
-  icon: string;
+  img: string;
   manager: string;
+  capacity: number;
+  building: string;
+  updatedAt: string;
+  nameFacilityManager: string;
+  equipments: EquipmentData[];
+  status: "AVAILABLE" | "BOOKED" | "UNDER_MAINTENANCE";
 }
 
-// interface AddEventModalProps {
-//   isOpen: boolean;
-//   setIsOpen: (isOpen: boolean) => void;
-//   setOpenSnackbar: (isOpen: boolean) => void;
-//   setDefaultDate: (message: string | null) => void;
-//   bookingsData: BookingNewDataProps[];
-//   defaultDate: string | null;
+interface EquipmentCardProps {
+  name: string;
+  description: string;
+  img: string;
+  manager: string;
+  status: "OPERATIONAL" | "BROKEN" | "UNDER_MAINTENANCE";
+  type: string;
+  updatedAt: string;
+}
+
+interface DashboardPageProps {
+  type: FacilityType; 
+}
+
+interface FacilitiesProps {
+  type: FacilityType; 
+}
+
+// interface LoginData {
+//   username: string;
+//   password: string;
 // }
+
+// interface LoginResponse {
+//   code: number;
+//   result: {
+//     token: string;
+//     authenticated: boolean;
+//   };
+// }
+
+interface AddEventModalProps {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+  setOpenSnackbar: (isOpen: boolean) => void;
+  setDefaultDate: (message: string | null) => void;
+  bookingsData: BookingNewDataProps[];
+  defaultDate: string | null;
+}
 
 // interface EventModalProps {
 //   isOpen: boolean;
@@ -22,13 +59,13 @@ interface FacilityCardProps {
 //   eventInfo: EventInfoProps;
 // }
 
-// interface EventContentProps {
-//   event: {
-//     extendedProps: {
-//       slug: string;
-//     };
-//   };
-// }
+interface EventContentProps {
+  event: {
+    extendedProps: {
+      slug: string;
+    };
+  };
+}
 
 // interface BookingDataProps {
 //   facility: {
@@ -75,55 +112,112 @@ interface FacilityCardProps {
 //   };
 // }
 
-// interface BookingNewDataProps {
-//   id: string;
-//   title: string;
-//   slug: string;
-//   purpose: string;
-//   status: string;
-//   createdAt: string;
-//   facilityManager: string | null;
-//   statusUpdateAtGD: string | null;
-//   statusUpdateAtFM: string | null;
-//   statusUpdateAtAdmin: string | null;
-//   statusUpdateByGD: {
-//     user: {
-//       name: string;
-//       employeeId: number;
-//     };
-//   } | null;
-//   statusUpdateByFM: {
-//     user: {
-//       name: string;
-//       employeeId: number;
-//     };
-//   } | null;
-//   start: string;
-//   end: string;
-//   date: string;
-//   requestedBy: {
-//     name: string;
-//     employeeId: number;
-//   };
-//   facility: {
-//     name: string;
-//     slug: string;
-//   };
-// }
+interface BookingDataProps {
+  facility: {
+    name: string;
+  };
+  bookings: BookingData[];
+}
 
-// interface AddEventDataProps {
-//   title: string;
-//   purpose: string;
-//   date: Dayjs | null;
-//   start: string | null;
-//   end: string | null;
-//   employeeId: number | null;
-//   slug: string;
-// }
+interface BookingData {
+  id: string;
+  title: string;
+  slug: string;
+  purpose: string;
+  status: string;
+  createdAt: string;
+  facilityManager: string | null;
+  statusUpdateAtGD: string | null;
+  statusUpdateAtFM: string | null;
+  statusUpdateAtAdmin: string | null;
+  statusUpdateByGD: {
+    user: {
+      name: string;
+      employeeId: number;
+    };
+  } | null;
+  statusUpdateByFM: {
+    user: {
+      name: string;
+      employeeId: number;
+    };
+  } | null;
+  time: {
+    start: string;
+    end: string;
+    date: string;
+  };
+  requestedBy: {
+    name: string;
+    employeeId: number;
+  };
+  facility: {
+    name: string;
+    slug: string;
+  };
+}
+
+interface BookingNewDataProps {
+  id: string;
+  title: string;
+  slug: string;
+  purpose: string;
+  status: string;
+  createdAt: string;
+  facilityManager: string | null;
+  statusUpdateAtGD: string | null;
+  statusUpdateAtFM: string | null;
+  statusUpdateAtAdmin: string | null;
+  statusUpdateByGD: {
+    user: {
+      name: string;
+      employeeId: number;
+    };
+  } | null;
+  statusUpdateByFM: {
+    user: {
+      name: string;
+      employeeId: number;
+    };
+  } | null;
+  start: string;
+  end: string;
+  date: string;
+  requestedBy: {
+    name: string;
+    employeeId: number;
+  };
+  facility: {
+    name: string;
+    slug: string;
+  };
+}
+
+interface AddEventDataProps {
+  title: string;
+  purpose: string;
+  date: Dayjs | null;
+  start: string | null;
+  end: string | null;
+  userId: string | null;
+  slug: string;
+}
+
+interface Permission {
+  name: string;
+  description: string;
+}
+
+interface Role {
+  name: string;
+  description: string;
+  permissions: Permission[];
+}
 
 interface User {
-  username: string;
+  id: string;
   userId: string;
+  username: string;
   email: string;
   avatar: string;
   role: string;
@@ -133,6 +227,7 @@ interface AuthContextType {
   user: User | null;
   login: (authData: { token: string; authenticated: boolean }) => Promise<void>;
   logout: () => void;
+  loadingUser: boolean;
 }
 
 interface AuthProviderProps {
@@ -145,21 +240,20 @@ interface RequireAuthProps {
   FacilityManagement: boolean;
   Admin?: boolean;
   User?: boolean;
-  //noAdmin?: boolean;
 }
 
-// interface EventInfoProps {
-//   title: string;
-//   purpose: string;
-//   status: string;
-//   start: string;
-//   end: string;
-//   date: string;
-//   requestBy: string;
-//   statusUpdateByGD: string | null;
-//   statusUpdateByFM: string | null;
-//   statusUpdateByAdmin: string | null;
-// }
+interface EventInfoProps {
+  title: string;
+  purpose: string;
+  status: string;
+  start: string;
+  end: string;
+  date: string;
+  requestBy: string;
+  statusUpdateByGD: string | null;
+  statusUpdateByFM: string | null;
+  statusUpdateByAdmin: string | null;
+}
 
 // interface ApprovalProps {
 //   title: string;
@@ -333,10 +427,8 @@ interface AddFacilityDataProps {
 // }
 
 interface ErrorMessage {
-  error: {
     message: string;
     status: number | null;
-  };
 }
 
 interface ErrorProps {
@@ -355,6 +447,7 @@ interface RouteError {
 }
 
 // ----------TYPES-----------
+type FacilityType = "room" | "equipment";
 
 type APIResponse<T> = {
   result: T;
@@ -371,7 +464,7 @@ type RoomData = {
   name: string;
   description: string;
   capacity: number;
-  building?: BuildingData;
+  buildingName: string;
   status?: "AVAILABLE" | "BOOKED" | "UNDER_MAINTENANCE";
   img: string;
   slug: string;
@@ -419,7 +512,8 @@ type EquipmentData = {
 };
 
 type DashboardData = {
-  room: RoomData[];
+  rooms: RoomData[];
+  equipments: EquipmentData[];
   type: string;
 };
 

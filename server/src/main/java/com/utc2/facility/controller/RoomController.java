@@ -9,19 +9,18 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/rooms")
+@RequestMapping("/room")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class RoomController {
     RoomService roomService;
-
+//
     @PostMapping
     ApiResponse<RoomResponse> createRoom(@RequestBody @Valid RoomCreationRequest request) {
         return ApiResponse.<RoomResponse>builder()
@@ -29,10 +28,10 @@ public class RoomController {
                 .build();
     }
 
-    @GetMapping("/{roomName}")
-    ApiResponse<RoomResponse> getRoom(@PathVariable String roomName) {
+    @GetMapping("/{slug}")
+    ApiResponse<RoomResponse> getRoom(@PathVariable String slug) {
         return ApiResponse.<RoomResponse>builder()
-                .result(roomService.getRoomByName(roomName))
+                .result(roomService.getRoomBySlug(slug))
                 .build();
     }
 

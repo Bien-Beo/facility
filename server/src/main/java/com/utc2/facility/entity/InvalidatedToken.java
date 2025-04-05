@@ -15,7 +15,7 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "invalidated_token")
-public class InvalidatedToken {
+public class InvalidatedToken {//
     @Id
     @Column(name = "id")
     String id;

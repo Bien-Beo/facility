@@ -5,7 +5,7 @@ import com.utc2.facility.service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+//
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,11 +16,20 @@ import java.util.Map;
 public class DashboardController {
     private final DashboardService dashboardService;
 
-    @GetMapping
-    public ResponseEntity<?> getDashboard() {
+    @GetMapping("/room")
+    public ResponseEntity<?> getDashboardDefault() {
         Map<String, Object> response = new HashMap<>();
         response.put("code", 0);
-        response.put("result", dashboardService.getDashboard());
+        response.put("result", dashboardService.getDashboardDefault());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/equipment")
+    public ResponseEntity<?> getDashboardEquipment() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("code", 0);
+        response.put("result", dashboardService.getDashboardEquipment());
 
         return ResponseEntity.ok(response);
     }

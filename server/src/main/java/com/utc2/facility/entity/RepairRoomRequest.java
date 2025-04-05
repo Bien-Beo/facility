@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "repair_request")
-public class RepairRequest {
+@Table(name = "repair_room_request")
+public class RepairRoomRequest {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -23,12 +23,8 @@ public class RepairRequest {
     String id;
 
     @ManyToOne
-    @JoinColumn(name = "room_id", nullable = false)
+    @JoinColumn(name = "room_id")
     Room room;
-
-    @ManyToOne
-    @JoinColumn(name = "equipment_id")
-    Equipment equipment; // Có thể null nếu báo hỏng phòng
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -37,12 +33,9 @@ public class RepairRequest {
     @Column(name = "description", nullable = false, columnDefinition = "TEXT")
     String description;
 
-    @Column(name = "is_room_issue", nullable = false)
-    Boolean isRoomIssue; // TRUE: lỗi phòng, FALSE: lỗi thiết bị
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    RepairStatus status;
+    RepairStatus status = RepairStatus.PENDING;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     LocalDateTime createdAt;

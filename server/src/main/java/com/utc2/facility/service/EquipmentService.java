@@ -23,7 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class EquipmentService {
-
+//
     EquipmentRepository equipmentRepository;
     UserRepository userRepository;
     EquipmentTypeRepository equipmentTypeRepository;

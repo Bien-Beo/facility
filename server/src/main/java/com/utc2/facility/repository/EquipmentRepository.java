@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface EquipmentRepository extends JpaRepository<Equipment, String> {
+public interface EquipmentRepository extends JpaRepository<Equipment, String> {//
     Optional<Equipment> findByName(String name);
     Optional<Equipment> findBySlug(String slug);
 
