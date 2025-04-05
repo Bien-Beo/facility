@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.geometry.Rectangle2D?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="490.0" prefWidth="803.0" stylesheets="@../styles/mainUI.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.InfoEquipmentController">
+    <children>
+        <BorderPane prefHeight="617.0" prefWidth="734.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <top>
+                <AnchorPane prefHeight="58.0" prefWidth="710.0" BorderPane.alignment="CENTER">
+                    <children>
+                        <Label fx:id="info" alignment="CENTER" layoutX="1.0" layoutY="-1.0" prefHeight="59.0" prefWidth="803.0" text="Information Equipment">
+                            <font>
+                                <Font size="24.0" />
+                            </font></Label>
+                        <Line endX="447.0" endY="3.0" layoutX="344.0" layoutY="55.0" startX="-333.0" />
+                        <Button fx:id="buttonAddBooking" contentDisplay="RIGHT" layoutX="640.0" layoutY="14.0" mnemonicParsing="false" prefHeight="32.0" prefWidth="121.0" styleClass="bntAddBooking" text="Add Booking ">
+                            <graphic>
+                                <ImageView fitHeight="20.0" fitWidth="23.0" pickOnBounds="true" preserveRatio="true">
+                                    <viewport>
+                                        <Rectangle2D />
+                                    </viewport>
+                                    <image>
+                                        <Image url="@../images/plus.png" />
+                                    </image>
+                                </ImageView>
+                            </graphic>
+                            <font>
+                                <Font name="System Bold" size="12.0" />
+                            </font>
+                        </Button>
+                        <ImageView fitHeight="31.0" fitWidth="73.0" layoutX="35.0" layoutY="12.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../images/left-arrow.png" />
+                            </image>
+                        </ImageView>
+                        <Button fx:id="buttonBack" layoutX="32.0" layoutY="9.0" mnemonicParsing="false" opacity="0.0" prefHeight="37.0" prefWidth="37.0" text="Button" />
+                    </children>            </AnchorPane>
+            </top>
+            <center>
+                <AnchorPane prefHeight="384.0" prefWidth="804.0" BorderPane.alignment="CENTER">
+                    <children>
+                        <ImageView fx:id="img" fitHeight="183.0" fitWidth="275.0" layoutX="258.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../images/background.jpg" />
+                            </image>
+                        </ImageView>
+                        <Label fx:id="name" alignment="CENTER" layoutX="-1.0" layoutY="202.0" prefHeight="25.0" prefWidth="803.0" text="Loa JBL">
+                            <font>
+                                <Font size="16.0" />
+                            </font>
+                        </Label>
+                        <Label fx:id="description" alignment="CENTER" layoutX="-3.0" layoutY="227.0" prefHeight="20.0" prefWidth="803.0" text="(Loa nghe nhac sieu xin)">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                        </Label>
+                        <Label layoutX="99.0" layoutY="260.0" prefHeight="20.0" prefWidth="117.0" text="Type Equipment:">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                        </Label>
+                        <Text fx:id="equipmentTypeName" layoutX="213.0" layoutY="275.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Dien tu" wrappingWidth="146.4375">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                        </Text>
+                        <Label layoutX="99.0" layoutY="317.0" prefHeight="20.0" prefWidth="51.0" text="Status: ">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                        </Label>
+                        <Text fx:id="status" layoutX="150.0" layoutY="332.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Available" wrappingWidth="102.4375">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                        </Text>
+                        <Label fx:id="nameFacilityManager" layoutX="99.0" layoutY="291.0" text="Facility Manager:">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                        </Label>
+                        <Text fx:id="nameFManager" layoutX="221.0" layoutY="307.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Ngoc Bien" wrappingWidth="145.4375">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                        </Text>
+                        <Label layoutX="498.0" layoutY="260.0" text="Creation date :">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                        </Label>
+                        <Text fx:id="creationDate" layoutX="602.0" layoutY="275.0" strokeType="OUTSIDE" strokeWidth="0.0" text="2025-03-30" wrappingWidth="145.4375">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                        </Text>
+                        <Label layoutX="498.0" layoutY="291.0" text="Update date :">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                        </Label>
+                        <Text fx:id="updateDate" layoutX="595.0" layoutY="306.0" strokeType="OUTSIDE" strokeWidth="0.0" text="2025-03-30" wrappingWidth="145.4375">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                        </Text>
+                    </children>
+                    <opaqueInsets>
+                        <Insets right="50.0" />
+                    </opaqueInsets>
+                </AnchorPane>
+            </center>
+            <bottom>
+                <AnchorPane prefHeight="120.0" prefWidth="804.0" BorderPane.alignment="CENTER">
+                    <children>
+                        <Button fx:id="bntReport" layoutX="348.0" layoutY="27.0" mnemonicParsing="false" prefHeight="33.0" prefWidth="108.0" styleClass="button-cancel" text="Report" />
+                    </children>
+                </AnchorPane>
+            </bottom>
+        </BorderPane>
+    </children>
+    <styleClass>
+        <String fx:value="white-bg" />
+        <String fx:value="shadow" />
+    </styleClass>
+</AnchorPane>

@@ -20,20 +20,22 @@ public class AddBookingController {
     private TextField borrowDate;
 
     @FXML
+    private TextField expectedReturnDate;
+
+    @FXML
+    private TextField expectedTimeReturn;
+
+    @FXML
     private Label name;
 
     @FXML
     private TextArea reason;
 
     @FXML
-    private TextField returnDate;
-
-    @FXML
     private TextField timeBorrow;
 
     @FXML
-    private TextField timeReturn;
-
+    private Label userID;
     // Thêm getter cho nút Cancel
     public Button getBntCancel() {
         return bntCancel;
@@ -44,5 +46,8 @@ public class AddBookingController {
     @FXML
     public void initialize() {
         // Có thể thêm các khởi tạo khác ở đây
+    }
+    public Label getName(){
+        return name;
     }
 }

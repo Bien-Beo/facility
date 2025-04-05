@@ -64,7 +64,6 @@ public class ButtonNavController {
             case "rooms" -> "rooms.fxml";
             case "equipments" -> "equipments.fxml";
             case "my bookings" -> "myBookings.fxml";
-            case "maintenance" -> "maintenance.fxml";
             case "reset password" -> "resetpassword.fxml";
             case "logout" -> "login.fxml";
             default -> "home.fxml";
