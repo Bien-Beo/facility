@@ -11,14 +11,14 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CancelRequestCreationRequest {
-    String borrowRequestId;
-
+public class BorrowRequestCreationRequest {
     String userId;
-
-    @NotNull
+    String roomName;
     String reason;
+    LocalDateTime borrowDate;
+    LocalDateTime returnDate;
 
     @NotNull
+    LocalDateTime expectedReturnDate;
     String status;
 }//

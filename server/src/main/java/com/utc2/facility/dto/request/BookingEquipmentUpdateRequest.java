@@ -1,6 +1,5 @@
 package com.utc2.facility.dto.request;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -9,7 +8,9 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CancelRequestUpdateRequest {
-    @NotNull
-    String reason;
-}//
+public class BookingEquipmentCreationRequest {
+    String bookingId;
+    String equipmentId;
+    Boolean isDefaultEquipment = false;
+    String notes;
+}

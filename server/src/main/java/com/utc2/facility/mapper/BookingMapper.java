@@ -2,7 +2,7 @@ package com.utc2.facility.mapper;
 
 import com.utc2.facility.dto.request.BorrowRequestCreationRequest;
 import com.utc2.facility.dto.response.BorrowRequestResponse;
-import com.utc2.facility.entity.BorrowRequest;
+import com.utc2.facility.entity.Booking;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -11,11 +11,11 @@ import org.mapstruct.MappingTarget;
 public interface BorrowRequestMapper {//
     @Mapping(target = "userName", source = "user.username")
     @Mapping(target = "roomName", source = "room.name")
-    BorrowRequestResponse toBorrowRequestResponse(BorrowRequest borrowRequest);
+    BorrowRequestResponse toBorrowRequestResponse(Booking booking);
 
-    BorrowRequest toBorrowRequest(BorrowRequestCreationRequest request);
+    Booking toBorrowRequest(BorrowRequestCreationRequest request);
 
     @Mapping(target = "room", ignore = true)
     @Mapping(target = "user", ignore = true)
-    void updateBorrowRequest(@MappingTarget BorrowRequest borrowRequest, BorrowRequestCreationRequest request);
+    void updateBorrowRequest(@MappingTarget Booking booking, BorrowRequestCreationRequest request);
 }

@@ -4,7 +4,7 @@ import com.utc2.facility.dto.request.RepairRoomRequestCreationRequest;
 import com.utc2.facility.dto.response.RepairRoomRequestResponse;
 import com.utc2.facility.entity.*;
 import com.utc2.facility.entity.RepairRoomRequest;
-import com.utc2.facility.enums.RepairStatus;
+import com.utc2.facility.enums.MaintenanceStatus;
 import com.utc2.facility.exception.AppException;
 import com.utc2.facility.exception.ErrorCode;
 import com.utc2.facility.mapper.RepairRoomRequestMapper;
@@ -41,7 +41,7 @@ public class RepairRoomRequestService {//
         RepairRoomRequest repairRoomRequest = repairRoomRequestMapper.toRepairRoomRequest(request);
         repairRoomRequest.setRoom(room);
         repairRoomRequest.setUser(user);
-        repairRoomRequest.setStatus(RepairStatus.PENDING);
+        repairRoomRequest.setStatus(MaintenanceStatus.PENDING);
 
         return repairRoomRequestMapper.toRepairRoomRequestResponse(repairRoomRequestRepository.save(repairRoomRequest));
     }

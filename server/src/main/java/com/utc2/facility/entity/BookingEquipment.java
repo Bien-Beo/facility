@@ -11,7 +11,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "borrow_equipment")
+@Table(name = "booking_equipment")
 public class BorrowEquipment {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -20,9 +20,9 @@ public class BorrowEquipment {
 
     @ManyToOne
     @JoinColumn(name = "borrow_request_id", nullable = false)
-    BorrowRequest borrowRequest;
+    Booking booking;
 
     @ManyToOne
     @JoinColumn(name = "equipment_id", nullable = false)
-    Equipment equipment;
+    EquipmentItem equipmentItem;
 }//
