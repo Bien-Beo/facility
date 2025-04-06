@@ -32,8 +32,20 @@ public enum ErrorCode {
     REQUEST_ALREADY_PROCESSED(1017, "Request already processed", HttpStatus.BAD_REQUEST),
     REQUEST_NOT_APPROVED(1018, "Request not approved", HttpStatus.BAD_REQUEST),
     BORROW_EQUIPMENT_NOT_FOUND(1018, "Borrow equipment not found", HttpStatus.NOT_FOUND),
-    CANCEL_REQUEST_NOT_FOUND(1019, "Cancel request not found", HttpStatus.NOT_FOUND),
-    REPAIR_REQUEST_NOT_FOUND(1020, "Repair request not found", HttpStatus.NOT_FOUND),
+    EQUIPMENT_ITEM_NOT_FOUND(1021, "Equipment item not found", HttpStatus.NOT_FOUND),
+    MAINTENANCE_TICKET_NOT_FOUND(1022, "Maintenance ticket not found", HttpStatus.NOT_FOUND),
+    BOTH_ROOM_AND_ITEM_PROVIDED(1023, "Both room and item provided", HttpStatus.BAD_REQUEST),
+    ROOM_OR_ITEM_REQUIRED(1024, "Room or item required", HttpStatus.BAD_REQUEST),
+    EQUIPMENT_UNAVAILABLE(1025, "Equipment unavailable", HttpStatus.BAD_REQUEST),
+    BOOKING_NOT_FOUND(1026, "Booking not found", HttpStatus.NOT_FOUND),
+    BOOKING_NOT_UPDATABLE(1027, "Booking not updatable", HttpStatus.BAD_REQUEST),
+    BOOKING_STATUS_INVALID(1028, "Booking status invalid", HttpStatus.BAD_REQUEST),
+    INVALID_DATE_FORMAT(1029, "Invalid date format", HttpStatus.BAD_REQUEST),
+    INVALID_INPUT(1030, "Invalid input", HttpStatus.BAD_REQUEST),
+    MODEL_NOT_FOUND(1031, "Model not found", HttpStatus.NOT_FOUND),
+    SERIAL_NUMBER_EXISTED(1032, "Serial number existed", HttpStatus.CONFLICT),
+    ASSET_TAG_EXISTED(1033, "Asset tag existed", HttpStatus.CONFLICT),
+    EMAIL_EXISTED(1034, "Email existed", HttpStatus.CONFLICT),
     ;
 
     private int code;

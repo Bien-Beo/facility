@@ -1,5 +1,6 @@
 package com.utc2.facility.dto.request;
 
+import com.utc2.facility.enums.EquipmentStatus;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -9,21 +10,9 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class EquipmentItemCreationRequest {
-    @NotNull
-    String name;
-
-    String description;
-
-    String roomName;
-
-    String status;
-
-    String img;
-
-    String slug;
-
-    String equipmentTypeName;
-
-    String equipmentManagerId;
-}//
+public class EquipmentItemUpdateRequest {
+    String assetTag;
+    EquipmentStatus status;
+    String defaultRoomId;
+    String notes;
+}

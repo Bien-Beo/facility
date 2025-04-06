@@ -1,12 +1,9 @@
 package com.utc2.facility.controller;
 
 import com.utc2.facility.dto.request.ApiResponse;
-import com.utc2.facility.dto.request.BorrowEquipmentCreationRequest;
-import com.utc2.facility.dto.request.BorrowRequestCreationRequest;
-import com.utc2.facility.dto.response.BorrowEquipmentResponse;
-import com.utc2.facility.dto.response.BorrowRequestResponse;
-import com.utc2.facility.service.BorrowEquipmentService;
-import com.utc2.facility.service.BorrowRequestService;
+import com.utc2.facility.dto.request.BookingEquipmentCreationRequest;
+import com.utc2.facility.dto.response.BookingEquipmentResponse;
+import com.utc2.facility.service.BookingEquipmentService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,55 +15,54 @@ import java.util.List;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/borrow-equipment")
+@RequestMapping("/booking-equipment")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class BorrowEquipmentController {
-    BorrowEquipmentService borrowEquipmentService;
+public class BookingEquipmentController {
+    BookingEquipmentService bookingEquipmentService;
 
     @PostMapping
-    ApiResponse<BorrowEquipmentResponse> createBorrowEquipment(@RequestBody @Valid BorrowEquipmentCreationRequest request) {
-        return ApiResponse.<BorrowEquipmentResponse>builder()
-                .result(borrowEquipmentService.createBorrowEquipment(request))
+    ApiResponse<BookingEquipmentResponse> createBookingEquipment(@RequestBody @Valid BookingEquipmentCreationRequest request) {
+        return ApiResponse.<BookingEquipmentResponse>builder()
+                .result(bookingEquipmentService.createBookingEquipment(request))
                 .build();
     }
 
-    @GetMapping("/{borrowEquipmentId}")
-    ApiResponse<BorrowEquipmentResponse> getBorrowEquipment(@PathVariable String borrowEquipmentId) {
-        return ApiResponse.<BorrowEquipmentResponse>builder()
-                .result(borrowEquipmentService.getBorrowEquipment(borrowEquipmentId))
+    @GetMapping("/{bookingEquipmentId}")
+    ApiResponse<BookingEquipmentResponse> getBookingEquipment(@PathVariable String bookingEquipmentId) {
+        return ApiResponse.<BookingEquipmentResponse>builder()
+                .result(bookingEquipmentService.getBookingEquipment(bookingEquipmentId))
                 .build();
     }
 
-    @GetMapping("/request/{borrowRequestId}")
-    ApiResponse<List<BorrowEquipmentResponse>> getAllBorrowEquipmentByBorrowRequest(
-            @PathVariable String borrowRequestId) {
-        return ApiResponse.<List<BorrowEquipmentResponse>>builder()
-                .result(borrowEquipmentService.getBorrowEquipmentByBorrowRequestId(borrowRequestId))
+    @GetMapping("/booking/{bookingId}")
+    ApiResponse<List<BookingEquipmentResponse>> getAllBookingEquipmentByBooking(
+            @PathVariable String bookingId) {
+        return ApiResponse.<List<BookingEquipmentResponse>>builder()
+                .result(bookingEquipmentService.getBookingEquipmentByBookingId(bookingId))
                 .build();
     }
 
     @GetMapping
-    ApiResponse<List<BorrowEquipmentResponse>> getAllBorrowEquipment() {
-        return ApiResponse.<List<BorrowEquipmentResponse>>builder()
-                .result(borrowEquipmentService.getAllBorrowEquipments())
+    ApiResponse<List<BookingEquipmentResponse>> getAllBookingEquipment() {
+        return ApiResponse.<List<BookingEquipmentResponse>>builder()
+                .result(bookingEquipmentService.getAllBookingEquipments())
                 .build();
     }
 
-    @DeleteMapping("/{borrowEquipmentId}")
-    ApiResponse<Void> deleteBorrowEquipment(@PathVariable String borrowEquipmentId) {
-        borrowEquipmentService.deleteBorrowEquipment(borrowEquipmentId);
+    @DeleteMapping("/{bookingEquipmentId}")
+    ApiResponse<Void> deleteBookingEquipment(@PathVariable String bookingEquipmentId) {
+        bookingEquipmentService.deleteBookingEquipment(bookingEquipmentId);
         return ApiResponse.<Void>builder()
                 .result(null)
                 .build();
     }
 
-    @PutMapping("/{borrowEquipmentId}")
-    ApiResponse<BorrowEquipmentResponse> updateBorrowEquipment(@RequestBody @Valid BorrowEquipmentCreationRequest request, @PathVariable String borrowEquipmentId)  {
-        return ApiResponse.<BorrowEquipmentResponse>builder()
-                .result(borrowEquipmentService.updateBorrowEquipment(borrowEquipmentId, request))
-                .build();
-    }
-    //abc
+//    @PutMapping("/{borrowEquipmentId}")
+//    ApiResponse<BookingEquipmentResponse> updateBorrowEquipment(@RequestBody @Valid BookingEquipmentCreationRequest request, @PathVariable String borrowEquipmentId)  {
+//        return ApiResponse.<BookingEquipmentResponse>builder()
+//                .result(bookingEquipmentService.updateBorrowEquipment(borrowEquipmentId, request))
+//                .build();
+//    }
 }

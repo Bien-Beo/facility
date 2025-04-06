@@ -1,16 +1,7 @@
 package com.utc2.facility.service;
 
-import com.utc2.facility.entity.BorrowRequest;
-import com.utc2.facility.entity.Notification;
-import com.utc2.facility.entity.User;
-import com.utc2.facility.enums.NotificationStatus;
-import com.utc2.facility.enums.NotificationType;
-import com.utc2.facility.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

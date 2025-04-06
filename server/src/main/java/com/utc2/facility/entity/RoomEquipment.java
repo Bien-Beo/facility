@@ -26,7 +26,7 @@ public class RoomEquipment {//
 
     @ManyToOne
     @JoinColumn(name = "equipment_id", nullable = false)
-    Equipment equipment;
+    EquipmentItem equipmentItem;
 
     @Column(name = "quantity", nullable = false)
     int quantity;

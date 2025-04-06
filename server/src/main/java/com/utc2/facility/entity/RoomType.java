@@ -2,6 +2,7 @@ package com.utc2.facility.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -14,20 +15,25 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "room_type")
-public class RoomType {//
+@Table(name = "room_type", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"type_name"})
+})
+public class RoomType {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-     String id;
+    @Column(length = 36)
+    String id;
 
-    @Column(name = "type_name", unique = true, columnDefinition = "VARCHAR(255) COLLATE utf8mb4_unicode_ci")
-     String name;
+    @Column(name = "type_name", unique = true, nullable = false)
+    @NotBlank(message = "Tên loại phòng không được trống")
+    String name;
 
-    @Column(name = "description")
-     String description;
+    @Column(name = "description", columnDefinition = "TEXT")
+    String description;
 
-    @OneToMany(mappedBy = "roomType", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "roomType", fetch = FetchType.LAZY)
     @JsonManagedReference
+    @ToString.Exclude
     List<Room> rooms;
 }
-

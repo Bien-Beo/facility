@@ -1,9 +1,11 @@
 package com.utc2.facility.enums;
 
-public enum BorrowRequestStatus {//
-    PENDING,
-    APPROVED,
+public enum BookingStatus {//
+    PENDING_APPROVAL,
+    CONFIRMED,
     REJECTED,
     CANCELLED,
-    COMPLETED
+    COMPLETED,
+    OVERDUE,
+    IN_PROGRESS
 }

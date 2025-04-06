@@ -9,16 +9,18 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
-public class BorrowEquipmentResponse {
-    String id;
-    String borrowRequestId;
-    String equipmentName;
+public class BookingEquipmentResponse {
+    String itemId;
+    String equipmentModelName;
+    String notes;
+    Boolean isDefaultEquipment;
 
-    public static BorrowEquipmentResponse fromEntity(BookingEquipment bookingEquipment) {
-        return BorrowEquipmentResponse.builder()
-                .id(bookingEquipment.getId())
-                .borrowRequestId(bookingEquipment.getBooking().getId() == null ? null : bookingEquipment.getBooking().getId())
-                .equipmentName(bookingEquipment.getEquipmentItem().getName() == null ? null : bookingEquipment.getEquipmentItem().getName())
+
+    public static BookingEquipmentResponse fromEntity(BookingEquipment bookingEquipment) {
+        return BookingEquipmentResponse.builder()
+                .equipmentModelName(bookingEquipment.getItem() != null ? bookingEquipment.getItem().getModel().getName() : null)
+                .notes(bookingEquipment.getNotes())
+                .isDefaultEquipment(bookingEquipment.getIsDefaultEquipment())
                 .build();
     }
-}//
+}

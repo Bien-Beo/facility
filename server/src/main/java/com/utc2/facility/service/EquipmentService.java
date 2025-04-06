@@ -1,10 +1,10 @@
 package com.utc2.facility.service;
 
-import com.utc2.facility.dto.request.EquipmentCreationRequest;
-import com.utc2.facility.dto.request.RoomCreationRequest;
+import com.utc2.facility.dto.request.EquipmentItemCreationRequest;
+import com.utc2.facility.dto.request.EquipmentItemUpdateRequest;
 import com.utc2.facility.dto.response.EquipmentResponse;
-import com.utc2.facility.dto.response.RoomResponse;
 import com.utc2.facility.entity.*;
+import com.utc2.facility.enums.EquipmentStatus;
 import com.utc2.facility.exception.AppException;
 import com.utc2.facility.exception.ErrorCode;
 import com.utc2.facility.mapper.EquipmentMapper;
@@ -13,81 +13,149 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class EquipmentService {
-//
-    EquipmentRepository equipmentRepository;
-    UserRepository userRepository;
-    EquipmentTypeRepository equipmentTypeRepository;
+
+    EquipmentItemRepository equipmentItemRepository;
+    EquipmentModelRepository equipmentModelRepository;
     RoomRepository roomRepository;
     EquipmentMapper equipmentMapper;
 
-    @PreAuthorize("hasRole('ADMIN')")
-    public EquipmentResponse createEquipment(EquipmentCreationRequest request) {
+    @Transactional
+    @PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER')")
+    public EquipmentResponse createEquipmentItem(EquipmentItemCreationRequest request) {
 
-        User equipmentManager = userRepository.findByUserId(request.getEquipmentManagerId())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        EquipmentType equipmentType = equipmentTypeRepository.findByName(request.getEquipmentTypeName())
-                .orElseThrow(() -> new AppException(ErrorCode.EQUIPMENT_TYPE_NOT_FOUND));
-        Room room = roomRepository.findByName(request.getRoomName())
-                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
+        // 1. Kiểm tra và lấy Model
+        EquipmentModel model = equipmentModelRepository.findById(request.getModelId())
+                .orElseThrow(() -> new AppException(ErrorCode.MODEL_NOT_FOUND));
 
-        Equipment equipment = equipmentMapper.toEquipment(request);
-        equipment.setEquipmentManager(equipmentManager);
-        equipment.setEquipmentType(equipmentType);
-        equipment.setRoom(room);
-
-        return equipmentMapper.toEquipmentResponse(equipmentRepository.save(equipment));
-    }
-
-    public EquipmentResponse getEquipmentByName(String name) {
-        return equipmentMapper.toEquipmentResponse(equipmentRepository.findByName(name)
-                .orElseThrow(() -> new AppException(ErrorCode.EQUIPMENT_NOT_FOUND)));
-    }
-
-    public List<EquipmentResponse> getEquipments() {
-        return equipmentRepository.findAll().stream().map(equipmentMapper::toEquipmentResponse).toList();
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    public void deleteEquipment(String slug) {
-        Equipment equipment = equipmentRepository.findByName(slug)
-                .orElseThrow(() -> new AppException(ErrorCode.EQUIPMENT_NOT_FOUND));
-        equipmentRepository.delete(equipment);
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    public EquipmentResponse updateEquipment(EquipmentCreationRequest request, String slug) {
-        Equipment equipment = equipmentRepository.findBySlug(slug)
-                .orElseThrow(() -> new AppException(ErrorCode.EQUIPMENT_NOT_FOUND));
-
-        if (request.getEquipmentTypeName() != null) {
-            EquipmentType equipmentType = equipmentTypeRepository.findByName(request.getEquipmentTypeName())
-                    .orElseThrow(() -> new AppException(ErrorCode.EQUIPMENT_TYPE_NOT_FOUND));
-            equipment.setEquipmentType(equipmentType);
-        }
-
-        if (request.getRoomName() != null) {
-            Room room = roomRepository.findByName(request.getRoomName())
+        // 2. Kiểm tra và lấy Phòng mặc định (nếu có)
+        Room defaultRoom = null;
+        if (StringUtils.hasText(request.getDefaultRoomId())) {
+            defaultRoom = roomRepository.findById(request.getDefaultRoomId())
                     .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
-            equipment.setRoom(room);
         }
 
-        if (request.getEquipmentManagerId() != null) {
-            User equipmentManager = userRepository.findByUserId(request.getEquipmentManagerId())
-                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-            equipment.setEquipmentManager(equipmentManager);
+        // 3. (Tùy chọn) Kiểm tra trùng lặp Serial Number / Asset Tag nếu chúng là unique
+        if (StringUtils.hasText(request.getSerialNumber()) && equipmentItemRepository.existsBySerialNumber(request.getSerialNumber())) {
+            throw new AppException(ErrorCode.SERIAL_NUMBER_EXISTED);
+        }
+        if (StringUtils.hasText(request.getAssetTag()) && equipmentItemRepository.existsByAssetTag(request.getAssetTag())) {
+            throw new AppException(ErrorCode.ASSET_TAG_EXISTED);
         }
 
-        return equipmentMapper.toEquipmentResponse(equipmentRepository.save(equipment));
+        // 4. Tạo Entity EquipmentItem
+        EquipmentItem newItem = new EquipmentItem();
+        newItem.setSerialNumber(request.getSerialNumber());
+        newItem.setAssetTag(request.getAssetTag());
+        newItem.setPurchaseDate(request.getPurchaseDate());
+        newItem.setWarrantyExpiryDate(request.getWarrantyExpiryDate());
+        newItem.setNotes(request.getNotes());
+
+        // 5. Set các mối quan hệ
+        newItem.setModel(model);
+        newItem.setDefaultRoom(defaultRoom); // Gán phòng mặc định (có thể null)
+
+        // 6. Set trạng thái ban đầu
+        newItem.setStatus(EquipmentStatus.AVAILABLE); // Trạng thái mặc định khi mới tạo
+
+        // 7. Lưu vào DB
+        EquipmentItem savedItem = equipmentItemRepository.save(newItem);
+
+        // 8. Trả về Response DTO
+        return buildFullEquipmentResponse(savedItem); // Dùng helper để tạo response đầy đủ
     }
 
+    public EquipmentResponse getEquipmentItemById(String itemId) {
+        EquipmentItem item = findEquipmentItemByIdOrThrow(itemId);
+        return buildFullEquipmentResponse(item);
+    }
+
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER', 'TECHNICIAN')")
+    public Page<EquipmentResponse> getEquipmentItems(Pageable pageable) {
+        Page<EquipmentItem> itemPage = equipmentItemRepository.findAll(pageable);
+        return itemPage.map(this::buildFullEquipmentResponse); // Map từng item trong page sang response
+    }
+
+    @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteEquipmentItem(String itemId) {
+        EquipmentItem item = findEquipmentItemByIdOrThrow(itemId);
+
+        equipmentItemRepository.delete(item);
+    }
+
+    @Transactional
+    @PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER')")
+    public EquipmentResponse updateEquipmentItem(String itemId, EquipmentItemUpdateRequest request) {
+        EquipmentItem existingItem = findEquipmentItemByIdOrThrow(itemId);
+
+        equipmentMapper.updateEquipmentItem(existingItem, request);
+
+        // Xử lý cập nhật phòng mặc định
+        if (request.getDefaultRoomId() != null) {
+            if (StringUtils.hasText(request.getDefaultRoomId())) {
+                Room newDefaultRoom = roomRepository.findById(request.getDefaultRoomId())
+                        .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
+                existingItem.setDefaultRoom(newDefaultRoom);
+            } else {
+                existingItem.setDefaultRoom(null);
+            }
+        }
+
+        // Xử lý cập nhật trạng thái (nếu được phép và có trong request)
+        // Cần cẩn thận khi cho phép cập nhật trạng thái thủ công qua API này
+        if (request.getStatus() != null) {
+            // TODO: Thêm logic kiểm tra xem trạng thái mới có hợp lệ không
+            // Ví dụ: không thể chuyển từ BROKEN sang AVAILABLE mà không qua Maintenance?
+            existingItem.setStatus(request.getStatus());
+        }
+
+        // (Tùy chọn) Kiểm tra trùng lặp Asset Tag nếu nó được cập nhật và là unique
+        if (request.getAssetTag() != null && !request.getAssetTag().equals(existingItem.getAssetTag())) {
+            if (equipmentItemRepository.existsByAssetTagAndIdNot(request.getAssetTag(), existingItem.getId())) {
+                throw new AppException(ErrorCode.ASSET_TAG_EXISTED);
+            }
+            existingItem.setAssetTag(request.getAssetTag());
+        }
+
+        EquipmentItem updatedItem = equipmentItemRepository.save(existingItem);
+        return buildFullEquipmentResponse(updatedItem);
+    }
+
+    private EquipmentItem findEquipmentItemByIdOrThrow(String itemId) {
+        return equipmentItemRepository.findById(itemId)
+                .orElseThrow(() -> new AppException(ErrorCode.EQUIPMENT_ITEM_NOT_FOUND));
+    }
+
+    private EquipmentResponse buildFullEquipmentResponse(EquipmentItem item) {
+        EquipmentResponse response = equipmentMapper.toEquipmentResponse(item);
+
+        // Lấy thông tin từ các đối tượng liên kết (kiểm tra null)
+        if (item.getModel() != null) {
+            response.setModelName(item.getModel().getName());
+            if (item.getModel().getEquipmentType() != null) {
+                response.setTypeName(item.getModel().getEquipmentType().getName());
+            }
+        }
+        if (item.getDefaultRoom() != null) {
+            response.setDefaultRoomName(item.getDefaultRoom().getName());
+        }
+
+        return response;
+    }
 }

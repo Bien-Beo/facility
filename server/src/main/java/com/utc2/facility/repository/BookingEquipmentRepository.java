@@ -11,12 +11,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface BorrowEquipmentRepository extends JpaRepository<BookingEquipment, String> {//
-    Optional<BookingEquipment> findByBorrowRequest(Booking booking);
-    Optional<BookingEquipment> findByEquipment(EquipmentItem equipmentItem);
-    List<BookingEquipment> findByBorrowRequestId(@Param("borrowRequestId") String borrowRequestId);
-    List<BookingEquipment> findByEquipmentId(@Param("equipmentId") String equipmentId);
+public interface BookingEquipmentRepository extends JpaRepository<BookingEquipment, String> {//
+    Optional<BookingEquipment> findByBooking(Booking booking);
+    Optional<BookingEquipment> findByItem(EquipmentItem item);
+    List<BookingEquipment> findByBookingId(@Param("bookingId") String bookingId);
+    List<BookingEquipment> findByItemId(@Param("equipmentId") String equipmentId);
 //    List<BorrowRequest> findByUserId(String userId);
-//    List<BorrowRequest> findByBorrowDate(LocalDateTime borrowDate);
+//    List<BorrowRequest> findByPlannedStartTime(LocalDateTime borrowDate);
 //    List<BorrowRequest> findByReturnDate(LocalDateTime returnDate);
 }

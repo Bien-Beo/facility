@@ -2,6 +2,7 @@ package com.utc2.facility.controller;
 
 import com.utc2.facility.dto.request.ApiResponse;
 import com.utc2.facility.dto.request.BookingCreationRequest;
+import com.utc2.facility.dto.request.BookingUpdateRequest;
 import com.utc2.facility.dto.response.BookingResponse;
 import com.utc2.facility.service.BookingService;
 import jakarta.validation.Valid;
@@ -9,79 +10,80 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-//
 @RestController
-@RequestMapping("/borrow-request")
+@RequestMapping("/booking")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class BookingRequestController {
+public class BookingController {
     BookingService bookingService;
 
     @PostMapping
-    ApiResponse<BookingResponse> createBorrowRequest(@RequestBody @Valid BookingCreationRequest request) {
+    ApiResponse<BookingResponse> createBooking(@RequestBody @Valid BookingCreationRequest request) {
         return ApiResponse.<BookingResponse>builder()
-                .result(bookingService.createBorrowRequest(request))
+                .result(bookingService.createBooking(request))
                 .build();
     }
 
-    @GetMapping("/{borrowRequestId}")
-    ApiResponse<BookingResponse> getBorrowRequest(@PathVariable String borrowRequestId) {
+    @GetMapping("/{bookingId}")
+    ApiResponse<BookingResponse> getBooking(@PathVariable String bookingId) {
         return ApiResponse.<BookingResponse>builder()
-                .result(bookingService.getBorrowRequest(borrowRequestId))
+                .result(bookingService.getBooking(bookingId))
                 .build();
     }
 
     @GetMapping
-    ApiResponse<List<BookingResponse>> getAllBorrowRequest() {
-        return ApiResponse.<List<BookingResponse>>builder()
-                .result(bookingService.getAllBorrowRequests())
+    ApiResponse<Page<BookingResponse>> getAllBooking(Pageable pageable) {
+        return ApiResponse.<Page<BookingResponse>>builder()
+                .result(bookingService.getAllBookings(pageable))
                 .build();
     }
 
     @GetMapping("/user/{userId}")
-    ApiResponse<List<BookingResponse>> getBorrowRequestByUserId(@PathVariable String userId) {
-        return ApiResponse.<List<BookingResponse>>builder()
-                .result(bookingService.getBorrowRequestByUserId(userId))
+    ApiResponse<Page<BookingResponse>> getBookingByUserId(@PathVariable String userId, Pageable pageable) {
+        return ApiResponse.<Page<BookingResponse>>builder()
+                .result(bookingService.getBookingsByUserId(userId, pageable))
                 .build();
     }
 
-    @DeleteMapping("/{borrowRequestId}")
-    ApiResponse<Void> deleteBorrowRequest(@PathVariable String borrowRequestId) {
-        bookingService.deleteBorrowRequest(borrowRequestId);
+    @DeleteMapping("/{bookingId}")
+    ApiResponse<Void> deleteBooking(@PathVariable String bookingId) {
+        bookingService.deleteBooking(bookingId);
         return ApiResponse.<Void>builder()
                 .result(null)
                 .build();
     }
 
-    @PutMapping("/{borrowRequestId}")
-    ApiResponse<BookingResponse> updateBorrowRequest(@RequestBody @Valid BookingCreationRequest request, @PathVariable String borrowRequestId)  {
+    @PutMapping("/{bookingId}")
+    ApiResponse<BookingResponse> updateBooking(@RequestBody @Valid BookingUpdateRequest request,
+                                               @PathVariable String bookingId)  {
         return ApiResponse.<BookingResponse>builder()
-                .result(bookingService.updateBorrowRequest(borrowRequestId, request))
+                .result(bookingService.updateBooking(bookingId, request))
                 .build();
     }
 
-    @PutMapping("/{borrowRequestId}/approve")
-    ApiResponse<BookingResponse> approveBorrowRequest(@PathVariable String borrowRequestId) {
+    @PutMapping("/{bookingId}/approve")
+    ApiResponse<BookingResponse> approveBooking(@PathVariable String bookingId) {
         return ApiResponse.<BookingResponse>builder()
-                .result(bookingService.approveBorrowRequest(borrowRequestId))
+                .result(bookingService.approveBooking(bookingId))
                 .build();
     }
 
-    @PutMapping("/{borrowRequestId}/reject")
-    ApiResponse<BookingResponse> rejectBorrowRequest(@PathVariable String borrowRequestId) {
+    @PutMapping("/{bookingId}/reject")
+    ApiResponse<BookingResponse> rejectBooking(@PathVariable String bookingId) {
         return ApiResponse.<BookingResponse>builder()
-                .result(bookingService.rejectBorrowRequest(borrowRequestId))
+                .result(bookingService.rejectBooking(bookingId))
                 .build();
     }
 
-    @PutMapping("/{borrowRequestId}/return")
-    ApiResponse<BookingResponse> returnRoom(@PathVariable String borrowRequestId) {
+    @PutMapping("/{bookingId}/complete") // Đổi path
+    ApiResponse<BookingResponse> completeBooking(@PathVariable String bookingId) {
         return ApiResponse.<BookingResponse>builder()
-                .result(bookingService.returnRoom(borrowRequestId))
+                .result(bookingService.completeBooking(bookingId))
                 .build();
     }
 }

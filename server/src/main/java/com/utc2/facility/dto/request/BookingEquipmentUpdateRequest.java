@@ -8,9 +8,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class BookingEquipmentCreationRequest {
-    String bookingId;
-    String equipmentId;
-    Boolean isDefaultEquipment = false;
+public class BookingEquipmentUpdateRequest {
+    Boolean isDefaultEquipment;
     String notes;
 }
