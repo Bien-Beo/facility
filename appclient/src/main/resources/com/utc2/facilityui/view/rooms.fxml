@@ -10,71 +10,78 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="507.0" prefWidth="830.0" style="-fx-border-radius: none;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.RoomsController">
    <children>
-      <ScrollPane fitToWidth="true" layoutY="-4.0" prefHeight="514.0" prefWidth="830.0">
-         <content>
-            <VBox prefHeight="960.0" prefWidth="815.0" spacing="20">
-               <padding>
-                  <Insets bottom="20" left="20" right="20" top="20" />
-               </padding>
-               <children>
-                  <AnchorPane prefHeight="49.0" prefWidth="745.0">
+      <VBox prefHeight="507.0" prefWidth="830.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+               <content>
+                  <VBox prefHeight="960.0" prefWidth="815.0" spacing="20">
+                     <padding>
+                        <Insets bottom="20" left="20" right="20" top="20" />
+                     </padding>
                      <children>
-                        <Label alignment="CENTER" layoutX="2.0" layoutY="6.0" prefHeight="45.0" prefWidth="773.0" text="Rooms">
-                           <font>
-                              <Font size="30.0" />
-                           </font>
-                        </Label>
-                     </children>
-                  </AnchorPane>
-                  <VBox prefHeight="337.0" prefWidth="774.0">
-                     <children>
-                        <Label prefHeight="25.0" prefWidth="774.0" style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Classroom">
-                           <font>
-                              <Font size="14.0" />
-                           </font>
-                        </Label>
-                        <ScrollPane prefHeight="246.0" prefWidth="774.0">
-                           <content>
-                              <HBox fx:id="cardClassRoom" alignment="CENTER_LEFT" prefHeight="205.0" prefWidth="1000.0" spacing="10.0">
-                                 <padding>
-                                    <Insets left="5.0" top="7.0" />
-                                 </padding>
-                              </HBox>
-                           </content>
-                        </ScrollPane>
+                        <!-- Chỉnh sửa phần tiêu đề Rooms -->
+                        <HBox prefHeight="49.0" prefWidth="745.0" alignment="CENTER">
+                           <children>
+                              <Label alignment="CENTER" prefHeight="45.0" text="Rooms">
+                                 <font>
+                                    <Font size="30.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </HBox>
+
+                        <!-- Phần còn lại của các phòng -->
+                        <VBox prefHeight="337.0" prefWidth="774.0">
+                           <children>
+                              <Label prefHeight="25.0" prefWidth="774.0" style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Classroom">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                              <ScrollPane prefHeight="246.0" prefWidth="774.0" VBox.vgrow="NEVER" fitToHeight="false" fitToWidth="true">
+                                 <content>
+                                    <HBox fx:id="cardClassRoom" alignment="CENTER_LEFT" prefHeight="205.0" prefWidth="1000.0" spacing="10.0">
+                                       <padding>
+                                          <Insets left="5.0" top="7.0" />
+                                       </padding>
+                                    </HBox>
+                                 </content>
+                              </ScrollPane>
+                           </children>
+                        </VBox>
+                        <VBox prefHeight="349.0" prefWidth="774.0">
+                           <children>
+                              <Label prefHeight="25.0" prefWidth="779.0" style="-fx-font-size: 16px; -fx-font-weight: bold;" text=" Meeting Room" />
+                              <ScrollPane prefHeight="246.0" prefWidth="774.0" VBox.vgrow="NEVER" fitToHeight="false" fitToWidth="true">
+                                 <content>
+                                    <HBox fx:id="cardMeetingRoom" alignment="CENTER_LEFT" prefHeight="219.0" prefWidth="1000.0" spacing="10.0">
+                                       <padding>
+                                          <Insets left="5.0" top="7.0" />
+                                       </padding>
+                                    </HBox>
+                                 </content>
+                              </ScrollPane>
+                           </children>
+                        </VBox>
+                        <VBox prefHeight="349.0" prefWidth="774.0">
+                           <children>
+                              <Label prefHeight="25.0" prefWidth="791.0" style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Lab Room" />
+                              <ScrollPane prefHeight="246.0" prefWidth="774.0" VBox.vgrow="NEVER" fitToHeight="false" fitToWidth="true">
+                                 <content>
+                                    <HBox fx:id="cardLabRoom" alignment="CENTER_LEFT" prefHeight="228.0" prefWidth="1000.0" spacing="10.0">
+                                       <padding>
+                                          <Insets left="5.0" top="7.0" />
+                                       </padding>
+                                    </HBox>
+                                 </content>
+                              </ScrollPane>
+                           </children>
+                        </VBox>
                      </children>
                   </VBox>
-                  <VBox prefHeight="349.0" prefWidth="774.0">
-                     <children>
-                        <Label prefHeight="25.0" prefWidth="779.0" style="-fx-font-size: 16px; -fx-font-weight: bold;" text=" Meeting Room" />
-                        <ScrollPane prefHeight="248.0" prefWidth="769.0">
-                           <content>
-                              <HBox fx:id="cardMeetingRoom" alignment="CENTER_LEFT" prefHeight="219.0" prefWidth="1000.0" spacing="10.0">
-                                 <padding>
-                                    <Insets left="5.0" top="7.0" />
-                                 </padding>
-                              </HBox>
-                           </content>
-                        </ScrollPane>
-                     </children>
-                  </VBox>
-                  <VBox prefHeight="349.0" prefWidth="774.0">
-                     <children>
-                        <Label prefHeight="25.0" prefWidth="791.0" style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Lab Room" />
-                        <ScrollPane prefHeight="248.0" prefWidth="774.0">
-                           <content>
-                              <HBox fx:id="cardLabRoom" alignment="CENTER_LEFT" prefHeight="228.0" prefWidth="1000.0" spacing="10.0">
-                                 <padding>
-                                    <Insets left="5.0" top="7.0" />
-                                 </padding>
-                              </HBox>
-                           </content>
-                        </ScrollPane>
-                     </children>
-                  </VBox>
-               </children>
-            </VBox>
-         </content>
-      </ScrollPane>
+               </content>
+            </ScrollPane>
+         </children>
+      </VBox>
    </children>
 </AnchorPane>

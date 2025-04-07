@@ -10,58 +10,69 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="685.0" prefWidth="830.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.EquipmentsController">
     <children>
-        <ScrollPane fitToWidth="true" layoutY="-4.0" prefHeight="692.0" prefWidth="830.0">
-            <content>
-                <VBox prefHeight="960.0" prefWidth="814.0" spacing="20">
-                    <padding>
-                        <Insets bottom="20" left="20" right="20" top="20" />
-                    </padding>
-                    <children>
-                        <AnchorPane prefHeight="49.0" prefWidth="745.0">
+        <VBox prefHeight="685.0" prefWidth="830.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <children>
+                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+                    <content>
+                        <VBox prefHeight="960.0" prefWidth="814.0" spacing="20">
+                            <padding>
+                                <Insets bottom="20" left="20" right="20" top="20" />
+                            </padding>
                             <children>
-                                <Label alignment="CENTER" layoutX="3.0" layoutY="6.0" prefHeight="45.0" prefWidth="772.0" text="Equipments">
-                                    <font>
-                                        <Font size="30.0" />
-                                    </font>
-                                </Label>
-                            </children>
-                        </AnchorPane>
-                        <VBox prefHeight="337.0" prefWidth="774.0">
-                            <children>
-                                <Label prefHeight="25.0" prefWidth="774.0" style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Electronics">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <ScrollPane prefHeight="246.0" prefWidth="774.0">
-                                    <content>
-                                        <HBox fx:id="cardElectronics" alignment="CENTER_LEFT" prefHeight="205.0" prefWidth="1000.0" spacing="10.0">
-                                            <padding>
-                                                <Insets left="5.0" top="7.0" />
-                                            </padding>
-                                        </HBox>
-                                    </content>
-                                </ScrollPane>
+                                <!-- Tiêu đề Equipments đã được căn giữa -->
+                                <HBox prefHeight="49.0" prefWidth="745.0" alignment="CENTER">
+                                    <children>
+                                        <Label alignment="CENTER" prefHeight="45.0" text="Equipments">
+                                            <font>
+                                                <Font size="30.0" />
+                                            </font>
+                                        </Label>
+                                    </children>
+                                </HBox>
+
+                                <!-- Phần Electronics -->
+                                <VBox prefHeight="337.0" prefWidth="774.0">
+                                    <children>
+                                        <Label prefHeight="25.0" prefWidth="774.0" style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Electronics">
+                                            <font>
+                                                <Font size="14.0" />
+                                            </font>
+                                        </Label>
+                                        <ScrollPane prefHeight="246.0" prefWidth="774.0" VBox.vgrow="NEVER" fitToHeight="false" fitToWidth="true">
+                                            <content>
+                                                <HBox fx:id="cardElectronics" alignment="CENTER_LEFT" prefHeight="205.0" prefWidth="1000.0" spacing="10.0">
+                                                    <padding>
+                                                        <Insets left="5.0" top="7.0" />
+                                                    </padding>
+                                                </HBox>
+                                            </content>
+                                        </ScrollPane>
+                                    </children>
+                                </VBox>
+
+                                <!-- Phần Audio Equipment -->
+                                <VBox prefHeight="349.0" prefWidth="774.0">
+                                    <children>
+                                        <Label prefHeight="25.0" prefWidth="779.0" style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Audio equipment" />
+                                        <ScrollPane prefHeight="246.0" prefWidth="774.0" VBox.vgrow="NEVER" fitToHeight="false" fitToWidth="true">
+                                            <content>
+                                                <HBox fx:id="cardAudioEquipment" alignment="CENTER_LEFT" prefHeight="219.0" prefWidth="1000.0" spacing="10.0">
+                                                    <padding>
+                                                        <Insets left="5.0" top="7.0" />
+                                                    </padding>
+                                                </HBox>
+                                            </content>
+                                        </ScrollPane>
+                                    </children>
+                                </VBox>
+
+                                <!-- Phần khác (sẽ được thêm vào sau nếu cần) -->
+                                <VBox prefHeight="349.0" prefWidth="774.0" />
                             </children>
                         </VBox>
-                        <VBox prefHeight="349.0" prefWidth="774.0">
-                            <children>
-                                <Label prefHeight="25.0" prefWidth="779.0" style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Audio equipment" />
-                                <ScrollPane prefHeight="248.0" prefWidth="769.0">
-                                    <content>
-                                        <HBox fx:id="cardAudioEquipment" alignment="CENTER_LEFT" prefHeight="219.0" prefWidth="1000.0" spacing="10.0">
-                                            <padding>
-                                                <Insets left="5.0" top="7.0" />
-                                            </padding>
-                                        </HBox>
-                                    </content>
-                                </ScrollPane>
-                            </children>
-                        </VBox>
-                        <VBox prefHeight="349.0" prefWidth="774.0" />
-                    </children>
-                </VBox>
-            </content>
-        </ScrollPane>
+                    </content>
+                </ScrollPane>
+            </children>
+        </VBox>
     </children>
 </AnchorPane>

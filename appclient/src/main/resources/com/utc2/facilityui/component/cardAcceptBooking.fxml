@@ -7,135 +7,129 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
 <AnchorPane prefHeight="226.0" prefWidth="762.0" stylesheets="@../styles/mainUI.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.CardAcceptBookingController">
     <styleClass>
         <String fx:value="card-Acceptbooking" />
-        <String fx:value="card-Acceptbooking" />
         <String fx:value="shadow" />
         <String fx:value="white-bg" />
     </styleClass>
     <children>
-        <AnchorPane prefHeight="200.0" prefWidth="762.0" styleClass="card-Acceptbooking1" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-            <children>
-                <BorderPane prefHeight="221.0" prefWidth="752.0">
-                    <left>
-                        <AnchorPane prefHeight="255.0" prefWidth="533.0" BorderPane.alignment="CENTER">
-                            <children>
-                                <Label fx:id="nameBooking" layoutX="44.0" layoutY="14.0" prefHeight="39.0" prefWidth="459.0" text="Courtyard | Lunch">
-                                    <font>
-                                        <Font name="System Bold" size="20.0" />
-                                    </font>
-                                </Label>
-                                <Label layoutX="44.0" layoutY="78.0" prefHeight="21.0" prefWidth="34.0" text="Date:">
-                                    <font>
-                                        <Font name="System Bold" size="13.0" />
-                                    </font>
-                                </Label>
-                                <Label layoutX="43.0" layoutY="123.0" prefHeight="19.0" prefWidth="73.0" text="Request at:">
-                                    <font>
-                                        <Font name="System Bold" size="13.0" />
-                                    </font>
-                                </Label>
-                                <Label layoutX="44.0" layoutY="58.0" prefHeight="21.0" prefWidth="65.0" text="Purpose: ">
-                                    <font>
-                                        <Font name="System Bold" size="13.0" />
-                                    </font>
-                                </Label>
-                                <Label layoutX="43.0" layoutY="100.0" prefHeight="21.0" prefWidth="36.0" text="Time:">
-                                    <font>
-                                        <Font name="System Bold" size="13.0" />
-                                    </font>
-                                </Label>
-                                <Label alignment="BOTTOM_LEFT" layoutX="43.0" layoutY="144.0" prefHeight="17.0" prefWidth="114.0" text="Approval status:">
-                                    <font>
-                                        <Font name="System Bold" size="13.0" />
-                                    </font>
-                                </Label>
-                        <Label alignment="BOTTOM_LEFT" layoutX="43.0" layoutY="163.0" prefHeight="17.0" prefWidth="114.0" text="Approval By GD:">
-                           <font>
-                              <Font name="System Bold" size="13.0" />
-                           </font>
-                        </Label>
-                                <Text fx:id="purposeBooking" layoutX="100.0" layoutY="73.0" strokeType="OUTSIDE" strokeWidth="0.0" text="A lunch party" wrappingWidth="395.13671875">
-                                    <font>
-                                        <Font size="13.0" />
-                                    </font>
-                                </Text>
-                                <Text fx:id="dateBooking" layoutX="78.0" layoutY="93.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Thu Apr 25 2024" wrappingWidth="425.13671875">
-                                    <font>
-                                        <Font size="13.0" />
-                                    </font>
-                                </Text>
-                                <Text fx:id="timeBooking" layoutX="79.0" layoutY="115.0" strokeType="OUTSIDE" strokeWidth="0.0" text="12:30 PM - 02:00 PM" wrappingWidth="409.63671875">
-                                    <font>
-                                        <Font size="13.0" />
-                                    </font>
-                                </Text>
-                                <Text fx:id="requestBooking" layoutX="111.0" layoutY="138.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Wed Apr 24 2024, 11:58 AM" wrappingWidth="396.13671875">
-                                    <font>
-                                        <Font size="13.0" />
-                                    </font>
-                                </Text>
-                                <Text fx:id="statusBooking" layoutX="154.0" layoutY="158.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Pending Approval" wrappingWidth="343.63671875">
-                                    <font>
-                                        <Font size="13.0" />
-                                    </font>
-                                </Text>
-                        <Label alignment="BOTTOM_LEFT" layoutX="43.0" layoutY="182.0" prefHeight="17.0" prefWidth="114.0" text="Approval By FM:">
-                           <font>
-                              <Font name="System Bold" size="13.0" />
-                           </font>
-                        </Label>
-                        <Text fx:id="approvalByGD" layoutX="154.0" layoutY="177.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Grace Cummerata at Wed Apr 24 2024, 12:06 PM" wrappingWidth="376.63671875">
-                           <font>
-                              <Font size="13.0" />
-                           </font>
-                        </Text>
-                        <Text fx:id="approvalByFM" layoutX="154.0" layoutY="196.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Grady Turcotte at Wed Apr 24 2024, 10:07 PM" wrappingWidth="376.63671875">
-                           <font>
-                              <Font size="13.0" />
-                           </font>
-                        </Text>
-                            </children>
-                        </AnchorPane>
-                    </left>
-                    <center>
-                        <AnchorPane prefHeight="200.0" prefWidth="242.0" BorderPane.alignment="CENTER">
-                            <children>
-                                <Label layoutX="1.0" layoutY="55.0" prefHeight="27.0" prefWidth="126.0" styleClass="card-booking2" text="State the reson:">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                </Label>
-                                <Label layoutX="1.0" layoutY="94.0" prefHeight="33.0" prefWidth="155.0" style="-fx-border-color: rgba(184, 184, 184, 0.78); -fx-border-radius: 1px;" styleClass="card-booking2" text="Remark*">
-                                    <font>
-                                        <Font size="14.0" />
-                                    </font>
-                                    <padding>
-                                        <Insets left="10.0" />
-                                    </padding>
-                                </Label>
-                                <Button fx:id="btnCancel" layoutY="144.0" lineSpacing="10.0" mnemonicParsing="false" prefHeight="32.0" prefWidth="156.0" styleClass="button-cancel" text="CANCEL">
-                                    <graphic>
-                                        <ImageView fitHeight="22.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
-                                            <image>
-                                                <Image url="@../images/cancel.png" />
-                                            </image>
-                                        </ImageView>
-                                    </graphic>
-                                    <padding>
-                                        <Insets right="10.0" />
-                                    </padding>
-                                </Button>
-                            </children>
-                        </AnchorPane>
-                    </center>
-                </BorderPane>
-            </children>
-        </AnchorPane>
+        <HBox prefHeight="226.0" prefWidth="762.0" spacing="10.0" styleClass="card-Acceptbooking1" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <!-- Phần bên trái, chiếm không gian lớn hơn -->
+            <AnchorPane prefHeight="226.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" HBox.hgrow="ALWAYS">
+                <children>
+                    <Label fx:id="nameBooking" layoutX="44.0" layoutY="14.0" prefHeight="39.0" prefWidth="459.0" text="Courtyard | Lunch">
+                        <font>
+                            <Font name="System Bold" size="20.0" />
+                        </font>
+                    </Label>
+                    <Label layoutX="44.0" layoutY="78.0" prefHeight="21.0" prefWidth="34.0" text="Date:">
+                        <font>
+                            <Font name="System Bold" size="13.0" />
+                        </font>
+                    </Label>
+                    <Label layoutX="43.0" layoutY="123.0" prefHeight="19.0" prefWidth="73.0" text="Request at:">
+                        <font>
+                            <Font name="System Bold" size="13.0" />
+                        </font>
+                    </Label>
+                    <Label layoutX="44.0" layoutY="58.0" prefHeight="21.0" prefWidth="65.0" text="Purpose:">
+                        <font>
+                            <Font name="System Bold" size="13.0" />
+                        </font>
+                    </Label>
+                    <Label layoutX="43.0" layoutY="100.0" prefHeight="21.0" prefWidth="36.0" text="Time:">
+                        <font>
+                            <Font name="System Bold" size="13.0" />
+                        </font>
+                    </Label>
+                    <Label alignment="BOTTOM_LEFT" layoutX="43.0" layoutY="144.0" prefHeight="17.0" prefWidth="114.0" text="Approval status:">
+                        <font>
+                            <Font name="System Bold" size="13.0" />
+                        </font>
+                    </Label>
+                    <Label alignment="BOTTOM_LEFT" layoutX="43.0" layoutY="163.0" prefHeight="17.0" prefWidth="114.0" text="Approval By GD:">
+                        <font>
+                            <Font name="System Bold" size="13.0" />
+                        </font>
+                    </Label>
+                    <Text fx:id="purposeBooking" layoutX="100.0" layoutY="73.0" strokeType="OUTSIDE" strokeWidth="0.0" text="A lunch party" wrappingWidth="395.13671875">
+                        <font>
+                            <Font size="13.0" />
+                        </font>
+                    </Text>
+                    <Text fx:id="dateBooking" layoutX="78.0" layoutY="93.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Thu Apr 25 2024" wrappingWidth="425.13671875">
+                        <font>
+                            <Font size="13.0" />
+                        </font>
+                    </Text>
+                    <Text fx:id="timeBooking" layoutX="79.0" layoutY="115.0" strokeType="OUTSIDE" strokeWidth="0.0" text="12:30 PM - 02:00 PM" wrappingWidth="409.63671875">
+                        <font>
+                            <Font size="13.0" />
+                        </font>
+                    </Text>
+                    <Text fx:id="requestBooking" layoutX="111.0" layoutY="138.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Wed Apr 24 2024, 11:58 AM" wrappingWidth="396.13671875">
+                        <font>
+                            <Font size="13.0" />
+                        </font>
+                    </Text>
+                    <Text fx:id="statusBooking" layoutX="154.0" layoutY="158.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Pending Approval" wrappingWidth="343.63671875">
+                        <font>
+                            <Font size="13.0" />
+                        </font>
+                    </Text>
+                    <Label alignment="BOTTOM_LEFT" layoutX="43.0" layoutY="182.0" prefHeight="17.0" prefWidth="114.0" text="Approval By FM:">
+                        <font>
+                            <Font name="System Bold" size="13.0" />
+                        </font>
+                    </Label>
+                    <Text fx:id="approvalByGD" layoutX="154.0" layoutY="177.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Grace Cummerata at Wed Apr 24 2024, 12:06 PM" wrappingWidth="376.63671875">
+                        <font>
+                            <Font size="13.0" />
+                        </font>
+                    </Text>
+                    <Text fx:id="approvalByFM" layoutX="154.0" layoutY="196.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Grady Turcotte at Wed Apr 24 2024, 10:07 PM" wrappingWidth="376.63671875">
+                        <font>
+                            <Font size="13.0" />
+                        </font>
+                    </Text>
+                </children>
+            </AnchorPane>
+
+            <!-- Phần bên phải, chiếm không gian nhỏ hơn -->
+            <AnchorPane prefHeight="226.0" prefWidth="199.0" AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="0.0" HBox.hgrow="NEVER">
+                <children>
+                    <Label layoutX="1.0" layoutY="55.0" prefHeight="27.0" prefWidth="126.0" styleClass="card-booking2" text="State the reason:">
+                        <font>
+                            <Font size="14.0" />
+                        </font>
+                    </Label>
+                    <Label layoutX="1.0" layoutY="94.0" prefHeight="33.0" prefWidth="155.0" style="-fx-border-color: rgba(184, 184, 184, 0.78); -fx-border-radius: 1px;" styleClass="card-booking2" text="Remark*">
+                        <font>
+                            <Font size="14.0" />
+                        </font>
+                        <padding>
+                            <Insets left="10.0" />
+                        </padding>
+                    </Label>
+                    <Button fx:id="btnCancel" layoutY="144.0" lineSpacing="10.0" mnemonicParsing="false" prefHeight="32.0" prefWidth="156.0" styleClass="button-cancel" text="CANCEL">
+                        <graphic>
+                            <ImageView fitHeight="22.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                                <image>
+                                    <Image url="@../images/cancel.png" />
+                                </image>
+                            </ImageView>
+                        </graphic>
+                        <padding>
+                            <Insets right="10.0" />
+                        </padding>
+                    </Button>
+                </children>
+            </AnchorPane>
+        </HBox>
     </children>
 </AnchorPane>
