@@ -1,93 +1,79 @@
 package com.utc2.facilityui.controller;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.utc2.facilityui.auth.TokenStorage;
-import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.Stage;
-import okhttp3.*;
+
 import com.utc2.facilityui.model.Facility;
-import java.io.IOException;
 
 public class FacilityController {
-    @FXML private TableView<Facility> facilityTable;
-    @FXML private TableColumn<Facility, String> nameColumn;
-    @FXML private TableColumn<Facility, Integer> capacityColumn;
-    @FXML private TableColumn<Facility, String> typeColumn;
-    @FXML private TableColumn<Facility, String> statusColumn;
-    @FXML private TableColumn<Facility, String> createdAtColumn;
-    @FXML private TableColumn<Facility, String> updatedAtColumn;
-    @FXML private TableColumn<Facility, String> deletedAtColumn;
-    @FXML private TableColumn<Facility, String> managerColumn;
-    @FXML private Label lbMessage;
-    @FXML private Button addButton;
-    @FXML private Button exportButton;
 
-    private static final String FACILITIES_URL = "http://localhost:8080/facility/list";
-    private final OkHttpClient client = new OkHttpClient();
+    @FXML
+    private TableView<Facility> facilityTable;
+    @FXML
+    private TableColumn<Facility, String> nameColumn;
+    @FXML
+    private TableColumn<Facility, String> capacityColumn;
+    @FXML
+    private TableColumn<Facility, String> typeRoomColumn;
+    @FXML
+    private TableColumn<Facility, String> statusColumn;
+    @FXML
+    private TableColumn<Facility, String> createdAtColumn;
+    @FXML
+    private TableColumn<Facility, String> updatedAtColumn;
+    @FXML
+    private TableColumn<Facility, String> deletedAtColumn;
+    @FXML
+    private TableColumn<Facility, String> managerColumn;
+    @FXML
+    private Button addButton;
+
+    private ObservableList<Facility> facilities;
 
     @FXML
     private void initialize() {
-        setupTableColumns();
-        loadFacilities();
-    }
+        facilities = FXCollections.observableArrayList(
+                new Facility(
+                        "Courtyard / Harmony Plaza",
+                        "80",
+                        "Outdoor Area",
+                        "Active",
+                        "09:02 PM\nWed Dec 20 2023",
+                        "09:07 PM\nWed Dec 20 2023",
+                        "N/A",
+                        "Grady Turcotte",
+                        "395003"
+                ),
+                new Facility(
+                        "Meeting Rooms / SkyRise Tower",
+                        "50",
+                        "Meeting Room",
+                        "Active",
+                        "11:16 AM\nSun Oct 06 2024",
+                        "09:08 PM\nWed Dec 20 2023",
+                        "01:24 PM\nSun Jun 16 2024",
+                        "Roland Miller",
+                        "374546"
+                )
+        );
 
-    private void setupTableColumns() {
-        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-        capacityColumn.setCellValueFactory(new PropertyValueFactory<>("capacity"));
-        typeColumn.setCellValueFactory(new PropertyValueFactory<>("type"));
-        statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
-        createdAtColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
-        updatedAtColumn.setCellValueFactory(new PropertyValueFactory<>("updatedAt"));
-        deletedAtColumn.setCellValueFactory(new PropertyValueFactory<>("deletedAt"));
-        managerColumn.setCellValueFactory(new PropertyValueFactory<>("manager"));
-    }
+        // Mapping các cột trong TableView
+        nameColumn.setCellValueFactory(cell -> cell.getValue().nameProperty());
+        capacityColumn.setCellValueFactory(cell -> cell.getValue().capacityProperty());
+        typeRoomColumn.setCellValueFactory(cell -> cell.getValue().typeRoomProperty());
+        statusColumn.setCellValueFactory(cell -> cell.getValue().statusProperty());
+        createdAtColumn.setCellValueFactory(cell -> cell.getValue().createdAtProperty());
+        updatedAtColumn.setCellValueFactory(cell -> cell.getValue().updatedAtProperty());
+        deletedAtColumn.setCellValueFactory(cell -> cell.getValue().deletedAtProperty());
 
-    private void loadFacilities() {
-        Request request = new Request.Builder()
-                .url(FACILITIES_URL)
-                .addHeader("Authorization", "Bearer " + TokenStorage.getToken())
-                .get()
-                .build();
+        managerColumn.setCellValueFactory(cell ->
+                new javafx.beans.property.SimpleStringProperty(
+                        cell.getValue().getManagerName() + "\nId:" + cell.getValue().getManagerId()
+                )
+        );
 
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Platform.runLater(() -> lbMessage.setText("Lỗi kết nối server!"));
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful() && response.body() != null) {
-                    String responseBody = response.body().string();
-                    JsonArray jsonArray = JsonParser.parseString(responseBody).getAsJsonArray();
-
-                    Platform.runLater(() -> {
-                        facilityTable.getItems().clear();
-                        for (var element : jsonArray) {
-                            JsonObject obj = element.getAsJsonObject();
-                            facilityTable.getItems().add(new Facility(
-                                    obj.get("name").getAsString(),
-                                    obj.get("capacity").getAsInt(),
-                                    obj.get("type").getAsString(),
-                                    obj.get("status").getAsString(),
-                                    obj.get("createdAt").getAsString(),
-                                    obj.get("updatedAt").getAsString(),
-                                    obj.has("deletedAt") ? obj.get("deletedAt").getAsString() : "",
-                                    obj.get("manager").getAsString()
-                            ));
-                        }
-                    });
-                } else {
-                    Platform.runLater(() -> lbMessage.setText("Lỗi tải danh sách cơ sở vật chất!"));
-                }
-            }
-        });
+        facilityTable.setItems(facilities);
     }
 }
