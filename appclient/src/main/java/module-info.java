@@ -13,6 +13,7 @@ module com.utc2.facilityui {
     requires javafx.graphics;
     requires com.gluonhq.attach.util;
     requires com.gluonhq.charm.glisten;
+    requires java.desktop;
 
     exports com.utc2.facilityui.controller;
     opens com.utc2.facilityui.controller to javafx.fxml;

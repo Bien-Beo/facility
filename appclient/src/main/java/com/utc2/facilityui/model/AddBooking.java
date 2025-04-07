@@ -1,22 +1,41 @@
 package com.utc2.facilityui.model;
 
 public class AddBooking {
-    String nameBooking;
+    String userID;
+    String name;
     String borrowDate;
     String timeBorrow;
-    String returnDate;
-    String timeReturn;
+    String expectedReturnDate;
+    String expectedTimeReturn;
     String status;
 
     public AddBooking() {}
 
-    public AddBooking(String nameBooking, String borrowDate, String timeBorrow, String returnDate, String timeReturn, String status) {
-        this.nameBooking = nameBooking;
+    public AddBooking(String userID, String name, String borrowDate,
+                      String timeBorrow, String expectedReturnDate, String expectedTimeReturn, String status) {
+        this.userID = userID;
+        this.name = name;
         this.borrowDate = borrowDate;
         this.timeBorrow = timeBorrow;
-        this.returnDate = returnDate;
-        this.timeReturn = timeReturn;
+        this.expectedReturnDate = expectedReturnDate;
+        this.expectedTimeReturn = expectedTimeReturn;
         this.status = status;
+    }
+
+    public String getUserID() {
+        return userID;
+    }
+
+    public void setUserID(String userID) {
+        this.userID = userID;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getBorrowDate() {
@@ -27,12 +46,12 @@ public class AddBooking {
         this.borrowDate = borrowDate;
     }
 
-    public String getNameBooking() {
-        return nameBooking;
+    public String getExpectedReturnDate() {
+        return expectedReturnDate;
     }
 
-    public void setNameBooking(String nameBooking) {
-        this.nameBooking = nameBooking;
+    public void setExpectedReturnDate(String expectedReturnDate) {
+        this.expectedReturnDate = expectedReturnDate;
     }
 
     public String getTimeBorrow() {
@@ -43,20 +62,12 @@ public class AddBooking {
         this.timeBorrow = timeBorrow;
     }
 
-    public String getReturnDate() {
-        return returnDate;
+    public String getExpectedTimeReturn() {
+        return expectedTimeReturn;
     }
 
-    public void setReturnDate(String returnDate) {
-        this.returnDate = returnDate;
-    }
-
-    public String getTimeReturn() {
-        return timeReturn;
-    }
-
-    public void setTimeReturn(String timeReturn) {
-        this.timeReturn = timeReturn;
+    public void setExpectedTimeReturn(String expectedTimeReturn) {
+        this.expectedTimeReturn = expectedTimeReturn;
     }
 
     public String getStatus() {

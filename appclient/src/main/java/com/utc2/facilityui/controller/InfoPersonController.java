@@ -54,11 +54,6 @@ public class InfoPersonController implements Initializable {
         ls.add(btn);
 
         btn = new ButtonNav();
-        btn.setName("Maintenance");
-        btn.setImageSrc("/com/utc2/facilityui/images/maintenance-icon.png");
-        ls.add(btn);
-
-        btn = new ButtonNav();
         btn.setName("Reset Password");
         btn.setImageSrc("/com/utc2/facilityui/images/rotation-lock.png");
         ls.add(btn);
