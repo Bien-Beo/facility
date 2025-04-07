@@ -43,7 +43,7 @@ const RoomDetail: React.FC<RoomDetailProps> = ({
       <DialogContent className="w-full h-auto flex items-center justify-center bg-[url(/1.png)] bg-cover p-6">
         <div className="w-[1000px] flex gap-x-10">
           {/* Left: Image */}
-          <div className="rounded-2xl shadow-lg shadow-zinc-800 flex-1/2 flex items-center justify-center relative">
+          <div className="rounded-2xl flex-1/2 flex items-center justify-center relative">
             <div className="absolute top-0 left-0 p-2 text-gray-500 text-sm">
                 <img className="h-12 w-12 object-scale-down" src="/logo.png" alt="Logo" />
             </div>

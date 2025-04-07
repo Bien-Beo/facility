@@ -1,10 +1,11 @@
 package com.utc2.facility.service;
 
 import com.utc2.facility.dto.request.UserCreationRequest;
-import com.utc2.facility.dto.request.UserUpdateRequest;
+import com.utc2.facility.dto.request.UserUpdateRequest; // Import DTO đúng
 import com.utc2.facility.dto.response.UserResponse;
+import com.utc2.facility.entity.Role; // Import Role entity
 import com.utc2.facility.entity.User;
-import com.utc2.facility.enums.Role;
+// import com.utc2.facility.enums.Role; // Không dùng trực tiếp Enum Role ở đây nữa nếu có Role Entity
 import com.utc2.facility.exception.AppException;
 import com.utc2.facility.exception.ErrorCode;
 import com.utc2.facility.mapper.UserMapper;
@@ -14,78 +15,98 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page; // Import Page
+import org.springframework.data.domain.Pageable; // Import Pageable
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional; // Import Transactional
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class UserService {//
-     UserRepository userRepository;
-     UserMapper userMapper;
-     RoleRepository roleRepository;
+public class UserService {
+
+    UserRepository userRepository;
+    UserMapper userMapper;
+    RoleRepository roleRepository;
     PasswordEncoder passwordEncoder;
 
+    @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public UserResponse createUser(UserCreationRequest request) {
-        if (userRepository.existsByUserId(request.getUserId()))
-            throw new AppException(ErrorCode.USER_EXISTED);
+        // 1. Kiểm tra trùng lặp các trường unique
+        if (userRepository.existsByUserId(request.getUserId())) {
+            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+        }
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
+        }
 
-        User user = userMapper.toUser(request, roleRepository);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        User user = userMapper.toUser(request);
 
-        // Kiểm tra và gán role mặc định
-        request.setRole(Role.USER.name());
+        String requestedRoleName = request.getRoleName() != null ? request.getRoleName() : "USER";
+        Role userRole = roleRepository.findByName(com.utc2.facility.enums.Role.valueOf(requestedRoleName));
 
-        return userMapper.toUserResponse(userRepository.save(user));
+        user.setRole(userRole);
+
+        // 4. Mã hóa mật khẩu
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        // 5. Lưu user
+        User savedUser = userRepository.save(user);
+
+        return userMapper.toUserResponse(savedUser);
     }
 
     public UserResponse getMyInfo() {
-        var context = SecurityContextHolder.getContext();
-        String name = context.getAuthentication().getName();
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        if ("anonymousUser".equals(username)) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
 
-        User user = userRepository.findByUsername(name).orElseThrow(
-                () -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         return userMapper.toUserResponse(user);
     }
 
-    public UserResponse updateUser(String userId, UserUpdateRequest resquest) {
-        User user = userRepository.findById(userId)
+    @Transactional
+    @PreAuthorize("hasRole('ADMIN') or #id == principal.username")
+    public UserResponse updateUser(String userId, UserUpdateRequest request) {
+        User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        userMapper.updateUser(user, resquest, roleRepository);
-        user.setPassword(passwordEncoder.encode(resquest.getPassword()));
+        userMapper.updateUser(user, request);
 
-        return userMapper.toUserResponse(userRepository.save(user));
+        User updatedUser = userRepository.save(user);
+        return userMapper.toUserResponse(updatedUser);
     }
 
+    @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteUser(String userId) {
-        userRepository.deleteById(userId);
+        if (!userRepository.existsByUserId(userId)) {
+            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+        }
+        userRepository.deleteByUserId(userId);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    public List<UserResponse> getUsers() {
-        return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
+    public Page<UserResponse> getUsers(Pageable pageable) {
+        Page<User> userPage = userRepository.findAll(pageable);
+        return userPage.map(userMapper::toUserResponse);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    public UserResponse getUser(String id) {
+    public UserResponse getUser(String userId) {
         return userMapper.toUserResponse(
-                userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
-    }
-
-    @PostAuthorize("returnObject.username == authentication.name")
-    public UserResponse getUserById(String id) {
-        return userMapper.toUserResponse(userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found")));
+                userRepository.findByUserId(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
     }
 }

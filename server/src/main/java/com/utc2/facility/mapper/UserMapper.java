@@ -9,21 +9,26 @@ import com.utc2.facility.repository.RoleRepository;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface UserMapper {
 
-    @Mapping(target = "role", source = "role", qualifiedByName = "mapRole")
-    User toUser(UserCreationRequest request, @Context RoleRepository roleRepository);
-
-    @Mapping(target = "role", source = "role.name") // Chuyển Role entity thành String
+    @Mapping(target = "roleName", source = "role.name")
     UserResponse toUserResponse(User user);
 
-    @Mapping(target = "role", source = "role", qualifiedByName = "mapRole")
-    void updateUser(@MappingTarget User user, UserUpdateRequest request, @Context RoleRepository roleRepository);
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "managedRooms", ignore = true)
+    User toUser(UserCreationRequest request);
 
-    @Named("mapRole")
-    default com.utc2.facility.entity.Role mapRole(Role roleName, @Context RoleRepository roleRepository) {
-        return roleRepository.findByName(roleName);
-    }
+    // Mapper này cập nhật các trường cho phép từ UserUpdateRequest
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "userId", ignore = true)
+    @Mapping(target = "username", ignore = true)
+    @Mapping(target = "email", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "managedRooms", ignore = true)
+    void updateUser(@MappingTarget User user, UserUpdateRequest request);
 }
 

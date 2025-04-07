@@ -1,10 +1,13 @@
 package com.utc2.facility.dto.response;
 
-import com.utc2.facility.entity.Equipment;
-import com.utc2.facility.entity.Room;
+import com.utc2.facility.entity.EquipmentItem;
+import com.utc2.facility.enums.EquipmentStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -14,34 +17,26 @@ import java.util.Date;
 @AllArgsConstructor
 public class EquipmentResponse {
     String id;
-    String name;
-    String description;
-    String slug;
-    String img;
-    String status;
-    String roomName;
-    String equipmentTypeName;
-    String nameFacilityManager;
-    Boolean isActive;
-    Date createdAt;
-    Date updatedAt;
-    Date deletedAt;//
+    String modelName;
+    String typeName;
+    String serialNumber;
+    EquipmentStatus status;
+    LocalDate purchaseDate;
+    LocalDate warrantyExpiryDate;
+    String defaultRoomName;
+    String notes;
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
 
-    public static EquipmentResponse fromEntity(Equipment equipment) {
+    public static EquipmentResponse fromEntity(EquipmentItem equipmentItem) {
         return EquipmentResponse.builder()
-                .id(equipment.getId())
-                .name(equipment.getName())
-                .description(equipment.getDescription())
-                .slug(equipment.getSlug())
-                .img(equipment.getImg())
-                .status(equipment.getStatus().name())
-                .roomName(equipment.getRoom() != null ? equipment.getRoom().getName() : null)
-                .equipmentTypeName(equipment.getEquipmentType() != null ? equipment.getEquipmentType().getName() : null)
-                .nameFacilityManager(equipment.getRoom() != null && equipment.getRoom().getFacilityManager() != null ? equipment.getRoom().getFacilityManager().getUsername() : null)
-                .isActive(equipment.getIsActive())
-                .createdAt(equipment.getCreatedAt())
-                .updatedAt(equipment.getUpdatedAt())
-                .deletedAt(equipment.getDeletedAt())
+                .id(equipmentItem.getId())
+                .status(equipmentItem.getStatus())
+                .createdAt(equipmentItem.getCreatedAt())
+                .updatedAt(equipmentItem.getUpdatedAt())
+                .modelName(equipmentItem.getModel().getName())
+                .serialNumber(equipmentItem.getSerialNumber())
+                .purchaseDate(equipmentItem.getPurchaseDate())
                 .build();
     }
 }
