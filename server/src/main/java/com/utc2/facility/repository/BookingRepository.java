@@ -17,6 +17,7 @@ import java.util.Set;
 public interface BookingRepository extends JpaRepository<Booking, String> {
     Page<Booking> findByUser_Id(String userId, Pageable pageable);
     List<Booking> findByUser_Id(String userId);
+    Page<Booking> findByRoom_Id(String roomId, Pageable pageable);
     List<Booking> findByPlannedStartTime(LocalDateTime plannedStartTime);
     List<Booking> findByPlannedEndTime(LocalDateTime plannedEndTime);
     List<Booking> findByActualCheckInTime(LocalDateTime actualCheckInTime);

@@ -25,12 +25,19 @@ const statusColors: Record<string, string> = {
 };
 
 const EquipmentCard: FC<EquipmentCardProps> = ({
-  name,
-  description,
-  img,
-  manager,
+  id,
+  modelName,
+  typeName,
+  serialNumber,
+  assetTag,
   status,
-  updatedAt
+  purchaseDate,
+  warrantyExpiryDate,
+  defaultRoomName,
+  notes,
+  createdAt,
+  updatedAt,
+  imgModel
 }): JSX.Element => {
   return (
     <HtmlTooltip
@@ -43,14 +50,14 @@ const EquipmentCard: FC<EquipmentCardProps> = ({
           component="h2"
           className="text-primary font-normal"
         >
-          {description}
+          {notes}
         </Typography>
       }
     >
       <div className={`w-[200px] h-full min-h-[300px] gap-4 m-6 p-2 pt-4 border-0 border-b-4 border-solid border-primary bg-white flex flex-col items-center justify-evenly shadow-card cursor-pointer rounded-md hover:-translate-y-1 hover:shadow-cardHover transition-all duration-150 ease-in  ${statusBackgroundColors[status]}`}>
         <img
-          src={img || "/default-equipment.png"}
-          alt={`${name}-img`}
+          src={imgModel || "/default-equipment.png"}
+          alt={`${modelName}-img`}
           className="w-[90%] object-cover"
         />
         <div className="w-full flex flex-col justify-center items-center gap-1 text-[#00275E]">
@@ -59,15 +66,15 @@ const EquipmentCard: FC<EquipmentCardProps> = ({
             component="h2"
             className="text-primary font-normal text-center"
           >
-            {name}
+            {modelName}
           </Typography>
           <Typography
             variant="body1"
             component="h2"
             className="text-primary font-normal text-center"
           >
-            <span className="font-bold">Equipment Manager</span>
-            <br /> {manager}
+            <span className="font-bold">Default Room name</span>
+            <br /> {defaultRoomName}
           </Typography>
           <Typography
             variant="body1"
@@ -77,7 +84,7 @@ const EquipmentCard: FC<EquipmentCardProps> = ({
             {status.replace("_", " ")}
           </Typography>
           <Typography variant="body2" component="p" className="text-gray-500">
-            Updated: {new Date(updatedAt).toLocaleDateString()}
+            Updated: {updatedAt ? new Date(updatedAt).toLocaleDateString("vi-VI", {year: "numeric", month: "2-digit", day: "2-digit"}) : "N/A"}
           </Typography>
         </div>
       </div>

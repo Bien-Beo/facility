@@ -5,35 +5,37 @@ import { useNavigate } from "react-router-dom";
 interface RoomDetailProps {
   open: boolean;
   onClose: () => void;
+  id: string;
   name: string;
   description: string;
   capacity: number;
-  buildingName: string;
-  status?: "AVAILABLE" | "BOOKED" | "UNDER_MAINTENANCE";
   img: string;
-  isActive?: boolean;
-  createdAt?: string;
+  status: "AVAILABLE" | "UNDER_MAINTENANCE";
+  buildingName: string;
+  roomTypeName: string;
+  nameFacilityManager: string;
+  location?: string;
+  createdAt: string;
   updatedAt?: string;
-  manager: string;
-  equipments: EquipmentData[];
-  slug: string;
+  deletedAt?: string;
+  defaultEquipments?: EquipmentItemData[] | null;
 }
 
 const RoomDetail: React.FC<RoomDetailProps> = ({
   open,
   onClose,
+  id,
   name,
   description,
   capacity,
-  buildingName,
-  status,
   img,
-  isActive,
+  status,
+  buildingName,
+  nameFacilityManager,
+  location,
   createdAt,
   updatedAt,
-  manager,
-  equipments,
-  slug
+  defaultEquipments = [],
 }) => {
   const navigate = useNavigate();
   const imageUrl = img ? `${import.meta.env.VITE_APP_SERVER_URL || 'http://localhost:8080'}/images/${img}` : '/logo.png'; 
@@ -72,37 +74,39 @@ const RoomDetail: React.FC<RoomDetailProps> = ({
               <strong>Status:</strong> {status}
             </p>
             <p className="text-sm text-gray-500">
-              <strong>Created At:</strong> {createdAt}
+              <strong>Created At:</strong> {new Date(createdAt).toLocaleDateString("vi-VI", {year: "numeric", month: "2-digit", day: "2-digit"})}
             </p>
             <p className="text-sm text-gray-500">
-              <strong>Updated At:</strong> {updatedAt}
+              <strong>Updated At:</strong> {updatedAt ? new Date(updatedAt).toLocaleDateString("vi-VI", {year: "numeric", month: "2-digit", day: "2-digit"}) : "N/A"}
             </p>
             <p className="text-sm text-gray-500">
-              <strong>Active:</strong> {isActive ? "Yes" : "No"}
+              <strong>Equipments:</strong> {defaultEquipments ? defaultEquipments.map((item) => item.modelName).join(", ") : "None"}
             </p>
             <p className="text-sm text-gray-500">
-              <strong>Equipments:</strong> {equipments.map((item) => item.name).join(", ")}
+              <strong>Location:</strong> {location ? location : "N/A"}
             </p>
             {/* Manager */}
             <p className="text-sm text-gray-500">
-              <strong>Manager:</strong> {manager}
+              <strong>Manager:</strong> {nameFacilityManager}
             </p>
 
             {/* Actions */}
-            <div className="mt-4 flex space-x-4">
-              <button
-                onClick={() => navigate(`/borrow/${slug}`)}
-                className="bg-black text-white px-4 py-2 rounded-md shadow-md hover:bg-gray-800"
-              >
-                Borrow
-              </button>
-              <button
-                onClick={() => navigate(`/report/${slug}`)}
-                className="border border-black px-4 py-2 rounded-md shadow-md hover:bg-gray-200"
-              >
-                Report
-              </button>
-            </div>
+            <div className="mt-auto pt-4 flex space-x-4">
+             <button
+               // SỬA onClick: Điều hướng đến route /rooms/:id
+               onClick={() => navigate(`/rooms/${id}`)}
+               className="bg-blue-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-700"
+             >
+               Xem lịch & Đặt phòng
+             </button>
+             {/* Nút Report giữ nguyên hoặc sửa tương tự nếu cần */}
+             <button
+               onClick={() => navigate(`/report/room/${id}`)}
+               className="border border-red-600 text-red-600 px-4 py-2 rounded-md shadow-md hover:bg-red-50"
+             >
+               Báo cáo sự cố
+             </button>
+           </div>
           </div>
         </div>
       </DialogContent>

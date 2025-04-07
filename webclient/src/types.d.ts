@@ -1,26 +1,36 @@
 // --------INTERFACES--------
 
 interface RoomCardProps {
+  id: string;
   name: string;
   description: string;
-  img: string;
-  manager: string;
   capacity: number;
-  building: string;
-  updatedAt: string;
+  img: string;
+  status: "AVAILABLE" | "UNDER_MAINTENANCE";
+  buildingName: string;
+  roomTypeName: string;
   nameFacilityManager: string;
-  equipments: EquipmentData[];
-  status: "AVAILABLE" | "BOOKED" | "UNDER_MAINTENANCE";
+  location?: string;
+  createdAt: string;
+  updatedAt?: string;
+  deletedAt?: string;
+  defaultEquipments?: EquipmentItemData[] | null;
 }
 
 interface EquipmentCardProps {
-  name: string;
-  description: string;
-  img: string;
-  manager: string;
-  status: "OPERATIONAL" | "BROKEN" | "UNDER_MAINTENANCE";
-  type: string;
-  updatedAt: string;
+  id: string;
+  modelName: string;
+  typeName: string;
+  serialNumber: string | null;
+  assetTag?: string | null; 
+  status: string; 
+  purchaseDate: string | null;
+  warrantyExpiryDate: string | null;
+  defaultRoomName: string | null;
+  notes: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null; 
+  imgModel: string | null; 
 }
 
 interface DashboardPageProps {
@@ -44,13 +54,25 @@ interface FacilitiesProps {
 //   };
 // }
 
+// interface AddEventModalProps {
+//   isOpen: boolean;
+//   setIsOpen: (isOpen: boolean) => void;
+//   setOpenSnackbar: (isOpen: boolean) => void;
+//   setDefaultDate: (message: string | null) => void;
+//   bookingsData: BookingNewDataProps[];
+//   defaultDate: string | null;
+// }
+
 interface AddEventModalProps {
   isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
-  setOpenSnackbar: (isOpen: boolean) => void;
-  setDefaultDate: (message: string | null) => void;
-  bookingsData: BookingNewDataProps[];
-  defaultDate: string | null;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  roomId: string; // <<< THÊM DÒNG NÀY ĐỂ KHAI BÁO PROP roomId
+  startTime: string;
+  endTime: string;
+  allDay: boolean;
+  onSuccess: () => void;
+  onCancel: () => void;
+  // Thêm các props khác nếu AddEventModal cần (ví dụ: danh sách thiết bị có sẵn...)
 }
 
 // interface EventModalProps {
@@ -237,23 +259,23 @@ interface AuthProviderProps {
 interface RequireAuthProps {
   children: ReactNode;
   Technician: boolean;
-  FacilityManagement: boolean;
+  FacilityManager: boolean;
   Admin?: boolean;
   User?: boolean;
 }
 
-interface EventInfoProps {
-  title: string;
-  purpose: string;
-  status: string;
-  start: string;
-  end: string;
-  date: string;
-  requestBy: string;
-  statusUpdateByGD: string | null;
-  statusUpdateByFM: string | null;
-  statusUpdateByAdmin: string | null;
-}
+// interface EventInfoProps {
+//   title: string;
+//   purpose: string;
+//   status: string;
+//   start: string;
+//   end: string;
+//   date: string;
+//   requestBy: string;
+//   statusUpdateByGD: string | null;
+//   statusUpdateByFM: string | null;
+//   statusUpdateByAdmin: string | null;
+// }
 
 // interface ApprovalProps {
 //   title: string;
@@ -464,16 +486,16 @@ type RoomData = {
   name: string;
   description: string;
   capacity: number;
-  buildingName: string;
-  status?: "AVAILABLE" | "BOOKED" | "UNDER_MAINTENANCE";
   img: string;
-  slug: string;
-  isActive?: boolean;
-  createdAt?: string;
+  status: "AVAILABLE" | "UNDER_MAINTENANCE";
+  buildingName: string;
+  roomTypeName: string;
+  nameFacilityManager: string;
+  location?: string;
+  createdAt: string;
   updatedAt?: string;
   deletedAt?: string;
-  nameFacilityManager?: string;
-  equipments: EquipmentData[];
+  defaultEquipments?: EquipmentItemData[] | null;
 };
 
 // type FacilityManager = {
@@ -487,33 +509,40 @@ type EquipmentTypeData = {
   id: string;
   name: string;
   description?: string;
+  parentTypeId: string | null;
 };
 
-type EquipmentData = {
+type EquipmentModelData = {
   id: string;
+  typeId: string;
   name: string;
-  description?: string;
-  img?: string;
-  slug: string;
-  status: "OPERATIONAL" | "BROKEN" | "UNDER_MAINTENANCE";
-  isActive?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-  deletedAt?: string;
-  room?: {
-    id: string;
-    name: string;
-  };
-  equipmentManager?: {
-    id: string;
-    name: string;
-  };
-  equipmentType?: EquipmentTypeData;
+  manufacturer: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+  specifications: string;
+  imageUrl: string;
+};
+
+type EquipmentItemData = {
+  id: string;
+  modelName: string;
+  typeName: string;
+  serialNumber: string | null;
+  assetTag?: string | null; 
+  status: string; 
+  purchaseDate: string | null;
+  warrantyExpiryDate: string | null;
+  defaultRoomName: string | null;
+  notes: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null; 
+  imgModel: string | null; 
 };
 
 type DashboardData = {
   rooms: RoomData[];
-  equipments: EquipmentData[];
+  equipments: EquipmentItemData[];
   type: string;
 };
 
@@ -618,3 +647,125 @@ type AdminFacilitiesEditData = {
   prevFacilityManagerId: number | null;
   newFacilityManagerId: number | null;
 };
+
+//---------------------------------------
+type PageInfo = {
+  size: number;
+  number: number;
+  totalElements: number;
+  totalPages: number;
+};
+
+// Thông tin thiết bị được đặt KÈM trong một booking (từ API list booking)
+type BookedEquipmentSummary = {
+    itemId: string;
+    equipmentModelName: string;
+    notes: string | null;
+    isDefaultEquipment: boolean;
+    serialNumber: string | null;
+    assetTag?: string | null; // Thêm nếu API trả về
+    // Thiếu typeName trong JSON mẫu booking list?
+};
+
+// Thông tin một booking đơn lẻ (từ API list booking)
+type BookingEntry = {
+    id: string; // Booking ID
+    userName: string;
+    roomName: string | null;
+    purpose: string;
+    plannedStartTime: string; // ISO String
+    plannedEndTime: string; // ISO String
+    actualCheckInTime: string | null;
+    actualCheckOutTime: string | null;
+    status: string; // "PENDING_APPROVAL", "CONFIRMED", etc.
+    approvedByUserName: string | null;
+    cancellationReason: string | null;
+    cancelledByUserName: string | null;
+    createdAt: string;
+    updatedAt: string | null;
+    note: string | null;
+    bookedEquipments: BookedEquipmentSummary[];
+};
+
+// Cấu trúc response từ API lấy danh sách booking (phân trang)
+type PaginatedBookingApiResponse = {
+    code: number;
+    result: {
+        content: BookingEntry[];
+        page: PageInfo;
+    };
+    message?: string;
+};
+
+// Thông tin thiết bị MẶC ĐỊNH (từ API chi tiết phòng)
+type EquipmentItemData = {
+  id: string;
+  modelName: string;
+  typeName: string; // Có trong response chi tiết phòng
+  serialNumber: string | null;
+  assetTag?: string | null; // Có thể thiếu trong response chi tiết phòng?
+  status: string;
+  purchaseDate: string | null;
+  warrantyExpiryDate: string | null;
+  defaultRoomName: string | null;
+  notes: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+  imgModel: string | null; // Có trong response chi tiết phòng
+};
+
+// Thông tin chi tiết phòng (từ API chi tiết phòng)
+type RoomDetailData = {
+    id: string;
+    name: string;
+    description: string | null;
+    capacity: number;
+    img: string | null;
+    status: "AVAILABLE" | "UNDER_MAINTENANCE";
+    buildingName: string | null;
+    roomTypeName: string | null;
+    nameFacilityManager: string | null;
+    location?: string | null;
+    createdAt?: string | null;
+    updatedAt?: string | null;
+    deletedAt?: string | null;
+    note?: string | null; // Thêm nếu có
+    defaultEquipments: EquipmentItemData[]; // Dùng kiểu EquipmentItemData ở trên
+};
+
+// Cấu trúc response từ API lấy chi tiết phòng
+type RoomDetailApiResponse = {
+    code: number;
+    result: RoomDetailData;
+    message?: string;
+};
+
+// --- Types cho State và Props của Calendar component ---
+
+// Kiểu dữ liệu cho state eventInfo (hiển thị trong modal khi click event)
+interface EventInfoProps {
+     bookingId?: string;
+     title: string;
+     purpose: string;
+     status: string;
+     start: string; // Chỉ giờ
+     end: string; // Chỉ giờ
+     date: string; // Chỉ ngày
+     requestBy: string; // Tên người yêu cầu
+     roomName: string | null;
+     bookedEquipments: BookedEquipmentSummary[]; // Thêm danh sách thiết bị
+}
+
+// Kiểu cho EventContentArg của FullCalendar (giữ nguyên hoặc import từ @fullcalendar/core/index.js)
+interface EventContentArg {
+  timeText: string;
+  event: {
+      id: string; // id của event trên lịch (chính là bookingId)
+      title: string;
+      start: Date | null; // FullCalendar dùng Date object
+      end: Date | null;   // FullCalendar dùng Date object
+      startStr: string; // ISO string
+      endStr: string;   // ISO string
+      extendedProps: BookingEntry; // Chứa dữ liệu gốc BookingEntry
+  };
+}

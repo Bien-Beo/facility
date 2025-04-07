@@ -216,6 +216,12 @@ public class BookingService {
         return buildFullBookingResponse(booking);
     }
 
+    public Page<BookingResponse> getBookingsByRoomId(String roomId, Pageable pageable) {
+        log.debug("Fetching bookings for room ID: {} with pageable: {}", roomId, pageable);
+        Page<Booking> bookingsPage = bookingRepository.findByRoom_Id(roomId, pageable);
+        return bookingsPage.map(this::buildFullBookingResponse);
+    }
+
     // Các phương thức Get theo thời gian
     public List<BookingResponse> getBookingByPlannedStartTime(String plannedStartTimeStr) {
         LocalDateTime plannedStartTime = parseDateTime(plannedStartTimeStr);

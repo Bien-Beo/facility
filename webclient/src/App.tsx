@@ -52,7 +52,7 @@ const router = createBrowserRouter(
       <Route
         path="/"
         element={
-          <RequireAuth Technician={false} FacilityManagement={false}>
+          <RequireAuth Technician={false} FacilityManager={false}>
             <Layout />
           </RequireAuth>
         }
@@ -71,7 +71,7 @@ const router = createBrowserRouter(
         <Route
           index
           element={
-            <RequireAuth Technician={false} FacilityManagement={false} User={false}>
+            <RequireAuth Technician={false} FacilityManager={false} User={false}>
               <DashboardPage type="room" />
             </RequireAuth>
           }
@@ -81,18 +81,18 @@ const router = createBrowserRouter(
         <Route
           path="dashboard/equipment"
           element={
-            <RequireAuth Technician={false} FacilityManagement={false} User={false}>
+            <RequireAuth Technician={false} FacilityManager={false} User={false}>
               <DashboardPage type="equipment" />
             </RequireAuth>
           }
           errorElement={<RouteError />}
         />
 
-        <Route path="room">
+        <Route path="rooms">
           <Route
             path=":id"
             element={
-              <RequireAuth Technician={false} FacilityManagement={false} Admin={false}>
+              <RequireAuth Technician={false} FacilityManager={false} Admin={false}>
                 <FacilityPage />
               </RequireAuth>
             }

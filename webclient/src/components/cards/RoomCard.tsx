@@ -36,11 +36,11 @@ const statusTextColors: Record<string, string> = {
 const RoomCard: FC<RoomCardProps> = ({
   name,
   description,
-  img,
-  manager,
-  status,
   capacity,
-  //updatedAt,
+  img,
+  status,
+  nameFacilityManager,
+  updatedAt,
 }): JSX.Element => {
   return (
     <HtmlTooltip
@@ -79,7 +79,7 @@ const RoomCard: FC<RoomCardProps> = ({
             className="text-primary font-normal text-center"
           >
             <span className="font-bold">Room Manager</span>
-            <br /> {manager}
+            <br /> {nameFacilityManager}
           </Typography>
           <Typography
             variant="body2"
@@ -88,13 +88,13 @@ const RoomCard: FC<RoomCardProps> = ({
           >
             Capacity: {capacity} people
           </Typography>
-          {/* <Typography
+          <Typography
             variant="body2"
             component="p"
             className="text-gray-600 text-center"
           >
-            Last updated: {new Date(updatedAt).toLocaleDateString()}
-          </Typography> */}
+            Last updated: {updatedAt ? new Date(updatedAt).toLocaleDateString("vi-VI", {year: "numeric", month: "2-digit", day: "2-digit"}) : "N/A"}
+          </Typography>
           <Typography
             variant="body1"
             component="p"

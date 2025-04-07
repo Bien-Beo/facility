@@ -27,6 +27,7 @@ public class EquipmentResponse {
     String notes;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
+    String imgModel;
 
     public static EquipmentResponse fromEntity(EquipmentItem equipmentItem) {
         return EquipmentResponse.builder()
@@ -41,6 +42,7 @@ public class EquipmentResponse {
                 .defaultRoomName(equipmentItem.getDefaultRoom() != null ? equipmentItem.getDefaultRoom().getName() : null)
                 .notes(equipmentItem.getNotes())
                 .typeName(equipmentItem.getModel().getEquipmentType().getName())
+                .imgModel(equipmentItem.getModel().getImageUrl())
                 .build();
     }
 }

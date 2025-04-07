@@ -5,7 +5,6 @@ import com.utc2.facility.dto.request.RoomUpdateRequest;
 import com.utc2.facility.dto.response.EquipmentResponse;
 import com.utc2.facility.dto.response.RoomResponse;
 import com.utc2.facility.entity.*;
-import com.utc2.facility.enums.Role;
 import com.utc2.facility.enums.RoomStatus;
 import com.utc2.facility.exception.AppException;
 import com.utc2.facility.exception.ErrorCode;
@@ -75,8 +74,8 @@ public class RoomService {
     }
     
     @PreAuthorize("isAuthenticated()")
-    public RoomResponse getRoomByName(String roomName) {
-        Room room = findRoomByNameOrThrow(roomName);
+    public RoomResponse getRoomById(String id) {
+        Room room = findRoomByIdOrThrow(id);
         return buildFullRoomResponse(room);
     }
 
