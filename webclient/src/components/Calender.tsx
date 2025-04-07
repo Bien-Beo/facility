@@ -1,255 +1,5 @@
-// import { JSX, FC, useEffect, useState } from "react";
-// import { useLocation } from "react-router-dom";
-// import { useQuery } from "@tanstack/react-query";
-// import {
-//   DateSelectArg,
-//   EventClickArg,
-//   EventSourceInput,
-// } from "@fullcalendar/core/index.js";
-// import {
-//   Alert,
-//   Button,
-//   CircularProgress,
-//   Snackbar,
-//   Typography,
-// } from "@mui/material";
-// import InsertInvitationIcon from "@mui/icons-material/InsertInvitation";
-// import axios from "axios";
-// import FullCalendar from "@fullcalendar/react";
-// import dayGridPlugin from "@fullcalendar/daygrid";
-// import timeGridPlugin from "@fullcalendar/timegrid";
-// import interactionPlugin from "@fullcalendar/interaction";
-
-// import AddEventModal from "./modals/AddEventModal";
-// import EventModal from "./modals/EventModal";
-// import isoToTime from "../utils/isoToTime";
-// import isoToDate from "../utils/isoToDate";
-// import ErrorComponent from "./Error";
-
-// const Calendar: FC = (): JSX.Element => {
-//   const [isAddOpen, setIsAddOpen] = useState<boolean>(false);
-//   const [isOpen, setIsOpen] = useState<boolean>(false);
-//   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
-//   const [defaultDate, setDefaultDate] = useState<string | null>(null);
-//   const [bookingsData, setBookingsData] = useState<BookingNewDataProps[]>([]);
-//   const [eventInfo, setEventInfo] = useState<EventInfoProps>({
-//     title: "",
-//     purpose: "",
-//     status: "",
-//     start: "",
-//     end: "",
-//     date: "",
-//     requestBy: "",
-//     statusUpdateByGD: null,
-//     statusUpdateByFM: null,
-//     statusUpdateByAdmin: null,
-//   });
-
-//   const location = useLocation();
-//   const slug = location.pathname.split("/")[2];
-
-//   const handleCloseSnackbar = (): void => {
-//     setOpenSnackbar(false);
-//   };
-
-//   const { data, isPending, isError, error } = useQuery<BookingDataProps>({
-//     queryKey: ["calender"],
-//     queryFn: async () => {
-//       const token = localStorage.getItem("token"); 
-//       if (!token) {
-//         return Promise.reject(new Error("No token found"));
-//       }
-
-//       const response = await axios.get<BookingDataProps>(
-//         `${import.meta.env.VITE_APP_SERVER_URL}/room/${slug}`,
-//         {
-//           headers: {
-//             Authorization: `Bearer ${token}`, // Gửi token trong header Authorization
-//           },
-//           withCredentials: true,
-//         }
-//       );
-//       return response.data;
-//     },
-//     refetchInterval: 5 * 1000,
-//     gcTime: 0,
-//     retry: 1,
-//   });
-
-//   useEffect(() => {
-//     if (!isPending) {
-//       const newData = data?.bookings.map((booking) => {
-//         return {
-//           ...booking,
-//           start: booking.time.start,
-//           date: booking.time.date,
-//           end: booking.time.end,
-//         };
-//       });
-//       setBookingsData(newData || []);
-//     }
-//   }, [data, isPending]);
-
-//   const handleEventClick = (info: EventClickArg): void => {
-//     const clickData = bookingsData.find(
-//       (event: BookingNewDataProps) =>
-//         event.slug === info.event.extendedProps.slug
-//     ) as BookingNewDataProps;
-//     setEventInfo({
-//       title: clickData.title,
-//       purpose: clickData.purpose,
-//       status: clickData.status,
-//       start: clickData.start ? isoToTime(clickData.start!) : "",
-//       end: clickData.end ? isoToTime(clickData.end!) : "",
-//       date: isoToDate(clickData.date!),
-//       requestBy: clickData.requestedBy.name,
-//       statusUpdateByGD: clickData.statusUpdateByGD
-//         ? clickData.statusUpdateByGD!.user.name
-//         : null,
-//       statusUpdateByFM: clickData.statusUpdateByFM
-//         ? clickData.statusUpdateByFM!.user.name
-//         : null,
-//       statusUpdateByAdmin: clickData.statusUpdateAtAdmin
-//         ? clickData.statusUpdateAtAdmin
-//         : null,
-//     });
-//     setIsOpen(true);
-//   };
-
-//   const handleSelect = (info: DateSelectArg): void => {
-//     setDefaultDate(info.startStr);
-//     setIsAddOpen(true);
-//   };
-
-//   const handleEventContent: FC<EventContentProps> = (
-//     eventInfo
-//   ): JSX.Element => {
-//     const eventData = bookingsData.find(
-//       (event: BookingNewDataProps) =>
-//         event.slug === eventInfo.event.extendedProps.slug
-//     ) as BookingNewDataProps;
-
-//     const bgColor =
-//       eventData.status === "APPROVED_BY_FM" ||
-//       eventData.status === "APPROVED_BY_ADMIN"
-//         ? "#449c47"
-//         : "#039BE5";
-
-//     return (
-//       <div
-//         className={`px-1 min-w-[165px] rounded-sm flex flex-col text-white cursor-pointer`}
-//         style={{
-//           backgroundColor: bgColor,
-//         }}
-//       >
-//         <Typography
-//           variant="body2"
-//           component="p"
-//           className="italic"
-//           sx={{ fontWeight: "bold" }}
-//         >
-//           {eventData.title}
-//         </Typography>
-//         <Typography variant="body2" component="p" className="italic w-full">
-//           {isoToTime(eventData.start!)} - {isoToTime(eventData.end!)}
-//         </Typography>
-//       </div>
-//     );
-//   };
-
-//   if (isError) {
-//     const errorData = error.response!.data as ErrorMessage;
-//     console.log("error");
-//     return (
-//       <ErrorComponent
-//         status={errorData.status!}
-//         message={errorData.message}
-//       />
-//     );
-//   }
-
-//   if (isPending)
-//     return (
-//       <div className="w-full min-h-screen h-full flex flex-col items-center justify-center">
-//         <CircularProgress />
-//       </div>
-//     );
-
-//   return (
-//     <div className="w-full h-full flex flex-col items-center justify-center px-0 py-12">
-//       {isAddOpen && (
-//         <AddEventModal
-//           isOpen={isAddOpen}
-//           setIsOpen={setIsAddOpen}
-//           setOpenSnackbar={setOpenSnackbar}
-//           setDefaultDate={setDefaultDate}
-//           bookingsData={bookingsData}
-//           defaultDate={defaultDate}
-//         />
-//       )}
-//       {isOpen && (
-//         <EventModal
-//           isOpen={isOpen}
-//           setIsOpen={setIsOpen}
-//           eventInfo={eventInfo}
-//         />
-//       )}
-//       <div className="w-[90%] flex justify-between items-center pb-2">
-//         <div className="flex gap-4 items-center">
-//           <Typography variant="h3" component="h1">
-//             {data.facility.name} Calender
-//           </Typography>
-//         </div>
-//         <Button
-//           variant="contained"
-//           color="primary"
-//           endIcon={
-//             <InsertInvitationIcon sx={{ height: "20px", width: "20px" }} />
-//           }
-//           sx={{ paddingX: "2em", height: "45px" }}
-//           size="large"
-//           onClick={() => setIsAddOpen(true)}
-//         >
-//           Add booking
-//         </Button>
-//       </div>
-//       <div className="w-[90%]">
-//         <FullCalendar
-//           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-//           initialView="dayGridMonth"
-//           events={bookingsData as EventSourceInput}
-//           headerToolbar={{
-//             left: "prev,next today",
-//             center: "title",
-//             right: "dayGridMonth,timeGridWeek,timeGridDay",
-//           }}
-//           eventContent={() => handleEventContent}
-//           eventClick={(info) => handleEventClick(info)}
-//           selectable={true}
-//           select={(info) => handleSelect(info)}
-//         />
-//       </div>
-//       <Snackbar
-//         open={openSnackbar}
-//         autoHideDuration={3000}
-//         onClose={handleCloseSnackbar}
-//       >
-//         <Alert
-//           onClose={handleCloseSnackbar}
-//           severity="success"
-//           sx={{ width: "100%" }}
-//         >
-//           Booking requested successfully!
-//         </Alert>
-//       </Snackbar>
-//     </div>
-//   );
-// };
-
-// export default Calendar;
-
-import React, { JSX, FC, useEffect, useMemo, useState } from "react"; 
-import { useParams, useNavigate } from "react-router-dom"; 
+import React, { JSX, FC, useMemo, useState } from "react"; 
+import { useParams } from "react-router-dom"; 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
     DateSelectArg,
@@ -284,7 +34,6 @@ const Calendar: FC = (): JSX.Element => {
 
     const { id: roomId } = useParams<{ id: string }>(); 
     const queryClient = useQueryClient();
-    const navigate = useNavigate();
 
     // --- Query 1: Lấy chi tiết phòng (để lấy tên phòng) ---
     const { data: roomDetailData, isLoading: isLoadingRoom, isError: isErrorRoom, error: errorRoom } =
@@ -312,9 +61,9 @@ const Calendar: FC = (): JSX.Element => {
                 if (!roomId) throw new Error("Room ID is missing.");
                 const token = localStorage.getItem("token");
                 if (!token) throw new Error("No token found");
-                // Gọi API lấy booking cho phòng này (ví dụ: lấy 1000 booking gần nhất để tránh phân trang phức tạp ban đầu)
+                // Gọi API lấy booking cho phòng 
                 const response = await axios.get<PaginatedBookingApiResponse>(
-                    `${import.meta.env.VITE_APP_SERVER_URL}/booking/room/roomId=${roomId}`, // Lọc theo roomId, tạm lấy nhiều
+                    `${import.meta.env.VITE_APP_SERVER_URL}/booking/room/${roomId}`, 
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
                 return response.data;
@@ -332,8 +81,8 @@ const Calendar: FC = (): JSX.Element => {
         return bookings.map((booking): EventInput => ({
             id: booking.id, // Dùng booking ID làm event ID
             title: booking.purpose || booking.userName, // Ưu tiên purpose, nếu không có dùng userName
-            start: booking.plannedStartTime, // ISO String
-            end: booking.plannedEndTime, // ISO String
+            start: booking.plannedStartTime, 
+            end: booking.plannedEndTime, 
             classNames: booking.status === "CONFIRMED" ? ['event-confirmed'] :
                         booking.status === "PENDING_APPROVAL" ? ['event-pending'] :
                         ['event-other'], // Thêm class cho các status khác nếu cần
@@ -377,14 +126,14 @@ const Calendar: FC = (): JSX.Element => {
         // Lấy status từ extendedProps để quyết định màu sắc/style
         const status = eventContent.event.extendedProps.bookingData?.status;
         let className = 'event-other'; // Mặc định
-         if (status === 'CONFIRMED') {
+        if (status === 'CONFIRMED') {
             className = 'event-confirmed';
         } else if (status === 'PENDING_APPROVAL') {
             className = 'event-pending';
-        } // Thêm các class khác nếu cần
-
+        }
+    
         return (
-             <div className={`fc-event-main-frame ${className}`}> {/* Thêm class động */}
+            <div className={`fc-event-main-frame ${className}`}> 
                 <div className="fc-event-time">{eventContent.timeText}</div>
                 <div className="fc-event-title-container">
                     <div className="fc-event-title fc-sticky">{eventContent.event.title}</div>
@@ -422,8 +171,8 @@ const Calendar: FC = (): JSX.Element => {
              {isAddOpen && selectionInfo && (
                  <AddEventModal
                      isOpen={isAddOpen}
-                     setIsOpen={setIsAddOpen}
-                     roomId={roomId} // Truyền roomId
+                     roomId={roomId}
+                    roomName={roomName}
                      startTime={selectionInfo.startStr}
                      endTime={selectionInfo.endStr}
                      allDay={selectionInfo.allDay}
@@ -488,8 +237,8 @@ const Calendar: FC = (): JSX.Element => {
                       contentHeight="auto" // Thử nghiệm với auto
                       aspectRatio={1.8} // Điều chỉnh tỉ lệ
                       // Thêm timezone nếu cần
-                      // timeZone='Asia/Ho_Chi_Minh'
-                      // locale='vi' // Nếu muốn ngôn ngữ tiếng Việt (cần import locale)
+                      //timeZone='Asia/Ho_Chi_Minh'
+                      //locale='vi' // Nếu muốn ngôn ngữ tiếng Việt (cần import locale)
                   />
              </Box>
 

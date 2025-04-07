@@ -54,25 +54,27 @@ interface FacilitiesProps {
 //   };
 // }
 
-// interface AddEventModalProps {
-//   isOpen: boolean;
-//   setIsOpen: (isOpen: boolean) => void;
-//   setOpenSnackbar: (isOpen: boolean) => void;
-//   setDefaultDate: (message: string | null) => void;
-//   bookingsData: BookingNewDataProps[];
-//   defaultDate: string | null;
-// }
 
+// --- Props Interface
 interface AddEventModalProps {
   isOpen: boolean;
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  roomId: string; // <<< THÊM DÒNG NÀY ĐỂ KHAI BÁO PROP roomId
-  startTime: string;
-  endTime: string;
-  allDay: boolean;
+  roomId: string;
+  roomName: string;
+  startTime: string; 
+  endTime: string; 
+  allDay: boolean;  
   onSuccess: () => void;
   onCancel: () => void;
-  // Thêm các props khác nếu AddEventModal cần (ví dụ: danh sách thiết bị có sẵn...)
+}
+
+// --- Kiểu dữ liệu cho state của form ---
+interface FormDataState {
+  purpose: string;
+  selectedDate: Dayjs | null;
+  startTimeString: string; // hh:mm A
+  endTimeString: string;   // hh:mm A
+  note: string;
+  additionalEquipmentItemIds: string[];
 }
 
 // interface EventModalProps {
@@ -471,6 +473,16 @@ interface RouteError {
 // ----------TYPES-----------
 type FacilityType = "room" | "equipment";
 
+// --- Kiểu dữ liệu gửi lên backend 
+type BackendBookingPayload = {
+  roomId: string | null;
+  purpose: string;
+  plannedStartTime: string; // ISO string
+  plannedEndTime: string; // ISO string
+  additionalEquipmentItemIds: string[];
+  note: string;
+};
+
 type APIResponse<T> = {
   result: T;
   code: number;
@@ -769,3 +781,41 @@ interface EventContentArg {
       extendedProps: BookingEntry; // Chứa dữ liệu gốc BookingEntry
   };
 }
+
+// Kiểu cho đối tượng thiết bị bên trong mảng bookedEquipments của response tạo booking
+type CreatedBookingEquipmentInfo = {
+  itemId: string;
+  equipmentModelName: string;
+  notes: string | null;
+  isDefaultEquipment: boolean;
+  serialNumber: string | null;
+  assetTag: string | null; // Có trong JSON
+};
+
+// Kiểu cho đối tượng result bên trong response tạo booking
+// (Tương tự BookingResponse nhưng dùng CreatedBookingEquipmentInfo)
+type CreatedBookingResult = {
+  id: string;
+  userName: string;
+  roomName: string | null;
+  purpose: string;
+  plannedStartTime: string;
+  plannedEndTime: string;
+  actualCheckInTime: string | null;
+  actualCheckOutTime: string | null;
+  status: string; // Có thể dùng enum BookingStatus
+  approvedByUserName: string | null;
+  cancellationReason: string | null;
+  cancelledByUserName: string | null;
+  createdAt: string;
+  updatedAt: string | null;
+  note: string | null;
+  bookedEquipments: CreatedBookingEquipmentInfo[]; // Dùng kiểu vừa định nghĩa
+};
+
+// Kiểu cho toàn bộ API response khi tạo booking thành công
+type BookingCreationApiResponse = {
+  code: number;
+  result: CreatedBookingResult;
+  message?: string; // Optional
+};
