@@ -1,15 +1,18 @@
 package com.utc2.facility.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.utc2.facility.enums.RoomStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.Where;
 
-import java.util.Date;
-import java.util.Set;
+import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -19,72 +22,63 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "room")
+@Where(clause = "deleted_at IS NULL")
 public class Room {
-    @Id//
+
+    @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id")
+    @Column(length = 36)
     String id;
 
-    @Column(name = "name", columnDefinition = "VARCHAR(255) COLLATE utf8mb4_unicode_ci")
+    @NotBlank
+    @Column(name = "name", nullable = false, length = 255)
     String name;
 
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "TEXT")
     String description;
 
+    @Min(0)
     @Column(name = "capacity")
     int capacity;
+
+    @Column(name = "location", length = 255)
+    String location;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 50, nullable = false)
+    RoomStatus status = RoomStatus.AVAILABLE;
+
+    @Column(name = "img", length = 2048)
+    String img;
+
+    // --- Relationships ---
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "building_id")
     @JsonIgnore
     Building building;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", length = 50, nullable = false)
-    RoomStatus status;
-
-    @Column(name = "img")
-    String img;
-
-    @Column(name = "slug", unique = true)
-    String slug;
-
-    @Column(name = "is_active", nullable = false)
-    boolean isActive = true;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    Date createdAt;
-
-    @Column(name = "updated_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    Date updatedAt;
-
-    @Column(name = "deleted_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    Date deletedAt;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fm_id", nullable = false)
-    @JsonIgnore
-    User facilityManager;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_type_id")
     @JsonIgnore
     RoomType roomType;
 
-    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    Set<RoomEquipment> roomEquipments;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fm_id")
+    @JsonIgnore
+    User facilityManager;
 
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = new Date();
-    }
+    // --- Metadata & Timestamps ---
 
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = new Date();
-    }
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    LocalDateTime updatedAt;
+
+    @Column(name = "deleted_at")
+    LocalDateTime deletedAt;
+
 }

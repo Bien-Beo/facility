@@ -1,15 +1,19 @@
 package com.utc2.facility.controller;
 
-import java.util.List;
+import java.util.List; // Không cần nếu dùng Page
 
 import jakarta.validation.Valid;
 
-import org.springframework.security.core.context.SecurityContextHolder;
+// Imports cho Page và Pageable
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+// import org.springframework.security.core.context.SecurityContextHolder; // Không cần trực tiếp ở đây
 import org.springframework.web.bind.annotation.*;
 
 import com.utc2.facility.dto.request.ApiResponse;
 import com.utc2.facility.dto.request.UserCreationRequest;
-import com.utc2.facility.dto.request.UserUpdateRequest;
+import com.utc2.facility.dto.request.UserUpdateRequest; // Import DTO Update
 import com.utc2.facility.dto.response.UserResponse;
 import com.utc2.facility.service.UserService;
 
@@ -24,8 +28,9 @@ import lombok.extern.slf4j.Slf4j;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class UserController {
-     UserService userService;
-//
+
+    UserService userService;
+
     @PostMapping
     ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
         return ApiResponse.<UserResponse>builder()
@@ -34,38 +39,39 @@ public class UserController {
     }
 
     @GetMapping
-    ApiResponse<List<UserResponse>> getUsers() {
-        return ApiResponse.<List<UserResponse>>builder()
-                .result(userService.getUsers())
+    ApiResponse<Page<UserResponse>> getUsers(Pageable pageable) {
+        return ApiResponse.<Page<UserResponse>>builder()
+                .result(userService.getUsers(pageable))
                 .build();
     }
 
     @GetMapping("/{userId}")
     ApiResponse<UserResponse> getUser(@PathVariable String userId) {
         return ApiResponse.<UserResponse>builder()
-                .result(userService.getUserById(userId))
+                .result(userService.getUser(userId))
                 .build();
     }
 
     @GetMapping("/myInfo")
     ApiResponse<UserResponse> getMyInfo() {
         return ApiResponse.<UserResponse>builder()
-                .result(userService.getMyInfo()) 
+                .result(userService.getMyInfo())
                 .build();
     }
 
     @PutMapping("/{userId}")
-    ApiResponse<UserResponse> updateUser(@RequestBody UserUpdateRequest request, @PathVariable String userId) {
+    ApiResponse<UserResponse> updateUser(
+            @PathVariable String userId,
+            @RequestBody @Valid UserUpdateRequest request
+    ) {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.updateUser(userId, request))
                 .build();
     }
 
     @DeleteMapping("/{userId}")
-    ApiResponse<String> deleteUser(@PathVariable String userId) {
+    ApiResponse<Void> deleteUser(@PathVariable String userId) {
         userService.deleteUser(userId);
-        return ApiResponse.<String>builder()
-                .result("User has been deleted").build();
+        return ApiResponse.<Void>builder().build();
     }
-
 }

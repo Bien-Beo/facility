@@ -26,8 +26,7 @@
             <center>
                 <AnchorPane prefHeight="291.0" prefWidth="590.0" BorderPane.alignment="CENTER">
                     <children>
-                        <TextArea fx:id="description" layoutX="120.0" layoutY="143.0" prefHeight="117.0" prefWidth="338.0" style="-fx-text-fill: #c3b19a;" text="Descripton&#10;&#10;" />
-                        <Label fx:id="name" alignment="CENTER" layoutX="120.0" layoutY="34.0" prefHeight="36.0" prefWidth="338.0">
+                        <Label fx:id="name" alignment="CENTER" layoutX="120.0" layoutY="34.0" prefHeight="36.0" prefWidth="338.0" text="Name Equipment">
                             <font>
                                 <Font size="14.0" />
                             </font>
@@ -51,6 +50,7 @@
                                 <String fx:value="white-bg" />
                             </styleClass>
                         </Label>
+                        <TextArea fx:id="description" layoutX="120.0" layoutY="143.0" prefHeight="117.0" prefWidth="338.0"  style="-fx-text-fill: #c3b19a;" />
                     </children>
                 </AnchorPane>
             </center>

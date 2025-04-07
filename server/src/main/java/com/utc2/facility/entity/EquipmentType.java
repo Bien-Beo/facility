@@ -13,19 +13,27 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "equipment_type")
+@Table(name = "equipment_type",
+        uniqueConstraints = { @UniqueConstraint(columnNames = {"name"}) })
 public class EquipmentType {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", length = 36)
     private String id;
 
-    @Column(name = "type_name")
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @OneToMany(mappedBy = "equipmentType", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    List<Equipment> equipmentList;
-}//
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_type_id")
+    private EquipmentType parentType;
+
+    @OneToMany(mappedBy = "parentType", fetch = FetchType.LAZY)
+    private List<EquipmentType> childTypes;
+
+    @OneToMany(mappedBy = "equipmentType", fetch = FetchType.LAZY)
+    private List<EquipmentModel> equipmentModels;
+}

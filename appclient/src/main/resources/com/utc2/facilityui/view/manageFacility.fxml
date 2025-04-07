@@ -11,98 +11,9 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<?import javafx.scene.text.Text?>
 
-<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="618.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.FacilityController">
+<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="618.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.FacilityController">
    <children>
-      <VBox alignment="TOP_CENTER" prefHeight="618.0" prefWidth="250.0" style="-fx-background-color: #00275e;">
-         <children>
-            <ImageView fx:id="adminImage" fitHeight="73.0" fitWidth="80.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../images/man.png" />
-               </image>
-               <VBox.margin>
-                  <Insets top="15.0" />
-               </VBox.margin>
-            </ImageView>
-            <Text fx:id="adminName" fill="#faf9f6" strokeType="OUTSIDE" strokeWidth="0.0" text="Admin">
-               <font>
-                  <Font size="18.0" />
-               </font>
-               <VBox.margin>
-                  <Insets top="10.0" />
-               </VBox.margin>
-            </Text>
-            <Text fx:id="adminId" fill="#faf9f6" strokeType="OUTSIDE" strokeWidth="0.0" text="ID: 99999">
-               <font>
-                  <Font size="15.0" />
-               </font>
-               <VBox.margin>
-                  <Insets bottom="15.0" top="3.0" />
-               </VBox.margin>
-            </Text>
-            <Button fx:id="btnManageFacilities" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="64.0" prefWidth="252.0" style="-fx-background-color: #00275e; -fx-border-color: #071654;" text="Manage Facilities " textFill="WHITE">
-               <graphic>
-                  <ImageView fitHeight="35.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@../images/medal.png" />
-                     </image>
-                  </ImageView>
-               </graphic>
-               <font>
-                  <Font name="System Bold" size="14.0" />
-               </font>
-               <padding>
-                  <Insets right="50.0" />
-               </padding>
-            </Button>
-            <Button fx:id="btnManageBookings" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="64.0" prefWidth="250.0" style="-fx-background-color: #00275e; -fx-border-color: #071654;" text="Manage Bookings" textFill="WHITE">
-               <graphic>
-                  <ImageView fitHeight="35.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@../images/booking.png" />
-                     </image>
-                  </ImageView>
-               </graphic>
-               <font>
-                  <Font name="System Bold" size="14.0" />
-               </font>
-               <padding>
-                  <Insets right="45.0" />
-               </padding>
-            </Button>
-            <Button fx:id="btnResetPassword" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="64.0" prefWidth="250.0" style="-fx-background-color: #00275e; -fx-border-color: #071654;" text="Reset Password" textFill="WHITE">
-               <graphic>
-                  <ImageView fitHeight="39.0" fitWidth="34.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@../images/password.png" />
-                     </image>
-                  </ImageView>
-               </graphic>
-               <font>
-                  <Font name="System Bold" size="14.0" />
-               </font>
-               <padding>
-                  <Insets right="60.0" />
-               </padding>
-            </Button>
-            <Button fx:id="btnLogout" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="64.0" prefWidth="253.0" style="-fx-background-color: #00275e; -fx-border-color: #071654;" text="Logout" textFill="WHITE">
-               <graphic>
-                  <ImageView fitHeight="37.0" fitWidth="33.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@../images/logout.png" />
-                     </image>
-                  </ImageView>
-               </graphic>
-               <font>
-                  <Font name="System Bold" size="14.0" />
-               </font>
-               <padding>
-                  <Insets right="120.0" />
-               </padding>
-            </Button>
-         </children>
-      </VBox>
       <VBox prefHeight="618.0" prefWidth="1000.0" spacing="10.0">
          <children>
             <Label fx:id="titleLabel" maxHeight="93.0" prefHeight="50.0" prefWidth="353.0" text="Manage facilities">
@@ -130,7 +41,7 @@
         </HBox>
     </graphic>
 </Button>
-                  <Pane prefHeight="55.0" prefWidth="703.0" />
+                  <Pane prefHeight="55.0" prefWidth="686.0" />
                   <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="110.0" style="-fx-background-color: #1976d2; -fx-text-fill: white;">
                      <graphic>
                         <HBox fx:id="btnExport" alignment="CENTER">

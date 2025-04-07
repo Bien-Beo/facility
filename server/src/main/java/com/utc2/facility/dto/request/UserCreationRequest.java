@@ -1,6 +1,7 @@
 package com.utc2.facility.dto.request;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -14,18 +15,11 @@ import java.util.Set;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserCreationRequest {
-    @NotNull
-    String userId;
-
-    @NotNull
-    String username;
-
-    @Email
-    @NotNull
-    String email;
-
-    @Size(min = 8, message = "PASSWORD_INVALID")
-    String password;
-
-    String role;
-}//
+    @NotBlank String userId;
+    @NotBlank String username;
+    @NotBlank @Email String email;
+    @NotBlank String password;
+    @NotBlank String fullName;
+    String avatar;
+    @NotBlank String roleName;
+}

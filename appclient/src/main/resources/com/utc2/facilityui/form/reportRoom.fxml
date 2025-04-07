@@ -26,7 +26,7 @@
             <center>
                 <AnchorPane prefHeight="291.0" prefWidth="590.0" BorderPane.alignment="CENTER">
                     <children>
-                        <TextArea fx:id="description" layoutX="120.0" layoutY="143.0" prefHeight="117.0" prefWidth="338.0" style="-fx-text-fill: #c3b19a;" text="Descripton&#10;&#10;" />
+                        <TextArea fx:id="description" layoutX="120.0" layoutY="143.0" prefHeight="117.0" prefWidth="338.0" style="-fx-text-fill: #c3b19a;"  />
                         <Label fx:id="name" alignment="CENTER" layoutX="120.0" layoutY="34.0" prefHeight="36.0" prefWidth="338.0" text="Name Room">
                             <font>
                                 <Font size="14.0" />

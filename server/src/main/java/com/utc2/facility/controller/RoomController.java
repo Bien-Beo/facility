@@ -2,6 +2,7 @@ package com.utc2.facility.controller;
 
 import com.utc2.facility.dto.request.ApiResponse;
 import com.utc2.facility.dto.request.RoomCreationRequest;
+import com.utc2.facility.dto.request.RoomUpdateRequest;
 import com.utc2.facility.dto.response.RoomResponse;
 import com.utc2.facility.service.RoomService;
 import jakarta.validation.Valid;
@@ -9,18 +10,19 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
-@RequestMapping("/room")
+@RequestMapping("/rooms")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class RoomController {
+
     RoomService roomService;
-//
+
     @PostMapping
     ApiResponse<RoomResponse> createRoom(@RequestBody @Valid RoomCreationRequest request) {
         return ApiResponse.<RoomResponse>builder()
@@ -28,32 +30,33 @@ public class RoomController {
                 .build();
     }
 
-    @GetMapping("/{slug}")
-    ApiResponse<RoomResponse> getRoom(@PathVariable String slug) {
+    @GetMapping("/{roomName}")
+    ApiResponse<RoomResponse> getRoom(@PathVariable String roomName) {
         return ApiResponse.<RoomResponse>builder()
-                .result(roomService.getRoomBySlug(slug))
+                .result(roomService.getRoomByName(roomName))
                 .build();
     }
 
     @GetMapping
-    ApiResponse<List<RoomResponse>> getRooms() {
-        return ApiResponse.<List<RoomResponse>>builder()
-                .result(roomService.getRooms())
+    ApiResponse<Page<RoomResponse>> getRooms(Pageable pageable) {
+        return ApiResponse.<Page<RoomResponse>>builder()
+                .result(roomService.getRooms(pageable))
                 .build();
     }
 
-    @DeleteMapping("/{slug}")
-    ApiResponse<Void> deleteRoom(@PathVariable String slug) {
-        roomService.deleteRoom(slug);
-        return ApiResponse.<Void>builder()
-                .result(null)
-                .build();
+    @DeleteMapping("/{id}")
+    ApiResponse<Void> deleteRoom(@PathVariable String id) {
+        roomService.deleteRoom(id);
+        return ApiResponse.<Void>builder().build();
     }
 
-    @PutMapping("/{slug}")
-    ApiResponse<RoomResponse> updateRoom(@RequestBody @Valid RoomCreationRequest request, @PathVariable String slug)  {
+    @PatchMapping("/{id}")
+    ApiResponse<RoomResponse> updateRoom(
+            @PathVariable String id,
+            @RequestBody @Valid RoomUpdateRequest request
+    ) {
         return ApiResponse.<RoomResponse>builder()
-                .result(roomService.updateRoom(request, slug))
+                .result(roomService.updateRoom(id, request))
                 .build();
     }
 }

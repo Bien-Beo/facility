@@ -1,19 +1,18 @@
 package com.utc2.facility.controller;
 
 import com.utc2.facility.dto.request.ApiResponse;
-import com.utc2.facility.dto.request.EquipmentCreationRequest;
-import com.utc2.facility.dto.request.RoomCreationRequest;
+import com.utc2.facility.dto.request.EquipmentItemCreationRequest;
+import com.utc2.facility.dto.request.EquipmentItemUpdateRequest;
 import com.utc2.facility.dto.response.EquipmentResponse;
-import com.utc2.facility.dto.response.RoomResponse;
 import com.utc2.facility.service.EquipmentService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/equipments")
@@ -22,40 +21,43 @@ import java.util.List;
 @Slf4j
 public class EquipmentController {
     EquipmentService equipmentService;
-//
+
     @PostMapping
-    ApiResponse<EquipmentResponse> createEquipment(@RequestBody @Valid EquipmentCreationRequest request) {
+    ApiResponse<EquipmentResponse> createEquipment(@RequestBody @Valid EquipmentItemCreationRequest request) {
         return ApiResponse.<EquipmentResponse>builder()
-                .result(equipmentService.createEquipment(request))
+                .result(equipmentService.createEquipmentItem(request))
                 .build();
     }
 
-    @GetMapping("/{equipmentName}")
-    ApiResponse<EquipmentResponse> getEquipment(@PathVariable String equipmentName) {
+    @GetMapping("/{equipmentItemId}")
+    ApiResponse<EquipmentResponse> getEquipment(@PathVariable String equipmentItemId) {
         return ApiResponse.<EquipmentResponse>builder()
-                .result(equipmentService.getEquipmentByName(equipmentName))
+                .result(equipmentService.getEquipmentItemById(equipmentItemId))
                 .build();
     }
 
     @GetMapping
-    ApiResponse<List<EquipmentResponse>> getEquipments() {
-        return ApiResponse.<List<EquipmentResponse>>builder()
-                .result(equipmentService.getEquipments())
+    ApiResponse<Page<EquipmentResponse>> getEquipmentItems(Pageable pageable) {
+        return ApiResponse.<Page<EquipmentResponse>>builder()
+                .result(equipmentService.getEquipmentItems(pageable))
                 .build();
     }
 
-    @DeleteMapping("/{slug}")
-    ApiResponse<Void> deleteEquipment(@PathVariable String slug) {
-        equipmentService.deleteEquipment(slug);
+    @DeleteMapping("/{itemId}")
+    ApiResponse<Void> deleteEquipment(@PathVariable String itemId) {
+        equipmentService.deleteEquipmentItem(itemId);
         return ApiResponse.<Void>builder()
                 .result(null)
                 .build();
     }
 
-    @PutMapping("/{slug}")
-    ApiResponse<EquipmentResponse> updateEquipment(@RequestBody @Valid EquipmentCreationRequest request, @PathVariable String slug)  {
+    @PutMapping("/{itemId}")
+    ApiResponse<EquipmentResponse> updateEquipmentItem(
+            @PathVariable String itemId,
+            @RequestBody @Valid EquipmentItemUpdateRequest request
+    ) {
         return ApiResponse.<EquipmentResponse>builder()
-                .result(equipmentService.updateEquipment(request, slug))
+                .result(equipmentService.updateEquipmentItem(itemId, request))
                 .build();
     }
 }

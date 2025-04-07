@@ -12,4 +12,4 @@ import lombok.NoArgsConstructor;
 public class NavigationResponse {
     private String employeeId;
     private int roomCount;
-}//
+}
