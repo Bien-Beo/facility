@@ -9,7 +9,7 @@ import EquipmentDetail from "./cards/EquipmentDetail";
 import EquipmentCard from "./cards/EquipmentCard";
 
 const Equipments: FC = (): JSX.Element => {
-  const [selectedFacility, setSelectedFacility] = useState<EquipmentData | null>(null);
+  const [selectedFacility, setSelectedFacility] = useState<EquipmentItemData | null>(null);
   const [open, setOpen] = useState(false);
 
   const { data, isPending, isError, error } = useQuery({
@@ -54,7 +54,7 @@ const Equipments: FC = (): JSX.Element => {
                 <Divider color="gray" />
                 <div className="w-full flex flex-wrap gap-4">
                   {section.equipments.map((equipment) => (
-                    <div key={equipment.slug} onClick={() => {
+                    <div key={equipment.id} onClick={() => {
                       setSelectedFacility(equipment);
                       setOpen(true);
                     }}>

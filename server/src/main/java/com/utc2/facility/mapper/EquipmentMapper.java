@@ -13,8 +13,9 @@ public interface EquipmentMapper {
 
     // Map sang Response DTO
     @Mapping(target = "modelName", source = "model.name")
-    @Mapping(target = "typeName", source = "model.name")
+    @Mapping(target = "typeName", source = "model.equipmentType.name")
     @Mapping(target = "defaultRoomName", source = "defaultRoom.name")
+    @Mapping(target = "imgModel", source = "model.imageUrl")
     EquipmentResponse toEquipmentResponse(EquipmentItem item);
 
     // Map từ Creation DTO sang Entity (chỉ map trường đơn giản)

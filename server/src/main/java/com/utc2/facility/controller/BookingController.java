@@ -51,6 +51,13 @@ public class BookingController {
                 .build();
     }
 
+    @GetMapping("/room/{roomId}")
+    ApiResponse<Page<BookingResponse>> getBookingByRoomId(@PathVariable String roomId, Pageable pageable) {
+        return ApiResponse.<Page<BookingResponse>>builder()
+                .result(bookingService.getBookingsByRoomId(roomId, pageable))
+                .build();
+    }
+
     @DeleteMapping("/{bookingId}")
     ApiResponse<Void> deleteBooking(@PathVariable String bookingId) {
         bookingService.deleteBooking(bookingId);

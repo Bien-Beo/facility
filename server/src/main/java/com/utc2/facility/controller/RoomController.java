@@ -30,10 +30,10 @@ public class RoomController {
                 .build();
     }
 
-    @GetMapping("/{roomName}")
-    ApiResponse<RoomResponse> getRoom(@PathVariable String roomName) {
+    @GetMapping("/{id}")
+    ApiResponse<RoomResponse> getRoom(@PathVariable String id) {
         return ApiResponse.<RoomResponse>builder()
-                .result(roomService.getRoomByName(roomName))
+                .result(roomService.getRoomById(id))
                 .build();
     }
 

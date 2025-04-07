@@ -54,21 +54,25 @@ const Rooms: FC = (): JSX.Element => {
               <Divider color="gray" />
               <div className="w-full flex flex-wrap gap-4">
                 {section.rooms.map((room) => (
-                  <div key={room.slug} onClick={() => {
+                  <div key={room.id} onClick={() => {
                     setSelectedFacility(room);
                     setOpen(true);
                   }}>
                     <RoomCard
-                      name={room.name ?? "Unknown"}
+                      id={room.id ?? ""}
+                      name={room.name ?? ""}
                       description={room.description ?? ""}
-                      img={room.img ?? ""}
-                      manager={room.nameFacilityManager ?? "Chưa có quản lý"}
-                      nameFacilityManager={room.nameFacilityManager ?? "Chưa có quản lý"}
                       capacity={room.capacity ?? 0}
-                      updatedAt={room.updatedAt ?? ""}
-                      building={room.buildingName ?? ""}
-                      equipments={room.equipments ?? []}
+                      img={room.img ?? ""}
                       status={room.status ?? "AVAILABLE"}
+                      buildingName={room.buildingName ?? ""}
+                      roomTypeName={room.roomTypeName ?? ""}
+                      nameFacilityManager={room.nameFacilityManager ?? ""}
+                      location={room.location ?? ""}
+                      createdAt={room.createdAt ?? ""}
+                      updatedAt={room.updatedAt ?? ""}
+                      deletedAt={room.deletedAt ?? ""}
+                      defaultEquipments={room.defaultEquipments || []}
                     />
                   </div>
                 ))}
@@ -82,18 +86,20 @@ const Rooms: FC = (): JSX.Element => {
         <RoomDetail
           open={open}
           onClose={() => setOpen(false)}
-          name={selectedFacility.name ?? "Unknown"}
+          id={selectedFacility.id ?? ""}
+          name={selectedFacility.name ?? ""}
           description={selectedFacility.description ?? ""}
           capacity={selectedFacility.capacity ?? 0}
-          buildingName={selectedFacility.buildingName ?? ""}
+          img={selectedFacility.img ?? ""}
           status={selectedFacility.status ?? "AVAILABLE"}
-          isActive={selectedFacility.isActive ?? false}
+          buildingName={selectedFacility.buildingName ?? ""}
+          roomTypeName={selectedFacility.roomTypeName ?? ""}
+          nameFacilityManager={selectedFacility.nameFacilityManager ?? ""}
+          location={selectedFacility.location ?? ""}
           createdAt={selectedFacility.createdAt ?? ""}
           updatedAt={selectedFacility.updatedAt ?? ""}
-          equipments={selectedFacility.equipments ?? []}
-          img={selectedFacility.img ?? ""}
-          manager={selectedFacility.nameFacilityManager ?? "Chưa có quản lý"}
-          slug={selectedFacility.slug ?? ""}
+          deletedAt={selectedFacility.deletedAt ?? ""}
+          defaultEquipments={selectedFacility.defaultEquipments || []}
         />
       )}
     </div>
