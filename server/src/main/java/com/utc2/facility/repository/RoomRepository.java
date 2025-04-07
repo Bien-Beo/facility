@@ -23,4 +23,5 @@ public interface RoomRepository extends JpaRepository<Room, String> {//
     List<Room> findByFacilityManager(User facilityManager);
 
     boolean existsByNameAndIdNot(@Size(max = 255) String name, String id);
+
 }

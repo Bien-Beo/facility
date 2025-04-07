@@ -66,9 +66,6 @@ public class EquipmentItem {
     @Column(name = "notes", length = 1000)
     String notes;
 
-    @Column(name = "img")
-    String img;
-
     @Column(name = "created_at", nullable = false, updatable = false)
     LocalDateTime createdAt;
 

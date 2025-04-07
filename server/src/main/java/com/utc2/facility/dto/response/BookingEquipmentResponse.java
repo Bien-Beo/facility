@@ -14,6 +14,8 @@ public class BookingEquipmentResponse {
     String equipmentModelName;
     String notes;
     Boolean isDefaultEquipment;
+    String serialNumber;
+    String assetTag;
 
 
     public static BookingEquipmentResponse fromEntity(BookingEquipment bookingEquipment) {
@@ -21,6 +23,8 @@ public class BookingEquipmentResponse {
                 .equipmentModelName(bookingEquipment.getItem() != null ? bookingEquipment.getItem().getModel().getName() : null)
                 .notes(bookingEquipment.getNotes())
                 .isDefaultEquipment(bookingEquipment.getIsDefaultEquipment())
+                .serialNumber(bookingEquipment.getItem() != null ? bookingEquipment.getItem().getSerialNumber() : null)
+                .assetTag(bookingEquipment.getItem() != null ? bookingEquipment.getItem().getAssetTag() : null)
                 .build();
     }
 }

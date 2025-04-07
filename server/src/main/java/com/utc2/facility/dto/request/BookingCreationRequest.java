@@ -22,7 +22,7 @@ public class BookingCreationRequest {
 
     @NotNull(message = "Thời gian bắt đầu dự kiến không được để trống")
     @FutureOrPresent(message = "Thời gian bắt đầu dự kiến phải là hiện tại hoặc tương lai")
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) // Đảm bảo format đúng nếu cần
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     LocalDateTime plannedStartTime; // Thời gian dự kiến bắt đầu
 
     @NotNull(message = "Thời gian kết thúc dự kiến không được để trống")
@@ -31,10 +31,10 @@ public class BookingCreationRequest {
     LocalDateTime plannedEndTime; // Thời gian dự kiến kết thúc
 
     // Danh sách ID của các thiết bị cụ thể (EquipmentItem) muốn mượn THÊM
-    // (Không bao gồm các thiết bị mặc định của phòng - hệ thống sẽ tự thêm chúng)
+    // (Không bao gồm các thiết bị mặc định của phòng - hệ thống sẽ tự thêm)
     List<String> additionalEquipmentItemIds;
 
-    // Ghi chú thêm từ người dùng (tùy chọn)
+    // Ghi chú thêm từ người dùng
     String note;
 
     // ----- Validation Logic -----

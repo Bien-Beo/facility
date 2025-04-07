@@ -81,4 +81,18 @@ public class Room {
     @Column(name = "deleted_at")
     LocalDateTime deletedAt;
 
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreRemove
+    protected void onDelete() {
+        deletedAt = LocalDateTime.now();
+    }
 }

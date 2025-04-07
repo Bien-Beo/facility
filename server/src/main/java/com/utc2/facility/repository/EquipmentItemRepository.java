@@ -37,5 +37,6 @@ public interface EquipmentItemRepository extends JpaRepository<EquipmentItem, St
 
     // Ghi đè findAll để trả về Page (hoặc dùng mặc định của JpaRepository)
     // Page<EquipmentItem> findAll(Pageable pageable);
+    boolean existsBySerialNumberAndIdNot(String serialNumber, String id);
 
 }

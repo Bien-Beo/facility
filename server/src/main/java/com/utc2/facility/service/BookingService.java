@@ -1,38 +1,39 @@
 package com.utc2.facility.service;
 
 import com.utc2.facility.dto.request.BookingCreationRequest;
-import com.utc2.facility.dto.request.BookingUpdateRequest; // Sử dụng DTO update
-import com.utc2.facility.dto.response.BookingEquipmentResponse; // Cần DTO này
+import com.utc2.facility.dto.request.BookingUpdateRequest;
+import com.utc2.facility.dto.request.CancelBookingRequest;
+import com.utc2.facility.dto.response.BookingEquipmentResponse;
 import com.utc2.facility.dto.response.BookingResponse;
 import com.utc2.facility.entity.*;
 import com.utc2.facility.enums.BookingStatus;
-import com.utc2.facility.enums.EquipmentStatus; // Giả sử có Enum này
-// import com.utc2.facility.enums.RoomStatus; // Không nên dùng RoomStatus.BOOKED tĩnh
+import com.utc2.facility.enums.EquipmentStatus;
+import com.utc2.facility.enums.MaintenanceStatus;
+import com.utc2.facility.enums.Role;
+import com.utc2.facility.enums.RoomStatus; // Cần để check phòng maintenance
 import com.utc2.facility.exception.AppException;
 import com.utc2.facility.exception.ErrorCode;
-import com.utc2.facility.mapper.BookingEquipmentMapper; // Cần Mapper này
+import com.utc2.facility.mapper.BookingEquipmentMapper;
 import com.utc2.facility.mapper.BookingMapper;
 import com.utc2.facility.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page; // Import Page
-import org.springframework.data.domain.Pageable; // Import Pageable
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder; // Để lấy user
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional; // Import Transactional
-import org.springframework.util.CollectionUtils; // Import CollectionUtils
-import org.springframework.util.StringUtils; // Import StringUtils
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -46,400 +47,570 @@ public class BookingService {
     RoomRepository roomRepository;
     EquipmentItemRepository equipmentItemRepository;
     BookingEquipmentRepository bookingEquipmentRepository;
+    MaintenanceRepository maintenanceRepository;
     BookingMapper bookingMapper;
     BookingEquipmentMapper bookingEquipmentMapper;
 
     // --- Phương thức Tạo Booking ---
-    @Transactional // Đảm bảo tính toàn vẹn
+    @Transactional
+    @PreAuthorize("isAuthenticated()")
     public BookingResponse createBooking(BookingCreationRequest request) {
+        log.info("Creating new booking request from user");
 
-        // 1. Lấy người dùng hiện tại (Cần triển khai logic này)
-        User currentUser = getCurrentUser(); // Giả sử có phương thức này
-
-        // 2. Validate Thời gian cơ bản
+        User currentUser = getCurrentUser();
         validateBookingTimes(request.getPlannedStartTime(), request.getPlannedEndTime());
 
         Room room = null;
         List<EquipmentItem> defaultEquipment = new ArrayList<>();
         Set<String> allRequiredItemIds = new HashSet<>();
-        List<EquipmentItem> finalEquipmentList = new ArrayList<>(); // List các item entity thực tế sẽ được mượn
+        List<EquipmentItem> finalEquipmentList = new ArrayList<>();
 
-        // 3. Xử lý và kiểm tra Phòng (nếu có)
         if (StringUtils.hasText(request.getRoomId())) {
-            room = roomRepository.findById(request.getRoomId())
-                    .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
+            room = findRoomByIdOrThrow(request.getRoomId());
+            log.debug("Booking includes room: {}", room.getId());
 
-            if (room.getStatus() == com.utc2.facility.enums.RoomStatus.UNDER_MAINTENANCE) { // Chỉ check UNDER_MAINTENANCE
-                throw new AppException(ErrorCode.ROOM_UNAVAILABLE);
+            if (room.getStatus() == RoomStatus.UNDER_MAINTENANCE) {
+                log.warn("Attempted to book room under maintenance: {}", room.getId());
+                throw new AppException(ErrorCode.ROOM_UNAVAILABLE, "Phòng " + room.getName() + " đang được bảo trì.");
             }
 
-            // TODO: Implement kiểm tra lịch trống cho phòng trong khoảng thời gian yêu cầu
+            // Kiểm tra lịch trống cho phòng
             checkRoomAvailability(room.getId(), request.getPlannedStartTime(), request.getPlannedEndTime());
+            log.debug("Room {} availability checked successfully for the requested timeslot.", room.getId());
 
-            // Lấy thiết bị mặc định của phòng
+            // Lấy thiết bị mặc định của phòng (chỉ những cái không bị DISPOSED)
             defaultEquipment = equipmentItemRepository.findByDefaultRoom_IdAndStatusNot(room.getId(), EquipmentStatus.DISPOSED);
             defaultEquipment.forEach(item -> allRequiredItemIds.add(item.getId()));
+            log.debug("Found {} default equipment items for room {}: {}", defaultEquipment.size(), room.getId(), allRequiredItemIds);
+        } else {
+            log.debug("Booking does not include a specific room.");
         }
 
-        // 4. Xử lý và kiểm tra Thiết bị (mặc định + mượn thêm)
+        // Xử lý và kiểm tra Thiết bị (mặc định + mượn thêm)
         if (!CollectionUtils.isEmpty(request.getAdditionalEquipmentItemIds())) {
+            log.debug("Adding additional equipment items: {}", request.getAdditionalEquipmentItemIds());
             allRequiredItemIds.addAll(request.getAdditionalEquipmentItemIds());
         }
 
         if (!allRequiredItemIds.isEmpty()) {
+            log.debug("Total required equipment items IDs: {}", allRequiredItemIds);
             finalEquipmentList = equipmentItemRepository.findAllById(allRequiredItemIds);
 
-            // Kiểm tra tất cả ID có hợp lệ không
             if (finalEquipmentList.size() != allRequiredItemIds.size()) {
-                // Tìm ra ID không hợp lệ để báo lỗi rõ hơn (tùy chọn)
-                throw new AppException(ErrorCode.EQUIPMENT_ITEM_NOT_FOUND);
+                log.error("Could not find all requested equipment items. Requested: {}, Found: {}", allRequiredItemIds, finalEquipmentList.stream().map(EquipmentItem::getId).toList());
+                throw new AppException(ErrorCode.EQUIPMENT_ITEM_NOT_FOUND, "Một hoặc nhiều thiết bị yêu cầu không tồn tại.");
+            }
+            if (!CollectionUtils.isEmpty(request.getAdditionalEquipmentItemIds())) {
+                Set<String> additionalIdsRequested = new HashSet<>(request.getAdditionalEquipmentItemIds());
+                String bookingRoomId = request.getRoomId(); // ID phòng đang được đặt (có thể null)
+
+                for (EquipmentItem item : finalEquipmentList) {
+                    // Chỉ xét những item nằm trong danh sách yêu cầu thêm tường minh
+                    if (additionalIdsRequested.contains(item.getId())) {
+                        // Kiểm tra xem item này có thuộc về một phòng mặc định nào không
+                        if (item.getDefaultRoom() != null) {
+                            // Nếu có phòng mặc định, kiểm tra xem booking hiện tại CÓ PHẢI là cho phòng đó không
+                            // Nếu bookingRoomId là null (chỉ mượn thiết bị) HOẶC bookingRoomId khác với phòng mặc định của item
+                            if (bookingRoomId == null || !bookingRoomId.equals(item.getDefaultRoom().getId())) {
+                                log.warn("Attempt to borrow default equipment item {} (belongs to room {}) independently or for wrong room {}.",
+                                        item.getId(), item.getDefaultRoom().getId(), bookingRoomId);
+                                // Ném lỗi ngăn chặn việc mượn này
+                                throw new AppException(ErrorCode.DEFAULT_EQUIPMENT_CANNOT_BE_BORROWED_SEPARATELY,
+                                        "Thiết bị " + item.getId() + " (" + item.getModel().getName() +")"
+                                                + " là thiết bị cố định của phòng " + item.getDefaultRoom().getName()
+                                                + " và không thể mượn riêng lẻ hoặc cho phòng khác.");
+                            }
+                            // Trường hợp bookingRoomId trùng với phòng mặc định của item -> OK (dù hơi thừa vì nó nên được thêm tự động)
+                        }
+                        // Nếu item.getDefaultRoom() là null -> đây là thiết bị độc lập, cho phép mượn riêng lẻ -> OK
+                    }
+                }
+                log.debug("Check for borrowing default items independently passed.");
             }
 
-            // Kiểm tra trạng thái từng thiết bị (không phải DISPOSED, BROKEN, IN_MAINTENANCE?)
+            List<String> unavailableItems = new ArrayList<>();
             for (EquipmentItem item : finalEquipmentList) {
                 if (item.getStatus() != EquipmentStatus.AVAILABLE) {
-                    // Có thể cho phép đặt đồ đang sửa/hỏng không? Nếu không:
-                    throw new AppException(ErrorCode.EQUIPMENT_UNAVAILABLE, "Thiết bị " + item.getId() + " không sẵn sàng.");
+                    log.warn("Equipment item {} is not available (Status: {})", item.getId(), item.getStatus());
+                    unavailableItems.add(item.getId() + " (" + item.getStatus() + ")");
+                    throw new AppException(ErrorCode.EQUIPMENT_UNAVAILABLE, "Thiết bị " + item.getId() + " không sẵn sàng ("+ item.getStatus() +").");
                 }
             }
+            if (!unavailableItems.isEmpty()) {
+                throw new AppException(ErrorCode.EQUIPMENT_UNAVAILABLE, "Một số thiết bị không sẵn sàng: " + String.join(", ", unavailableItems));
+            }
 
-            // TODO: Implement kiểm tra lịch trống cho TẤT CẢ các thiết bị trong khoảng thời gian yêu cầu
+            // Kiểm tra lịch trống cho TẤT CẢ các thiết bị
             checkItemsAvailability(allRequiredItemIds, request.getPlannedStartTime(), request.getPlannedEndTime());
+            log.debug("All required equipment items availability checked successfully.");
+        } else {
+            log.debug("No specific equipment items required for this booking.");
         }
 
-        // 5. Tạo và Lưu Booking Entity
+        // Tạo và Lưu Booking Entity
         Booking booking = bookingMapper.toBooking(request);
         booking.setUser(currentUser);
-        booking.setRoom(room); // Có thể là null
-        booking.setStatus(BookingStatus.PENDING_APPROVAL); // Hoặc CONFIRMED nếu không cần duyệt?
-        // createdAt được xử lý bởi @PrePersist
+        booking.setRoom(room);
+        booking.setStatus(BookingStatus.PENDING_APPROVAL); // Mặc định chờ duyệt
 
         Booking savedBooking = bookingRepository.save(booking);
+        log.info("Booking entity saved with ID: {}", savedBooking.getId());
 
-        // 6. Tạo và Lưu BookingEquipment Entities
+        // Tạo và Lưu BookingEquipment Entities
         if (!finalEquipmentList.isEmpty()) {
             List<BookingEquipment> bookingEquipmentsToSave = new ArrayList<>();
-            // Tạo map id -> item để tra cứu nhanh isDefault
             Set<String> defaultItemIds = defaultEquipment.stream().map(EquipmentItem::getId).collect(Collectors.toSet());
 
             for (EquipmentItem item : finalEquipmentList) {
                 BookingEquipmentId beId = new BookingEquipmentId(savedBooking.getId(), item.getId());
-                BookingEquipment be = new BookingEquipment();
-                be.setId(beId);
-                be.setBooking(savedBooking);
-                be.setItem(item);
-                be.setIsDefaultEquipment(defaultItemIds.contains(item.getId())); // Xác định cờ isDefault
-                // be.setNotes(...) // Có thể thêm notes cho từng thiết bị nếu cần
-                bookingEquipmentsToSave.add(be);
+                System.out.println("BookingEquipmentId: " + beId);
+                // Kiểm tra lại nếu liên kết đã tồn tại (phòng trường hợp logic bị lặp)
+                if (!bookingEquipmentRepository.existsById(beId)) {
+                    BookingEquipment be = new BookingEquipment();
+                    be.setId(beId);
+                    be.setBooking(savedBooking);
+                    be.setItem(item);
+                    be.setIsDefaultEquipment(defaultItemIds.contains(item.getId()));
+                    bookingEquipmentsToSave.add(be);
+                } else {
+                    log.warn("BookingEquipment link already exists for booking {} and item {}. Skipping.", savedBooking.getId(), item.getId());
+                }
             }
-            bookingEquipmentRepository.saveAll(bookingEquipmentsToSave);
+            if (!bookingEquipmentsToSave.isEmpty()) {
+                bookingEquipmentRepository.saveAll(bookingEquipmentsToSave);
+                log.info("Saved {} BookingEquipment links for booking {}", bookingEquipmentsToSave.size(), savedBooking.getId());
+            }
         }
 
-        // 7. Tạo và Trả về Response Hoàn Chỉnh
-        // Cần fetch lại booking hoặc dùng savedBooking và fetch equipment để tạo response đầy đủ
+        // Tạo và Trả về Response Hoàn Chỉnh
         return buildFullBookingResponse(savedBooking);
     }
 
     // --- Các phương thức Get Booking ---
 
-    // Helper method để xây dựng response đầy đủ (bao gồm thiết bị)
+    private Room findRoomByIdOrThrow(String roomId) {
+        return roomRepository.findById(roomId)
+                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND, "Phòng không tồn tại."));
+    }
+
+    // Helper xây dựng response đầy đủ
     private BookingResponse buildFullBookingResponse(Booking booking) {
-        BookingResponse response = bookingMapper.toBookingResponse(booking); // Map các trường cơ bản
-
-        // Lấy và map danh sách thiết bị
+        BookingResponse response = bookingMapper.toBookingResponse(booking);
         List<BookingEquipment> bookingEquipments = bookingEquipmentRepository.findByBookingId(booking.getId());
-        List<BookingEquipmentResponse> equipmentResponses = bookingEquipments.stream()
-                // Giả sử BookingEquipmentMapper có phương thức toBookingEquipmentResponse
-                .map(bookingEquipmentMapper::toBookingEquipmentResponse)
-                .toList();
-        response.setBookedEquipments(equipmentResponses); // Set danh sách thiết bị
-
+        if (bookingEquipments != null) {
+            List<BookingEquipmentResponse> equipmentResponses = bookingEquipments.stream()
+                    .map(bookingEquipmentMapper::toBookingEquipmentResponse)
+                    .toList();
+            response.setBookedEquipments(equipmentResponses);
+        } else {
+            response.setBookedEquipments(Collections.emptyList());
+        }
         return response;
     }
 
-    // Chỉ trả về thông tin booking, không tự động reject
+    // Get một booking cụ thể, kiểm tra quyền xem
     @PostAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER') or returnObject.userName == authentication.name")
     public BookingResponse getBooking(String id) {
-        Booking booking = bookingRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.BOOKING_NOT_FOUND));
+        log.debug("Fetching booking with ID: {}", id);
+        Booking booking = findBookingByIdOrThrow(id);
         return buildFullBookingResponse(booking);
     }
 
-    // Nên trả về Page<BookingResponse> và nhận Pageable
-    // @PreAuthorize(...) // Cần phân quyền ai được xem theo thời gian
+    // Các phương thức Get theo thời gian
     public List<BookingResponse> getBookingByPlannedStartTime(String plannedStartTimeStr) {
         LocalDateTime plannedStartTime = parseDateTime(plannedStartTimeStr);
+        log.debug("Fetching bookings with plannedStartTime: {}", plannedStartTime);
         List<Booking> bookings = bookingRepository.findByPlannedStartTime(plannedStartTime);
-        return bookings.stream()
-                .map(this::buildFullBookingResponse) // Dùng helper method
-                .toList();
+        return bookings.stream().map(this::buildFullBookingResponse).toList();
     }
 
-    // Nên trả về Page<BookingResponse> và nhận Pageable
-    // @PreAuthorize(...)
     public List<BookingResponse> getBookingByPlannedEndTime(String plannedEndTimeStr) {
         LocalDateTime plannedEndTime = parseDateTime(plannedEndTimeStr);
+        log.debug("Fetching bookings with plannedEndTime: {}", plannedEndTime);
         List<Booking> bookings = bookingRepository.findByPlannedEndTime(plannedEndTime);
-        return bookings.stream()
-                .map(this::buildFullBookingResponse)
-                .toList();
+        return bookings.stream().map(this::buildFullBookingResponse).toList();
     }
 
-    // Các phương thức getBookingByActual...Time tương tự, có thể cần Pageable
-
-    // Trả về Page, dùng buildFullBookingResponse
-    @PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER')") // Quyền hợp lý hơn
+    // Get tất cả bookings (phân trang)
+    @PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER')")
     public Page<BookingResponse> getAllBookings(Pageable pageable) {
+        log.debug("Fetching all bookings with pageable: {}", pageable);
         Page<Booking> bookingsPage = bookingRepository.findAll(pageable);
         return bookingsPage.map(this::buildFullBookingResponse);
     }
 
-    // Trả về Page, dùng buildFullBookingResponse, sửa PreAuthorize
-    @PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER') or #userId == principal.username") // Giả sử principal.username là ID user
+    // Get booking theo user ID (phân trang)
+    @PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER') or #userId == principal.username")
     public Page<BookingResponse> getBookingsByUserId(String userId, Pageable pageable) {
-        // Nên có phương thức trong repo hỗ trợ Pageable: findByUserId(String userId, Pageable pageable)
-        Page<Booking> bookingsPage = bookingRepository.findByUser_Id(userId, pageable); // Giả định repo method
+        log.debug("Fetching bookings for user ID: {} with pageable: {}", userId, pageable);
+        Page<Booking> bookingsPage = bookingRepository.findByUser_Id(userId, pageable);
         return bookingsPage.map(this::buildFullBookingResponse);
     }
 
-
-    // --- Các phương thức Thay đổi Trạng thái Booking ---
+    // --- Các phương thức Thay đổi ---
 
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteBooking(String id) {
-        // Kiểm tra booking tồn tại trước khi xóa (findById làm việc này)
+        log.warn("Attempting to delete booking with ID: {}", id);
         if (!bookingRepository.existsById(id)) {
             throw new AppException(ErrorCode.BOOKING_NOT_FOUND);
         }
-        // BookingEquipment sẽ bị xóa theo CASCADE nếu FK được cấu hình đúng
         bookingRepository.deleteById(id);
+        log.info("Booking deleted successfully: {}", id);
     }
 
-    // Cần viết lại hoàn toàn
     @Transactional
-    // @PreAuthorize(...) // Ai được quyền update? Chỉ người tạo? Admin/Manager?
-    public BookingResponse updateBooking(String id, BookingUpdateRequest request) {
-        Booking booking = bookingRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.BOOKING_NOT_FOUND));
+    @PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER') or @bookingSecurityService.isOwner(#id, principal.username)")
+    public BookingResponse updatePendingBookingDetails(String id, BookingUpdateRequest request) {
+        log.info("Updating booking with ID: {}", id);
+        Booking booking = findBookingByIdOrThrow(id);
+        User currentUser = getCurrentUser();
 
-        // Kiểm tra trạng thái hiện tại có cho phép cập nhật không?
-        if (booking.getStatus() == BookingStatus.COMPLETED || booking.getStatus() == BookingStatus.CANCELLED) {
-            throw new AppException(ErrorCode.BOOKING_NOT_UPDATABLE, "Booking đã hoàn thành hoặc bị hủy.");
+        boolean isAdminOrManager = currentUser.getRole().getName().equals(Role.ADMIN) || currentUser.getRole().getName().equals(Role.FACILITY_MANAGER);
+        if (!booking.getUser().getId().equals(currentUser.getId()) && !isAdminOrManager) {
+            log.warn("User {} forbidden to update booking {}", currentUser.getUsername(), id);
+            throw new AppException(ErrorCode.FORBIDDEN, "Bạn không có quyền cập nhật booking này.");
         }
 
-        // TODO: Kiểm tra quyền của người dùng hiện tại (có phải người tạo hoặc admin/manager?)
-        // User currentUser = getCurrentUser();
-        // if(!booking.getUser().getId().equals(currentUser.getId()) && !currentUserHasAdminOrManagerRole()) {
-        //    throw new AppException(ErrorCode.FORBIDDEN);
-        // }
-
-
-        // Lưu thời gian cũ để kiểm tra nếu cần
-        LocalDateTime oldStartTime = booking.getPlannedStartTime();
-        LocalDateTime oldEndTime = booking.getPlannedEndTime();
-        boolean timeChanged = false;
-
-        // Áp dụng các thay đổi cơ bản từ DTO (mapper lo việc này)
-        bookingMapper.updateBooking(booking, request); // Mapper đã cấu hình NullValue...IGNORE
-
-        // Kiểm tra và Validate thời gian nếu có thay đổi
-        if (request.getPlannedStartTime() != null || request.getPlannedEndTime() != null) {
-            timeChanged = true;
-            // Validate thời gian mới (end > start, future/present)
-            validateBookingTimes(booking.getPlannedStartTime(), booking.getPlannedEndTime());
-            // TODO: Kiểm tra lại lịch trống cho phòng (nếu có) và TẤT CẢ thiết bị (cũ+mới) trong khoảng thời gian MỚI
-            // checkRoomAvailability(booking.getRoom() != null ? booking.getRoom().getId() : null, booking.getPlannedStartTime(), booking.getPlannedEndTime());
-            // Set<String> currentItemIds = getCurrentBookingItemIds(booking.getId()); // Lấy ID item hiện tại
-            // checkItemsAvailability(currentItemIds, booking.getPlannedStartTime(), booking.getPlannedEndTime());
-        }
-
-
-        // TODO: Xử lý cập nhật danh sách additionalEquipmentItemIds (Phức tạp)
-        if (request.getAdditionalEquipmentItemIds() != null) {
-            // 1. Lấy danh sách BookingEquipment hiện tại (chỉ loại isDefault=false)
-            // List<BookingEquipment> currentNonDefaultBE = bookingEquipmentRepository.findByBookingIdAndIsDefaultEquipment(id, false);
-            // Set<String> currentNonDefaultItemIds = currentNonDefaultBE.stream().map(be -> be.getItem().getId()).collect(Collectors.toSet());
-            // Set<String> requestedItemIds = new HashSet<>(request.getAdditionalEquipmentItemIds());
-
-            // 2. Xác định items cần thêm (requested - current) và items cần xóa (current - requested)
-            // Set<String> itemsToAddIds = new HashSet<>(requestedItemIds);
-            // itemsToAddIds.removeAll(currentNonDefaultItemIds);
-            // Set<String> itemsToRemoveIds = new HashSet<>(currentNonDefaultItemIds);
-            // itemsToRemoveIds.removeAll(requestedItemIds);
-
-            // 3. Kiểm tra availability cho items cần thêm
-            // if (!itemsToAddIds.isEmpty()) {
-            //    checkItemsAvailability(itemsToAddIds, booking.getPlannedStartTime(), booking.getPlannedEndTime());
-            // }
-
-            // 4. Thực hiện xóa BookingEquipment cho itemsToRemoveIds
-            // if (!itemsToRemoveIds.isEmpty()) {
-            //    List<BookingEquipment> toDelete = currentNonDefaultBE.stream().filter(be -> itemsToRemoveIds.contains(be.getItem().getId())).toList();
-            //    bookingEquipmentRepository.deleteAll(toDelete);
-            // }
-
-            // 5. Thực hiện thêm BookingEquipment cho itemsToAddIds (tương tự logic create)
-            // if (!itemsToAddIds.isEmpty()) {
-            //     List<EquipmentItem> itemsToAdd = equipmentItemRepository.findAllById(itemsToAddIds);
-            //     // Kiểm tra item tồn tại và status AVAILABLE
-            //     List<BookingEquipment> toSave = new ArrayList<>();
-            //     for(EquipmentItem item : itemsToAdd) {
-            //         // Tạo BookingEquipment mới, set isDefault=false
-            //     }
-            //     bookingEquipmentRepository.saveAll(toSave);
-            // }
-            log.warn("Equipment list update logic needs full implementation for booking ID: {}", id); // Nhắc nhở implement
-        }
-
-        Booking savedBooking = bookingRepository.save(booking);
-        return buildFullBookingResponse(savedBooking); // Trả về response đầy đủ
-    }
-
-
-    @Transactional
-    @PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER')") // Quyền duyệt
-    public BookingResponse approveBooking(String bookingId) {
-        Booking booking = findBookingByIdOrThrow(bookingId);
-
+        // CHỈ cho phép update khi đang chờ duyệt
         if (booking.getStatus() != BookingStatus.PENDING_APPROVAL) {
-            throw new AppException(ErrorCode.REQUEST_ALREADY_PROCESSED);
+            log.warn("Attempted to update booking {} with status {} (only PENDING_APPROVAL allowed here)", id, booking.getStatus());
+            throw new AppException(ErrorCode.BOOKING_NOT_UPDATABLE, "Chỉ có thể cập nhật chi tiết booking khi đang chờ duyệt.");
         }
 
-        // TODO: Kiểm tra lại lần cuối lịch trống cho phòng và TẤT CẢ thiết bị liên quan
-        // vì có thể có thay đổi từ lúc tạo đến lúc duyệt
-        // checkRoomAvailability(...)
-        // checkItemsAvailability(...)
+        boolean timeChanged = false;
+        LocalDateTime newStartTime = request.getPlannedStartTime() != null ? request.getPlannedStartTime() : booking.getPlannedStartTime();
+        LocalDateTime newEndTime = request.getPlannedEndTime() != null ? request.getPlannedEndTime() : booking.getPlannedEndTime();
 
-        booking.setStatus(BookingStatus.CONFIRMED);
-        booking.setApprovedByUser(getCurrentUser()); // Gán người duyệt
+        if (request.getPlannedStartTime() != null || request.getPlannedEndTime() != null) {
+            if(!newStartTime.equals(booking.getPlannedStartTime()) || !newEndTime.equals(booking.getPlannedEndTime())){
+                timeChanged = true;
+                log.debug("Booking time changed for booking {}. New start: {}, New end: {}", id, newStartTime, newEndTime);
+                validateBookingTimes(newStartTime, newEndTime);
+            }
+        }
 
-        // KHÔNG cập nhật trạng thái tĩnh của phòng
-        // Room room = booking.getRoom();
-        // if(room != null) { room.setStatus(RoomStatus.BOOKED); roomRepository.save(room); }
+        // Áp dụng thay đổi cơ bản từ DTO
+        bookingMapper.updateBooking(booking, request);
+
+        // Xử lý cập nhật danh sách thiết bị
+        Set<String> finalItemIds = new HashSet<>();
+        if (booking.getRoom() != null) {
+            // Lấy lại default items (phòng không đổi trong update này)
+            equipmentItemRepository.findByDefaultRoom_IdAndStatusNot(booking.getRoom().getId(), EquipmentStatus.DISPOSED)
+                    .forEach(item -> finalItemIds.add(item.getId()));
+        }
+
+        if (request.getAdditionalEquipmentItemIds() != null) { // Chỉ xử lý nếu client gửi danh sách mới
+            log.debug("Processing update for additional equipment items for booking {}. Requested: {}", id, request.getAdditionalEquipmentItemIds());
+            // 1. Lấy BookingEquipment hiện tại (non-default)
+            List<BookingEquipment> currentNonDefaultBE = bookingEquipmentRepository.findByBookingIdAndIsDefaultEquipment(id, false);
+            Set<String> currentNonDefaultItemIds = currentNonDefaultBE.stream().map(be -> be.getItem().getId()).collect(Collectors.toSet());
+
+            // 2. Xác định thêm/xóa
+            Set<String> requestedItemIds = new HashSet<>(request.getAdditionalEquipmentItemIds());
+            finalItemIds.addAll(requestedItemIds); // Add requested items to the final list for availability check
+
+            Set<String> itemsToAddIds = new HashSet<>(requestedItemIds);
+            itemsToAddIds.removeAll(currentNonDefaultItemIds);
+
+            Set<String> itemsToRemoveIds = new HashSet<>(currentNonDefaultItemIds);
+            itemsToRemoveIds.removeAll(requestedItemIds);
+
+            log.debug("Items to add: {}, Items to remove: {}", itemsToAddIds, itemsToRemoveIds);
+
+            // 3. Xóa các liên kết không còn cần thiết
+            if (!itemsToRemoveIds.isEmpty()) {
+                List<BookingEquipment> toDelete = currentNonDefaultBE.stream()
+                        .filter(be -> itemsToRemoveIds.contains(be.getItem().getId()))
+                        .toList();
+                if(!toDelete.isEmpty()){
+                    log.info("Removing {} non-default equipment links for booking {}", toDelete.size(), id);
+                    bookingEquipmentRepository.deleteAll(toDelete);
+                }
+            }
+
+            // Kiểm tra và Thêm các liên kết mới
+            if (!itemsToAddIds.isEmpty()) {
+                List<EquipmentItem> itemsToAdd = equipmentItemRepository.findAllById(itemsToAddIds);
+                if (itemsToAdd.size() != itemsToAddIds.size()) {
+                    throw new AppException(ErrorCode.EQUIPMENT_ITEM_NOT_FOUND, "Một hoặc nhiều thiết bị cần thêm không tồn tại.");
+                }
+                // Kiểm tra trạng thái AVAILABLE của đồ cần thêm
+                List<String> unavailableItemsToAdd = itemsToAdd.stream()
+                        .filter(item -> item.getStatus() != EquipmentStatus.AVAILABLE)
+                        .map(item -> item.getId() + " (" + item.getStatus() + ")")
+                        .toList();
+                if (!unavailableItemsToAdd.isEmpty()) {
+                    throw new AppException(ErrorCode.EQUIPMENT_UNAVAILABLE, "Thiết bị cần thêm không sẵn sàng: " + String.join(", ", unavailableItemsToAdd));
+                }
+
+                // Check lịch trống cho đồ cần thêm (trong khoảng thời gian MỚI)
+                checkItemsAvailability(itemsToAddIds, newStartTime, newEndTime);
+
+                // Tạo và lưu liên kết mới
+                List<BookingEquipment> toSave = new ArrayList<>();
+                for (EquipmentItem item : itemsToAdd) {
+                    BookingEquipmentId beId = new BookingEquipmentId(booking.getId(), item.getId());
+                    if (!bookingEquipmentRepository.existsById(beId)) { // Kiểm tra lại trước khi thêm
+                        BookingEquipment be = new BookingEquipment();
+                        be.setId(beId);
+                        be.setBooking(booking);
+                        be.setItem(item);
+                        be.setIsDefaultEquipment(false); // Luôn là false khi thêm thủ công
+                        toSave.add(be);
+                    }
+                }
+                if (!toSave.isEmpty()) {
+                    log.info("Adding {} new non-default equipment links for booking {}", toSave.size(), id);
+                    bookingEquipmentRepository.saveAll(toSave);
+                }
+            }
+        } else {
+            // Nếu request.getAdditionalEquipmentItemIds() là null, giữ nguyên danh sách hiện tại
+            // Cần lấy lại ID item hiện tại để check availability nếu thời gian thay đổi
+            bookingEquipmentRepository.findByBookingIdAndIsDefaultEquipment(id, false)
+                    .forEach(be -> finalItemIds.add(be.getItem().getId()));
+            log.debug("No changes requested for additional equipment items for booking {}.", id);
+        }
+
+
+        // Kiểm tra lại lịch trống tổng thể nếu thời gian thay đổi
+        if (timeChanged) {
+            log.debug("Re-checking availability for final setup after time change for booking {}", id);
+            if (booking.getRoom() != null) {
+                checkRoomAvailability(booking.getRoom().getId(), newStartTime, newEndTime);
+            }
+            if (!finalItemIds.isEmpty()) {
+                checkItemsAvailability(finalItemIds, newStartTime, newEndTime);
+            }
+        }
 
         Booking savedBooking = bookingRepository.save(booking);
+        log.info("Booking updated successfully: {}", savedBooking.getId());
         return buildFullBookingResponse(savedBooking);
     }
 
     @Transactional
-    @PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER')") // Quyền từ chối
-    public BookingResponse rejectBooking(String bookingId) {
+    @PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER')")
+    public BookingResponse approveBooking(String bookingId) {
+        log.info("Approving booking with ID: {}", bookingId);
         Booking booking = findBookingByIdOrThrow(bookingId);
+        User approver = getCurrentUser();
 
         if (booking.getStatus() != BookingStatus.PENDING_APPROVAL) {
+            log.warn("Booking {} already processed, cannot approve.", bookingId);
+            throw new AppException(ErrorCode.REQUEST_ALREADY_PROCESSED);
+        }
+
+        // Kiểm tra lại lịch trống lần cuối trước khi duyệt
+        log.debug("Final availability check before approving booking {}", bookingId);
+        if (booking.getRoom() != null) {
+            checkRoomAvailability(booking.getRoom().getId(), booking.getPlannedStartTime(), booking.getPlannedEndTime());
+        }
+        Set<String> currentItemIds = getCurrentBookingItemIds(booking.getId());
+        if (!currentItemIds.isEmpty()) {
+            checkItemsAvailability(currentItemIds, booking.getPlannedStartTime(), booking.getPlannedEndTime());
+        }
+        log.debug("Final availability check passed for booking {}", bookingId);
+
+
+        booking.setStatus(BookingStatus.CONFIRMED);
+        booking.setApprovedByUser(approver);
+
+        Booking savedBooking = bookingRepository.save(booking);
+        log.info("Booking {} approved by {}", bookingId, approver.getUsername());
+        // TODO: Gửi thông báo cho người đặt?
+        return buildFullBookingResponse(savedBooking);
+    }
+
+    @Transactional
+    @PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER')")
+    public BookingResponse rejectBooking(String bookingId) {
+        log.info("Rejecting booking with ID: {}", bookingId);
+        Booking booking = findBookingByIdOrThrow(bookingId);
+        User rejector = getCurrentUser(); // Người thực hiện từ chối
+
+        if (booking.getStatus() != BookingStatus.PENDING_APPROVAL) {
+            log.warn("Booking {} already processed, cannot reject.", bookingId);
             throw new AppException(ErrorCode.REQUEST_ALREADY_PROCESSED);
         }
 
         booking.setStatus(BookingStatus.REJECTED);
-        booking.setApprovedByUser(getCurrentUser()); // Ghi nhận người từ chối
+        booking.setApprovedByUser(rejector); // Ghi nhận ai đã từ chối
 
         Booking savedBooking = bookingRepository.save(booking);
+        log.info("Booking {} rejected by {}", bookingId, rejector.getUsername());
+        // TODO: Gửi thông báo cho người đặt?
         return buildFullBookingResponse(savedBooking);
     }
 
-    // Đổi tên và logic check-in/hoàn thành
     @Transactional
-    // @PreAuthorize(...) // Ai được quyền hoàn thành? Admin/Manager/Người mượn?
-    public BookingResponse completeBooking(String bookingId) {
+    @PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER', 'TECHNICIAN') or @bookingSecurityService.isOwner(#bookingId, principal.username)")
+    public BookingResponse completeBooking(String bookingId) { // Đổi tên thành completeBooking
+        log.info("Completing booking with ID: {}", bookingId);
         Booking booking = findBookingByIdOrThrow(bookingId);
 
-        // Chỉ cho phép hoàn thành các booking đã được duyệt hoặc đang diễn ra
-        if (booking.getStatus() != BookingStatus.CONFIRMED && booking.getStatus() != BookingStatus.IN_PROGRESS) {
+        if (!EnumSet.of(BookingStatus.CONFIRMED, BookingStatus.IN_PROGRESS).contains(booking.getStatus())) {
+            log.warn("Cannot complete booking {} with status {}", bookingId, booking.getStatus());
             throw new AppException(ErrorCode.BOOKING_STATUS_INVALID, "Không thể hoàn thành booking ở trạng thái " + booking.getStatus());
         }
 
         booking.setStatus(BookingStatus.COMPLETED);
-        booking.setActualCheckInTime(LocalDateTime.now()); // Gán thời gian thực trả
+        booking.setActualCheckInTime(LocalDateTime.now()); // Thời gian trả/hoàn thành
 
-        // KHÔNG cập nhật trạng thái tĩnh của phòng
-        // Room room = booking.getRoom();
-        // if(room != null) { room.setStatus(RoomStatus.AVAILABLE); roomRepository.save(room); }
-
-        // TODO: Optional: Cập nhật trạng thái thiết bị nếu cần (ví dụ kiểm tra khi trả)
-        // List<BookingEquipment> returnedEquipment = bookingEquipmentRepository.findByBookingId(bookingId);
-        // for (BookingEquipment be : returnedEquipment) {
-        //    // Kiểm tra tình trạng item -> cập nhật item.status nếu BROKEN -> tạo MaintenanceTicket
-        // }
+        // Optional: Kiểm tra và cập nhật trạng thái thiết bị khi trả
+        List<BookingEquipment> returnedEquipmentLinks = bookingEquipmentRepository.findByBookingId(bookingId);
+        for (BookingEquipment be : returnedEquipmentLinks) {
+            EquipmentItem item = be.getItem();
+            // TODO: Thêm logic kiểm tra tình trạng thực tế của item khi trả ở đây
+            boolean isReportedBroken = false; // Giả sử có cách biết item hỏng khi trả
+            if (isReportedBroken && item.getStatus() == EquipmentStatus.AVAILABLE) { // Chỉ cập nhật nếu nó đang AVAILABLE
+                log.warn("Equipment item {} reported broken upon return for booking {}", item.getId(), bookingId);
+                item.setStatus(EquipmentStatus.BROKEN);
+                equipmentItemRepository.save(item);
+                // Tự động tạo Maintenance Ticket?
+                MaintenanceTicket ticket = MaintenanceTicket.builder()
+                        .item(item)
+                        .reportedBy(getCurrentUser()) // Người trả có thể là người báo cáo
+                        .description("Thiết bị được báo cáo hỏng khi trả từ booking ID: " + bookingId)
+                        .status(MaintenanceStatus.REPORTED)
+                        .build();
+                maintenanceRepository.save(ticket);
+                log.info("Maintenance ticket created for broken item {} from booking {}", item.getId(), bookingId);
+            }
+        }
 
         Booking savedBooking = bookingRepository.save(booking);
+        log.info("Booking {} completed.", bookingId);
         return buildFullBookingResponse(savedBooking);
     }
 
-    // TODO: Thêm các phương thức cho Check-out (nếu cần trạng thái IN_PROGRESS)
-    // public BookingResponse checkOutBooking(String bookingId) { ... setStatus(BookingStatus.IN_PROGRESS), setActualCheckOutTime... }
+    // --- Các phương thức Hành động khác (Ví dụ) ---
 
-    // TODO: Thêm phương thức cho người dùng tự Cancel booking (nếu trạng thái là PENDING/CONFIRMED và chưa đến giờ)
-    // public BookingResponse cancelBookingByUser(String bookingId) { ... setStatus(BookingStatus.CANCELLED), setCancelledByUser, setCancellationReason ... }
+    @Transactional
+    @PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER', 'TECHNICIAN') or @bookingSecurityService.isOwner(#bookingId, principal.username)")
+    public BookingResponse checkOutBooking(String bookingId) {
+        log.info("Checking out booking with ID: {}", bookingId);
+        Booking booking = findBookingByIdOrThrow(bookingId);
 
+        if (booking.getStatus() != BookingStatus.CONFIRMED) {
+            log.warn("Cannot check out booking {} with status {}", bookingId, booking.getStatus());
+            throw new AppException(ErrorCode.BOOKING_STATUS_INVALID, "Chỉ có thể check-out booking đã được duyệt (CONFIRMED).");
+        }
+
+        // Kiểm tra xem đã đến giờ mượn chưa?
+        if (LocalDateTime.now().isBefore(booking.getPlannedStartTime())) {
+            throw new AppException(ErrorCode.BOOKING_NOT_YET_STARTED);
+        }
+
+        booking.setStatus(BookingStatus.IN_PROGRESS);
+        booking.setActualCheckOutTime(LocalDateTime.now());
+
+        Booking savedBooking = bookingRepository.save(booking);
+        log.info("Booking {} checked out.", bookingId);
+        return buildFullBookingResponse(savedBooking);
+    }
+
+    @Transactional
+    @PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER') or @bookingSecurityService.isOwner(#bookingId, principal.username)")
+    public void cancelBookingByUser(String bookingId, CancelBookingRequest cancelBookingRequest) {
+        log.info("User cancelling booking with ID: {}", bookingId);
+        Booking booking = findBookingByIdOrThrow(bookingId);
+        User currentUser = getCurrentUser();
+
+        // Kiểm tra trạng thái cho phép hủy
+        if (!EnumSet.of(BookingStatus.PENDING_APPROVAL, BookingStatus.CONFIRMED).contains(booking.getStatus())) {
+            log.warn("Cannot cancel booking {} with status {}", bookingId, booking.getStatus());
+            throw new AppException(ErrorCode.BOOKING_NOT_CANCELLABLE, "Không thể hủy booking ở trạng thái này.");
+        }
+
+        // Thêm quy tắc không cho hủy nếu quá gần giờ bắt đầu
+        final int CANCELLATION_HOURS_BEFORE = 1;
+        if (booking.getStatus() == BookingStatus.CONFIRMED &&
+                LocalDateTime.now().isAfter(booking.getPlannedStartTime().minusHours(CANCELLATION_HOURS_BEFORE))) {
+            log.warn("Attempted to cancel booking {} too close to start time.", bookingId);
+            throw new AppException(ErrorCode.CANCELLATION_WINDOW_EXPIRED, "Đã quá thời hạn cho phép hủy (phải hủy trước " + CANCELLATION_HOURS_BEFORE + " giờ).");
+        }
+
+        booking.setStatus(BookingStatus.CANCELLED);
+        booking.setCancelledByUser(currentUser);
+        booking.setCancellationReason(Objects.equals(cancelBookingRequest.getReason(), "") ? "Cancelled by user." : cancelBookingRequest.getReason());
+
+        Booking savedBooking = bookingRepository.save(booking);
+        log.info("Booking {} cancelled by user {}", bookingId, currentUser.getUsername());
+        buildFullBookingResponse(savedBooking);
+    }
 
     // --- Helper Methods ---
 
-    // Cần triển khai phương thức này để lấy User entity đang đăng nhập
     private User getCurrentUser() {
-        // Ví dụ:
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        if ("anonymousUser".equals(username)) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
-        return userRepository.findByUsername(username) // Giả sử repo có findByUsername
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
-        // Hoặc inject một AuthService/UserService để lấy user
-        // return authService.getCurrentAuthenticatedUser();
+        String username = authentication.getName();
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED, "Authenticated user not found: " + username));
     }
 
     private LocalDateTime parseDateTime(String dateTimeStr) {
         try {
-            // Linh hoạt hơn với nhiều format hoặc dùng format chuẩn ISO
             return LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-            // return LocalDateTime.parse(dateTimeStr); // Nếu dùng ISO 8601 format
         } catch (Exception e) {
             throw new AppException(ErrorCode.INVALID_DATE_FORMAT, "Sai định dạng thời gian: " + dateTimeStr);
         }
     }
 
-    // Validate thời gian cơ bản
     private void validateBookingTimes(LocalDateTime start, LocalDateTime end) {
         if (start == null || end == null) {
             throw new AppException(ErrorCode.INVALID_INPUT, "Thời gian bắt đầu và kết thúc không được để trống.");
         }
-        // Có thể bỏ check này nếu không phải rule cứng
-        // if (start.isBefore(LocalDateTime.now().plusHours(1))) {
-        //     throw new AppException(ErrorCode.BORROW_TIME_INVALID);
-        // }
-        if (!end.isAfter(start)) { // Chỉ cần end > start là đủ
+        if (!end.isAfter(start)) {
             throw new AppException(ErrorCode.INVALID_INPUT, "Thời gian kết thúc phải sau thời gian bắt đầu.");
         }
-        // Có thể bỏ check này nếu không phải rule cứng
-        // if (end.isBefore(start.plusHours(1))) {
-        //     throw new AppException(ErrorCode.BORROW_RETURN_TIME_INVALID);
-        // }
     }
 
-    // Helper tìm booking hoặc throw exception
     private Booking findBookingByIdOrThrow(String bookingId) {
         return bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new AppException(ErrorCode.BOOKING_NOT_FOUND));
     }
 
-
-    // --- Placeholder cho Logic phức tạp cần Implement ---
+    // --- Triển khai Logic kiểm tra lịch trống ---
 
     private void checkRoomAvailability(String roomId, LocalDateTime start, LocalDateTime end) {
-        log.warn("TODO: Implement checkRoomAvailability logic for roomId: {}, start: {}, end: {}", roomId, start, end);
-        // Query bookingRepository: existsByRoomIdAndStatusInAndPlannedStartTimeBeforeAndPlannedEndTimeAfter(...)
-        // Cần xử lý các trường hợp trùng lặp/chồng lấn thời gian chính xác
-        // boolean isOverlapping = bookingRepository.existsOverlappingBookingForRoom(roomId, start, end, List.of(BookingStatus.CONFIRMED, BookingStatus.IN_PROGRESS));
-        // if(isOverlapping){ throw new AppException(ErrorCode.ROOM_UNAVAILABLE_TIMESLOT); }
+        if (roomId == null) return; // Bỏ qua nếu không đặt phòng
+        log.debug("Checking room availability for roomId: {}, start: {}, end: {}", roomId, start, end);
+        boolean isOverlapping = bookingRepository.existsOverlappingBookingForRoom(
+                roomId,
+                List.of(BookingStatus.CONFIRMED, BookingStatus.IN_PROGRESS), // Chỉ kiểm tra các trạng thái đã chắc chắn chiếm dụng
+                start,
+                end
+        );
+        if (isOverlapping) {
+            log.warn("Room {} is unavailable during the requested time slot.", roomId);
+            throw new AppException(ErrorCode.ROOM_UNAVAILABLE_TIMESLOT, "Phòng đã được đặt trong khoảng thời gian này.");
+        }
+        log.debug("Room {} is available.", roomId);
     }
 
     private void checkItemsAvailability(Set<String> itemIds, LocalDateTime start, LocalDateTime end) {
-        log.warn("TODO: Implement checkItemsAvailability logic for itemIds: {}, start: {}, end: {}", itemIds, start, end);
-        // Query bookingEquipmentRepository/bookingRepository: existsByItemIdInAndBookingStatusInAndPlannedStartTimeBeforeAndPlannedEndTimeAfter(...)
-        // Cần xử lý các trường hợp trùng lặp/chồng lấn thời gian chính xác cho từng item
-        // List<String> unavailableItems = bookingRepository.findUnavailableItems(itemIds, start, end, List.of(BookingStatus.CONFIRMED, BookingStatus.IN_PROGRESS));
-        // if(!unavailableItems.isEmpty()){ throw new AppException(ErrorCode.EQUIPMENT_UNAVAILABLE_TIMESLOT, "Items unavailable: " + unavailableItems); }
+        if (itemIds == null || itemIds.isEmpty()) return;
+        log.debug("Checking item availability for itemIds: {}, start: {}, end: {}", itemIds, start, end);
+        // Cách 1: Tìm các item ID bị trùng lịch
+        List<String> unavailableItemIds = bookingRepository.findUnavailableItemsInTimeRange(
+                itemIds,
+                List.of(BookingStatus.CONFIRMED, BookingStatus.IN_PROGRESS),
+                start,
+                end
+        );
+
+        if (!unavailableItemIds.isEmpty()) {
+            log.warn("Items {} are unavailable during the requested time slot.", unavailableItemIds);
+            throw new AppException(ErrorCode.EQUIPMENT_UNAVAILABLE_TIMESLOT, "Một số thiết bị đã được đặt trong khoảng thời gian này: " + String.join(", ", unavailableItemIds));
+        }
+        log.debug("All requested items are available.");
     }
 
     // Helper lấy ID item hiện tại của booking (dùng cho update)
@@ -449,5 +620,11 @@ public class BookingService {
                 .map(be -> be.getItem().getId())
                 .collect(Collectors.toSet());
     }
-
+    // Helper lấy ID item non-default hiện tại (dùng cho update diff)
+    private Set<String> getCurrentNonDefaultBookingItemIds(String bookingId) {
+        return bookingEquipmentRepository.findByBookingIdAndIsDefaultEquipment(bookingId, false)
+                .stream()
+                .map(be -> be.getItem().getId())
+                .collect(Collectors.toSet());
+    }
 }

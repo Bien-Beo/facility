@@ -46,7 +46,13 @@ public enum ErrorCode {
     SERIAL_NUMBER_EXISTED(1032, "Serial number existed", HttpStatus.CONFLICT),
     ASSET_TAG_EXISTED(1033, "Asset tag existed", HttpStatus.CONFLICT),
     EMAIL_EXISTED(1034, "Email existed", HttpStatus.CONFLICT),
-    ;
+    FORBIDDEN(1035, "Forbidden", HttpStatus.FORBIDDEN),
+    BOOKING_NOT_YET_STARTED(1036, "Booking not yet started", HttpStatus.BAD_REQUEST),
+    ROOM_UNAVAILABLE_TIMESLOT(1037, "Room unavailable for the selected time slot", HttpStatus.BAD_REQUEST),
+    EQUIPMENT_UNAVAILABLE_TIMESLOT(1038, "Equipment unavailable for the selected time slot", HttpStatus.BAD_REQUEST),
+    DEFAULT_EQUIPMENT_CANNOT_BE_BORROWED_SEPARATELY(1039, "Default equipment cannot be borrowed separately", HttpStatus.BAD_REQUEST),
+    BOOKING_NOT_CANCELLABLE(1040, "Booking not cancellable", HttpStatus.BAD_REQUEST),
+    CANCELLATION_WINDOW_EXPIRED(1041, "Cancellation window expired", HttpStatus.BAD_REQUEST);
 
     private int code;
     private String message;

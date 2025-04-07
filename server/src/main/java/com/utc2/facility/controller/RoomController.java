@@ -44,19 +44,19 @@ public class RoomController {
                 .build();
     }
 
-    @DeleteMapping("/{id}")
-    ApiResponse<Void> deleteRoom(@PathVariable String id) {
-        roomService.deleteRoom(id);
+    @DeleteMapping("/{roomName}")
+    ApiResponse<Void> deleteRoom(@PathVariable String roomName) {
+        roomService.deleteRoom(roomName);
         return ApiResponse.<Void>builder().build();
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/{roomName}")
     ApiResponse<RoomResponse> updateRoom(
-            @PathVariable String id,
+            @PathVariable String roomName,
             @RequestBody @Valid RoomUpdateRequest request
     ) {
         return ApiResponse.<RoomResponse>builder()
-                .result(roomService.updateRoom(id, request))
+                .result(roomService.updateRoom(roomName, request))
                 .build();
     }
 }

@@ -1,10 +1,10 @@
 package com.utc2.facility.enums;
 
 public enum Role {
-    ADMIN,//
+    ADMIN,
     USER,
     TECHNICIAN,
-    FM
+    FACILITY_MANAGER
 }
 
 

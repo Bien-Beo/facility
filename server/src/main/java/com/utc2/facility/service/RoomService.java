@@ -5,6 +5,8 @@ import com.utc2.facility.dto.request.RoomUpdateRequest;
 import com.utc2.facility.dto.response.EquipmentResponse;
 import com.utc2.facility.dto.response.RoomResponse;
 import com.utc2.facility.entity.*;
+import com.utc2.facility.enums.Role;
+import com.utc2.facility.enums.RoomStatus;
 import com.utc2.facility.exception.AppException;
 import com.utc2.facility.exception.ErrorCode;
 import com.utc2.facility.mapper.EquipmentMapper;
@@ -45,7 +47,7 @@ public class RoomService {
             throw new AppException(ErrorCode.ROOM_EXISTED);
         }
 
-        // Fetch các entity liên quan bằng ID
+        // Fetch các entity liên quan bằng Name
         Building building = buildingRepository.findByName(request.getBuildingName())
                 .orElseThrow(() -> new AppException(ErrorCode.BUILDING_NOT_FOUND));
         RoomType roomType = roomTypeRepository.findByName(request.getRoomTypeName())
@@ -64,6 +66,7 @@ public class RoomService {
         // Set các đối tượng liên kết đã fetch
         room.setBuilding(building);
         room.setRoomType(roomType);
+        room.setStatus(RoomStatus.AVAILABLE);
         room.setFacilityManager(facilityManager); 
 
         Room savedRoom = roomRepository.save(room);
@@ -85,8 +88,8 @@ public class RoomService {
 
     @Transactional
     @PreAuthorize("hasRole('ADMIN')") 
-    public void deleteRoom(String id) { 
-        Room room = findRoomByIdOrThrow(id);
+    public void deleteRoom(String roomName) {
+        Room room = findRoomByNameOrThrow(roomName);
 
         // TODO: Kiểm tra ràng buộc trước khi xóa:
         // 1. Có EquipmentItem nào đang đặt phòng này làm defaultRoom không? (FK nên là SET NULL)
@@ -99,16 +102,16 @@ public class RoomService {
 
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER')")
-    public RoomResponse updateRoom(String id, RoomUpdateRequest request) {
-        Room existingRoom = findRoomByIdOrThrow(id);
+    public RoomResponse updateRoom(String roomName, RoomUpdateRequest request) {
+        Room existingRoom = findRoomByNameOrThrow(roomName);
 
         if (StringUtils.hasText(request.getName())
                 && !request.getName().equals(existingRoom.getName())
-                && roomRepository.existsByNameAndIdNot(request.getName(), id)) { 
+                && roomRepository.existsByNameAndIdNot(request.getName(), roomName)) {
             throw new AppException(ErrorCode.ROOM_EXISTED);
         }
 
-        roomMapper.updateRoom(existingRoom, request); // Giả sử có phương thức này trong mapper
+        roomMapper.updateRoom(existingRoom, request);
 
         if (StringUtils.hasText(request.getBuildingName())) {
             Building building = buildingRepository.findByName(request.getBuildingName())
