@@ -27,11 +27,11 @@
          <center>
             <AnchorPane prefHeight="291.0" prefWidth="590.0" BorderPane.alignment="CENTER">
                <children>
-                  <TextField fx:id="borrowDate" layoutX="122.0" layoutY="67.0" prefHeight="33.0" prefWidth="162.0" style="-fx-text-fill: #c3b19a;" text="Borrow date" />
-                  <TextArea fx:id="reason" layoutX="122.0" layoutY="156.0" prefHeight="64.0" prefWidth="338.0" style="-fx-text-fill: #c3b19a;" text="Reason&#10;" />
-                  <TextField fx:id="returnDate" layoutX="122.0" layoutY="115.0" prefHeight="33.0" prefWidth="162.0" style="-fx-text-fill: #c3b19a;" text="Return date" />
-                  <TextField fx:id="timeBorrow" layoutX="297.0" layoutY="67.0" prefHeight="33.0" prefWidth="162.0" style="-fx-text-fill: #c3b19a;" text="Time borrow" />
-                  <TextField fx:id="timeReturn" layoutX="297.0" layoutY="115.0" prefHeight="33.0" prefWidth="162.0" style="-fx-text-fill: #c3b19a;" text="Time return" />
+                  <TextField fx:id="borrowDate" layoutX="122.0" layoutY="67.0" prefHeight="33.0" prefWidth="162.0" style="-fx-text-fill: #c3b19a;" />
+                  <TextArea fx:id="reason" layoutX="122.0" layoutY="156.0" prefHeight="64.0" prefWidth="338.0" style="-fx-text-fill: #c3b19a;" />
+                  <TextField fx:id="expectedDateReturn" layoutX="122.0" layoutY="115.0" prefHeight="33.0" prefWidth="162.0" style="-fx-text-fill: #c3b19a;" />
+                  <TextField fx:id="timeBorrow" layoutX="297.0" layoutY="67.0" prefHeight="33.0" prefWidth="162.0" style="-fx-text-fill: #c3b19a;" />
+                  <TextField fx:id="expectedTimeReturn" layoutX="297.0" layoutY="115.0" prefHeight="33.0" prefWidth="162.0" style="-fx-text-fill: #c3b19a;" />
                   <Label fx:id="Status" layoutX="122.0" layoutY="231.0" prefHeight="36.0" prefWidth="339.0" text="Status:">
                      <font>
                         <Font size="14.0" />
