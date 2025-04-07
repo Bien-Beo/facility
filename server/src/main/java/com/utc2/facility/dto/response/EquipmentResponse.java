@@ -37,6 +37,10 @@ public class EquipmentResponse {
                 .modelName(equipmentItem.getModel().getName())
                 .serialNumber(equipmentItem.getSerialNumber())
                 .purchaseDate(equipmentItem.getPurchaseDate())
+                .warrantyExpiryDate(equipmentItem.getWarrantyExpiryDate())
+                .defaultRoomName(equipmentItem.getDefaultRoom() != null ? equipmentItem.getDefaultRoom().getName() : null)
+                .notes(equipmentItem.getNotes())
+                .typeName(equipmentItem.getModel().getEquipmentType().getName())
                 .build();
     }
 }

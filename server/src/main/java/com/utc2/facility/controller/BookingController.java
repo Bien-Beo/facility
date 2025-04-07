@@ -3,6 +3,7 @@ package com.utc2.facility.controller;
 import com.utc2.facility.dto.request.ApiResponse;
 import com.utc2.facility.dto.request.BookingCreationRequest;
 import com.utc2.facility.dto.request.BookingUpdateRequest;
+import com.utc2.facility.dto.request.CancelBookingRequest;
 import com.utc2.facility.dto.response.BookingResponse;
 import com.utc2.facility.service.BookingService;
 import jakarta.validation.Valid;
@@ -59,10 +60,24 @@ public class BookingController {
     }
 
     @PutMapping("/{bookingId}")
-    ApiResponse<BookingResponse> updateBooking(@RequestBody @Valid BookingUpdateRequest request,
-                                               @PathVariable String bookingId)  {
+    ApiResponse<BookingResponse> updatePendingBookingDetails(@RequestBody @Valid BookingUpdateRequest request,
+                                                             @PathVariable String bookingId)  {
+        log.info("Update booking with ID: {}", bookingId);
         return ApiResponse.<BookingResponse>builder()
-                .result(bookingService.updateBooking(bookingId, request))
+                .result(bookingService.updatePendingBookingDetails(bookingId, request))
+                .build();
+    }
+
+    @PostMapping("/{id}/cancel")
+    public ApiResponse<Void> cancelBooking(@PathVariable String id, @RequestBody(required = false) CancelBookingRequest request) {
+        bookingService.cancelBookingByUser(id, request);
+        return ApiResponse.<Void>builder().build();
+    }
+
+    @PutMapping("/{bookingId}/checkout")
+    ApiResponse<BookingResponse> checkOut(@PathVariable String bookingId) {
+        return ApiResponse.<BookingResponse>builder()
+                .result(bookingService.checkOutBooking(bookingId))
                 .build();
     }
 

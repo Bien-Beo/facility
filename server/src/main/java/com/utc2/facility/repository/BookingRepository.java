@@ -1,13 +1,17 @@
 package com.utc2.facility.repository;
 
 import com.utc2.facility.entity.Booking;
+import com.utc2.facility.enums.BookingStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, String> {
@@ -17,4 +21,18 @@ public interface BookingRepository extends JpaRepository<Booking, String> {
     List<Booking> findByPlannedEndTime(LocalDateTime plannedEndTime);
     List<Booking> findByActualCheckInTime(LocalDateTime actualCheckInTime);
     List<Booking> findByActualCheckOutTime(LocalDateTime actualCheckOutTime);
+    @Query("SELECT CASE WHEN COUNT(b) > 0 THEN TRUE ELSE FALSE END " +
+            "FROM Booking b WHERE b.room.id = :roomId AND b.status IN :statuses " +
+            "AND b.plannedStartTime < :endTime AND b.plannedEndTime > :startTime")
+    boolean existsOverlappingBookingForRoom(@Param("roomId") String roomId,
+                                            @Param("statuses") List<BookingStatus> statuses,
+                                            @Param("startTime") LocalDateTime startTime,
+                                            @Param("endTime") LocalDateTime endTime);
+    @Query("SELECT DISTINCT be.item.id FROM BookingEquipment be JOIN be.booking b " +
+            "WHERE be.item.id IN :itemIds AND b.status IN :statuses " +
+            "AND b.plannedStartTime < :endTime AND b.plannedEndTime > :startTime")
+    List<String> findUnavailableItemsInTimeRange(@Param("itemIds") Set<String> itemIds,
+                                                 @Param("statuses") List<BookingStatus> statuses,
+                                                 @Param("startTime") LocalDateTime startTime,
+                                                 @Param("endTime") LocalDateTime endTime);
 }
