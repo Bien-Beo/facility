@@ -43,11 +43,11 @@ public class BookingEquipmentService {
         return bookingEquipmentMapper.toBookingEquipmentResponse(bookingEquipmentRepository.save(bookingEquipment));
     }
 
-    public BookingEquipmentResponse getBookingEquipment(@Param("id") String id) {
-        BookingEquipment bookingEquipment = bookingEquipmentRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.BORROW_EQUIPMENT_NOT_FOUND));
-        return bookingEquipmentMapper.toBookingEquipmentResponse(bookingEquipment);
-    }
+//    public BookingEquipmentResponse getBookingEquipment(@Param("id") String id) {
+//        BookingEquipment bookingEquipment = bookingEquipmentRepository.findById(id)
+//                .orElseThrow(() -> new AppException(ErrorCode.BORROW_EQUIPMENT_NOT_FOUND));
+//        return bookingEquipmentMapper.toBookingEquipmentResponse(bookingEquipment);
+//    }
 
     public List<BookingEquipmentResponse> getBookingEquipmentByBookingId(@Param("bookingId") String bookingId) {
         List<BookingEquipment> bookingEquipments = bookingEquipmentRepository.findByBookingId(bookingId);
@@ -63,11 +63,11 @@ public class BookingEquipmentService {
                 .toList();
     }
 
-    public void deleteBookingEquipment(@Param("id") String id) {
-        BookingEquipment bookingEquipment = bookingEquipmentRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.BORROW_EQUIPMENT_NOT_FOUND));
-        bookingEquipmentRepository.delete(bookingEquipment);
-    }
+//    public void deleteBookingEquipment(@Param("id") String id) {
+//        BookingEquipment bookingEquipment = bookingEquipmentRepository.findById(id)
+//                .orElseThrow(() -> new AppException(ErrorCode.BORROW_EQUIPMENT_NOT_FOUND));
+//        bookingEquipmentRepository.delete(bookingEquipment);
+//    }
 
 //    public BookingEquipmentResponse updateBorrowEquipment(@Param("id") String id, BookingEquipmentCreationRequest request) {
 //        BookingEquipment bookingEquipment = bookingEquipmentRepository.findById(id)

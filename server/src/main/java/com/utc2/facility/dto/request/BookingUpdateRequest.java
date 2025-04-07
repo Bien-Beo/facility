@@ -1,7 +1,9 @@
 package com.utc2.facility.dto.request;
 
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,11 +16,12 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class BookingUpdateRequest {
-
-    // Các trường này là optional, chỉ cập nhật nếu được cung cấp giá trị trong request
+public class BookingUpdateRequest { // Dùng để cập nhật booking đang PENDING
 
     String purpose; // Mục đích mới
+
+    @Size(max = 1000, message = "Ghi chú không được vượt quá 1000 ký tự")
+    String note;
 
     @FutureOrPresent(message = "Thời gian bắt đầu dự kiến phải là hiện tại hoặc tương lai")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
@@ -34,11 +37,12 @@ public class BookingUpdateRequest {
     // Gửi null nếu không muốn thay đổi danh sách thiết bị mượn thêm.
     List<String> additionalEquipmentItemIds;
 
-    String note; // Ghi chú mới
-
-    // Lưu ý về Validation thời gian:
-    // Việc kiểm tra plannedEndTime > plannedStartTime khi cập nhật phức tạp hơn
-    // vì phải so sánh với giá trị hiện có nếu chỉ một trong hai thời gian được cập nhật.
-    // Validation này nên được thực hiện ở tầng Service nơi có đủ thông tin.
-    // Có thể giữ @Future/@FutureOrPresent nếu muốn kiểm tra đơn giản ở DTO.
+    // Validation: Kiểm tra end > start nếu CẢ HAI thời gian đều được gửi lên trong request update
+    @AssertTrue(message = "Thời gian kết thúc dự kiến phải sau thời gian bắt đầu dự kiến")
+    private boolean isEndTimeAfterStartTimeIfBothProvided() {
+        if (plannedStartTime != null && plannedEndTime != null) {
+            return plannedEndTime.isAfter(plannedStartTime);
+        }
+        return true;
+    }
 }

@@ -29,12 +29,12 @@ public class BookingEquipmentController {
                 .build();
     }
 
-    @GetMapping("/{bookingEquipmentId}")
-    ApiResponse<BookingEquipmentResponse> getBookingEquipment(@PathVariable String bookingEquipmentId) {
-        return ApiResponse.<BookingEquipmentResponse>builder()
-                .result(bookingEquipmentService.getBookingEquipment(bookingEquipmentId))
-                .build();
-    }
+//    @GetMapping("/{bookingEquipmentId}")
+//    ApiResponse<BookingEquipmentResponse> getBookingEquipment(@PathVariable String bookingEquipmentId) {
+//        return ApiResponse.<BookingEquipmentResponse>builder()
+//                .result(bookingEquipmentService.getBookingEquipment(bookingEquipmentId))
+//                .build();
+//    }
 
     @GetMapping("/booking/{bookingId}")
     ApiResponse<List<BookingEquipmentResponse>> getAllBookingEquipmentByBooking(
@@ -51,13 +51,13 @@ public class BookingEquipmentController {
                 .build();
     }
 
-    @DeleteMapping("/{bookingEquipmentId}")
-    ApiResponse<Void> deleteBookingEquipment(@PathVariable String bookingEquipmentId) {
-        bookingEquipmentService.deleteBookingEquipment(bookingEquipmentId);
-        return ApiResponse.<Void>builder()
-                .result(null)
-                .build();
-    }
+//    @DeleteMapping("/{bookingEquipmentId}")
+//    ApiResponse<Void> deleteBookingEquipment(@PathVariable String bookingEquipmentId) {
+//        bookingEquipmentService.deleteBookingEquipment(bookingEquipmentId);
+//        return ApiResponse.<Void>builder()
+//                .result(null)
+//                .build();
+//    }
 
 //    @PutMapping("/{borrowEquipmentId}")
 //    ApiResponse<BookingEquipmentResponse> updateBorrowEquipment(@RequestBody @Valid BookingEquipmentCreationRequest request, @PathVariable String borrowEquipmentId)  {

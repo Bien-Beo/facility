@@ -24,7 +24,6 @@ public interface UserMapper {
     // Mapper này cập nhật các trường cho phép từ UserUpdateRequest
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "userId", ignore = true)
-    @Mapping(target = "username", ignore = true)
     @Mapping(target = "email", ignore = true)
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "role", ignore = true)

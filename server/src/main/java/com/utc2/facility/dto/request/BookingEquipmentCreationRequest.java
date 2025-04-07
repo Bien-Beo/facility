@@ -11,6 +11,6 @@ import lombok.experimental.FieldDefaults;
 public class BookingEquipmentCreationRequest {
     String bookingId;
     String equipmentId;
-    Boolean isDefaultEquipment = false;
+    Boolean isDefaultEquipment;
     String notes;
 }

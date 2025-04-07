@@ -27,7 +27,7 @@ public class BookingEquipment {
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("itemId") // Ánh xạ thuộc tính itemId trong BookingEquipmentId tới khóa chính của EquipmentItem
     @JoinColumn(name = "item_id", nullable = false, insertable = false, updatable = false)
-    private EquipmentItem item; // Đảm bảo tên lớp là EquipmentItem
+    private EquipmentItem item;
 
     @NotNull
     @ColumnDefault("false")

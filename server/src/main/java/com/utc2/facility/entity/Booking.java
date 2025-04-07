@@ -7,7 +7,6 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.ColumnDefault;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Getter
@@ -64,7 +63,7 @@ public class Booking {
     private User approvedByUser;
 
     @Lob
-    @Column(name = "` cancellation_reason`")
+    @Column(name = "cancellation_reason")
     private String cancellationReason;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -82,5 +81,10 @@ public class Booking {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 }
