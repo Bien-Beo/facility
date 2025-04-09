@@ -10,7 +10,7 @@ import javafx.stage.Stage;
 public class MainUI extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("/com/utc2/facilityui/view/Login2.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/com/utc2/facilityui/view/manageFacility.fxml"));
         primaryStage.setTitle("Facility UI");
         primaryStage.setScene(new Scene(root, 1065, 497));
         primaryStage.show();
