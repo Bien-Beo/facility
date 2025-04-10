@@ -1,13 +1,22 @@
 package com.utc2.facilityui.controller;
 
+import com.utc2.facilityui.model.OperationsTableCell;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
-
 import com.utc2.facilityui.model.Facility;
+import com.utc2.facilityui.model.OperationsTableCellFactory; // Import Factory
+import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
-public class FacilityController {
+import java.io.IOException;
+
+
+public class FacilityController implements OperationsTableCell.OperationsEventHandler<Facility> {
 
     @FXML
     private TableView<Facility> facilityTable;
@@ -28,7 +37,9 @@ public class FacilityController {
     @FXML
     private TableColumn<Facility, String> managerColumn;
     @FXML
-    private Button addButton;
+    private TableColumn<Facility, Void> operationsColumn; // Thêm dòng này
+    @FXML
+    private Button exportButton;
 
     private ObservableList<Facility> facilities;
 
@@ -75,5 +86,49 @@ public class FacilityController {
         );
 
         facilityTable.setItems(facilities);
+
+        // Áp dụng Cell Factory cho cột Operations
+        operationsColumn.setCellFactory(new OperationsTableCellFactory<>(this));
+    }
+
+    // Implement các phương thức từ OperationsTableCell.OperationsEventHandler
+    public void onEdit(Facility facility) {
+        System.out.println("Controller: Edit action for facility with Name: " + facility.getName());
+        // Logic để mở form chỉnh sửa hoặc thực hiện hành động chỉnh sửa
+        try {
+            // 1. Load FXML cho giao diện chỉnh sửa
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/utc2/facilityui/view/EditFacilityDialog.fxml"));
+            Stage editStage = new Stage();
+            editStage.setScene(new Scene(loader.load()));
+            editStage.setTitle("Edit Facility");
+            editStage.initModality(Modality.APPLICATION_MODAL); // Ngăn chặn tương tác với cửa sổ chính
+
+            // 2. Lấy Controller của giao diện chỉnh sửa và truyền dữ liệu
+            EditFacilityController editController = loader.getController();
+            editController.setFacility(facility);
+            editController.setFacilityList(facilities); // Truyền cả list để có thể cập nhật
+
+            // 3. Hiển thị dialog chỉnh sửa
+            editStage.showAndWait();
+
+            // Sau khi dialog đóng, TableView sẽ tự động cập nhật nếu các thuộc tính trong Facility là Property
+            // Hoặc bạn có thể làm mới TableView nếu cần
+            // facilityTable.refresh();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Xử lý lỗi khi tải FXML
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Could not load edit dialog");
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
+        }
+    }
+
+    public void onDelete(Facility facility) {
+        System.out.println("Controller: Delete action for facility with ID: " + facility.getName());
+        // Logic để hiển thị dialog xác nhận xóa và thực hiện xóa
+        facilities.remove(facility); // Ví dụ: Xóa khỏi ObservableList
     }
 }
