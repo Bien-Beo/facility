@@ -1,5 +1,7 @@
-package com.utc2.facilityui.controller;
+package com.utc2.facilityui.controller.equipment;
 
+
+import com.utc2.facilityui.controller.booking.AddBookingController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -11,14 +13,12 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+
 import java.io.IOException;
 
-public class InfoRoomController {
+public class InfoEquipmentController {
     @FXML
     private Button bntReport;
-
-    @FXML
-    private Text building;
 
     @FXML
     private Button buttonAddBooking;
@@ -27,13 +27,13 @@ public class InfoRoomController {
     private Button buttonBack;
 
     @FXML
-    private Text capacity;
-
-    @FXML
-    private Text date;
+    private Text creationDate;
 
     @FXML
     private Label description;
+
+    @FXML
+    private Text equipmentTypeName;
 
     @FXML
     private ImageView img;
@@ -54,8 +54,7 @@ public class InfoRoomController {
     private Text status;
 
     @FXML
-    private Text typeRoom;
-
+    private Text updateDate;
     private String sourceView; // Lưu trang nguồn
 
     public void setSourceView(String source) {
@@ -66,7 +65,7 @@ public class InfoRoomController {
     public void initialize() {
         buttonBack.setOnAction(event -> goBack());
         buttonAddBooking.setOnAction(event -> showAddBookingDialog());
-        bntReport.setOnAction(event -> showReportRooomDialog());
+        bntReport.setOnAction(event -> showReportEquipmentDialog());
     }
 
 
@@ -77,8 +76,7 @@ public class InfoRoomController {
             if (mainCenter == null) return;
 
             // Xác định đường dẫn trang cần quay về
-            String viewPath = "/com/utc2/facilityui/view/" +
-                            (sourceView != null ? sourceView : "rooms") + ".fxml";
+            String viewPath = "/com/utc2/facilityui/view/equipments.fxml";
 
             System.out.println("Quay về trang: " + viewPath); // Debug log
 
@@ -133,12 +131,10 @@ public class InfoRoomController {
             e.printStackTrace();
         }
     }
-
-    // InfoRoomController.java
-    private void showReportRooomDialog() {
+    private void showReportEquipmentDialog() {
         try {
             // Load file FXML của AddBooking
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/utc2/facilityui/form/reportRoom.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/utc2/facilityui/form/reportEquipment.fxml"));
             AnchorPane reportPane = loader.load();
 
             // Tạo scene mới
@@ -146,7 +142,7 @@ public class InfoRoomController {
 
             // Tạo stage mới
             Stage stage = new Stage();
-            stage.setTitle("Report Room");
+            stage.setTitle("Report Equipment");
             stage.setScene(scene);
             Image icon = new Image(getClass().getResourceAsStream("/com/utc2/facilityui/images/logo-icon-UTC2.png"));
             // Thêm biểu tượng vào Stage
@@ -155,7 +151,7 @@ public class InfoRoomController {
             stage.initModality(Modality.APPLICATION_MODAL);
 
             // Lấy controller của AddBooking
-            ReportRoomController controller = loader.getController();
+            ReportEquipmentController controller = loader.getController();
             controller.getName().setText(name.getText());
             // Xử lý nút Cancel
             controller.getBntCancel().setOnAction(e -> stage.close());
@@ -164,7 +160,7 @@ public class InfoRoomController {
                 // Thực hiện xử lý thêm report ở đây
                 controller.handleAdd();
                 // Đóng cửa sổ
-                 stage.close();
+                stage.close();
             });
             // Hiển thị cửa sổ
             stage.showAndWait();
@@ -173,4 +169,5 @@ public class InfoRoomController {
             e.printStackTrace();
         }
     }
+
 }

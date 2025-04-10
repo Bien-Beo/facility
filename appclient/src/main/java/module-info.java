@@ -24,4 +24,16 @@ module com.utc2.facilityui {
     opens com.utc2.facilityui.view to javafx.fxml;
     opens com.utc2.facilityui.model to com.google.gson;
     opens com.utc2.facilityui.response to com.google.gson;
+    exports com.utc2.facilityui.controller.auth;
+    opens com.utc2.facilityui.controller.auth to javafx.fxml;
+    exports com.utc2.facilityui.controller.booking;
+    opens com.utc2.facilityui.controller.booking to javafx.fxml;
+    exports com.utc2.facilityui.controller.equipment;
+    opens com.utc2.facilityui.controller.equipment to javafx.fxml;
+    exports com.utc2.facilityui.controller.facility;
+    opens com.utc2.facilityui.controller.facility to javafx.fxml;
+    exports com.utc2.facilityui.controller.room;
+    opens com.utc2.facilityui.controller.room to javafx.fxml;
+    exports com.utc2.facilityui.controller.nav;
+    opens com.utc2.facilityui.controller.nav to javafx.fxml;
 }

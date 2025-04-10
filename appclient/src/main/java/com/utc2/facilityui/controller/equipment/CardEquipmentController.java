@@ -1,8 +1,6 @@
-package com.utc2.facilityui.controller;
+package com.utc2.facilityui.controller.equipment;
 
-import com.utc2.facilityui.model.CardInfo;
 import com.utc2.facilityui.model.CardInfoEquipment;
-import com.utc2.facilityui.model.InfoEquipment;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;

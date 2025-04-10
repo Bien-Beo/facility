@@ -1,6 +1,5 @@
-package com.utc2.facilityui.controller;
+package com.utc2.facilityui.controller.auth;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.util.Duration;

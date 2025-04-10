@@ -1,4 +1,4 @@
-package com.utc2.facilityui.controller;
+package com.utc2.facilityui.controller.auth;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;

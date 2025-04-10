@@ -1,4 +1,4 @@
-package com.utc2.facilityui.controller;
+package com.utc2.facilityui.controller.facility;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

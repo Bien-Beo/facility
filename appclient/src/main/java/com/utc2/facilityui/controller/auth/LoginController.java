@@ -1,4 +1,4 @@
-package com.utc2.facilityui.controller;
+package com.utc2.facilityui.controller.auth;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
