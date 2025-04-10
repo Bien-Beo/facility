@@ -52,7 +52,8 @@ public enum ErrorCode {
     EQUIPMENT_UNAVAILABLE_TIMESLOT(1038, "Equipment unavailable for the selected time slot", HttpStatus.BAD_REQUEST),
     DEFAULT_EQUIPMENT_CANNOT_BE_BORROWED_SEPARATELY(1039, "Default equipment cannot be borrowed separately", HttpStatus.BAD_REQUEST),
     BOOKING_NOT_CANCELLABLE(1040, "Booking not cancellable", HttpStatus.BAD_REQUEST),
-    CANCELLATION_WINDOW_EXPIRED(1041, "Cancellation window expired", HttpStatus.BAD_REQUEST);
+    CANCELLATION_WINDOW_EXPIRED(1041, "Cancellation window expired", HttpStatus.BAD_REQUEST),
+    BUILDING_EXISTED(1043, "Building existed !", HttpStatus.BAD_REQUEST);
 
     private int code;
     private String message;

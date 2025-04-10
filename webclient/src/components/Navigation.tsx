@@ -26,7 +26,7 @@ import { API } from "../api";
 
 const Navigation: FC = (): JSX.Element => {
   const auth = useAuth();
-  const role = auth?.user?.role;
+  const role = auth?.user?.roleName;
   const [approvalCount, setApprovalCount] = useState<number>(0);
   const [cancellationCount, setCancellationCount] = useState<number>(0);
 
@@ -180,7 +180,7 @@ const Navigation: FC = (): JSX.Element => {
         {/* Admin management facilities */}
         {role === "ADMIN" && (
           <>
-            <NavLink to="/admin/facilities">
+            <NavLink to="/admin/rooms">
               {({ isActive }) => (
                 <ListItemButton
                   className={"flex gap-3"}
@@ -352,7 +352,7 @@ const Navigation: FC = (): JSX.Element => {
               to={`/facility-manager/approvals/${
                 role === "ADMIN"
                   ? "ad"
-                  : role === "FM"
+                  : role === "FACILITY_MANAGER"
                   ? "fm"
                   : ""
               }`}
@@ -436,13 +436,13 @@ const Navigation: FC = (): JSX.Element => {
         )}
 
         {/* Bookings ADMIN and FM */}
-        {(role === "ADMIN" || role === "FM") && (
+        {(role === "ADMIN" || role === "FACILITY_MANAGER") && (
           <>
             <NavLink
               to={`/bookings/${
                 role === "ADMIN"
                   ? "ad"
-                  : role === "FM"
+                  : role === "FACILITY_MANAGER"
                   ? "fm"
                   : ""
               }`}
