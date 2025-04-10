@@ -12,6 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
+<?import java.lang.String?>
 <HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="618.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.FacilityController">
    <children>
       <VBox prefHeight="618.0" prefWidth="1000.0" spacing="10.0">
@@ -61,7 +62,7 @@
                   <Insets left="15.0" />
                </padding>
             </HBox>
-            <TableView fx:id="facilityTable" maxWidth="962.0" prefHeight="478.0" prefWidth="962.0">
+            <TableView fx:id="facilityTable" maxWidth="962.0" prefHeight="478.0" prefWidth="962.0" stylesheets="@../styles/manageFacility.css">
               <columns>
                 <TableColumn fx:id="nameColumn" prefWidth="115.20000952482224" text="Name/Building" />
                 <TableColumn fx:id="capacityColumn" prefWidth="100.0" text="Capacity" />

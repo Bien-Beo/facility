@@ -46,4 +46,41 @@ public class Facility {
     public StringProperty deletedAtProperty() { return deletedAt; }
     public StringProperty managerNameProperty() { return managerName; }
     public StringProperty managerIdProperty() { return managerId; }
+
+    public void setName(String text) {
+        this.name.set(text);
+    }
+
+    public void setCapacity(String text) {
+        this.capacity.set(text);
+    }
+
+    public void setTypeRoom(String text) {
+        this.typeRoom.set(text);
+    }
+
+    public void setStatus(String value) {
+        this.status.set(value);
+    }
+
+    // Bạn cũng nên thêm setters cho các thuộc tính khác nếu bạn muốn chỉnh sửa chúng
+    public void setCreatedAt(String text) {
+        this.createdAt.set(text);
+    }
+
+    public void setUpdatedAt(String text) {
+        this.updatedAt.set(text);
+    }
+
+    public void setDeletedAt(String text) {
+        this.deletedAt.set(text);
+    }
+
+    public void setManagerName(String text) {
+        this.managerName.set(text);
+    }
+
+    public void setManagerId(String managerId) {
+        this.managerId.set(managerId);
+    }
 }
