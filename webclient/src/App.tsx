@@ -16,7 +16,7 @@ import Layout from "./components/Layout";
 import { RequireAuth } from "./components/RequireAuth";
 import RouteError from "./components/RouteError";
 // import AdminBookingsPage from "./pages/AdminBookingsPage";
-// import AdminFacilitiesPage from "./pages/AdminFacilitiesPage";
+import AdminFacilitiesPage from "./pages/AdminFacilitiesPage";
 import DashboardPage from "./pages/DashboardPage";
 // import FMApprovalsPage from "./pages/FMApprovalsPage";
 // import FMBookingsPage from "./pages/FMBookingsPage";
@@ -32,6 +32,7 @@ import { AuthProvider } from "./utils/auth";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import FacilityPage from "./pages/FacilityPage";
 
+
 declare module "@tanstack/react-query" {
   interface Register {
     defaultError: AxiosError;
@@ -41,6 +42,7 @@ declare module "@tanstack/react-query" {
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
+    {/* Route Đăng nhập */}
       <Route path = "/auth">
         <Route
           path = "login"
@@ -49,10 +51,17 @@ const router = createBrowserRouter(
         />
       </Route>
 
+      {/* Route Không có quyền truy cập
+      <Route
+                path="/unauthorized"
+                element={<UnauthorizedPage />} // Component hiển thị thông báo lỗi 403
+                errorElement={<RouteError />}
+             /> */}
+
       <Route
         path="/"
         element={
-          <RequireAuth Technician={false} FacilityManager={false}>
+          <RequireAuth>
             <Layout />
           </RequireAuth>
         }
@@ -68,36 +77,44 @@ const router = createBrowserRouter(
           errorElement={<RouteError />}
         /> */}
 
+        {/* Trang chủ (index) - Dashboard Rooms */}
+        {/* Chỉ cho phép ADMIN và FACILITY_MANAGER */}
         <Route
           index
           element={
-            <RequireAuth Technician={false} FacilityManager={false} User={false}>
+            <RequireAuth allowedRoles={["ADMIN", "FACILITY_MANAGER"]}>
               <DashboardPage type="room" />
             </RequireAuth>
           }
           errorElement={<RouteError />}
         />
 
+        {/* Dashboard Equipment */}
+        {/* Chỉ cho phép ADMIN và FACILITY_MANAGER */}
         <Route
           path="dashboard/equipment"
           element={
-            <RequireAuth Technician={false} FacilityManager={false} User={false}>
+            <RequireAuth allowedRoles={["ADMIN", "FACILITY_MANAGER"]}>
               <DashboardPage type="equipment" />
             </RequireAuth>
           }
           errorElement={<RouteError />}
         />
 
+        {/* Trang Chi tiết Phòng và Lịch */}
+        {/* Cho phép tất cả các vai trò đã đăng nhập */}
         <Route path="rooms">
           <Route
             path=":id"
             element={
-              <RequireAuth Technician={false} FacilityManager={false} Admin={false}>
+              <RequireAuth>
                 <FacilityPage />
               </RequireAuth>
             }
             errorElement={<RouteError />}
           />
+          {/* Có thể thêm route index cho "/rooms" nếu cần trang danh sách chung */}
+          {/* <Route index element={<RequireAuth><RoomListPage /></RequireAuth>} /> */}
         </Route>
 
         {/* <Route path="bookings">
@@ -174,27 +191,39 @@ const router = createBrowserRouter(
             errorElement={<RouteError />}
           />
         </Route>
+         */}
 
-        <Route path="admin">
-          <Route
+         {/* Trang Quản lý của Admin */}
+         <Route path="admin">
+          {/* <Route
             path="bookings"
             element={
-              <RequireAuth GD={false} FM={false} Admin={true}>
+              <RequireAuth Technician={false} FacilityManager={false} Admin={true}>
                 <AdminBookingsPage />
               </RequireAuth>
             }
             errorElement={<RouteError />}
-          />
+          /> */}
+
+          {/* Trang Quản lý Phòng/Thiết bị của Admin */}
           <Route
-            path="facilities"
+            path="rooms"
             element={
-              <RequireAuth GD={false} FM={false} Admin={true}>
+              <RequireAuth allowedRoles={["ADMIN"]}>
                 <AdminFacilitiesPage />
               </RequireAuth>
             }
             errorElement={<RouteError />}
           />
-        </Route> */}
+
+          {/* Các route admin khác nếu có */}
+                    {/* Ví dụ: Quản lý User */}
+                     {/* <Route
+                         path="users"
+                         element={ <RequireAuth allowedRoles={[UserRoleType.ADMIN]}><AdminUserPage /></RequireAuth> }
+                         errorElement={<RouteError />}
+                     /> */}
+        </Route>
       </Route>  
       {/* <Route path="*" element={<PageNotFound />} /> */}
     </>
