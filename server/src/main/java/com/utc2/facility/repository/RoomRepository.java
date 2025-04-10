@@ -15,6 +15,7 @@ import java.util.Optional;
 @Repository
 public interface RoomRepository extends JpaRepository<Room, String> {//
     boolean existsByName(String name);
+    boolean existsByRoomType_Id(String id);
     Optional<Room> findByName(String name);
     Optional<Room> findById(String id);
 
@@ -23,6 +24,7 @@ public interface RoomRepository extends JpaRepository<Room, String> {//
 
     List<Room> findByFacilityManager(User facilityManager);
     List<Room> findByBuilding_Id(String id);
+    List<Room> findByRoomType_Id(String id);
 
     boolean existsByNameAndIdNot(@Size(max = 255) String name, String id);
 

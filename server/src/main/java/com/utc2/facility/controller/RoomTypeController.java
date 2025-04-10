@@ -1,12 +1,9 @@
 package com.utc2.facility.controller;
 
-import com.utc2.facility.dto.request.ApiResponse;
-import com.utc2.facility.dto.request.BuildingCreationRequest;
-import com.utc2.facility.dto.request.BuildingUpdateRequest;
-import com.utc2.facility.dto.request.RoomUpdateRequest;
+import com.utc2.facility.dto.request.*;
 import com.utc2.facility.dto.response.BuildingResponse;
-import com.utc2.facility.dto.response.RoomResponse;
-import com.utc2.facility.service.BuildingService;
+import com.utc2.facility.dto.response.RoomTypeResponse;
+import com.utc2.facility.service.RoomTypeService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -16,49 +13,51 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/buildings")
+@RequestMapping("/roomtypes")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class BuildingController {
+public class RoomTypeController {
 
-    BuildingService buildingService;
+    RoomTypeService roomTypeService;
 
     @PostMapping
-    ApiResponse<BuildingResponse> createBuilding(@RequestBody @Valid BuildingCreationRequest request) {
-        return ApiResponse.<BuildingResponse>builder()
-                .result(buildingService.createBuilding(request))
+    ApiResponse<RoomTypeResponse> createRoomType(@RequestBody @Valid RoomTypeCreationRequest request) {
+        return ApiResponse.<RoomTypeResponse>builder()
+                .result(roomTypeService.createRoomType(request))
                 .build();
     }
 
     @GetMapping("/{id}")
-    ApiResponse<BuildingResponse> getBuilding(@PathVariable String id) {
-        return ApiResponse.<BuildingResponse>builder()
-                .result(buildingService.getBuildingById(id))
+    ApiResponse<RoomTypeResponse> getRoomType(@PathVariable String id) {
+        return ApiResponse.<RoomTypeResponse>builder()
+                .result(roomTypeService.getRoomTypeById(id))
                 .build();
     }
 
     @GetMapping
-    ApiResponse<Page<BuildingResponse>> getBuildings(Pageable pageable) {
-        return ApiResponse.<Page<BuildingResponse>>builder()
-                .result(buildingService.getBuildingsResponse(pageable))
+    ApiResponse<List<RoomTypeResponse>> getRoomTypes() {
+        return ApiResponse.<List<RoomTypeResponse>>builder()
+                .result(roomTypeService.getAllRoomTypes())
                 .build();
     }
 
     @DeleteMapping("/{id}")
-    ApiResponse<Void> deleteBuilding(@PathVariable String id) {
-        buildingService.deleteBuilding(id);
+    ApiResponse<Void> deleteRoomType(@PathVariable String id) {
+        roomTypeService.deleteRoomType(id);
         return ApiResponse.<Void>builder().build();
     }
 
     @PatchMapping("/{id}")
-    ApiResponse<BuildingResponse> updateBuilding(
+    ApiResponse<RoomTypeResponse> updateRoomType(
             @PathVariable String id,
-            @RequestBody @Valid BuildingUpdateRequest request
+            @RequestBody @Valid RoomTypeUpdateRequest request
     ) {
-        return ApiResponse.<BuildingResponse>builder()
-                .result(buildingService.updateBuilding(id, request))
+        return ApiResponse.<RoomTypeResponse>builder()
+                .result(roomTypeService.updateRoomType(id, request))
                 .build();
     }
 }

@@ -243,7 +243,7 @@ const AdminFacilities: FC = (): JSX.Element => {
               const token = localStorage.getItem("token");
               if (!token) throw new Error("No token found");
                const response = await axios.get<ApiResponse<BuildingData[]>>(
-                  `${import.meta.env.VITE_APP_SERVER_URL}/buildings`, // Endpoint ví dụ
+                  `${import.meta.env.VITE_APP_SERVER_URL}/buildings`, 
                   { headers: { Authorization: `Bearer ${token}` } }
               );
               if (response.data?.code !== 0 || !response.data?.result) {
@@ -254,6 +254,44 @@ const AdminFacilities: FC = (): JSX.Element => {
           staleTime: Infinity, 
      });
      const buildingsList: BuildingData[] = buildingsApiResponse?.result?.content || [];
+
+	// === Fetch RoomTypes riêng cho Modal ===
+	const { data: roomTypesApiResponse } = useQuery<ApiResponse<RoomTypeData[]>, AxiosError>({
+		queryKey: ["allRoomTypesList"],
+		queryFn: async () => {
+			const token = localStorage.getItem("token");
+			if (!token) throw new Error("No token found");
+			const response = await axios.get<ApiResponse<RoomTypeData[]>>(
+				`${import.meta.env.VITE_APP_SERVER_URL}/roomtypes`, 
+				{ headers: { Authorization: `Bearer ${token}` } }
+			);
+			if (response.data?.code !== 0 || !response.data?.result) {
+				throw new Error(response.data?.message || "Invalid response for room types");
+			}
+			return response.data;
+		},
+		staleTime: Infinity, 
+	});
+	const roomTypesList: RoomTypeData[] = roomTypesApiResponse?.result || [];
+
+	// === Fetch FacilityManagers riêng cho Modal ===
+	const { data: facilityManagersApiResponse } = useQuery<ApiResponse<UserData[]>, AxiosError>({
+		queryKey: ["allFacilityManagersList"],
+		queryFn: async () => {
+			const token = localStorage.getItem("token");
+			if (!token) throw new Error("No token found");
+			const response = await axios.get<ApiResponse<RoomTypeData[]>>(
+				`${import.meta.env.VITE_APP_SERVER_URL}/users/fm`, 
+				{ headers: { Authorization: `Bearer ${token}` } }
+			);
+			if (response.data?.code !== 0 || !response.data?.result) {
+				throw new Error(response.data?.message || "Invalid response for facility managers");
+			}
+			return response.data;
+		},
+		staleTime: Infinity, 
+	});
+	const facilityManagersList: UserData[] = facilityManagersApiResponse?.result || [];
 
     // === Trích xuất dữ liệu cần thiết từ API Response ===
     const roomsForCurrentPage: RoomData[] = apiResponse?.result?.content || [];
