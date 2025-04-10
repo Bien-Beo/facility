@@ -1,5 +1,6 @@
 package com.utc2.facility.repository;
 
+import com.utc2.facility.entity.Building;
 import com.utc2.facility.entity.Room;
 import com.utc2.facility.entity.User;
 import jakarta.validation.constraints.Size;
@@ -21,6 +22,7 @@ public interface RoomRepository extends JpaRepository<Room, String> {//
     int countRoomsManagedByUser(@Param("userId") String userId);
 
     List<Room> findByFacilityManager(User facilityManager);
+    List<Room> findByBuilding_Id(String id);
 
     boolean existsByNameAndIdNot(@Size(max = 255) String name, String id);
 

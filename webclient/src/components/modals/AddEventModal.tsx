@@ -122,7 +122,7 @@ const AddEventModal: FC<AddEventModalProps> = ({
             console.log("Sending booking creation request:", newBookingData);
             // SỬA: Định kiểu cho axios.post là kiểu wrapper
             const response = await axios.post<BookingCreationApiResponse>(
-                `${import.meta.env.VITE_APP_SERVER_URL || 'http://localhost:8080'}/bookings`,
+                `${import.meta.env.VITE_APP_SERVER_URL || 'http://localhost:8080'}/booking`,
                 newBookingData,
                 { headers: { Authorization: `Bearer ${token}` } }
             );

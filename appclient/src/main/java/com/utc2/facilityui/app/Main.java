@@ -24,7 +24,7 @@ public class Main extends Application {
     private void checkTokenAndRedirect(Stage stage) {
         String token = TokenStorage.getToken();
         if (token == null || token.isEmpty()) {
-            loadScene(stage, "/com/utc2/facilityui/view/login.fxml");
+            loadScene(stage, "/com/utc2/facilityui/view/login2.fxml");
             return;
         }
 
@@ -39,7 +39,7 @@ public class Main extends Application {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                Platform.runLater(() -> loadScene(stage, "/com/utc2/facilityui/view/login.fxml"));
+                Platform.runLater(() -> loadScene(stage, "/com/utc2/facilityui/view/login2.fxml"));
             }
 
             @Override
@@ -58,7 +58,7 @@ public class Main extends Application {
                         }
                     });
                 } else {
-                    Platform.runLater(() -> loadScene(stage, "/com/utc2/facilityui/view/login.fxml"));
+                    Platform.runLater(() -> loadScene(stage, "/com/utc2/facilityui/view/login2.fxml"));
                 }
             }
         });
