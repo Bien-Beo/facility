@@ -17,7 +17,6 @@ public interface RoomRepository extends JpaRepository<Room, String> {//
     boolean existsByName(String name);
     boolean existsByRoomType_Id(String id);
     Optional<Room> findByName(String name);
-    Optional<Room> findById(String id);
 
     @Query("SELECT COUNT(r) FROM Room r WHERE r.facilityManager.userId = :userId")
     int countRoomsManagedByUser(@Param("userId") String userId);

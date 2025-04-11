@@ -1,4 +1,4 @@
-package com.utc2.facilityui.controller;
+package com.utc2.facilityui.controller.booking;
 
 import com.utc2.facilityui.model.CardAcceptBooking;
 import com.utc2.facilityui.model.CardBooking;

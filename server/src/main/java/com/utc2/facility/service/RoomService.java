@@ -73,7 +73,7 @@ public class RoomService {
         return buildFullRoomResponse(savedRoom);
     }
     
-    @PreAuthorize("isAuthenticated()")
+//    @PreAuthorize("isAuthenticated()")
     public RoomResponse getRoomById(String id) {
         Room room = findRoomByIdOrThrow(id);
         return buildFullRoomResponse(room);

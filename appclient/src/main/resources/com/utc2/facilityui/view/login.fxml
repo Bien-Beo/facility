@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 
-<HBox alignment="TOP_CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="586.0" prefWidth="1181.0" xmlns="http://javafx.com/javafx/21.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.LoginController">
+<HBox alignment="TOP_CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="586.0" prefWidth="1181.0" xmlns="http://javafx.com/javafx/21.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.auth.LoginController">
    <children>
       <SplitPane dividerPositions="0.5" prefHeight="506.0" prefWidth="1205.0" stylesheets="@../styles/login.css">
         <items>

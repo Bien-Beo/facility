@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 
 
-<AnchorPane fx:id="btn" prefHeight="55.0" prefWidth="189.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.ButtonNavController">
+<AnchorPane fx:id="btn" prefHeight="55.0" prefWidth="189.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.nav.ButtonNavController">
    <children>
       <Button fx:id="buttonNav" graphicTextGap="10.0" mnemonicParsing="false" prefHeight="55.0" prefWidth="189.0" styleClass="button1" stylesheets="@../styles/mainUI.css" text="Room" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
       <ImageView fx:id="imgButtonNav" fitHeight="35.0" fitWidth="35.0" layoutX="14.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true">

@@ -8,9 +8,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="685.0" prefWidth="830.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.EquipmentsController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="685.0" prefWidth="830.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.equipment.EquipmentsController">
     <children>
-        <VBox prefHeight="685.0" prefWidth="830.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <VBox fx:id="mainEquipmentsContainer" prefHeight="685.0" prefWidth="830.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <children>
                 <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
                     <content>
@@ -19,7 +19,6 @@
                                 <Insets bottom="20" left="20" right="20" top="20" />
                             </padding>
                             <children>
-                                <!-- Tiêu đề Equipments đã được căn giữa -->
                                 <HBox prefHeight="49.0" prefWidth="745.0" alignment="CENTER">
                                     <children>
                                         <Label alignment="CENTER" prefHeight="45.0" text="Equipments">
@@ -30,7 +29,6 @@
                                     </children>
                                 </HBox>
 
-                                <!-- Phần Electronics -->
                                 <VBox prefHeight="337.0" prefWidth="774.0">
                                     <children>
                                         <Label prefHeight="25.0" prefWidth="774.0" style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Electronics">
@@ -50,7 +48,6 @@
                                     </children>
                                 </VBox>
 
-                                <!-- Phần Audio Equipment -->
                                 <VBox prefHeight="349.0" prefWidth="774.0">
                                     <children>
                                         <Label prefHeight="25.0" prefWidth="779.0" style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Audio equipment" />
@@ -66,7 +63,6 @@
                                     </children>
                                 </VBox>
 
-                                <!-- Phần khác (sẽ được thêm vào sau nếu cần) -->
                                 <VBox prefHeight="349.0" prefWidth="774.0" />
                             </children>
                         </VBox>
