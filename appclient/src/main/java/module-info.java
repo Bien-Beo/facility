@@ -30,8 +30,6 @@ module com.utc2.facilityui {
     opens com.utc2.facilityui.controller.booking to javafx.fxml;
     exports com.utc2.facilityui.controller.equipment;
     opens com.utc2.facilityui.controller.equipment to javafx.fxml;
-    exports com.utc2.facilityui.controller.facility;
-    opens com.utc2.facilityui.controller.facility to javafx.fxml;
     exports com.utc2.facilityui.controller.room;
     opens com.utc2.facilityui.controller.room to javafx.fxml;
     exports com.utc2.facilityui.controller.nav;

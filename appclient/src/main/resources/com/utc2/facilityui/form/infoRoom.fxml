@@ -45,7 +45,7 @@
                            <Image url="@../images/left-arrow.png" />
                         </image>
                      </ImageView>
-                     <Button fx:id="buttonBack" layoutX="32.0" layoutY="9.0" mnemonicParsing="false" opacity="0.0" prefHeight="37.0" prefWidth="37.0" text="Button" />
+                     <Button fx:id="buttonBack" layoutX="32.0" layoutY="9.0" mnemonicParsing="false" opacity="0.0" prefHeight="37.0" prefWidth="37.0" styleClass="bntBack" stylesheets="@../styles/mainUI.css" text="Button" />
                   </children>
                </AnchorPane>
             </top>

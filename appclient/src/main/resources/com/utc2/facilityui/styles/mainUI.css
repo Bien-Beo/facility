@@ -71,6 +71,10 @@
     -fx-border-color: #2fa536;
     -fx-border-width: 0px 0px 0px 10px;
     -fx-background-radius: 10px;
+    -fx-cursor: hand;
+}
+.bntBack{
+    -fx-cursor: hand;
 }
 .card-Acceptbooking1{
     -fx-background-color: #e5ffe6;
