@@ -7,7 +7,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane fx:id="card" prefHeight="233.0" prefWidth="142.0" stylesheets="@../styles/mainUI.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.Controller">
+<AnchorPane fx:id="card" prefHeight="233.0" prefWidth="142.0" stylesheets="@../styles/mainUI.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.nav.Controller">
    <children>
       <ImageView fx:id="roomImg" fitHeight="101.0" fitWidth="141.0" layoutX="1.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
          <image>

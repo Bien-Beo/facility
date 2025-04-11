@@ -1,4 +1,4 @@
-package com.utc2.facilityui.controller;
+package com.utc2.facilityui.controller.booking;
 
 import com.utc2.facilityui.model.CardAcceptBooking;
 
@@ -6,8 +6,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.text.Text;
-
-import java.util.List;
 
 public class CardAcceptBookingController {
     @FXML

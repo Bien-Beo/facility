@@ -1,4 +1,4 @@
-package com.utc2.facilityui.controller;
+package com.utc2.facilityui.controller.nav;
 
 import com.utc2.facilityui.model.ButtonNav;
 import javafx.fxml.FXML;
