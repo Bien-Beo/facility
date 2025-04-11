@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional; // Import Trans
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -108,5 +109,14 @@ public class UserService {
     public UserResponse getUser(String userId) {
         return userMapper.toUserResponse(
                 userRepository.findByUserId(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    public List<UserResponse> getFacilityManagers() {
+        List<User> facilityManagers = userRepository.findByRole_Name(com.utc2.facility.enums.Role.FACILITY_MANAGER);
+        List<UserResponse> facilityManagersResponse = facilityManagers.stream()
+                .map(userMapper::toUserResponse)
+                .collect(Collectors.toList());
+        return facilityManagersResponse;
     }
 }

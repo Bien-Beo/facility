@@ -53,7 +53,9 @@ public enum ErrorCode {
     DEFAULT_EQUIPMENT_CANNOT_BE_BORROWED_SEPARATELY(1039, "Default equipment cannot be borrowed separately", HttpStatus.BAD_REQUEST),
     BOOKING_NOT_CANCELLABLE(1040, "Booking not cancellable", HttpStatus.BAD_REQUEST),
     CANCELLATION_WINDOW_EXPIRED(1041, "Cancellation window expired", HttpStatus.BAD_REQUEST),
-    BUILDING_EXISTED(1043, "Building existed !", HttpStatus.BAD_REQUEST);
+    BUILDING_EXISTED(1043, "Building existed !", HttpStatus.BAD_REQUEST),
+    ROOM_TYPE_EXISTED(1044, "Room type existed !", HttpStatus.BAD_REQUEST),
+    ROOM_TYPE_IN_USE(1045, "Room type in use !", HttpStatus.METHOD_NOT_ALLOWED);
 
     private int code;
     private String message;
