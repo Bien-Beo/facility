@@ -190,7 +190,7 @@ const columns: readonly ReportColumnData[] = [
 
 // --- Component ---
 const FacilitiesReport: FC<FacilitiesReportProps> = ({
-    rooms, // Sửa: Nhận prop rooms
+    rooms, 
     forwardedRef,
 }): JSX.Element => {
 

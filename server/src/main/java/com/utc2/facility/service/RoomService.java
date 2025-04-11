@@ -101,14 +101,14 @@ public class RoomService {
 
     @Transactional
     @PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER')")
-    public RoomResponse updateRoom(String roomName, RoomUpdateRequest request) {
-        Room existingRoom = findRoomByNameOrThrow(roomName);
+    public RoomResponse updateRoom(String id, RoomUpdateRequest request) {
+        Room existingRoom = findRoomByIdOrThrow(id);
 
-        if (StringUtils.hasText(request.getName())
-                && !request.getName().equals(existingRoom.getName())
-                && roomRepository.existsByNameAndIdNot(request.getName(), roomName)) {
-            throw new AppException(ErrorCode.ROOM_EXISTED);
-        }
+//        if (StringUtils.hasText(request.getName())
+//                && !request.getName().equals(existingRoom.getName())
+//                && roomRepository.existsByNameAndIdNot(request.getName(), id)) {
+//            throw new AppException(ErrorCode.ROOM_EXISTED);
+//        }
 
         roomMapper.updateRoom(existingRoom, request);
 

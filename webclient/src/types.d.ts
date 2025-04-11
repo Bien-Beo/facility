@@ -44,6 +44,12 @@ type RoomData = {
   defaultEquipments: EquipmentItemData[]; // Danh sách thiết bị mặc định đi kèm
 };
 
+interface RoomDataWithIds extends RoomData {
+  buildingId: string | null;
+  roomTypeId: string | null;
+  facilityManagerId: string | null;
+}
+
 type UserData = {
   id: string; // UUID khóa chính
   userId: string; // Mã nghiệp vụ (NV/SV)
@@ -224,6 +230,7 @@ type RoomCreationRequest = {
   facilityManagerId?: string | null; 
   img?: string | null;
 };
+
 type RoomUpdateRequest = {
   name?: string;
   description?: string | null;
@@ -326,7 +333,9 @@ interface AdminRoomsTableProps {
   rowsPerPage: number; // Số dòng/trang
   onPageChange: (event: unknown, newPage: number) => void;
   onRowsPerPageChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  // buildings?: BuildingData[]; // Có thể cần cho modal edit/add
+  buildings?: BuildingData[]; // Có thể cần cho modal edit/add
+  roomTypes: RoomTypeData[];
+  facilityManagers: UserData[];
 }
 
 interface AddFacilityModalProps {
@@ -338,9 +347,16 @@ interface AddFacilityModalProps {
   facilityManagers: UserData[];
 }
 
-/**
- * Props cho AuthProvider và RequireAuth (Giữ nguyên nếu đang hoạt động tốt)
- */
+interface EditFacilityModalProps {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+  setOpenSnackbar: (isOpen: boolean) => void;
+  facilityData: RoomDataWithIds;
+  buildings: BuildingData[];
+  roomTypes?: RoomTypeData[];
+  facilityManagers?: UserData[];
+  onSuccessCallback?: () => void;
+}
 
 // Kiểu dữ liệu cho Context mà Provider sẽ cung cấp
 interface AuthContextType {
