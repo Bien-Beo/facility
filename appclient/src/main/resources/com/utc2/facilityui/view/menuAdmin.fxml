@@ -134,6 +134,6 @@
         </VBox>
     </left>
     <center>
-        <fx:include fx:id="manageFacilityPanel" prefHeight="600.0" prefWidth="1230.0" source="manageFacility.fxml" BorderPane.alignment="TOP_CENTER" />
+        <fx:include fx:id="manageFacilityPanel" prefHeight="600.0" prefWidth="1200.0" source="manageFacility.fxml" BorderPane.alignment="TOP_LEFT" />
     </center>
 </BorderPane>
