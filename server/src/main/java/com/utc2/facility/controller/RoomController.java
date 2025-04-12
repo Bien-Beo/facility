@@ -50,13 +50,13 @@ public class RoomController {
         return ApiResponse.<Void>builder().build();
     }
 
-    @PatchMapping("/{roomName}")
+    @PatchMapping("/{id}")
     ApiResponse<RoomResponse> updateRoom(
-            @PathVariable String roomName,
+            @PathVariable String id,
             @RequestBody @Valid RoomUpdateRequest request
     ) {
         return ApiResponse.<RoomResponse>builder()
-                .result(roomService.updateRoom(roomName, request))
+                .result(roomService.updateRoom(id, request))
                 .build();
     }
 }

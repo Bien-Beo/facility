@@ -388,7 +388,7 @@ const AddFacilityModal: FC<AddFacilityModalProps> = ({
         setBackendError(null);
     };
 
-    // --- Render JSX (Đã cập nhật UI) ---
+    // --- Render JSX ---
     return (
         <Modal open={isOpen} onClose={handleCancel} >
             <Fade in={isOpen}>

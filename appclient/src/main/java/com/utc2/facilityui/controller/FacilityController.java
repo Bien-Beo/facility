@@ -1,134 +1,201 @@
 package com.utc2.facilityui.controller;
 
+import com.utc2.facilityui.model.Facility; // Model Facility đã cập nhật
 import com.utc2.facilityui.model.OperationsTableCell;
+import com.utc2.facilityui.model.OperationsTableCellFactory;
+import com.utc2.facilityui.service.RoomService; // Service chứa hàm gọi API
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import com.utc2.facilityui.model.Facility;
-import com.utc2.facilityui.model.OperationsTableCellFactory; // Import Factory
-import javafx.stage.FileChooser;
+import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
 
+public class FacilityController implements Initializable, OperationsTableCell.OperationsEventHandler<Facility> {
 
-public class FacilityController implements OperationsTableCell.OperationsEventHandler<Facility> {
+    @FXML private TableView<Facility> facilityTable;
+    @FXML private TableColumn<Facility, String> nameColumn;
+    @FXML private TableColumn<Facility, String> descriptionColumn;
+    @FXML private TableColumn<Facility, String> statusColumn;
+    @FXML private TableColumn<Facility, String> createdAtColumn;
+    @FXML private TableColumn<Facility, String> updatedAtColumn;
+    @FXML private TableColumn<Facility, String> deletedAtColumn;
+    @FXML private TableColumn<Facility, String> managerColumn; // fx:id="managerColumn" trong FXML
+    @FXML private TableColumn<Facility, Void> operationsColumn;
+    // @FXML private Button exportButton; // Giữ lại nếu có
 
-    @FXML
-    private TableView<Facility> facilityTable;
-    @FXML
-    private TableColumn<Facility, String> nameColumn;
-    @FXML
-    private TableColumn<Facility, String> capacityColumn;
-    @FXML
-    private TableColumn<Facility, String> typeRoomColumn;
-    @FXML
-    private TableColumn<Facility, String> statusColumn;
-    @FXML
-    private TableColumn<Facility, String> createdAtColumn;
-    @FXML
-    private TableColumn<Facility, String> updatedAtColumn;
-    @FXML
-    private TableColumn<Facility, String> deletedAtColumn;
-    @FXML
-    private TableColumn<Facility, String> managerColumn;
-    @FXML
-    private TableColumn<Facility, Void> operationsColumn; // Thêm dòng này
-    @FXML
-    private Button exportButton;
+    // Sử dụng ObservableList để TableView tự cập nhật khi list thay đổi
+    private ObservableList<Facility> facilityDataList = FXCollections.observableArrayList();
+    private RoomService roomService; // Service để gọi API
 
-    private ObservableList<Facility> facilities;
-
-    @FXML
-    private void initialize() {
-        facilities = FXCollections.observableArrayList(
-                new Facility(
-                        "Courtyard / Harmony Plaza",
-                        "80",
-                        "Outdoor Area",
-                        "Active",
-                        "09:02 PM\nWed Dec 20 2023",
-                        "09:07 PM\nWed Dec 20 2023",
-                        "N/A",
-                        "Grady Turcotte",
-                        "395003"
-                ),
-                new Facility(
-                        "Meeting Rooms / SkyRise Tower",
-                        "50",
-                        "Meeting Room",
-                        "Active",
-                        "11:16 AM\nSun Oct 06 2024",
-                        "09:08 PM\nWed Dec 20 2023",
-                        "01:24 PM\nSun Jun 16 2024",
-                        "Roland Miller",
-                        "374546"
-                )
-        );
-
-        // Mapping các cột trong TableView
-        nameColumn.setCellValueFactory(cell -> cell.getValue().nameProperty());
-        capacityColumn.setCellValueFactory(cell -> cell.getValue().capacityProperty());
-        typeRoomColumn.setCellValueFactory(cell -> cell.getValue().typeRoomProperty());
-        statusColumn.setCellValueFactory(cell -> cell.getValue().statusProperty());
-        createdAtColumn.setCellValueFactory(cell -> cell.getValue().createdAtProperty());
-        updatedAtColumn.setCellValueFactory(cell -> cell.getValue().updatedAtProperty());
-        deletedAtColumn.setCellValueFactory(cell -> cell.getValue().deletedAtProperty());
-
-        managerColumn.setCellValueFactory(cell ->
-                new javafx.beans.property.SimpleStringProperty(
-                        cell.getValue().getManagerName() + "\nId:" + cell.getValue().getManagerId()
-                )
-        );
-
-        facilityTable.setItems(facilities);
-
-        // Áp dụng Cell Factory cho cột Operations
-        operationsColumn.setCellFactory(new OperationsTableCellFactory<>(this));
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        this.roomService = new RoomService(); // Khởi tạo service
+        setupTableColumns(); // Gọi hàm cài đặt cột
+        facilityTable.setItems(facilityDataList); // Gán list vào TableView
+        loadFacilitiesData(); // Gọi hàm tải dữ liệu từ API
     }
 
-    // Implement các phương thức từ OperationsTableCell.OperationsEventHandler
+    // Hàm cài đặt cell value factories cho các cột
+    private void setupTableColumns() {
+        // Đảm bảo tên property ("name", "description",...) khớp với tên Property trong Facility.java
+        nameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
+        descriptionColumn.setCellValueFactory(cellData -> cellData.getValue().descriptionProperty());
+        statusColumn.setCellValueFactory(cellData -> cellData.getValue().statusProperty());
+        createdAtColumn.setCellValueFactory(cellData -> cellData.getValue().createdAtProperty());
+        updatedAtColumn.setCellValueFactory(cellData -> cellData.getValue().updatedAtProperty());
+        deletedAtColumn.setCellValueFactory(cellData -> cellData.getValue().deletedAtProperty());
+        // Cột manager cần khớp với property trong Facility model
+        managerColumn.setCellValueFactory(cellData -> cellData.getValue().nameFacilityManagerProperty());
+
+        // Cell factory cho cột description để wrap text (giữ nguyên)
+        descriptionColumn.setCellFactory(tc -> {
+            TableCell<Facility, String> cell = new TableCell<>();
+            Text text = new Text();
+            cell.setGraphic(text);
+            cell.setPrefHeight(Control.USE_COMPUTED_SIZE); // Dùng Control.USE_COMPUTED_SIZE
+            text.wrappingWidthProperty().bind(descriptionColumn.widthProperty().subtract(15)); // Điều chỉnh padding
+            text.textProperty().bind(cell.itemProperty());
+            text.getStyleClass().add("table-cell-text"); // Thêm style class nếu muốn định dạng CSS
+            return cell;
+        });
+
+        // Cell factory cho cột operations (giữ nguyên, cần OperationsTableCellFactory)
+        // Đảm bảo bạn có lớp OperationsTableCellFactory và OperationsTableCell
+        operationsColumn.setCellFactory(new OperationsTableCellFactory<>(this));
+
+        // Đặt Placeholder cho bảng khi không có dữ liệu
+        facilityTable.setPlaceholder(new Label("Đang tải dữ liệu..."));
+    }
+
+    // Hàm tải dữ liệu từ Service
+    private void loadFacilitiesData() {
+        facilityTable.setPlaceholder(new Label("Đang tải dữ liệu...")); // Hiển thị loading
+        facilityDataList.clear(); // Xóa dữ liệu cũ
+
+        new Thread(() -> {
+            try {
+                // Gọi phương thức service mới để lấy danh sách đã làm phẳng
+                final ObservableList<Facility> fetchedFacilities = roomService.getDashboardFacilities();
+
+                // Cập nhật UI trên luồng JavaFX
+                Platform.runLater(() -> {
+                    facilityDataList.setAll(fetchedFacilities); // Cập nhật ObservableList, TableView tự refresh
+                    if (fetchedFacilities.isEmpty()) {
+                        facilityTable.setPlaceholder(new Label("Không có dữ liệu cơ sở vật chất nào."));
+                    }
+                    System.out.println("Facility Table updated with " + fetchedFacilities.size() + " items.");
+                });
+
+            } catch (IOException e) {
+                Platform.runLater(() -> {
+                    showError("Không thể tải dữ liệu cơ sở: " + e.getMessage());
+                    facilityTable.setPlaceholder(new Label("Lỗi tải dữ liệu. Vui lòng thử lại."));
+                });
+                System.err.println("Error loading facilities: " + e.getMessage());
+                e.printStackTrace();
+            } catch (Exception e) { // Bắt các lỗi khác nếu có
+                Platform.runLater(() -> {
+                    showError("Lỗi không xác định khi tải dữ liệu: " + e.getMessage());
+                    facilityTable.setPlaceholder(new Label("Lỗi không xác định."));
+                });
+                System.err.println("Unexpected error loading facilities: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    // Hàm hiển thị lỗi đơn giản
+    private void showError(String message) {
+        Platform.runLater(()-> { // Đảm bảo chạy trên luồng UI
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Lỗi");
+            alert.setHeaderText("Đã xảy ra lỗi");
+            alert.setContentText(message);
+            alert.showAndWait();
+        });
+    }
+
+    // --- Implement các phương thức xử lý sự kiện Edit/Delete ---
+    @Override
     public void onEdit(Facility facility) {
+        if (facility == null) return;
         System.out.println("Controller: Edit action for facility with Name: " + facility.getName());
-        // Logic để mở form chỉnh sửa hoặc thực hiện hành động chỉnh sửa
         try {
-            // 1. Load FXML cho giao diện chỉnh sửa
+            // TODO: Tạo file EditFacilityDialog.fxml và EditFacilityController.java
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/utc2/facilityui/view/EditFacilityDialog.fxml"));
             Stage editStage = new Stage();
-            editStage.setScene(new Scene(loader.load()));
-            editStage.setTitle("Edit Facility");
-            editStage.initModality(Modality.APPLICATION_MODAL); // Ngăn chặn tương tác với cửa sổ chính
+            // Cần tạo Scene với Parent trả về từ loader.load()
+            editStage.setScene(new Scene(loader.load())); // Giả sử FXML trả về Parent (vd: AnchorPane, VBox)
+            editStage.setTitle("Sửa thông tin: " + facility.getName());
+            editStage.initModality(Modality.APPLICATION_MODAL);
 
-            // 2. Lấy Controller của giao diện chỉnh sửa và truyền dữ liệu
-            EditFacilityController editController = loader.getController();
-            editController.setFacility(facility);
-            editController.setFacilityList(facilities); // Truyền cả list để có thể cập nhật
+            // TODO: Tạo lớp EditFacilityController
+            // EditFacilityController editController = loader.getController();
+            // if (editController != null) {
+            //     editController.setFacilityToEdit(facility);
+            //     editController.setParentController(this); // Để gọi lại refresh nếu cần
+            // } else {
+            //     throw new IOException("Could not get EditFacilityController.");
+            // }
 
-            // 3. Hiển thị dialog chỉnh sửa
-            editStage.showAndWait();
+            editStage.showAndWait(); // Hiển thị và chờ dialog đóng
 
-            // Sau khi dialog đóng, TableView sẽ tự động cập nhật nếu các thuộc tính trong Facility là Property
-            // Hoặc bạn có thể làm mới TableView nếu cần
-            // facilityTable.refresh();
+            // Load lại dữ liệu sau khi dialog đóng để cập nhật thay đổi
+            loadFacilitiesData();
 
         } catch (IOException e) {
             e.printStackTrace();
-            // Xử lý lỗi khi tải FXML
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Could not load edit dialog");
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
+            showError("Không thể mở cửa sổ chỉnh sửa: " + e.getMessage());
+        } catch (Exception e) { // Bắt lỗi chung khác
+            e.printStackTrace();
+            showError("Lỗi không xác định khi mở cửa sổ chỉnh sửa: " + e.getMessage());
         }
     }
 
+    @Override
     public void onDelete(Facility facility) {
-        System.out.println("Controller: Delete action for facility with ID: " + facility.getName());
-        // Logic để hiển thị dialog xác nhận xóa và thực hiện xóa
-        facilities.remove(facility); // Ví dụ: Xóa khỏi ObservableList
+        if (facility == null) return;
+        System.out.println("Controller: Delete action for facility with Name: " + facility.getName());
+
+        // Hiển thị dialog xác nhận
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Xác nhận xóa");
+        confirmAlert.setHeaderText("Bạn có chắc chắn muốn xóa cơ sở '" + facility.getName() + "' không?");
+        confirmAlert.setContentText("Hành động này sẽ đánh dấu là đã xóa (nếu backend hỗ trợ soft delete) hoặc xóa vĩnh viễn.");
+
+        confirmAlert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                // Gọi API xóa (cần thêm phương thức vào RoomService)
+                new Thread(() -> {
+                    try {
+                        // TODO: Thêm phương thức deleteRoomById(String id) vào RoomService
+                        // roomService.deleteRoomById(facility.getId());
+                        System.out.println("TODO: Calling API to delete facility with ID: " + facility.getId());
+                        Thread.sleep(1000); // Giả lập thời gian gọi API
+
+                        // Nếu API thành công, cập nhật lại bảng trên luồng UI
+                        Platform.runLater(() -> {
+                            // Cách 1: Xóa trực tiếp khỏi list đang hiển thị
+                            facilityDataList.remove(facility);
+                            // Cách 2: Load lại toàn bộ dữ liệu (đảm bảo đồng bộ)
+                            // loadFacilitiesData();
+                        });
+                    } catch (/*IOException e*/ Exception e) { // Bắt lỗi cụ thể từ service
+                        Platform.runLater(() -> showError("Xóa thất bại: " + e.getMessage()));
+                        e.printStackTrace();
+                    }
+                }).start();
+            }
+        });
     }
 }

@@ -45,6 +45,13 @@ public class UserController {
                 .build();
     }
 
+    @GetMapping("/fm")
+    ApiResponse<List<UserResponse>> getFacilityManagers() {
+        return ApiResponse.<List<UserResponse>>builder()
+                .result(userService.getFacilityManagers())
+                .build();
+    }
+
     @GetMapping("/{userId}")
     ApiResponse<UserResponse> getUser(@PathVariable String userId) {
         return ApiResponse.<UserResponse>builder()

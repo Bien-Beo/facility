@@ -46,7 +46,7 @@ public class BuildingService {
 
         Building savedBuilding = buildingRepository.save(building);
 
-        return buildingMapper.toBuildingResponse(savedBuilding);
+        return buildFullBuildingResponse(savedBuilding);
     }
     
     @PreAuthorize("isAuthenticated()")

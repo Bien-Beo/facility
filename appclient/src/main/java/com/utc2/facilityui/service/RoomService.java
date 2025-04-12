@@ -2,10 +2,16 @@ package com.utc2.facilityui.service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder; // Dùng GsonBuilder nếu cần cấu hình đặc biệt (ví dụ date format)
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.utc2.facilityui.auth.TokenStorage;
 import com.utc2.facilityui.model.ApiResponse; // Import lớp mới
+import com.utc2.facilityui.model.Facility;
 import com.utc2.facilityui.model.Room;
+import com.utc2.facilityui.response.DashboardRoomApiResponse;
+import com.utc2.facilityui.response.RoomGroupResponse;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -73,5 +79,73 @@ public class RoomService {
             // Lỗi nếu JSON không đúng định dạng
             throw new IOException("Error parsing JSON response: " + e.getMessage(), e);
         }
+    }
+    // --- PHƯƠNG THỨC MỚI LẤY DATA DASHBOARD ---
+    /**
+     * Lấy dữ liệu cơ sở vật chất (phòng) cho Dashboard, đã được gom nhóm theo loại.
+     * Gọi API: GET /facility/dashboard/room
+     * @return ObservableList<Facility> chứa tất cả các phòng từ các nhóm.
+     * @throws IOException Lỗi mạng hoặc parse.
+     */
+    public ObservableList<Facility> getDashboardFacilities() throws IOException {
+        // !!! ĐẢM BẢO ENDPOINT ĐÚNG VỚI BACKEND CỦA BẠN !!!
+        String url = "http://localhost:8080/facility/dashboard/room";
+        Request request = buildAuthenticatedGetRequest(url); // Dùng lại hàm helper
+
+        try (Response response = client.newCall(request).execute()) {
+            ResponseBody responseBody = response.body();
+            if (!response.isSuccessful()) {
+                String errorBodyStr = (responseBody != null) ? responseBody.string() : "N/A";
+                if(responseBody != null) responseBody.close();
+                throw new IOException("Yêu cầu API Dashboard thất bại: " + response.code() + ". Body: " + errorBodyStr);
+            }
+            if (responseBody == null) {
+                throw new IOException("Response body rỗng từ API Dashboard.");
+            }
+
+            String jsonData;
+            try { jsonData = responseBody.string(); } finally { responseBody.close(); }
+            System.out.println("Dashboard Raw JSON: " + jsonData); // Log để debug
+
+            try {
+                // Parse bằng lớp response mới
+                DashboardRoomApiResponse apiResponse = gson.fromJson(jsonData, DashboardRoomApiResponse.class);
+
+                if (apiResponse != null && apiResponse.getCode() == 0 && apiResponse.getResult() != null) {
+                    // Làm phẳng danh sách: gom tất cả 'Facility' từ các nhóm vào một list
+                    ObservableList<Facility> allFacilities = FXCollections.observableArrayList();
+                    for (RoomGroupResponse group : apiResponse.getResult()) {
+                        if (group != null && group.getRooms() != null) { // Thêm kiểm tra group null
+                            // Lọc bỏ facility null nếu có thể xảy ra
+                            group.getRooms().stream()
+                                    .filter(java.util.Objects::nonNull)
+                                    .forEach(allFacilities::add);
+                        }
+                    }
+                    System.out.println("Fetched and flattened " + allFacilities.size() + " facilities.");
+                    return allFacilities;
+                } else {
+                    System.err.println("API Dashboard response không hợp lệ. Code: " + (apiResponse != null ? apiResponse.getCode() : "N/A"));
+                    return FXCollections.observableArrayList(); // Trả về list rỗng
+                }
+            } catch (JsonSyntaxException e) {
+                System.err.println("Lỗi parse JSON Dashboard: " + e.getMessage());
+                throw new IOException("Không thể parse response dashboard: " + e.getMessage(), e);
+            }
+
+        } catch (JsonSyntaxException e) {
+            throw new IOException("Lỗi parse JSON chung khi gọi Dashboard API: " + e.getMessage(), e);
+        }
+    }
+    private Request buildAuthenticatedGetRequest(String url) throws IOException {
+        String token = TokenStorage.getToken();
+        if (token == null || token.isEmpty()) {
+            throw new IOException("Token xác thực không tồn tại.");
+        }
+        return new Request.Builder()
+                .url(url)
+                .header("Authorization", "Bearer " + token)
+                .get()
+                .build();
     }
 }
