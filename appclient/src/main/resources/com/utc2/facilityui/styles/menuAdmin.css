@@ -1,0 +1,17 @@
+.sidebar-button {
+    -fx-background-color: #192A56; /* Màu nền mặc định */
+    -fx-border-color: transparent; /* Loại bỏ viền mặc định */
+    -fx-text-fill: white; /* Màu chữ mặc định */
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+    -fx-pref-width: 1.7976931348623157E308; /* Make button take full width */
+}
+
+.sidebar-button:hover {
+    -fx-border-color: #ffffff; /* Màu xanh nhạt cho thanh hover */
+    -fx-border-width: 0 0 0 5px; /* Độ dày của thanh hover bên trái */
+    -fx-border-style: solid; /* Kiểu viền là liền nét */
+    -fx-background-color: #1E3B70; /* Màu nền khi hover (tùy chọn) */
+    -fx-text-fill: #ffffff; /* Tùy chọn: đổi màu chữ khi hover */
+}
