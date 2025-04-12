@@ -1,5 +1,5 @@
 package com.utc2.facilityui.model;
-
+//
 import com.utc2.facilityui.controller.FacilityController;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;

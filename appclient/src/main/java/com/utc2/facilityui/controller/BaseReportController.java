@@ -6,7 +6,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
-
+//
 public abstract class BaseReportController {
     @FXML protected Button bntAdd;
     @FXML protected Button bntCancel;

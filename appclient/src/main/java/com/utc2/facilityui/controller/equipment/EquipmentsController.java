@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
-
+/// /
 public class EquipmentsController implements Initializable {
     @FXML private HBox cardElectronics;
     @FXML private HBox cardAudioEquipment;

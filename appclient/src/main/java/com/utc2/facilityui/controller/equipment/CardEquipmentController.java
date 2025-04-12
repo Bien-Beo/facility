@@ -13,7 +13,7 @@ import javafx.scene.layout.AnchorPane;
 
 import java.io.IOException;
 import java.io.InputStream;
-
+//
 public class CardEquipmentController {
     @FXML
     private AnchorPane card;

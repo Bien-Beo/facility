@@ -6,7 +6,7 @@ import java.util.List;
 public class DashboardRoomApiResponse {
     private int code;
     private List<RoomGroupResponse> result; // <<< Danh sách các nhóm phòng
-
+//
     // Getters and Setters
     public int getCode() { return code; }
     public void setCode(int code) { this.code = code; }

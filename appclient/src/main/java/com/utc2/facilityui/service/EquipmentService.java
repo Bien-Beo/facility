@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Objects; // Import Objects để kiểm tra null
 
 public class EquipmentService {
-
+//
     private final OkHttpClient client;
     private final Gson gson;
     // !!! THAY ĐỔI BASE_URL NẾU API CỦA BẠN CHẠY Ở ĐỊA CHỈ KHÁC !!!
