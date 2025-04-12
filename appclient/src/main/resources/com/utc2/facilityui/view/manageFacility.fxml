@@ -62,7 +62,7 @@
                   <Insets left="15.0" />
                </padding>
             </HBox>
-            <TableView fx:id="facilityTable" maxWidth="962.0" prefHeight="478.0" prefWidth="962.0" stylesheets="@../styles/manageFacility.css">
+            <TableView fx:id="facilityTable" maxWidth="962.0" prefHeight="478.0" prefWidth="962.0">
               <columns>
                 <TableColumn fx:id="nameColumn" prefWidth="115.20000952482224" text="Name/Building" />
                 <TableColumn fx:id="capacityColumn" prefWidth="100.0" text="Capacity" />

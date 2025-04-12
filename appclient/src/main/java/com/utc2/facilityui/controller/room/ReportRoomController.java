@@ -1,22 +1,22 @@
-package com.utc2.facilityui.controller;
+package com.utc2.facilityui.controller.room;
 
+import com.utc2.facilityui.controller.BaseReportController;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.MouseEvent;
 
-public class ReportEquipmentController extends BaseReportController {
+public class ReportRoomController extends BaseReportController {
     @Override
     protected void handleAdd() {
-        // Xử lý thêm report cho equipment
+        // Xử lý thêm report cho room
         String reportDescription = description.getText();
-        String equipmentName = name.getText();
+        String roomName = name.getText();
         String userId = userID.getText();
-        // TODO: Thêm logic xử lý report equipment
+        // TODO: Thêm logic xử lý report room
     }
 
     @FXML
     public void initialize() {
-        // Thiết lập giá trị ban đầu
         description.setText("Description");
 
         // Thêm sự kiện click cho các TextField
