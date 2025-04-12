@@ -10,13 +10,10 @@ import javafx.collections.ObservableList;
 import com.utc2.facilityui.model.Facility;
 
 public class EditFacilityController {
-
+    @FXML
+    private TextField descriptionTextField;
     @FXML
     private TextField nameTextField;
-    @FXML
-    private TextField capacityTextField;
-    @FXML
-    private TextField typeRoomTextField;
     @FXML
     private ComboBox<String> statusComboBox;
     @FXML
@@ -31,9 +28,8 @@ public class EditFacilityController {
         this.currentFacility = facility;
         // Điền các trường bằng dữ liệu hiện tại
         nameTextField.setText(facility.getName());
-        capacityTextField.setText(facility.getCapacity());
-        typeRoomTextField.setText(facility.getTypeRoom());
-        statusComboBox.getItems().addAll("Active", "Inactive", "Pending");
+        descriptionTextField.setText(facility.getDescription());
+        statusComboBox.getItems().addAll("Available", "In Use");
         statusComboBox.setValue(facility.getStatus());
         // Điền các trường khác
     }
@@ -47,8 +43,7 @@ public class EditFacilityController {
         if (currentFacility != null) {
             // Lấy dữ liệu đã chỉnh sửa từ các trường
             currentFacility.setName(nameTextField.getText());
-            currentFacility.setCapacity(capacityTextField.getText());
-            currentFacility.setTypeRoom(typeRoomTextField.getText());
+            currentFacility.setDescription(descriptionTextField.getText());
             currentFacility.setStatus(statusComboBox.getValue());
             // Cập nhật các thuộc tính khác
 
