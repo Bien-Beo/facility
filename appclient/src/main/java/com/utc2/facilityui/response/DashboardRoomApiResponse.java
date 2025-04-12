@@ -1,7 +1,7 @@
 package com.utc2.facilityui.response; // Hoặc response package
 
 import java.util.List;
-
+//as
 // Đại diện cho toàn bộ response từ API /dashboard/room
 public class DashboardRoomApiResponse {
     private int code;
