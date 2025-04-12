@@ -10,4 +10,9 @@ public class TokenStorage {
     public static String getToken() {
         return token;
     }
+    public static void clearToken() {
+        token = null;
+        // Xóa khỏi Preferences hoặc file nếu cần
+        System.out.println("Token cleared.");
+    }
 }
