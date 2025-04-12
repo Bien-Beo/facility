@@ -44,9 +44,9 @@ public class RoomController {
                 .build();
     }
 
-    @DeleteMapping("/{roomName}")
-    ApiResponse<Void> deleteRoom(@PathVariable String roomName) {
-        roomService.deleteRoom(roomName);
+    @DeleteMapping("/{id}")
+    ApiResponse<Void> deleteRoom(@PathVariable String id) {
+        roomService.deleteRoom(id);
         return ApiResponse.<Void>builder().build();
     }
 

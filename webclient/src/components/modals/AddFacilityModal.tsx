@@ -302,8 +302,7 @@ const AddFacilityModal: FC<AddFacilityModalProps> = ({
             console.log("Sending room creation request:", data);
 
             const response = await axios.post<ApiResponse<RoomData>>(
-				// Sửa lại endpoint nếu cần, ví dụ: /admin/rooms
-				`${import.meta.env.VITE_APP_SERVER_URL}/admin/rooms`,
+				`${import.meta.env.VITE_APP_SERVER_URL}/rooms`,
 				data,
 				{ headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
 			);

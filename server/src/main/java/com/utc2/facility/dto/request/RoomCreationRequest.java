@@ -23,11 +23,11 @@ public class RoomCreationRequest {
     @Min(value = 1, message = "Sức chứa phải ít nhất là 1")
     int capacity;
 
-    @NotBlank(message = "Tên tòa nhà không được để trống")
-    String buildingName;
+    @NotBlank(message = "Id tòa nhà không được để trống")
+    String buildingId;
 
-    @NotBlank(message = "Tên loại phòng không được để trống")
-    String roomTypeName;
+    @NotBlank(message = "Id loại phòng không được để trống")
+    String roomTypeId;
 
     String facilityManagerId;
 

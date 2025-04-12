@@ -245,12 +245,24 @@ public class BookingService {
         return bookingsPage.map(this::buildFullBookingResponse);
     }
 
-    // Get booking theo user ID (phân trang)
-    @PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER') or #userId == principal.username")
-    public Page<BookingResponse> getBookingsByUserId(String userId, Pageable pageable) {
+    @Transactional(readOnly = true)
+    @PreAuthorize("isAuthenticated()")
+    public Page<BookingResponse> getMyBookings(Pageable pageable) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+        String username = authentication.getName();
+
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED, "User đăng nhập không tồn tại trong DB: " + username));
+        String userId = currentUser.getId();
+
         log.debug("Fetching bookings for user ID: {} with pageable: {}", userId, pageable);
-        Page<Booking> bookingsPage = bookingRepository.findByUser_Id(userId, pageable);
-        return bookingsPage.map(this::buildFullBookingResponse);
+
+        Page<Booking> bookingPage = bookingRepository.findByUser_Id(userId, pageable);
+
+        return bookingPage.map(this::buildFullBookingResponse);
     }
 
     // --- Các phương thức Thay đổi ---

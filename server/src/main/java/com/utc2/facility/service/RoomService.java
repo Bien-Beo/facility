@@ -47,14 +47,14 @@ public class RoomService {
         }
 
         // Fetch các entity liên quan bằng Name
-        Building building = buildingRepository.findByName(request.getBuildingName())
+        Building building = buildingRepository.findById(request.getBuildingId())
                 .orElseThrow(() -> new AppException(ErrorCode.BUILDING_NOT_FOUND));
-        RoomType roomType = roomTypeRepository.findByName(request.getRoomTypeName())
+        RoomType roomType = roomTypeRepository.findById(request.getRoomTypeId())
                 .orElseThrow(() -> new AppException(ErrorCode.ROOM_TYPE_NOT_FOUND));
 
         User facilityManager = null;
         if (StringUtils.hasText(request.getFacilityManagerId())) {
-            facilityManager = userRepository.findByUserId(request.getFacilityManagerId())
+            facilityManager = userRepository.findById(request.getFacilityManagerId())
                     .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)); 
             // TODO: Optional: Kiểm tra xem user này có đúng là role FACILITY_MANAGER không?
         }
@@ -87,8 +87,8 @@ public class RoomService {
 
     @Transactional
     @PreAuthorize("hasRole('ADMIN')") 
-    public void deleteRoom(String roomName) {
-        Room room = findRoomByNameOrThrow(roomName);
+    public void deleteRoom(String id) {
+        Room room = findRoomByIdOrThrow(id);
 
         // TODO: Kiểm tra ràng buộc trước khi xóa:
         // 1. Có EquipmentItem nào đang đặt phòng này làm defaultRoom không? (FK nên là SET NULL)

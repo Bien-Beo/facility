@@ -40,7 +40,6 @@ import React, { FC, JSX } from "react"; // Import React
 import { Navigate, useLocation } from "react-router-dom";
 import { Box, CircularProgress } from "@mui/material"; // Để hiển thị loading
 import { useAuth } from "../hooks/useAuth"; // Đường dẫn đến hook useAuth
-import { RequireAuthProps } from "../types";
 // import ErrorComponent from "./Error"; // Có thể không cần nếu redirect
 
 // Đảm bảo bạn có trang Unauthorized hoặc route "/" để redirect

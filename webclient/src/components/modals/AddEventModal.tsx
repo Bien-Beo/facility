@@ -27,7 +27,7 @@ const AddEventModal: FC<AddEventModalProps> = ({
     onCancel,
 }): JSX.Element => {
 
-    const [formData, setFormData] = useState<FormDataState>({
+    const [formData, setFormData] = useState<AddBookingFormDataState>({
         purpose: "",
         selectedDate: null,
         startTimeString: "",
@@ -115,7 +115,7 @@ const AddEventModal: FC<AddEventModalProps> = ({
     const mutation = useMutation<
         BookingCreationApiResponse, 
         AxiosError<ErrorMessage>,
-        BackendBookingPayload
+        BookingCreationRequest
     >({
         mutationFn: async (newBookingData): Promise<BookingCreationApiResponse> => {
             const token = localStorage.getItem("token");
@@ -196,7 +196,7 @@ const AddEventModal: FC<AddEventModalProps> = ({
             return;
         }
 
-        const dataToSend: BackendBookingPayload = {
+        const dataToSend: BookingCreationRequest = {
             roomId: roomId,
             purpose: formData.purpose.trim(),
             plannedStartTime: startDateTime.toISOString(),

@@ -15,6 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/booking")
 @RequiredArgsConstructor
@@ -44,10 +46,12 @@ public class BookingController {
                 .build();
     }
 
-    @GetMapping("/user/{userId}")
-    ApiResponse<Page<BookingResponse>> getBookingByUserId(@PathVariable String userId, Pageable pageable) {
+    @GetMapping("/my")
+    public ApiResponse<Page<BookingResponse>> getMyBookings(Pageable pageable) {
+        Page<BookingResponse> resultPage = bookingService.getMyBookings(pageable);
+
         return ApiResponse.<Page<BookingResponse>>builder()
-                .result(bookingService.getBookingsByUserId(userId, pageable))
+                .result(resultPage)
                 .build();
     }
 
