@@ -51,34 +51,34 @@ const RoomCard: FC<RoomCardProps> = ({
         <Typography
           variant="body1"
           component="h2"
-          className="text-primary font-normal"
+          className="text-[#271756] font-normal"
         >
           {description}
         </Typography>
       }
     >
       <div
-        className={`w-[200px] h-full min-h-[200px] gap-0 pt-0 m-6 p-2 border-0 border-b-4 border-solid border-primary bg-white flex flex-col items-center justify-evenly shadow-card cursor-pointer rounded-md hover:-translate-y-1 hover:shadow-cardHover transition-all duration-150 ease-in ${statusBackgroundColors[status]}`}
+        className={`w-[180px] h-full min-h-[200px] gap-0 pt-0 m-6 p-0 border-0 border-b-4 border-solid bg-white flex flex-col items-center justify-evenly shadow-card cursor-pointer rounded-md hover:-translate-y-1 hover:shadow-cardHover transition-all duration-150 ease-in ${statusBackgroundColors[status]}`}
       >
         <img
           src={`http://localhost:8080/facility/images/${img}`}
-          alt={`${name}-img`}
-          className="w-[100%] object-cover rounded-md"
+          alt={`Ảnh phòng ${name}`}
+          className="w-[160px] h-[100px] object-cover rounded-md"
         />
         <div className="w-full flex flex-col justify-center items-center gap-1 text-[#00275E]">
           <Typography
             variant="h5"
             component="h2"
-            className="text-primary font-normal text-center"
+            className="text-[#271756] font-normal text-center"
           >
             {name}
           </Typography>
           <Typography
             variant="body1"
             component="h2"
-            className="text-primary font-normal text-center"
+            className="text-[#271756] font-normal text-center"
           >
-            <span className="font-bold">Room Manager</span>
+            <span className="font-bold">Quản lý phòng</span>
             <br /> {nameFacilityManager}
           </Typography>
           <Typography
@@ -86,15 +86,15 @@ const RoomCard: FC<RoomCardProps> = ({
             component="p"
             className="text-gray-600 text-center"
           >
-            Capacity: {capacity} people
+            Sức chứa: {capacity} người
           </Typography>
-          <Typography
+          {/* <Typography
             variant="body2"
             component="p"
             className="text-gray-600 text-center"
           >
             Last updated: {updatedAt ? new Date(updatedAt).toLocaleDateString("vi-VI", {year: "numeric", month: "2-digit", day: "2-digit"}) : "N/A"}
-          </Typography>
+          </Typography> */}
           <Typography
             variant="body1"
             component="p"

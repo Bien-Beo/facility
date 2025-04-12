@@ -192,15 +192,15 @@ type DashboardEquipmentResponse = ApiResponse<DashboardEquipmentGroup[]>;
 
 // --- Authentication ---
 interface AuthenticationRequest {
-  username?: string | null; // Allow null for type safety
+  username?: string | null; 
   password?: string | null;
 }
 interface IntrospectRequest { token: string; }
 interface LogoutRequest { token: string; }
-interface RefreshRequest { token: string; } // Assuming refresh token is sent here
+interface RefreshRequest { token: string; } 
 
 // --- Booking ---
-type BookingCreationRequest = { // Đổi tên từ BackendBookingPayload
+type BookingCreationRequest = {
   roomId: string | null;
   purpose: string;
   plannedStartTime: string; // ISO string
@@ -356,6 +356,19 @@ interface EditFacilityModalProps {
   roomTypes?: RoomTypeData[];
   facilityManagers?: UserData[];
   onSuccessCallback?: () => void;
+}
+
+interface DeleteFacilityModalProps {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void; // Hoặc onClose(): void;
+  setOpenSnackbar: (isOpen: boolean) => void; // Hoặc onSuccess(): void;
+  facilityData: Pick<RoomData, 'id' | 'name'> | null; // Dùng Pick và cho phép null
+  onSuccessCallback?: () => void; // Optional callback khi xóa thành công
+}
+
+interface MyBookingCardProps {
+  booking: BookingEntry; // Chỉ cần nhận đối tượng booking
+  onCancelSuccess?: () => void; // Optional callback
 }
 
 // Kiểu dữ liệu cho Context mà Provider sẽ cung cấp

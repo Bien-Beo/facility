@@ -8,13 +8,11 @@ import {
   createRoutesFromElements,
 } from "react-router-dom";
 
-import { useMemo } from "react";
-import useMediaQuery from "@mui/material/useMediaQuery";
-
 import Layout from "./components/Layout";
 // import PageNotFound from "./components/PageNotFound";
 import { RequireAuth } from "./components/RequireAuth";
 import RouteError from "./components/RouteError";
+import HomePage from "./pages/HomePage";
 // import AdminBookingsPage from "./pages/AdminBookingsPage";
 import AdminFacilitiesPage from "./pages/AdminFacilitiesPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -26,11 +24,10 @@ import DashboardPage from "./pages/DashboardPage";
 // import GDBookingsPage from "./pages/GDBookingsPage";
 // import GDCancellationsPage from "./pages/GDCancellationsPage";
 import LoginPage from "./pages/LoginPage";
-// import MyBookingsPage from "./pages/MyBookingsPage";
+import MyBookingsPage from "./pages/MyBookingsPage";
 // import ResetPasswordPage from "./pages/ResetPasswordPage";
 import { AuthProvider } from "./utils/auth";
-import { ThemeProvider, createTheme, PaletteOptions } from "@mui/material/styles";
-import CssBaseline from '@mui/material/CssBaseline';
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 import FacilityPage from "./pages/FacilityPage";
 
 
@@ -79,12 +76,11 @@ const router = createBrowserRouter(
         /> */}
 
         {/* Trang chủ (index) - Dashboard Rooms */}
-        {/* Chỉ cho phép ADMIN và FACILITY_MANAGER */}
         <Route
           index
           element={
-            <RequireAuth allowedRoles={[]}>
-              <DashboardPage type="room" />
+            <RequireAuth>
+              <HomePage />
             </RequireAuth>
           }
           errorElement={<RouteError />}
@@ -95,7 +91,7 @@ const router = createBrowserRouter(
         <Route
           path="dashboard/equipment"
           element={
-            <RequireAuth allowedRoles={["ADMIN", "FACILITY_MANAGER"]}>
+            <RequireAuth>
               <DashboardPage type="equipment" />
             </RequireAuth>
           }
@@ -137,10 +133,10 @@ const router = createBrowserRouter(
             }
             errorElement={<RouteError />}
           />
-        </Route>
+        </Route> */}
 
-        <Route path="employee">
-          <Route path="approvals">
+        <Route path="user">
+          {/* <Route path="approvals">
             <Route
               path="gd"
               element={
@@ -180,19 +176,19 @@ const router = createBrowserRouter(
               }
               errorElement={<RouteError />}
             />
-          </Route>
+          </Route> */}
 
           <Route
             path="mybookings"
             element={
-              <RequireAuth GD={false} FM={false} noAdmin={true}>
+              <RequireAuth>
                 <MyBookingsPage />
               </RequireAuth>
             }
             errorElement={<RouteError />}
           />
         </Route>
-         */}
+        
 
          {/* Trang Quản lý của Admin */}
          <Route path="admin">
@@ -231,101 +227,27 @@ const router = createBrowserRouter(
   )
 );
 
-// const theme = createTheme({
-//   typography: {
-//     fontFamily: "Poppins, sans-serif",
-//   },
-// });
+const theme = createTheme({
+  typography: {
+    fontFamily: "Be Vietnam Pro",
+  },
+  palette: {
+    primary: {
+      main: "#FACB01", 
+      contrastText: "#161616", 
+    },
+    secondary: {
+      main: "#271756",
+    }
+  },
+});
 
 const queryClient = new QueryClient();
-
-// function App() {
-//   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
-
-//   const theme = useMemo(
-//     () =>
-//       createTheme({
-//         palette: {
-//           mode: prefersDarkMode ? "dark" : "light",
-//         },
-//         typography: {
-//           fontFamily: "Poppins, sans-serif",
-//         },
-//       }),
-//     [prefersDarkMode]
-//   );
-
 function App() {
-    const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
-
-    const theme = useMemo(() => {
-        // Định nghĩa palette cơ bản cho light mode
-        const lightPalette: PaletteOptions = {
-            mode: 'light',
-            primary: {
-                main: '#1976d2',
-            },
-            secondary: {
-                main: '#dc004e', 
-            },
-            background: {
-                 default: '#f4f6f8', 
-                 paper: '#ffffff',
-            },
-            text: {
-              primary: '#000', 
-              secondary: '#000',  
-              disabled: '#000',
-          },
-        };
-
-        // Định nghĩa palette chi tiết cho dark mode 
-        const darkPalette: PaletteOptions = {
-            mode: 'dark',
-            primary: {
-                main: '#90caf9', 
-            },
-            secondary: {
-                main: '#f48fb1',
-            },
-            background: {
-                default: '#121212', 
-                paper: '#1e1e1e',   
-            },
-            text: {
-                primary: 'rgba(255, 255, 255, 0.87)', 
-                secondary: 'rgba(255, 255, 255, 0.6)',  
-                disabled: 'rgba(255, 255, 255, 0.38)',
-            },
-            divider: 'rgba(255, 255, 255, 0.12)', 
-             action: { 
-                active: '#ffffff',
-                hover: 'rgba(255, 255, 255, 0.08)',
-                selected: 'rgba(255, 255, 255, 0.16)',
-                disabled: 'rgba(255, 255, 255, 0.3)',
-                disabledBackground: 'rgba(255, 255, 255, 0.12)',
-                focus: 'rgba(255, 255, 255, 0.12)',
-            },
-            error: { main: '#f44336' },
-            warning: { main: '#ffa726' },
-            info: { main: '#29b6f6' },
-            success: { main: '#66bb6a' },
-        };
-
-        return createTheme({
-            // Chọn palette dựa trên prefersDarkMode
-            palette: prefersDarkMode ? darkPalette : lightPalette,
-            typography: {
-                fontFamily: "Poppins, sans-serif",
-            },
-        });
-    }, [prefersDarkMode]); // Phụ thuộc vào prefersDarkMode
-
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ThemeProvider theme={theme}>
-        <CssBaseline />
           <RouterProvider router={router} />
         </ThemeProvider>
       </AuthProvider>

@@ -254,16 +254,16 @@ import isoToTime from "../../utils/isoToTime";
 import EditFacilityModal from "../modals/EditFacilityModal";
 import DeleteFacilityModal from "../modals/DeleteFacilityModal";
 
-// Định nghĩa cột (Giữ nguyên)
+// Định nghĩa cột 
 const columns: readonly AdminRoomsColumnData[] = [
-    { id: "name", label: "Name/Building", minWidth: 145 },
-    { id: "description", label: "Description", minWidth: 140 },
-    { id: "status", label: "Status", minWidth: 100 },
-    { id: "createdAt", label: "Created At", minWidth: 150 },
-    { id: "updatedAt", label: "Updated At", minWidth: 150 },
-    { id: "deletedAt", label: "Deleted At", minWidth: 150 },
-    { id: "facilityManager", label: "Facility Manager", minWidth: 170 },
-    { id: "actions", label: "Operations", minWidth: 130, align: 'center' },
+    { id: "name", label: "Tên/Tòa", minWidth: 145 },
+    { id: "description", label: "Mô tả", minWidth: 140 },
+    { id: "status", label: "Trạng thái", minWidth: 100 },
+    { id: "createdAt", label: "Thời gian tạo", minWidth: 150 },
+    { id: "updatedAt", label: "Thời gian cập nhật", minWidth: 150 },
+    // { id: "deletedAt", label: "Deleted At", minWidth: 150 },
+    { id: "facilityManager", label: "Quản lý", minWidth: 170 },
+    { id: "actions", label: "Sửa/Xóa", minWidth: 130, align: 'center' },
 ];
 
 // --- Component AdminFacilitiesTable ---
@@ -336,11 +336,11 @@ const AdminFacilitiesTable: FC<AdminRoomsTableProps> = ({
                      facilityData={modalData} // Truyền dữ liệu phòng cần xóa (ít nhất ID)
                  />
              )}
-             <Snackbar open={openEditSnackbar} /*...*/ >
-                 <Alert severity="success" sx={{ width: "100%" }}>Facility edited!</Alert>
+             <Snackbar open={openEditSnackbar}  >
+                 <Alert severity="success" sx={{ width: "100%" }}>Chỉnh sửa phòng thành công !</Alert>
              </Snackbar>
-             <Snackbar open={openDeleteSnackbar} /*...*/ >
-                  <Alert severity="success" sx={{ width: "100%" }}>Facility deleted!</Alert>
+             <Snackbar open={openDeleteSnackbar}  >
+                  <Alert severity="success" sx={{ width: "100%" }}>Xóa phòng thành công !</Alert>
              </Snackbar>
 
              {/* Sửa: maxHeight để table không bị cố định chiều cao */}
@@ -349,7 +349,7 @@ const AdminFacilitiesTable: FC<AdminRoomsTableProps> = ({
                      <TableHead>
                          <TableRow>
                              {columns.map((column) => (
-                                 <TableCell key={column.id} align={column.align || "left"} style={{ minWidth: column.minWidth }} sx={{ backgroundColor: "action.hover", fontWeight: 'bold' }}>
+                                 <TableCell key={column.id} align={column.align || "center"} style={{ minWidth: column.minWidth }} sx={{ backgroundColor: "action.hover", fontWeight: 'bold' }}>
                                      {column.label}
                                  </TableCell>
                              ))}
