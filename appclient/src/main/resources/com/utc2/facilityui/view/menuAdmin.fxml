@@ -9,7 +9,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="616.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="616.0" prefWidth="1500.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
     <left>
         <VBox alignment="TOP_CENTER" prefHeight="616.0" prefWidth="274.0" style="-fx-background-color: #00275e;" stylesheets="@../styles/menuAdmin.css">
             <children>
@@ -127,10 +127,25 @@
                         <Insets right="100.0" />
                     </padding>
                 </Button>
+            <Button graphicTextGap="10.0" mnemonicParsing="false" prefHeight="64.0" prefWidth="350.0" style="-fx-background-color: #00275e;" styleClass="sidebar-button" text="Logout" textFill="WHITE">
+               <graphic>
+                  <ImageView fitHeight="39.0" fitWidth="34.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../images/logout.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+               <padding>
+                  <Insets right="100.0" />
+               </padding>
+            </Button>
             </children>
         </VBox>
     </left>
     <center>
-        <fx:include fx:id="manageFacilityPanel" source="manageFacility.fxml" />
+        <fx:include fx:id="manageFacilityPanel" prefHeight="800.0" prefWidth="1230.0" source="manageFacility.fxml" BorderPane.alignment="TOP_LEFT" />
     </center>
 </BorderPane>
