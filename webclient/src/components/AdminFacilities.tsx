@@ -394,18 +394,18 @@ const AdminFacilities: FC = (): JSX.Element => {
                 />
             )}
 
-            <Typography variant="h3" component="h1">Manage Rooms</Typography>
+            <Typography variant="h3" component="h1">Quản lý phòng</Typography>
 
              {/* Các nút Add, Export */}
              <Box className="w-full flex justify-between items-center">
                  <Button variant="contained" color="primary" startIcon={<InsertInvitationIcon />} sx={{ paddingX: "2em", height: "45px" }} size="large" onClick={() => setIsAddFacilityModalOpen(true)}>
-                     Add Room
+                     Thêm phòng
                  </Button>
                  {/* <Button variant="contained" color="secondary" endIcon={<DownloadIcon />} sx={{ paddingX: "2em", height: "45px" }} size="large" onClick={handleExportPdf}>
                      Export PDF
                  </Button> */}
                  <Button variant="contained" color="secondary" endIcon={<DownloadIcon />} sx={{ paddingX: "2em", height: "45px" }} size="large" onClick={handleExportPdfClick}>
-                    Export PDF
+                    Xuất PDF
                 </Button>
              </Box>
 

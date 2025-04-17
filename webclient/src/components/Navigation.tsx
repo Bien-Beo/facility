@@ -89,7 +89,7 @@ const Navigation: FC = (): JSX.Element => {
   }
 
   return (
-    <div className="w-[400px] h-[100dvh]  h-{100vh} bg-primary text-white pt-5 overflow-y-scroll sticky top-0">
+    <div className="w-[400px] h-[100dvh]  h-{100vh} bg-[#271756] text-white pt-5 overflow-y-scroll sticky top-0">
       <div className="w-full flex flex-col justify-between items-center pt-4 pb-8 gap-2 flex-wrap">
         <Avatar
           sx={{ width: "80px", height: "80px" }}
@@ -133,7 +133,7 @@ const Navigation: FC = (): JSX.Element => {
                       variant: "body1",
                       component: "li",
                     }}
-                    primary="Rooms"
+                    primary="Phòng"
                   />
                 </ListItemButton>
               )}
@@ -168,7 +168,7 @@ const Navigation: FC = (): JSX.Element => {
                       variant: "body1",
                       component: "li",
                     }}
-                    primary="Equipments"
+                    primary="Thiết bị"
                   />
                 </ListItemButton>
               )}
@@ -204,7 +204,7 @@ const Navigation: FC = (): JSX.Element => {
                       variant: "body1",
                       component: "li",
                     }}
-                    primary="Manage Facilities"
+                    primary="Quản lý phòng"
                   />
                 </ListItemButton>
               )}
@@ -234,7 +234,7 @@ const Navigation: FC = (): JSX.Element => {
                       variant: "body1",
                       component: "li",
                     }}
-                    primary="Manage Bookings"
+                    primary="Quản lý đặt phòng"
                   />
                 </ListItemButton>
               )}
@@ -336,7 +336,7 @@ const Navigation: FC = (): JSX.Element => {
                       variant: "body1",
                       component: "li",
                     }}
-                    primary="My Bookings"
+                    primary="Đặt phòng của tôi"
                   />
                 </ListItemButton>
               )}
@@ -382,7 +382,7 @@ const Navigation: FC = (): JSX.Element => {
                       variant: "body1",
                       component: "li",
                     }}
-                    primary="Approval Requests"
+                    primary="Yêu cầu phê duyệt"
                   />  
                 </ListItemButton>
               )}
@@ -426,7 +426,7 @@ const Navigation: FC = (): JSX.Element => {
                       variant: "body1",
                       component: "li",
                     }}
-                    primary="Cancellation Requests"
+                    primary="Yêu cầu hủy"
                   />
                 </ListItemButton>
               )}
@@ -470,7 +470,7 @@ const Navigation: FC = (): JSX.Element => {
                       variant: "body1",
                       component: "li",
                     }}
-                    primary="Report"
+                    primary="Báo cáo"
                   />
                 </ListItemButton>
               )}
@@ -501,7 +501,7 @@ const Navigation: FC = (): JSX.Element => {
                   variant: "body1",
                   component: "li",
                 }}
-                primary="Reset Password"
+                primary="Đặt lại mật khẩu"
               />
             </ListItemButton>
           )}
@@ -536,7 +536,7 @@ const Navigation: FC = (): JSX.Element => {
               variant: "body1",
               component: "li",
             }}
-            primary="Logout"
+            primary="Đăng xuất"
           />
         </ListItemButton>
         <Divider color="#0c0051" />

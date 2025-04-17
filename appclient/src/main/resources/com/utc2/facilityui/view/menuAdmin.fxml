@@ -9,7 +9,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="616.0" prefWidth="1500.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="616.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
     <left>
         <VBox alignment="TOP_CENTER" prefHeight="616.0" prefWidth="274.0" style="-fx-background-color: #00275e;" stylesheets="@../styles/menuAdmin.css">
             <children>
@@ -128,12 +128,9 @@
                     </padding>
                 </Button>
             </children>
-         <BorderPane.margin>
-            <Insets />
-         </BorderPane.margin>
         </VBox>
     </left>
     <center>
-        <fx:include fx:id="manageFacilityPanel" prefHeight="600.0" prefWidth="1200.0" source="manageFacility.fxml" BorderPane.alignment="TOP_LEFT" />
+        <fx:include fx:id="manageFacilityPanel" source="manageFacility.fxml" />
     </center>
 </BorderPane>

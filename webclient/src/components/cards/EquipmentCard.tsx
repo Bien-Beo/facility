@@ -56,7 +56,7 @@ const EquipmentCard: FC<EquipmentCardProps> = ({
     >
       <div className={`w-[200px] h-full min-h-[300px] gap-4 m-6 p-2 pt-4 border-0 border-b-4 border-solid border-primary bg-white flex flex-col items-center justify-evenly shadow-card cursor-pointer rounded-md hover:-translate-y-1 hover:shadow-cardHover transition-all duration-150 ease-in  ${statusBackgroundColors[status]}`}>
         <img
-          src={imgModel || "/default-equipment.png"}
+          src={imgModel || "/default-equipment.jpg"}
           alt={`${modelName}-img`}
           className="w-[90%] object-cover"
         />
