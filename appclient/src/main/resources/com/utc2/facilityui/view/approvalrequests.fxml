@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.VBox?>
+
+<?import java.lang.String?>
+<VBox alignment="TOP_CENTER" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.ApprovalRequestController">
+    <stylesheets>
+        <String fx:value="/com/utc2/facilityui/styles/approvalcards.css"/>
+    </stylesheets>
+    <children>
+        <Label alignment="TOP_CENTER" style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Approval Status" />
+        <ScrollPane fitToWidth="true" vbarPolicy="AS_NEEDED">
+            <content>
+                <VBox fx:id="requestContainer" spacing="10.0" />  </content>
+        </ScrollPane>
+    </children>
+</VBox>
