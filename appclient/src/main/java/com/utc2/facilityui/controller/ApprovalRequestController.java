@@ -4,6 +4,7 @@ import com.utc2.facilityui.model.ApprovalRequest;
 import com.utc2.facilityui.controller.ApprovalRequestCardController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -19,9 +20,6 @@ import java.util.ResourceBundle;
 public class ApprovalRequestController implements Initializable {
 
     @FXML
-    private ScrollPane scrollPane;
-
-    @FXML
     private VBox requestContainer;
 
     private ObservableList<ApprovalRequest> approvalRequests = FXCollections.observableArrayList();
@@ -29,7 +27,7 @@ public class ApprovalRequestController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         loadApprovalRequests();
-        displayApprovalRequests();
+        displayApprovalRequestCards();
     }
 
     private void loadApprovalRequests() {
@@ -40,21 +38,42 @@ public class ApprovalRequestController implements Initializable {
         );
     }
 
-    private void displayApprovalRequests() {
-        try {
-            for (ApprovalRequest request : approvalRequests) {
+    private void displayApprovalRequestCards() {
+        requestContainer.getChildren().clear(); // Clear previous cards if needed
+        for (ApprovalRequest request : approvalRequests) {
+            try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/utc2/facilityui/component/cardApprovalRequest.fxml"));
                 Parent card = loader.load();
                 ApprovalRequestCardController cardController = loader.getController();
                 cardController.setData(request);
+
+                // Set the event handlers in the card controller to methods in this controller
+                cardController.setOnAcceptAction(event -> handleAccept(request));
+                cardController.setOnRejectAction(event -> handleReject(request));
+
                 requestContainer.getChildren().add(card);
+            } catch (IOException e) {
+                e.printStackTrace();
+                // Handle the exception
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            // Handle the exception
         }
     }
 
-    // Methods to handle approval/rejection actions
-    // ...
+    private void handleAccept(ApprovalRequest request) {
+        System.out.println("Accepting request: " + request.getFacilityName());
+        // Implement your main approval logic here
+        // This might involve updating the database, sending notifications, etc.
+        // After processing, you might want to remove the request from the list and refresh the UI
+        approvalRequests.remove(request);
+        displayApprovalRequestCards(); // Refresh the UI
+    }
+
+    private void handleReject(ApprovalRequest request) {
+        System.out.println("Rejecting request: " + request.getFacilityName());
+        // Implement your main rejection logic here
+        // This might involve updating the database, sending notifications, etc.
+        // After processing, you might want to remove the request from the list and refresh the UI
+        approvalRequests.remove(request);
+        displayApprovalRequestCards(); // Refresh the UI
+    }
 }
