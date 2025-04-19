@@ -22,7 +22,7 @@ module com.utc2.facilityui {
     opens com.utc2.facilityui.app to javafx.fxml;
     opens com.utc2.facilityui.service to javafx.fxml;
     opens com.utc2.facilityui.view to javafx.fxml;
-    opens com.utc2.facilityui.model to com.google.gson;
+    opens com.utc2.facilityui.model to com.google.gson, javafx.base;
     opens com.utc2.facilityui.response to com.google.gson;
     exports com.utc2.facilityui.controller.auth;
     opens com.utc2.facilityui.controller.auth to javafx.fxml;
