@@ -8,10 +8,16 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyEvent;
+
 
 import java.net.URL;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
+import java.util.List;
+import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
@@ -51,7 +57,7 @@ public class ManageBookingsController implements Initializable {
     private TextField yearTextField;
 
     @FXML
-    private ComboBox<String> facilityComboBox;
+    private TextField facilityTextField;
 
     @FXML
     private TextField employeeIdTextField;
@@ -78,7 +84,7 @@ public class ManageBookingsController implements Initializable {
         dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
         dateColumn.setCellFactory(column -> {
             return new TableCell<Booking, LocalDateTime>() {
-                private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEE MMM dd yyyy");
+                private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM dd, yyyy"); // Định dạng đầy đủ
 
                 @Override
                 protected void updateItem(LocalDateTime item, boolean empty) {
@@ -86,11 +92,13 @@ public class ManageBookingsController implements Initializable {
                     if (empty || item == null) {
                         setText(null);
                     } else {
-                        setText(dateFormatter.format(item));
+                        setText(dateFormatter.format(item)); // Hiển thị theo định dạng đầy đủ
                     }
                 }
             };
         });
+
+
 
         timeSlotColumn.setCellValueFactory(new PropertyValueFactory<>("timeSlot"));
 
@@ -123,8 +131,7 @@ public class ManageBookingsController implements Initializable {
         monthComboBox.setItems(FXCollections.observableArrayList(
                 "January", "February", "March", "April", "May", "June",
                 "July", "August", "September", "October", "November", "December"
-        ).sorted());
-        facilityComboBox.setItems(FXCollections.observableArrayList("Facility A", "Facility B", "Facility C").sorted());
+        ));
         rowsPerPageComboBox.setItems(FXCollections.observableArrayList("10", "25", "50", "100").sorted());
         rowsPerPageComboBox.setValue(String.valueOf(rowsPerPage));
         updateCurrentPageLabel();
@@ -132,20 +139,37 @@ public class ManageBookingsController implements Initializable {
 
     private void loadBookingDataForPage(int pageNumber, int rowsPerPage) {
         bookingData.clear();
+        allBookingData.clear();
+
         System.out.println("loadBookingDataForPage() called for page: " + pageNumber + ", rows per page: " + rowsPerPage);
 
-        // Your data loading logic (example hardcoded data):
-        bookingData.addAll(
-                new Booking("Lunch Courtyard", "Sam Bergnaum", "A lunch party", LocalDateTime.now(), "12:30 PM - 02:00 PM", LocalDateTime.now(), "Not approved", "Not approved"),
-                new Booking("Celebration Courtyard", "Sam Bergnaum", "a celebration party", LocalDateTime.now().plusDays(1), "10:00 AM - 12:00 PM", LocalDateTime.now(), "Grace Cummerata", "Grady Turco")
-                // Add more test data
+        List<Booking> loadedData = List.of(
+                new Booking("Lunch Courtyard", "Sam Bergnaum", "A lunch party",
+                        LocalDateTime.of(2025, 4, 22, 12, 30), // April
+                        "12:30 PM - 02:00 PM",
+                        LocalDateTime.now(),
+                        "Not approved",
+                        "Not approved"),
+
+                new Booking("Celebration Courtyard", "Sam Bergnaum", "a celebration party",
+                        LocalDateTime.of(2025, 5, 15, 10, 0), // May
+                        "10:00 AM - 12:00 PM",
+                        LocalDateTime.now(),
+                        "Grace Cummerata",
+                        "Grady Turco")
         );
 
-        System.out.println("bookingData size after loading: " + bookingData.size());
-        for (Booking booking : bookingData) {
-            System.out.println("Loaded Booking: " + booking); // Make sure toString() in Booking is helpful
-        }
+        bookingData.addAll(loadedData);
+        allBookingData.addAll(loadedData);
+
+        // Debug log
+        loadedData.forEach(booking -> {
+            System.out.println("Loaded booking: " + booking);
+        });
+
+        updateCurrentPageLabel(bookingData.size());
     }
+
 
     private int calculateTotalPages(int rowsPerPage) {
         // Implement logic to calculate total pages
@@ -176,136 +200,124 @@ public class ManageBookingsController implements Initializable {
     }
 
     @FXML
-    void handleFilterByMonth(ActionEvent event) {
-        // Implement logic
-        currentPage = 1;
+    void handleSearchByMonth(ActionEvent event) {
+        for (Booking b : allBookingData) {
+            if (b.getDate() != null) {
+                System.out.println("Booking date: " + b.getDate() +
+                        " | Month: " + b.getDate().getMonth().getDisplayName(TextStyle.FULL, Locale.ENGLISH));
+            }
+        }
         String selectedMonth = monthComboBox.getValue();
         bookingData.clear();
+
         if (selectedMonth != null && !selectedMonth.isEmpty()) {
-            bookingData.addAll(allBookingData.stream().filter(booking -> {
-                boolean dateMatch = booking.getDate() != null && booking.getDate().getMonth().toString().equalsIgnoreCase(selectedMonth.toUpperCase());
-                return dateMatch;
-            }).collect(Collectors.toList()));
+            // In ra tháng đã chọn để debug
+            System.out.println("Selected Month (Search): " + selectedMonth);
+
+            // Lọc dữ liệu theo tên tháng đầy đủ (ví dụ: "April")
+            List<Booking> filtered = allBookingData.stream()
+                    .filter(booking -> {
+                        if (booking.getDate() != null) {
+                            String bookingMonth = booking.getDate()
+                                    .getMonth()
+                                    .getDisplayName(TextStyle.FULL, Locale.ENGLISH);
+                            return bookingMonth.equalsIgnoreCase(selectedMonth);
+                        }
+                        return false;
+                    })
+                    .collect(Collectors.toList());
+
+            bookingData.addAll(filtered);
+            System.out.println("Filtered Booking Data Size (Selected Month): " + filtered.size());
         } else {
             loadBookingDataForPage(currentPage, rowsPerPage);
         }
-        updateCurrentPageLabel();
+
+        updateCurrentPageLabel(bookingData.size());
     }
 
     @FXML
     void handleFilterByYear(ActionEvent event) {
-        // Implement logic
         currentPage = 1;
-        String yearText = yearTextField.getText();
+        String yearText = yearTextField.getText().trim(); // Xóa khoảng trắng nếu có
+
         if (!yearText.isEmpty()) {
             try {
                 int yearValue = Integer.parseInt(yearText);
                 bookingData.clear();
-                bookingData.addAll(allBookingData.stream().filter(booking -> booking.getDate().getYear() == yearValue).collect(Collectors.toList()));
+
+                List<Booking> filteredByYear = allBookingData.stream()
+                        .filter(booking -> booking.getDate() != null && booking.getDate().getYear() == yearValue)
+                        .collect(Collectors.toList());
+
+                bookingData.addAll(filteredByYear);
+                System.out.println("Filtered Booking Data Size (Selected Year): " + filteredByYear.size());
+
             } catch (NumberFormatException e) {
-                // Handle invalid year format
+                System.err.println("Invalid year format: " + yearText);
+                // Optionally show alert to user here
             }
         } else {
+            // Nếu để trống thì load lại toàn bộ dữ liệu cho trang đầu
             loadBookingDataForPage(currentPage, rowsPerPage);
         }
-        updateCurrentPageLabel();
+
+        updateCurrentPageLabel(bookingData.size());
     }
 
     @FXML
-    void handleFilterByFacility(ActionEvent event) {
-        // Implement logic
-        currentPage = 1;
-        String selectedFacility = facilityComboBox.getValue();
-        if (selectedFacility != null) {
-            bookingData.clear();
-            bookingData.addAll(allBookingData.stream().filter(booking -> booking.getTitleFacility().contains(selectedFacility)).collect(Collectors.toList()));
+    public void handleLiveSearchFacility(KeyEvent event) {
+        String input = facilityTextField.getText().trim().toLowerCase();
+        bookingData.clear();
+
+        if (!input.isEmpty()) {
+            List<Booking> filtered = allBookingData.stream()
+                    .filter(b -> b.getTitleFacility().toLowerCase().contains(input))
+                    .collect(Collectors.toList());
+            bookingData.addAll(filtered);
         } else {
-            loadBookingDataForPage(currentPage, rowsPerPage);
+            loadBookingDataForPage(currentPage, rowsPerPage); // hoặc bookingData.addAll(allBookingData);
         }
-        updateCurrentPageLabel();
+
+        updateCurrentPageLabel(bookingData.size());
     }
 
     @FXML
-    void handleFilterByEmployeeId(ActionEvent event) {
-        // Implement logic
-        currentPage = 1;
-        String employeeIdText = employeeIdTextField.getText();
-        if (!employeeIdText.isEmpty()) {
-            bookingData.clear();
+    void handleLiveSearchByFacilityMan(KeyEvent event) {
+        String input = employeeIdTextField.getText().trim().toLowerCase();
+        bookingData.clear();
+
+        if (!input.isEmpty()) {
             bookingData.addAll(allBookingData.stream()
-                    .filter(booking -> booking.getRequestedBy().toLowerCase().contains(employeeIdText.toLowerCase()))
+                    .filter(booking -> booking.getFacilityMan() != null &&
+                            booking.getFacilityMan().toLowerCase().contains(input))
                     .collect(Collectors.toList()));
         } else {
             loadBookingDataForPage(currentPage, rowsPerPage);
         }
-        updateCurrentPageLabel();
+
+        updateCurrentPageLabel(bookingData.size());
     }
 
     @FXML
     void handleResetFilters(ActionEvent event) {
-        // Implement logic
+        // Reset current page and rows per page
         currentPage = 1;
         rowsPerPage = 10;
+
+        // Clear all TextFields
+        monthComboBox.setValue(null); // Reset ComboBox (Month)
+        yearTextField.clear(); // Clear Year TextField
+        employeeIdTextField.clear(); // Clear Employee ID TextField
+
+        // If you have more TextFields to reset, add them here
+        facilityTextField.clear(); // Example TextField for Facility Name
+
+        // Reload all data without any filters
         loadBookingDataForPage(currentPage, rowsPerPage);
+
+        // Update the pagination label
         updateCurrentPageLabel();
-        monthComboBox.setValue(null);
-        yearTextField.clear();
-        facilityComboBox.setValue(null);
-        employeeIdTextField.clear();
-    }
-
-    @FXML
-    void handleApplyFilters(ActionEvent event) {
-        // Implement logic
-        System.out.println("Apply Filters clicked");
-        currentPage = 1;
-        bookingData.clear();
-
-        // Apply filters
-        String selectedMonth = monthComboBox.getValue();
-        String yearText = yearTextField.getText();
-        String selectedFacility = facilityComboBox.getValue();
-        String employeeIdText = employeeIdTextField.getText();
-
-        ObservableList<Booking> filteredList = allBookingData;
-
-        if (selectedMonth != null) {
-            int monthValue = LocalDateTime.parse("2023-" + selectedMonth + "-01T00:00:00").getMonthValue();
-            filteredList = filteredList.stream()
-                    .filter(booking -> booking.getDate().getMonthValue() == monthValue)
-                    .collect(Collectors.toCollection(FXCollections::observableArrayList));
-        }
-
-        if (!yearText.isEmpty()) {
-            try {
-                int yearValue = Integer.parseInt(yearText);
-                filteredList = filteredList.stream()
-                        .filter(booking -> booking.getDate().getYear() == yearValue)
-                        .collect(Collectors.toCollection(FXCollections::observableArrayList));
-            } catch (NumberFormatException e) {
-                // Handle invalid year format (optional: show error to user)
-                System.err.println("Invalid year format: " + yearText);
-            }
-        }
-
-        if (selectedFacility != null) {
-            filteredList = filteredList.stream()
-                    .filter(booking -> booking.getTitleFacility().toLowerCase().contains(selectedFacility.toLowerCase()))
-                    .collect(Collectors.toCollection(FXCollections::observableArrayList));
-        }
-
-        if (!employeeIdText.isEmpty()) {
-            filteredList = filteredList.stream()
-                    .filter(booking -> booking.getRequestedBy().toLowerCase().contains(employeeIdText.toLowerCase()))
-                    .collect(Collectors.toCollection(FXCollections::observableArrayList));
-        }
-
-        // Load the filtered data for the current page
-        int startIndex = (currentPage - 1) * rowsPerPage;
-        int endIndex = Math.min(startIndex + rowsPerPage, filteredList.size());
-        bookingData.addAll(filteredList.subList(startIndex, endIndex));
-
-        updateCurrentPageLabel(filteredList.size());
     }
 
     private void updateCurrentPageLabel(int totalItems) {
@@ -339,9 +351,6 @@ public class ManageBookingsController implements Initializable {
             sb.append(booking.getGroupDirector()).append(",");
             sb.append(booking.getFacilityMan()).append("\n");
         }
-
-        // Save to a file (you'll need to handle file selection, error handling, etc.)
-        // For a simple example, print to console:
         System.out.println("Exported Data:\n" + sb.toString());
     }
 

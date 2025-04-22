@@ -24,26 +24,69 @@ public class Booking {
         this.facilityMan = facilityMan;
     }
 
-    // Getters cho tất cả các thuộc tính
+    public String getTitleFacility() {
+        return titleFacility;
+    }
 
-    public String getTitleFacility() { return titleFacility; }
-    public String getRequestedBy() { return requestedBy; }
-    public String getPurpose() { return purpose; }
-    public LocalDateTime getDate() { return date; }
-    public String getTimeSlot() { return timeSlot; }
-    public LocalDateTime getRequestedAt() { return requestedAt; }
-    public String getGroupDirector() { return groupDirector; }
-    public String getFacilityMan() { return facilityMan; }
+    public void setTitleFacility(String titleFacility) {
+        this.titleFacility = titleFacility;
+    }
 
-    // Setters (nếu cần)
-    public void setTitleFacility(String titleFacility) { this.titleFacility = titleFacility; }
-    public void setRequestedBy(String requestedBy) { this.requestedBy = requestedBy; }
-    public void setPurpose(String purpose) { this.purpose = purpose; }
-    public void setDate(LocalDateTime date) { this.date = date; }
-    public void setTimeSlot(String timeSlot) { this.timeSlot = timeSlot; }
-    public void setRequestedAt(LocalDateTime requestedAt) { this.requestedAt = requestedAt; }
-    public void getGroupDirector(String groupDirector) { this.groupDirector = groupDirector; }
-    public void getFacilityMan(String facilityMan) { this.facilityMan = facilityMan; }
+    public String getRequestedBy() {
+        return requestedBy;
+    }
+
+    public void setRequestedBy(String requestedBy) {
+        this.requestedBy = requestedBy;
+    }
+
+    public String getPurpose() {
+        return purpose;
+    }
+
+    public void setPurpose(String purpose) {
+        this.purpose = purpose;
+    }
+
+    public LocalDateTime getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDateTime date) {
+        this.date = date;
+    }
+
+    public String getTimeSlot() {
+        return timeSlot;
+    }
+
+    public void setTimeSlot(String timeSlot) {
+        this.timeSlot = timeSlot;
+    }
+
+    public LocalDateTime getRequestedAt() {
+        return requestedAt;
+    }
+
+    public void setRequestedAt(LocalDateTime requestedAt) {
+        this.requestedAt = requestedAt;
+    }
+
+    public String getFacilityMan() {
+        return facilityMan;
+    }
+
+    public void setFacilityMan(String facilityMan) {
+        this.facilityMan = facilityMan;
+    }
+
+    public String getGroupDirector() {
+        return groupDirector;
+    }
+
+    public void setGroupDirector(String groupDirector) {
+        this.groupDirector = groupDirector;
+    }
 
     @Override
     public String toString() {

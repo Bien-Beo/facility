@@ -37,10 +37,10 @@
                     <children>
                         <Button text="All" onAction="#handleShowAllBookings"/>
                         <Button style="-fx-background-color: #ffffff;" text="This month" onAction="#handleShowThisMonthBookings"/>
-                        <ComboBox fx:id="monthComboBox" promptText="Select month" style="-fx-background-color: #ffffff;" onAction="#handleFilterByMonth"/>
-                        <TextField promptText="Enter year" onAction="#handleFilterByYear"/>
-                        <ComboBox fx:id="facilityComboBox" promptText="Select facility" style="-fx-background-color: #ffffff;" onAction="#handleFilterByFacility"/>
-                        <TextField promptText="Enter employeeld" onAction="#handleFilterByEmployeeId"/>
+                        <ComboBox fx:id="monthComboBox" promptText="Select month" style="-fx-background-color: #ffffff;" onAction="#handleSearchByMonth"/>
+                        <TextField fx:id="yearTextField" promptText="Search year" onAction="#handleFilterByYear"/>
+                        <TextField fx:id="facilityTextField" promptText="Search facility" onKeyReleased="#handleLiveSearchFacility" />
+                        <TextField fx:id="employeeIdTextField" promptText="Search manager" onKeyReleased="#handleLiveSearchByFacilityMan"/>
                         <Button style="-fx-background-color: #1976d2;" text="RESET" textFill="WHITE" onAction="#handleResetFilters">
                      <font>
                         <Font name="System Bold" size="12.0" />
@@ -48,10 +48,6 @@
                      <HBox.margin>
                         <Insets right="15.0" />
                      </HBox.margin></Button>
-                        <Button style="-fx-background-color: #1976d2;" text="FILTER" textFill="WHITE" onAction="#handleApplyFilters">
-                     <font>
-                        <Font name="System Bold" size="12.0" />
-                     </font></Button>
                     </children>
                 </HBox>
             </children>
@@ -69,11 +65,11 @@
                 <TableColumn fx:id="titleFacilityColumn" prefWidth="200.0" text="Title / Facility" />
                 <TableColumn fx:id="requestedByColumn" prefWidth="150.0" text="Requested By" />
                 <TableColumn fx:id="purposeColumn" prefWidth="150.0" text="Purpose" />
-                <TableColumn fx:id="dateColumn" prefWidth="120.0" text="Date" />
+                <TableColumn fx:id="dateColumn" prefWidth="150.0" text="Date" />
                 <TableColumn fx:id="timeSlotColumn" prefWidth="150.0" text="Time slot" />
                 <TableColumn fx:id="requestedAtColumn" prefWidth="150.0" text="Requested At" />
                 <TableColumn fx:id="groupDirectorColumn" prefWidth="150.0" text="Group Director" />
-                <TableColumn fx:id="facilityManColumn" prefWidth="180.0" text="Facility Man" />
+                <TableColumn fx:id="facilityManColumn" prefWidth="150.0" text="Facility Man" />
             </columns>
         </TableView>
     </center>
