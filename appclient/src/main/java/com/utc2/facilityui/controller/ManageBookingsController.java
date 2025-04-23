@@ -1,5 +1,11 @@
 package com.utc2.facilityui.controller;
 
+
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.property.UnitValue;
 import com.utc2.facilityui.model.Booking;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -9,8 +15,13 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
+import com.itextpdf.layout.property.TextAlignment;
 
 
+
+import com.itextpdf.layout.Document;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -132,53 +143,95 @@ public class ManageBookingsController implements Initializable {
                 "January", "February", "March", "April", "May", "June",
                 "July", "August", "September", "October", "November", "December"
         ));
-        rowsPerPageComboBox.setItems(FXCollections.observableArrayList("10", "25", "50", "100").sorted());
-        rowsPerPageComboBox.setValue(String.valueOf(rowsPerPage));
+        rowsPerPageComboBox.setItems(FXCollections.observableArrayList("6", "10", "20").sorted());
+        rowsPerPageComboBox.setValue(String.valueOf(6));
         updateCurrentPageLabel();
     }
 
     private void loadBookingDataForPage(int pageNumber, int rowsPerPage) {
         bookingData.clear();
-        allBookingData.clear();
 
-        System.out.println("loadBookingDataForPage() called for page: " + pageNumber + ", rows per page: " + rowsPerPage);
+        // Nếu dữ liệu gốc chưa có, load 1 lần và giữ lại
+        if (allBookingData.isEmpty()) {
+            List<Booking> loadedData = List.of(
+                    new Booking("Lunch Courtyard", "Sam Bergnaum", "A lunch party",
+                            LocalDateTime.of(2025, 4, 22, 12, 30), // April
+                            "12:30 PM - 02:00 PM",
+                            LocalDateTime.now(),
+                            "Not approved",
+                            "Not approved"),
 
-        List<Booking> loadedData = List.of(
-                new Booking("Lunch Courtyard", "Sam Bergnaum", "A lunch party",
-                        LocalDateTime.of(2025, 4, 22, 12, 30), // April
-                        "12:30 PM - 02:00 PM",
-                        LocalDateTime.now(),
-                        "Not approved",
-                        "Not approved"),
+                    new Booking("Celebration Courtyard", "Sam Bergnaum", "a celebration party",
+                            LocalDateTime.of(2025, 5, 15, 10, 0), // May
+                            "10:00 AM - 12:00 PM",
+                            LocalDateTime.now(),
+                            "Grace Cummerata",
+                            "Grady Turco"),
 
-                new Booking("Celebration Courtyard", "Sam Bergnaum", "a celebration party",
-                        LocalDateTime.of(2025, 5, 15, 10, 0), // May
-                        "10:00 AM - 12:00 PM",
-                        LocalDateTime.now(),
-                        "Grace Cummerata",
-                        "Grady Turco")
-        );
+                    new Booking("Celebration Courtyard", "Sam Bergnaum", "a celebration party",
+                            LocalDateTime.of(2025, 5, 15, 10, 0), // May
+                            "10:00 AM - 12:00 PM",
+                            LocalDateTime.now(),
+                            "Grace Cummerata",
+                            "Grady Turco"),
 
-        bookingData.addAll(loadedData);
-        allBookingData.addAll(loadedData);
+                    new Booking("Celebration Courtyard", "Sam Bergnaum", "a celebration party",
+                            LocalDateTime.of(2025, 5, 15, 10, 0), // May
+                            "10:00 AM - 12:00 PM",
+                            LocalDateTime.now(),
+                            "Grace Cummerata",
+                            "Grady Turco"),
+
+                    new Booking("Celebration Courtyard", "Sam Bergnaum", "a celebration party",
+                            LocalDateTime.of(2025, 5, 15, 10, 0), // May
+                            "10:00 AM - 12:00 PM",
+                            LocalDateTime.now(),
+                            "Grace Cummerata",
+                            "Grady Turco"),
+
+                    new Booking("Celebration Courtyard", "Sam Bergnaum", "a celebration party",
+                            LocalDateTime.of(2025, 5, 15, 10, 0), // May
+                            "10:00 AM - 12:00 PM",
+                            LocalDateTime.now(),
+                            "Grace Cummerata",
+                            "Grady Turco"),
+
+                    new Booking("Celebration Courtyard", "Sam Bergnaum", "a celebration party",
+                            LocalDateTime.of(2025, 5, 15, 10, 0), // May
+                            "10:00 AM - 12:00 PM",
+                            LocalDateTime.now(),
+                            "Grace Cummerata",
+                            "Grady Turco")
+            );
+
+            allBookingData.setAll(loadedData);
+        }
+
+        int startIndex = (pageNumber - 1) * rowsPerPage;
+        int endIndex = Math.min(startIndex + rowsPerPage, allBookingData.size());
+
+        // Chỉ tải dữ liệu nằm trong khoảng startIndex đến endIndex
+        for (int i = startIndex; i < endIndex; i++) {
+            bookingData.add(allBookingData.get(i));
+        }
 
         // Debug log
-        loadedData.forEach(booking -> {
+        bookingData.forEach(booking -> {
             System.out.println("Loaded booking: " + booking);
         });
 
-        updateCurrentPageLabel(bookingData.size());
+        updateCurrentPageLabel(allBookingData.size());
     }
 
 
     private int calculateTotalPages(int rowsPerPage) {
-        // Implement logic to calculate total pages
-        return (int) Math.ceil((double) bookingData.size() / rowsPerPage);
+        if (rowsPerPage <= 0) return 1;
+        return (int) Math.ceil((double) allBookingData.size() / rowsPerPage);
     }
 
     private void updateCurrentPageLabel() {
         int totalPages = calculateTotalPages(rowsPerPage);
-        currentPageLabel.setText(currentPage + "-" + totalPages + " of " + totalPages);
+        currentPageLabel.setText("Page " + currentPage + " of " + totalPages);
     }
 
     @FXML
@@ -303,7 +356,7 @@ public class ManageBookingsController implements Initializable {
     void handleResetFilters(ActionEvent event) {
         // Reset current page and rows per page
         currentPage = 1;
-        rowsPerPage = 10;
+        rowsPerPage = 6;
 
         // Clear all TextFields
         monthComboBox.setValue(null); // Reset ComboBox (Month)
@@ -322,62 +375,96 @@ public class ManageBookingsController implements Initializable {
 
     private void updateCurrentPageLabel(int totalItems) {
         int totalPages = calculateTotalPages(rowsPerPage, totalItems);
-        currentPageLabel.setText(currentPage + "-" + Math.min(currentPage * rowsPerPage, totalItems) + " of " + totalItems);
+
+        int startItem = (currentPage - 1) * rowsPerPage + 1;
+        int endItem = Math.min(currentPage * rowsPerPage, totalItems);
+
+        if (totalItems == 0) {
+            currentPageLabel.setText("0-0 of 0");
+        } else {
+            currentPageLabel.setText(startItem + "-" + endItem + " of " + totalItems);
+        }
     }
 
     private int calculateTotalPages(int rowsPerPage, int totalItems) {
         if (rowsPerPage <= 0) {
-            return 1; // Avoid division by zero
+            return 1; // Tránh chia cho 0
         }
         return (int) Math.ceil((double) totalItems / rowsPerPage);
     }
 
     public void handleExportBookings(ActionEvent actionEvent) {
-        // Implement logic
         System.out.println("Export Bookings clicked");
-        // Implement logic to export booking data (e.g., to CSV, Excel)
 
-        StringBuilder sb = new StringBuilder();
-        // Add headers
-        sb.append("Title/Facility,Requested By,Purpose,Date,Time Slot,Requested At,Group Director,Facility Man\n");
-        // Add data rows
-        for (Booking booking : allBookingData) { // Export all data, not just the current page
-            sb.append(booking.getTitleFacility()).append(",");
-            sb.append(booking.getRequestedBy()).append(",");
-            sb.append(booking.getPurpose()).append(",");
-            sb.append(booking.getDate()).append(",");
-            sb.append(booking.getTimeSlot()).append(",");
-            sb.append(booking.getRequestedAt()).append(",");
-            sb.append(booking.getGroupDirector()).append(",");
-            sb.append(booking.getFacilityMan()).append("\n");
+        String dest = "bookings_export.pdf"; // Output file path
+
+        try {
+            PdfWriter writer = new PdfWriter(new FileOutputStream(dest));
+            PdfDocument pdf = new PdfDocument(writer);
+            Document document = new Document(pdf);
+
+            document.add(new Paragraph("Booking Export")
+                    .setBold()
+                    .setFontSize(14)
+                    .setTextAlignment(TextAlignment.CENTER));
+            document.add(new Paragraph("\n"));
+
+            Table table = new Table(UnitValue.createPercentArray(new float[]{2, 2, 2, 2, 2, 2, 2, 2}))
+                    .useAllAvailableWidth();
+
+            // Header row
+            table.addHeaderCell("Title/Facility");
+            table.addHeaderCell("Requested By");
+            table.addHeaderCell("Purpose");
+            table.addHeaderCell("Date");
+            table.addHeaderCell("Time Slot");
+            table.addHeaderCell("Requested At");
+            table.addHeaderCell("Group Director");
+            table.addHeaderCell("Facility Man");
+
+            // Data rows
+            for (Booking booking : allBookingData) {
+                table.addCell(booking.getTitleFacility());
+                table.addCell(booking.getRequestedBy());
+                table.addCell(booking.getPurpose());
+                table.addCell(booking.getDate().toString());
+                table.addCell(booking.getTimeSlot());
+                table.addCell(booking.getRequestedAt().toString());
+                table.addCell(booking.getGroupDirector());
+                table.addCell(booking.getFacilityMan());
+            }
+
+            document.add(table);
+            document.close();
+
+            System.out.println("PDF exported successfully to: " + dest);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
-        System.out.println("Exported Data:\n" + sb.toString());
     }
 
     public void handleRowsPerPageChange(ActionEvent actionEvent) {
-        // Implement logic
-        String selectedRowsPerPage = rowsPerPageComboBox.getValue();
-        rowsPerPage = Integer.parseInt(selectedRowsPerPage);
-        currentPage = 1;
+        rowsPerPage = 6;
+        currentPage = 1; // Bắt đầu từ trang đầu tiên
         loadBookingDataForPage(currentPage, rowsPerPage);
-        updateCurrentPageLabel();
+        updateCurrentPageLabel(allBookingData.size());
     }
 
     public void handlePreviousPage(ActionEvent actionEvent) {
-        // Implement logic
         if (currentPage > 1) {
             currentPage--;
             loadBookingDataForPage(currentPage, rowsPerPage);
-            updateCurrentPageLabel();
+            updateCurrentPageLabel(allBookingData.size());
         }
     }
 
     public void handleNextPage(ActionEvent actionEvent) {
-        int totalPages = calculateTotalPages(rowsPerPage);
+        int totalPages = calculateTotalPages(rowsPerPage, allBookingData.size());
         if (currentPage < totalPages) {
             currentPage++;
             loadBookingDataForPage(currentPage, rowsPerPage);
-            updateCurrentPageLabel();
+            updateCurrentPageLabel(allBookingData.size());
         }
     }
 }

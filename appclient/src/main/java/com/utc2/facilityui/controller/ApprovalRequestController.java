@@ -9,6 +9,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 
@@ -61,19 +63,33 @@ public class ApprovalRequestController implements Initializable {
 
     private void handleAccept(ApprovalRequest request) {
         System.out.println("Accepting request: " + request.getFacilityName());
-        // Implement your main approval logic here
-        // This might involve updating the database, sending notifications, etc.
-        // After processing, you might want to remove the request from the list and refresh the UI
-        approvalRequests.remove(request);
-        displayApprovalRequestCards(); // Refresh the UI
+        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmation.setTitle("Confirm Accept");
+        confirmation.setHeaderText(null);
+        confirmation.setContentText("Are you sure you want to accept the request for " + request.getFacilityName() + "?");
+
+        confirmation.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                approvalRequests.remove(request);
+                displayApprovalRequestCards(); // Refresh the UI
+                // Implement logic to update the booking status in your data source
+            }
+        });
     }
 
     private void handleReject(ApprovalRequest request) {
         System.out.println("Rejecting request: " + request.getFacilityName());
-        // Implement your main rejection logic here
-        // This might involve updating the database, sending notifications, etc.
-        // After processing, you might want to remove the request from the list and refresh the UI
-        approvalRequests.remove(request);
-        displayApprovalRequestCards(); // Refresh the UI
+        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmation.setTitle("Confirm Reject");
+        confirmation.setHeaderText(null);
+        confirmation.setContentText("Are you sure you want to reject the request for " + request.getFacilityName() + "?");
+
+        confirmation.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                approvalRequests.remove(request);
+                displayApprovalRequestCards(); // Refresh the UI
+                // Implement logic to update the booking status in your data source
+            }
+        });
     }
 }

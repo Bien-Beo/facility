@@ -106,7 +106,7 @@
                 <Insets right="80.0"/>
             </padding>
             <tooltip>
-                <Tooltip text="Xem các yêu cầu phê duyệt"/>
+                <Tooltip text="Approval Requests"/>
             </tooltip>
         </Button>
         <Button fx:id="cancellationRequestsButton" onAction="#handleCancellationRequests" graphicTextGap="10.0"
@@ -128,7 +128,7 @@
                 <Insets right="60.0"/>
             </padding>
             <tooltip>
-                <Tooltip text="View Cancellation Requests"/>
+                <Tooltip text="Cancellation Requests"/>
             </tooltip>
         </Button>
         <Button fx:id="reportButton" onAction="#handleReport" graphicTextGap="10.0" mnemonicParsing="false"
@@ -150,7 +150,7 @@
                 <Insets right="160.0"/>
             </padding>
             <tooltip>
-                <Tooltip text="Generate Reports"/>
+                <Tooltip text="Reports"/>
             </tooltip>
         </Button>
         <Button fx:id="resetPasswordButton" onAction="#handleResetPassword" graphicTextGap="10.0"
@@ -194,7 +194,7 @@
                 <Insets right="100.0"/>
             </padding>
             <tooltip>
-                <Tooltip text="Logout of Application"/>
+                <Tooltip text="Logout"/>
             </tooltip>
         </Button>
     </children>

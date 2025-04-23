@@ -14,6 +14,8 @@ module com.utc2.facilityui {
     requires com.gluonhq.attach.util;
     requires com.gluonhq.charm.glisten;
     requires java.desktop;
+    requires kernel;
+    requires layout;
 
     exports com.utc2.facilityui.controller;
     opens com.utc2.facilityui.controller to javafx.fxml;
