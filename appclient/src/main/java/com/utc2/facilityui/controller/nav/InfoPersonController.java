@@ -64,4 +64,4 @@ public class InfoPersonController implements Initializable {
         ls.add(btn);
         return ls;
     }
-}
+}//

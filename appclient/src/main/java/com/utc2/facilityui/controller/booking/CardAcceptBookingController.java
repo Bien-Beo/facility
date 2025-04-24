@@ -10,7 +10,7 @@ import javafx.scene.text.Text;
 public class CardAcceptBookingController {
     @FXML
     private Text approvalByFM;
-
+//
     @FXML
     private Text approvalByGD;
 

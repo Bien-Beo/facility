@@ -7,7 +7,7 @@ import java.util.List;
 public class RoomGroupResponse {
     private String type;
     private List<Facility> rooms; // này
-
+//
     // Getters and Setters
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }

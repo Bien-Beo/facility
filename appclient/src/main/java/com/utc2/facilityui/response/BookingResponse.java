@@ -16,7 +16,7 @@ public class BookingResponse {
     private String userName; // Thêm nếu API trả về
     private String createdAt;
     private String note;
-    // private List<EquipmentResponse> bookedEquipments; // Nếu API trả về thiết bị đã đặt
+    // private List<EquipmentResponse> bookedEquipments; // Nếu API trả về thiết bị đã đặt//
 
     // Getters and Setters (Quan trọng!)
     public String getId() { return id; }

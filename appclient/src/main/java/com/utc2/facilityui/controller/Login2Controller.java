@@ -27,7 +27,7 @@ public class Login2Controller {
     @FXML private Label lbMessage;
     @FXML private TextField captchaInput;
     @FXML private Label captchaLabel;
-
+//
     private static final String LOGIN_URL = "http://localhost:8080/facility/auth/token";
     private final OkHttpClient client = new OkHttpClient();
     private String generatedCaptcha;

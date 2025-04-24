@@ -21,7 +21,7 @@
                      <Font name="System Bold" size="20.0" />
                   </font>
                </Label>
-               <Label layoutX="44.0" layoutY="78.0" prefHeight="21.0" prefWidth="34.0" text="Date:">
+               <Label layoutX="44.0" layoutY="78.0" prefHeight="21.0" prefWidth="73.0" text="Start Time:">
                   <font>
                      <Font name="System Bold" size="13.0" />
                   </font>
@@ -36,7 +36,7 @@
                      <Font name="System Bold" size="13.0" />
                   </font>
                </Label>
-               <Label layoutX="43.0" layoutY="100.0" prefHeight="21.0" prefWidth="36.0" text="Time:">
+               <Label layoutX="43.0" layoutY="100.0" prefHeight="21.0" prefWidth="73.0" text="End Time:">
                   <font>
                      <Font name="System Bold" size="13.0" />
                   </font>
@@ -51,17 +51,17 @@
                      <Font size="13.0" />
                   </font>
                </Text>
-               <Text fx:id="dateBooking" layoutX="80.0" layoutY="93.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Thu Apr 25 2024" wrappingWidth="413.13671875">
+               <Text fx:id="plannedStartTime" layoutX="117.0" layoutY="93.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Thu Apr 25 2024" wrappingWidth="343.63671875">
                   <font>
                      <Font size="13.0" />
                   </font>
                </Text>
-               <Text fx:id="timeBooking" layoutX="79.0" layoutY="115.0" strokeType="OUTSIDE" strokeWidth="0.0" text="12:30 PM - 02:00 PM" wrappingWidth="409.63671875">
+               <Text fx:id="plannedEndTime" layoutX="107.0" layoutY="115.0" strokeType="OUTSIDE" strokeWidth="0.0" text="12:30 PM - 02:00 PM" wrappingWidth="362.13671875">
                   <font>
                      <Font size="13.0" />
                   </font>
                </Text>
-               <Text fx:id="requestBooking" layoutX="111.0" layoutY="138.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Wed Apr 24 2024, 11:58 AM" wrappingWidth="396.13671875">
+               <Text fx:id="requestBooking" layoutX="117.0" layoutY="137.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Wed Apr 24 2024, 11:58 AM" wrappingWidth="396.13671875">
                   <font>
                      <Font size="13.0" />
                   </font>

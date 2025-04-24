@@ -8,7 +8,7 @@ public class CardAcceptBooking extends CardBooking{
     String approvalByGD;
 
     public CardAcceptBooking() {}
-
+//
     public CardAcceptBooking(String purposeBooking, String nameBooking, String dateBooking, String timeBooking, String requestBooking, String statusBooking, String approvalByFM, String approvalByGD) {
         super(purposeBooking, nameBooking, dateBooking, timeBooking, requestBooking, statusBooking);
         this.approvalByFM = approvalByFM;

@@ -1,5 +1,5 @@
 package com.utc2.facilityui.model;
-
+//
 public class CardBooking {
     String nameBooking;
     String purposeBooking;

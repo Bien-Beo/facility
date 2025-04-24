@@ -16,7 +16,7 @@ import javafx.scene.layout.AnchorPane;
 import java.io.InputStream; // Cần import InputStream
 
 public class Controller { // Có thể đổi tên thành CardController cho rõ nghĩa
-
+//
     @FXML private Label nameManager;
     @FXML private Label roleManager;
     @FXML private ImageView roomImg;
