@@ -95,7 +95,7 @@
                         </image>
                     </ImageView>
                     <StackPane>
-                        <Label fx:id="approvalCountLabel" styleClass="notification-badge" text="4"/>
+                        <Label fx:id="approvalCountLabel" text="4" styleClass="notification-badge"/>
                     </StackPane>
                 </HBox>
             </graphic>

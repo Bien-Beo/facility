@@ -14,69 +14,69 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="600.0" prefWidth="850.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.ManageBookingsController">
+<BorderPane prefHeight="600.0" prefWidth="850.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.ReportController">
     <top>
         <VBox alignment="TOP_LEFT" spacing="10.0" style="-fx-background-color: #f4f4f4; -fx-padding: 10;">
             <children>
                 <HBox alignment="CENTER_LEFT">
                     <children>
-                        <Label text="Manage bookings">
+                        <Label text="Employee bookings">
                             <font>
                                 <Font name="System Bold" size="30.0" />
                             </font>
                         </Label>
                         <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
                             <children>
-                                <Button onAction="#handleExportBookings" prefHeight="34.0" prefWidth="90.0" style="-fx-background-color: #1976d2;" text="EXPORT" textFill="WHITE">
-                           <font>
-                              <Font name="System Bold" size="12.0" />
-                           </font>
-                           <graphic>
-                              <HBox prefHeight="20.0" prefWidth="20.0">
-                                 <children>
-                                    <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-                                       <image>
-                                          <Image url="@../images/download.png" />
-                                       </image>
-                                    </ImageView>
-                                 </children>
-                              </HBox>
-                           </graphic>
-                           <HBox.margin>
-                              <Insets />
-                           </HBox.margin></Button>
+                                <Button onAction="#handleExportReport" prefHeight="34.0" prefWidth="90.0" style="-fx-background-color: #1976d2;" text="EXPORT" textFill="WHITE">
+                                    <font>
+                                        <Font name="System Bold" size="12.0" />
+                                    </font>
+                                    <graphic>
+                                        <HBox prefHeight="20.0" prefWidth="20.0">
+                                            <children>
+                                                <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                                    <image>
+                                                        <Image url="@../images/download.png" />
+                                                    </image>
+                                                </ImageView>
+                                            </children>
+                                        </HBox>
+                                    </graphic>
+                                    <HBox.margin>
+                                        <Insets />
+                                    </HBox.margin></Button>
                             </children>
                         </HBox>
                     </children>
                 </HBox>
                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                     <children>
-                        <Button onAction="#handleShowAllBookings" text="All" />
-                        <Button onAction="#handleShowThisMonthBookings" style="-fx-background-color: #ffffff;" text="This month" />
+                        <Button onAction="#handleShowAllReports" text="All" />
+                        <Button onAction="#handleShowThisMonthReports" style="-fx-background-color: #ffffff;" text="This month" />
                         <ComboBox fx:id="monthComboBox" onAction="#handleSearchByMonth" promptText="Select month" style="-fx-background-color: #ffffff;" />
                         <TextField fx:id="yearTextField" onAction="#handleFilterByYear" promptText="Search year" />
                         <TextField fx:id="facilityTextField" onKeyReleased="#handleLiveSearchFacility" promptText="Search facility" />
                         <TextField fx:id="employeeIdTextField" onKeyReleased="#handleLiveSearchByFacilityMan" promptText="Search manager" />
                         <Button onAction="#handleResetFilters" style="-fx-background-color: #1976d2;" text="RESET" textFill="WHITE">
-                     <font>
-                        <Font name="System Bold" size="12.0" />
-                     </font>
-                     <HBox.margin>
-                        <Insets right="15.0" />
-                     </HBox.margin></Button>
+                            <font>
+                                <Font name="System Bold" size="12.0" />
+                            </font>
+                            <HBox.margin>
+                                <Insets right="15.0" />
+                            </HBox.margin></Button>
                     </children>
                 </HBox>
             </children>
-         <BorderPane.margin>
-            <Insets />
-         </BorderPane.margin>
-         <padding>
-            <Insets left="15.0" />
-         </padding>
+            <BorderPane.margin>
+                <Insets />
+            </BorderPane.margin>
+            <padding>
+                <Insets left="15.0" />
+            </padding>
         </VBox>
     </top>
     <center>
-        <TableView fx:id="bookingsTable" prefHeight="200.0" prefWidth="681.0" stylesheets="@../styles/manageBooking.css">
+        <TableView fx:id="reportTable" prefHeight="200.0" prefWidth="681.0" stylesheets="@../styles/report.css">
             <columns>
                 <TableColumn fx:id="titleFacilityColumn" prefWidth="200.0" text="Title / Facility" />
                 <TableColumn fx:id="requestedByColumn" prefWidth="150.0" text="Requested By" />
@@ -100,7 +100,7 @@
             </children>
         </HBox>
     </bottom>
-   <padding>
-      <Insets left="15.0" />
-   </padding>
+    <padding>
+        <Insets left="15.0" />
+    </padding>
 </BorderPane>
