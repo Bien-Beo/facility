@@ -1,5 +1,5 @@
 package com.utc2.facilityui.model;
-
+//
 public class ButtonNav {
     private String name;
     private String ImageSrc;

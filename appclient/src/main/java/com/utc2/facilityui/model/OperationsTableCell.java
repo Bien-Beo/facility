@@ -1,5 +1,5 @@
 package com.utc2.facilityui.model;
-
+//
 import javafx.scene.control.TableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;

@@ -1,5 +1,5 @@
 package com.utc2.facilityui.model;
-
+//
 // import javax.xml.transform.Result; // <--- XÓA DÒNG NÀY ĐI
 import java.util.List; // Import này vẫn cần thiết nếu bạn dùng List đâu đó (mặc dù không thấy trong đoạn code này)
 

@@ -23,7 +23,7 @@ public class Main extends Application {
     private static final String ADMIN_DASHBOARD_FXML = "/com/utc2/facilityui/view/menuAdmin.fxml";
     private static final String USER_DASHBOARD_FXML = "/com/utc2/facilityui/view/home.fxml";
     private static final String LOGIN_FXML = "/com/utc2/facilityui/view/login2.fxml";
-
+//af
     @Override
     public void start(Stage stage) throws IOException {
         checkTokenAndRedirect(stage);

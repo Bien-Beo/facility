@@ -173,7 +173,7 @@ public class FacilityController implements Initializable, OperationsTableCell.Op
             showError("Lỗi không xác định khi mở cửa sổ chỉnh sửa: " + e.getMessage());
         }
     }
-
+//
     @Override
     public void onDelete(Facility facility) {
         System.out.println("onDelete() called!"); // Debugging

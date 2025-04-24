@@ -7,7 +7,7 @@ import java.util.Base64;
 import java.util.Optional;
 
 public class TokenUtils {
-
+//
     /**
      * Trích xuất giá trị 'scope' từ token JWT.
      * @param token Chuỗi JWT.

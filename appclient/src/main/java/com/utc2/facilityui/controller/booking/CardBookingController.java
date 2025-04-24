@@ -14,7 +14,7 @@ public class CardBookingController {
     @FXML private Text requestBooking;
     @FXML private Text statusBooking;
     @FXML private Text timeBooking;
-
+//
     // Có thể thêm các @FXML khác nếu FXML có
 
     public void setData(CardBooking cardbooking) {
