@@ -8,7 +8,7 @@ import javafx.stage.Stage;
 import javafx.collections.ObservableList;
 
 import com.utc2.facilityui.model.Facility;
-
+//
 public class EditFacilityController {
     @FXML
     private TextField descriptionTextField;

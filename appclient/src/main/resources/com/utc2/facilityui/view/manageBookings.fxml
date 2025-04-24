@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="600.0" prefWidth="850.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.ManageBookingsController">
+    <top>
+        <VBox alignment="TOP_LEFT" spacing="10.0" style="-fx-background-color: #f4f4f4; -fx-padding: 10;">
+            <children>
+                <HBox alignment="CENTER_LEFT">
+                    <children>
+                        <Label text="Manage bookings">
+                            <font>
+                                <Font name="System Bold" size="30.0" />
+                            </font>
+                        </Label>
+                        <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Button prefHeight="26.0" prefWidth="69.0" style="-fx-background-color: #1976d2;" text="EXPORT" textFill="WHITE" onAction="#handleExportBookings">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font></Button>
+                            </children>
+                        </HBox>
+                    </children>
+                </HBox>
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                    <children>
+                        <Button text="All" onAction="#handleShowAllBookings"/>
+                        <Button style="-fx-background-color: #ffffff;" text="This month" onAction="#handleShowThisMonthBookings"/>
+                        <ComboBox fx:id="monthComboBox" promptText="Select month" style="-fx-background-color: #ffffff;" onAction="#handleSearchByMonth"/>
+                        <TextField fx:id="yearTextField" promptText="Search year" onAction="#handleFilterByYear"/>
+                        <TextField fx:id="facilityTextField" promptText="Search facility" onKeyReleased="#handleLiveSearchFacility" />
+                        <TextField fx:id="employeeIdTextField" promptText="Search manager" onKeyReleased="#handleLiveSearchByFacilityMan"/>
+                        <Button style="-fx-background-color: #1976d2;" text="RESET" textFill="WHITE" onAction="#handleResetFilters">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets right="15.0" />
+                     </HBox.margin></Button>
+                    </children>
+                </HBox>
+            </children>
+         <BorderPane.margin>
+            <Insets />
+         </BorderPane.margin>
+         <padding>
+            <Insets left="15.0" />
+         </padding>
+        </VBox>
+    </top>
+    <center>
+        <TableView fx:id="bookingsTable" prefHeight="200.0" prefWidth="681.0" stylesheets="@../styles/manageBooking.css">
+            <columns>
+                <TableColumn fx:id="titleFacilityColumn" prefWidth="200.0" text="Title / Facility" />
+                <TableColumn fx:id="requestedByColumn" prefWidth="150.0" text="Requested By" />
+                <TableColumn fx:id="purposeColumn" prefWidth="150.0" text="Purpose" />
+                <TableColumn fx:id="dateColumn" prefWidth="150.0" text="Date" />
+                <TableColumn fx:id="timeSlotColumn" prefWidth="150.0" text="Time slot" />
+                <TableColumn fx:id="requestedAtColumn" prefWidth="150.0" text="Requested At" />
+                <TableColumn fx:id="groupDirectorColumn" prefWidth="150.0" text="Group Director" />
+                <TableColumn fx:id="facilityManColumn" prefWidth="150.0" text="Facility Man" />
+            </columns>
+        </TableView>
+    </center>
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" spacing="10.0" style="-fx-padding: 10; -fx-background-color: #ffffff;">
+            <children>
+                <Label text="Rows per page:" />
+                <ComboBox fx:id="rowsPerPageComboBox" prefWidth="80.0" style="-fx-background-color: #ffffff;" onAction="#handleRowsPerPageChange"/>
+                <Label fx:id="currentPageLabel" text="1-4 of 4" />
+                <Button style="-fx-background-color: #ffffff;" text="&lt;" onAction="#handlePreviousPage"/>
+                <Button style="-fx-background-color: #ffffff;" text="&gt;" onAction="#handleNextPage"/>
+            </children>
+        </HBox>
+    </bottom>
+   <padding>
+      <Insets left="15.0" />
+   </padding>
+</BorderPane>

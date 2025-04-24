@@ -24,7 +24,7 @@ public class LoginController {
     @FXML private PasswordField password;
     @FXML private Button loginButton;
     @FXML private Label lbMessage;
-
+//
     private static final String LOGIN_URL = "http://localhost:8080/facility/auth/token";
     private final OkHttpClient client = new OkHttpClient();
 

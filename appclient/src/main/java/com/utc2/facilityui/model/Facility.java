@@ -1,5 +1,5 @@
 package com.utc2.facilityui.model;
-
+//
 import javafx.beans.property.*; // Import các lớp Property cần thiết
 
 import java.time.LocalDateTime;

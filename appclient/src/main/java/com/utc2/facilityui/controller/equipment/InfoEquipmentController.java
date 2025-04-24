@@ -22,7 +22,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.Objects;
-
+//
 public class InfoEquipmentController implements Initializable {
 
     @FXML private Button bntReport;

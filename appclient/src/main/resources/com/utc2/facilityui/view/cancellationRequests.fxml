@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox alignment="TOP_CENTER" prefWidth="200.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.CancellationRequestsController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+    <spacing>10</spacing>
+    <children>
+        <Label fx:id="titleLabel" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+        <ScrollPane fx:id="scrollPane" fitToWidth="true" maxWidth="380.0" vbarPolicy="AS_NEEDED">
+            <content>
+                <VBox fx:id="requestContainer" spacing="10" />
+            </content>
+        </ScrollPane>
+    </children>
+</VBox>
