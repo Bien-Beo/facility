@@ -27,13 +27,13 @@ public class Login2Controller {
     @FXML private Label lbMessage;
     @FXML private TextField captchaInput;
     @FXML private Label captchaLabel;
-//
+
     private static final String LOGIN_URL = "http://localhost:8080/facility/auth/token";
     private final OkHttpClient client = new OkHttpClient();
     private String generatedCaptcha;
 
     // --- THÊM CÁC HẰNG SỐ FXML ---
-    private static final String ADMIN_DASHBOARD_FXML = "/com/utc2/facilityui/view/menuAdmin.fxml"; // Đường dẫn admin view
+    private static final String ADMIN_DASHBOARD_FXML = "/com/utc2/facilityui/view/mainscreen.fxml"; // Đường dẫn admin view
     private static final String USER_DASHBOARD_FXML = "/com/utc2/facilityui/view/home.fxml"; // Đường dẫn user view
     // -----------------------------
 
@@ -217,6 +217,7 @@ public class Login2Controller {
             });
         }
     }
+    // ---------------------------------
 
     private void generateCaptcha() {
         generatedCaptcha = generateRandomCode(5); // Độ dài mã captcha

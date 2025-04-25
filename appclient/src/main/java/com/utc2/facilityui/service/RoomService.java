@@ -5,9 +5,9 @@ import com.google.gson.GsonBuilder; // Dùng GsonBuilder nếu cần cấu hình
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.utc2.facilityui.auth.TokenStorage;
-import com.utc2.facilityui.model.ApiResponse; // Import lớp mới
 import com.utc2.facilityui.model.Facility;
 import com.utc2.facilityui.model.Room;
+import com.utc2.facilityui.response.ApiResponse;
 import com.utc2.facilityui.response.DashboardRoomApiResponse;
 import com.utc2.facilityui.response.RoomGroupResponse;
 import javafx.collections.FXCollections;
