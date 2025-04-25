@@ -1,0 +1,12 @@
+.notification-badge {
+    -fx-background-color: #2196F3; /* Blue */
+    -fx-text-fill: white;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-padding: 2 5 2 5; /* Adjust padding as needed */
+    -fx-background-radius: 10; /* Make it rounded */
+    -fx-border-radius: 10;
+    -fx-alignment: center;
+    -fx-translate-x: 5; /* Adjust horizontal position */
+    -fx-translate-y: -5; /* Adjust vertical position */
+}
