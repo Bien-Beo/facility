@@ -1,9 +1,11 @@
 package com.utc2.facilityui.model;
 
+import com.utc2.facilityui.response.BookingResponse;
+
 import java.util.List;
 //
 // Lớp generic chứa content và page info
-public class Result<T> {
+public class Result<T> extends BookingResponse {
     private List<T> content;
     private PageInfo page;
 

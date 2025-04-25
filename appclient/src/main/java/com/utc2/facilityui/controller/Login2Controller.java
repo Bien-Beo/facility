@@ -217,7 +217,6 @@ public class Login2Controller {
             });
         }
     }
-    // ---------------------------------
 
     private void generateCaptcha() {
         generatedCaptcha = generateRandomCode(5); // Độ dài mã captcha

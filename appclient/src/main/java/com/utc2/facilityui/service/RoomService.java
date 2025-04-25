@@ -88,7 +88,7 @@ public class RoomService {
      * @throws IOException Lỗi mạng hoặc parse.
      */
     public ObservableList<Facility> getDashboardFacilities() throws IOException {
-        // !!! ĐẢM BẢO ENDPOINT ĐÚNG VỚI BACKEND CỦA BẠN !!!
+
         String url = "http://localhost:8080/facility/dashboard/room";
         Request request = buildAuthenticatedGetRequest(url); // Dùng lại hàm helper
 
