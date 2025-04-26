@@ -6,15 +6,15 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.utc2.facilityui.auth.TokenStorage;
-import com.utc2.facilityui.model.ApiResponse; // Dùng lại model ApiResponse
 import com.utc2.facilityui.model.Equipment;   // Model Equipment đã tạo/sửa
+
+import com.utc2.facilityui.response.ApiResponse;
 import okhttp3.*; // Import các lớp OkHttp
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects; // Import Objects để kiểm tra null
 
 public class EquipmentService {
 //

@@ -1,171 +1,151 @@
 package com.utc2.facilityui.controller.booking;
 
-import com.utc2.facilityui.response.BookingResponse;
 import com.utc2.facilityui.model.CardBooking;
-import com.utc2.facilityui.service.BookingService;
+// Đảm bảo import đúng BookingResponse
+import com.utc2.facilityui.response.BookingResponse;
+// Import các lớp cần thiết khác
+import com.utc2.facilityui.service.BookingService; // Service đã được cập nhật
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane; // Giả sử dùng ScrollPane
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox; // Giả sử dùng VBox chứa card
+import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 
 public class MyBookingsController implements Initializable {
-//
-    @FXML private VBox bookingListContainer; // fx:id của VBox chứa các card booking
-    @FXML private ScrollPane scrollPane; // fx:id của ScrollPane bao ngoài (nếu có)
-    @FXML private Label statusLabel; // Label để hiển thị trạng thái loading/lỗi
 
-    private BookingService bookingService;
+    @FXML private VBox bookingListContainer; // Container để chứa các card booking
+    @FXML private ScrollPane scrollPane;     // ScrollPane chứa VBox (nếu có)
+    @FXML private Label statusLabel;         // Label hiển thị trạng thái tải/lỗi
 
+    private BookingService bookingService; // Service để gọi API
+    // Định dạng thời gian hiển thị trên UI
+    private static final DateTimeFormatter DISPLAY_FORMATTER = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
+
+    /**
+     * Phương thức này được gọi tự động sau khi FXML được tải.
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        this.bookingService = new BookingService();
-        loadMyBookings(); // Tải danh sách booking khi khởi tạo
+        this.bookingService = new BookingService(); // Khởi tạo service
+        loadMyBookings(); // Tải danh sách booking ngay khi controller khởi tạo
     }
 
-    @FXML // Có thể thêm nút refresh và gọi hàm này
-    public void refreshBookings() {
-        loadMyBookings();
-    }
-
-    private void loadMyBookings() {
-        if (bookingListContainer == null) return;
-        bookingListContainer.getChildren().clear(); // Xóa card cũ
-        showStatus("Đang tải danh sách booking...");
+    /**
+     * Tải danh sách booking của người dùng từ API và hiển thị chúng dưới dạng card.
+     * Phiên bản này hoạt động với BookingService trả về List<BookingResponse>.
+     */
+    public void loadMyBookings() {
+        statusLabel.setText("Đang tải danh sách booking...");
+        statusLabel.setVisible(true);
+        bookingListContainer.getChildren().clear();
 
         new Thread(() -> {
             try {
-                List<BookingResponse> myBookings = bookingService.getMyBookings();
+                // 1. Gọi service - Kết quả cuối cùng là List<BookingResponse>
+                final List<BookingResponse> bookingList = bookingService.getMyBookings();
 
                 Platform.runLater(() -> {
-                    showStatus(""); // Xóa thông báo loading
-                    if (myBookings == null || myBookings.isEmpty()) {
-                        showStatus("Bạn chưa có booking nào.");
-                        return;
-                    }
+                    statusLabel.setText("");
+                    statusLabel.setVisible(false);
 
-                    for (BookingResponse booking : myBookings) {
-                        if (booking == null) continue;
-                        try {
-                            CardBooking cardData = mapBookingResponseToCardBooking(booking);
-                            if (cardData == null) continue;
+                    if (bookingList != null && !bookingList.isEmpty()) {
+                        // 2. Vòng lặp duyệt qua List<BookingResponse>
+                        for (BookingResponse singleBookingResponse : bookingList) {
+                            try {
+                                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/utc2/facilityui/component/cardBooking.fxml"));
+                                AnchorPane cardNode = loader.load();
+                                CardBookingController cardController = loader.getController();
 
-                            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/utc2/facilityui/component/cardBooking.fxml"));
-                            AnchorPane cardNode = loader.load();
+                                CardBooking cardBooking = new CardBooking();
 
-                            CardBookingController cardController = loader.getController();
-                            if (cardController != null) {
-                                cardController.setData(cardData);
-                                // Có thể thêm hành động cho nút Cancel trên card ở đây
-                                // cardController.getBtnCancel().setOnAction(e -> handleCancelBooking(booking.getId()));
+                                // 3. Truy cập dữ liệu từ đối tượng BookingResponse
+                                cardBooking.setBookingId(singleBookingResponse.getId());
+                                cardBooking.setNameBooking(singleBookingResponse.getRoomName() != null ? singleBookingResponse.getRoomName() : "N/A");
+                                cardBooking.setPurposeBooking(singleBookingResponse.getPurpose());
+                                cardBooking.setPlannedStartTimeDisplay(formatDateTime(singleBookingResponse.getPlannedStartTime()));
+                                cardBooking.setPlannedEndTimeDisplay(formatDateTime(singleBookingResponse.getPlannedEndTime()));
+                                cardBooking.setRequestBooking(formatDateTime(singleBookingResponse.getCreatedAt()));
+                                cardBooking.setStatusBooking(mapStatus(singleBookingResponse.getStatus()));
+
+                                cardController.setBooking(cardBooking);
+                                bookingListContainer.getChildren().add(cardNode);
+
+                            } catch (IOException e) {
+                                String bookingIdForError = (singleBookingResponse != null) ? singleBookingResponse.getId() : "UNKNOWN_ID";
+                                System.err.println("Lỗi khi tải CardBooking.fxml cho booking ID: " + bookingIdForError + " - " + e.getMessage());
+                                e.printStackTrace();
+                                statusLabel.setText("Lỗi khi hiển thị một booking.");
+                                statusLabel.setVisible(true);
+                            } catch (Exception e) {
+                                String bookingIdForError = (singleBookingResponse != null) ? singleBookingResponse.getId() : "UNKNOWN_ID";
+                                System.err.println("Lỗi khi xử lý dữ liệu cho booking ID: " + bookingIdForError + " - " + e.getMessage());
+                                e.printStackTrace();
+                                statusLabel.setText("Lỗi dữ liệu booking.");
+                                statusLabel.setVisible(true);
                             }
-                            bookingListContainer.getChildren().add(cardNode);
-
-                        } catch (IOException e) {
-                            System.err.println("Lỗi load cardBooking.fxml: " + e.getMessage());
-                        } catch (Exception e) {
-                            System.err.println("Lỗi xử lý booking ID " + booking.getId() + ": " + e.getMessage());
                         }
+                    } else {
+                        statusLabel.setText("Bạn chưa có yêu cầu đặt phòng nào.");
+                        statusLabel.setVisible(true);
                     }
                 });
-
             } catch (IOException e) {
-                Platform.runLater(() -> showStatus("Lỗi tải danh sách booking: " + e.getMessage()));
+                Platform.runLater(() -> {
+                    statusLabel.setText("Lỗi: " + e.getMessage());
+                    statusLabel.setVisible(true);
+                });
+                System.err.println("Lỗi khi gọi BookingService.getMyBookings(): " + e.getMessage());
+                e.printStackTrace();
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    statusLabel.setText("Đã xảy ra lỗi không mong muốn khi tải booking.");
+                    statusLabel.setVisible(true);
+                });
+                System.err.println("Lỗi không xác định trong luồng tải booking: " + e.getMessage());
                 e.printStackTrace();
             }
         }).start();
     }
 
-    // Hàm ánh xạ BookingResponse sang CardBooking
-    private CardBooking mapBookingResponseToCardBooking(BookingResponse booking) {
-        CardBooking card = new CardBooking();
-
-        // Xử lý tên hiển thị (ví dụ: Tên phòng - Mục đích)
-        String name = (booking.getRoomName() != null ? booking.getRoomName() : "ID: " + booking.getRoomId());
-        card.setNameBooking(name);
-        card.setPurposeBooking(getValueOrDefault(booking.getPurpose(),"Không có mục đích"));
-
-        // Format ngày giờ
-        card.setDateBooking(formatDisplayDate(booking.getPlannedStartTime()));
-        card.setTimeBooking(formatDisplayTimeRange(booking.getPlannedStartTime(), booking.getPlannedEndTime()));
-        card.setRequestBooking(formatDisplayDateTime(booking.getCreatedAt())); // Ngày yêu cầu
-        card.setStatusBooking(formatDisplayStatus(booking.getStatus())); // Trạng thái
-
-        return card;
-    }
-
-    // --- Các hàm helper format hiển thị ---
-    private String formatDisplayDate(String isoDateTime) {
-        if (isoDateTime == null) return "N/A";
-        try {
-            LocalDateTime dateTime = LocalDateTime.parse(isoDateTime, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-            // Format theo ý muốn, ví dụ: "Thứ 5, 12 tháng 4 2025" hoặc "12/04/2025"
-            return dateTime.format(DateTimeFormatter.ofPattern("EEE, dd MMMM yyyy"));
-        } catch (Exception e) { return isoDateTime; }
-    }
-    private String formatDisplayTimeRange(String isoStart, String isoEnd) {
-        if (isoStart == null || isoEnd == null) return "N/A";
-        try {
-            LocalDateTime start = LocalDateTime.parse(isoStart, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-            LocalDateTime end = LocalDateTime.parse(isoEnd, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-            // Format theo ý muốn, ví dụ: "09:00 - 11:30"
-            return start.format(DateTimeFormatter.ofPattern("HH:mm")) + " - " + end.format(DateTimeFormatter.ofPattern("HH:mm"));
-        } catch (Exception e) { return "Invalid time"; }
-    }
-    private String formatDisplayDateTime(String isoDateTime) {
-        if (isoDateTime == null) return "N/A";
-        try {
-            LocalDateTime dateTime = LocalDateTime.parse(isoDateTime, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-            // Format theo ý muốn, ví dụ: "10:30 12/04/2025"
-            return dateTime.format(DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy"));
-        } catch (Exception e) { return isoDateTime; }
-    }
-    private String formatDisplayStatus(String status) {
-        if (status == null) return "N/A";
-        // Có thể Việt hóa hoặc trả về nguyên gốc
-        switch (status.toUpperCase()) {
-            case "PENDING": return "Chờ duyệt";
-            case "APPROVED": return "Đã duyệt";
-            case "REJECTED": return "Bị từ chối";
-            case "CANCELLED": return "Đã hủy";
-            case "COMPLETED": return "Đã hoàn thành";
-            default: return status;
-        }
-    }
-    private String getValueOrDefault(String value, String defaultValue) {
-        return (value != null && !value.trim().isEmpty()) ? value : defaultValue;
-    }
-
-    // Hiển thị trạng thái loading/lỗi
-    private void showStatus(String message) {
-        if (statusLabel != null) {
-            if (message == null || message.isEmpty()) {
-                statusLabel.setVisible(false);
-            } else {
-                statusLabel.setText(message);
-                statusLabel.setVisible(true);
+    /**
+     * Định dạng đối tượng LocalDateTime thành chuỗi theo định dạng hiển thị mong muốn.
+     */
+    private String formatDateTime(LocalDateTime dateTime) {
+        if (dateTime != null) {
+            try {
+                return dateTime.format(DISPLAY_FORMATTER);
+            } catch (Exception e) {
+                System.err.println("Lỗi định dạng thời gian: " + dateTime + " - " + e.getMessage());
+                return dateTime.toString();
             }
         }
-        // Nếu không có statusLabel, có thể thêm Label tạm thời vào container
-        else if (bookingListContainer != null && message != null && !message.isEmpty()) {
-            bookingListContainer.getChildren().add(new Label(message));
-        }
+        return "N/A";
     }
 
-    // Hàm xử lý hủy booking (ví dụ)
-    private void handleCancelBooking(String bookingId) {
-        System.out.println("Yêu cầu hủy booking ID: " + bookingId);
-        // Gọi BookingService.cancelBooking(bookingId)
-        // Nếu thành công thì gọi refreshBookings()
+    /**
+     * (Tùy chọn) Ánh xạ mã trạng thái từ API sang chuỗi dễ hiểu hơn.
+     */
+    private String mapStatus(String status) {
+        if (status == null) return "Không xác định";
+        switch (status.toUpperCase()) {
+            case "PENDING_APPROVAL": return "Chờ duyệt";
+            case "APPROVED": return "Đã duyệt";
+            case "REJECTED": return "Đã từ chối";
+            case "CANCELLED": return "Đã hủy";
+            case "COMPLETED": return "Đã hoàn thành";
+            case "CHECKED_IN": return "Đã check-in";
+            default: return status;
+        }
     }
 }

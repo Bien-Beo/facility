@@ -5,184 +5,178 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.utc2.facilityui.auth.TokenStorage;
-import com.utc2.facilityui.model.ApiResponse; // Dùng lại ApiResponse nếu API trả về cấu trúc này
 import com.utc2.facilityui.model.BookingCreationRequest;
+import com.utc2.facilityui.model.Result; // Lớp Result wrapper
 import com.utc2.facilityui.response.ApiErrorResponse;
-import com.utc2.facilityui.response.BookingResponse; // DTO response vừa tạo
-import okhttp3.*;
+import com.utc2.facilityui.response.ApiResponse;
+import com.utc2.facilityui.response.BookingResponse; // DTO cho một booking
+import com.utc2.facilityui.utils.LocalDateTimeAdapter; // Adapter cho Gson
+import okhttp3.*; // OkHttp cho việc gọi API
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.List; // Import List
-import java.util.Collections; // Import Collections
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Collections;
 
 public class BookingService {
-//
+
     private final OkHttpClient client;
     private final Gson gson;
-    private static final String BASE_URL = "http://localhost:8080/facility"; //
+    private static final String BASE_URL = "http://localhost:8080/facility";
 
     public BookingService() {
         client = new OkHttpClient();
-        gson = new GsonBuilder().create(); // Hoặc cấu hình thêm nếu cần
+        // Không cần @Expose nếu không dùng excludeFieldsWithoutExposeAnnotation()
+        // Có thể thêm SerializedName vào ApiResponse mới nếu tên biến khác JSON key
+        gson = new GsonBuilder()
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+                .create();
     }
 
     /**
-     * Gọi API để tạo một booking mới.
-     * Endpoint ví dụ: POST /bookings
-     * @param request DTO chứa thông tin booking cần tạo.
-     * @return BookingResponse chứa thông tin booking đã tạo (hoặc null nếu lỗi).
-     * @throws IOException Nếu có lỗi mạng, lỗi server, hoặc parse lỗi.
-     * @throws IllegalArgumentException Nếu request không hợp lệ.
+     * Gửi yêu cầu tạo một booking mới lên API.
+     * (Giả sử API tạo booking trả về BookingResponse trực tiếp, không qua ApiResponse/Result)
+     * => Phần này giữ nguyên, không bị ảnh hưởng bởi thay đổi ApiResponse cho getMyBookings
      */
     public BookingResponse createBooking(BookingCreationRequest request) throws IOException, IllegalArgumentException {
+        // ... (Code phần createBooking giữ nguyên) ...
         if (request == null || request.getRoomId() == null || request.getPlannedStartTime() == null || request.getPlannedEndTime() == null) {
             throw new IllegalArgumentException("Thông tin booking không hợp lệ (thiếu ID phòng hoặc thời gian).");
         }
 
-        // !!! THAY ĐỔI ENDPOINT NẾU CẦN !!!
-        String url = BASE_URL + "/bookings";
-
-        // Tạo JSON body từ DTO request
+        String url = BASE_URL + "/booking";
         String jsonBody = gson.toJson(request);
         RequestBody body = RequestBody.create(jsonBody, MediaType.get("application/json; charset=utf-8"));
-
-        // Tạo request POST đã xác thực
         Request apiRequest = buildAuthenticatedRequestWithBody("POST", url, body);
 
+        System.out.println("Sending POST request to: " + url);
+        System.out.println("Request Body: " + jsonBody);
+
         try (Response response = client.newCall(apiRequest).execute()) {
-            // --- XỬ LÝ RESPONSE ---
-            // Giả định API trả về thành công (2xx) với body là BookingResponse
-            // và trả về lỗi (4xx, 5xx) với body là cấu trúc lỗi (ví dụ ApiResponse<Void>)
+            System.out.println("Response Code: " + response.code());
 
             if (!response.isSuccessful()) {
                 String errorBodyStr = "";
-                String specificErrorMessage = null; // Biến lưu message lỗi cụ thể từ JSON
-
+                String specificErrorMessage = null;
                 try (ResponseBody errorBody = response.body()) {
                     if (errorBody != null) {
-                        errorBodyStr = errorBody.string(); // Đọc nội dung lỗi
-                        // Thử parse lỗi bằng lớp ApiErrorResponse mới
+                        errorBodyStr = errorBody.string();
                         try {
-                            // Không cần TypeToken vì ApiErrorResponse không phải generic
-                            ApiErrorResponse parsedError = gson.fromJson(errorBodyStr, ApiErrorResponse.class); // <<< Dùng ApiErrorResponse
+                            ApiErrorResponse parsedError = gson.fromJson(errorBodyStr, ApiErrorResponse.class);
                             if (parsedError != null && parsedError.getMessage() != null) {
-                                // Lấy message thành công
-                                specificErrorMessage = parsedError.getMessage(); // <<< Gọi getMessage() từ ApiErrorResponse
+                                specificErrorMessage = parsedError.getMessage();
                             }
                         } catch (JsonSyntaxException ignored) {
-                            // Bỏ qua nếu không parse được theo cấu trúc ApiErrorResponse
-                            System.err.println("Không thể parse error body thành ApiErrorResponse: " + errorBodyStr);
+                            System.err.println("Không thể parse error body thành ApiErrorResponse: " + errorBodyStr.substring(0, Math.min(errorBodyStr.length(), 200)) + "...");
                         }
                     }
-                } // Kết thúc try-with-resources cho errorBody
+                }
 
-                // Ném Exception với message cụ thể nếu lấy được, hoặc message chung chung
                 if (specificErrorMessage != null) {
                     throw new IOException("API Error " + response.code() + ": " + specificErrorMessage);
                 } else {
-                    throw new IOException("Yêu cầu API thất bại với mã lỗi " + response.code() + ". Body: " + errorBodyStr.substring(0, Math.min(errorBodyStr.length(), 500))); // Log một phần body nếu không parse được
+                    throw new IOException("Yêu cầu API thất bại với mã lỗi " + response.code() + ". Body: " + errorBodyStr.substring(0, Math.min(errorBodyStr.length(), 500)));
                 }
             }
 
-            // Nếu thành công, parse body thành BookingResponse
             try (ResponseBody responseBody = response.body()) {
                 if (responseBody == null) {
                     throw new IOException("Response body rỗng từ API khi tạo booking.");
                 }
                 String responseData = responseBody.string();
-                // Giả định API trả về trực tiếp BookingResponse object khi thành công
+                System.out.println("Response Body: " + responseData);
+                // API tạo booking thường trả về BookingResponse trực tiếp
                 return gson.fromJson(responseData, BookingResponse.class);
-                // Nếu API trả về ApiResponse<BookingResponse> thì parse kiểu khác:
-                // Type successType = new TypeToken<ApiResponse<BookingResponse>>() {}.getType();
-                // ApiResponse<BookingResponse> successResponse = gson.fromJson(responseData, successType);
-                // if (successResponse != null && successResponse.getCode() == 0 && successResponse.getResult() != null) {
-                //    return successResponse.getResult();
-                // } else {
-                //    throw new IOException("Response thành công nhưng dữ liệu trả về không hợp lệ.");
-                // }
             }
+
         } catch (JsonSyntaxException e) {
             throw new IOException("Lỗi parse JSON khi tạo booking: " + e.getMessage(), e);
         }
     }
 
     /**
-     * Lấy danh sách booking của người dùng hiện tại.
-     * Endpoint ví dụ: GET /bookings/my-bookings
-     * @return List<BookingResponse>
-     * @throws IOException
+     * Lấy danh sách các booking của người dùng hiện tại từ API.
+     * *** ĐÃ CẬP NHẬT THEO ApiResponse MỚI (result là Result<T>) ***
+     *
+     * @return Một List các đối tượng BookingResponse.
+     * @throws IOException Nếu có lỗi mạng, parse, hoặc lỗi logic từ API.
      */
     public List<BookingResponse> getMyBookings() throws IOException {
-        // !!! THAY ĐỔI ENDPOINT NẾU CẦN !!!
-        String url = BASE_URL + "/bookings/my-bookings";
-        Request request = buildAuthenticatedGetRequest(url); // Dùng lại hàm helper GET
+        String url = BASE_URL + "/booking/my";
+        Request request = buildAuthenticatedGetRequest(url);
+
+        System.out.println("Sending GET request to: " + url);
 
         try (Response response = client.newCall(request).execute()) {
-            // Giả định API trả về ApiResponse<BookingResponse> với result.content là List
+            System.out.println("Response Code: " + response.code());
+
             ResponseBody responseBody = response.body();
-            if (!response.isSuccessful()) {
-                String errorBodyStr = (responseBody != null) ? responseBody.string() : "N/A";
-                if(responseBody != null) responseBody.close();
-                throw new IOException("Yêu cầu lấy booking thất bại: " + response.code() + ". Body: " + errorBodyStr);
+            if (responseBody == null) {
+                if (!response.isSuccessful()) { throw new IOException("Yêu cầu lấy booking thất bại: " + response.code() + " và không có response body."); }
+                else { System.err.println("API my-bookings trả về response thành công nhưng body rỗng."); return Collections.emptyList(); }
             }
-            if (responseBody == null) throw new IOException("Response body rỗng.");
 
-            String jsonData;
-            try { jsonData = responseBody.string(); } finally { responseBody.close(); }
-
-            // Parse theo cấu trúc ApiResponse<BookingResponse> chứa List trong content
+            String jsonData = "";
             try {
-                Type listType = new TypeToken<ApiResponse<List<BookingResponse>>>() {}.getType(); // List trong ApiResponse
-                ApiResponse<List<BookingResponse>> apiResponse = gson.fromJson(jsonData, listType);
-                if (apiResponse != null && apiResponse.getCode() == 0 && apiResponse.getResult() != null) { // Chỉ cần result chứa list
-                    // API mới có thể trả về list trực tiếp trong result thay vì result.content
-                    // Cần kiểm tra cấu trúc API /my-bookings trả về
-                    // Nếu result là List:
-                    // return apiResponse.getResult() != null ? apiResponse.getResult() : Collections.emptyList();
+                jsonData = responseBody.string();
+            } finally {
+                responseBody.close();
+            }
+            System.out.println("Raw JSON Response: " + jsonData);
 
-                    // Nếu API cũ vẫn là result.content:
-                    if(apiResponse.getResult() instanceof java.util.Map){ // Kiểm tra nếu result là Map (chứa content + page)
-                        // Logic parse cũ nếu API phân trang
-                        // Type complexResultType = new TypeToken<Result<BookingResponse>>() {}.getType();
-                        // Result<BookingResponse> result = gson.fromJson(gson.toJson(apiResponse.getResult()), complexResultType);
-                        // return result.getContent() != null ? result.getContent() : Collections.emptyList();
-                        System.err.println("API /my-bookings có cấu trúc result phức tạp, cần điều chỉnh parse");
-                        return Collections.emptyList();
+            if (!response.isSuccessful()) {
+                throw new IOException("Yêu cầu lấy booking thất bại: " + response.code() + ". Body: " + jsonData.substring(0, Math.min(jsonData.length(), 500)));
+            }
 
-                    } else if (apiResponse.getResult() instanceof List) { // Kiểm tra nếu result là List
-                        // Type listOnlyType = new TypeToken<List<BookingResponse>>() {}.getType();
-                        // return gson.fromJson(gson.toJson(apiResponse.getResult()), listOnlyType);
-                        // Đã là list rồi thì ép kiểu thử? Không nên ép kiểu trực tiếp.
-                        // Cần TypeToken đúng
-                        System.err.println("API /my-bookings trả về list trong result, cần TypeToken<ApiResponse<List<BookingResponse>>>");
-                        return Collections.emptyList(); // Tạm thời
+            // Parse JSON nếu HTTP request thành công (2xx)
+            try {
+                // *** 1. SỬA TypeToken ***
+                // Vì ApiResponse<T> chứa Result<T>, và Result<T> chứa List<BookingResponse> (List<T>),
+                // nên T ở đây phải là BookingResponse.
+                Type apiResponseType = new TypeToken<ApiResponse<BookingResponse>>() {}.getType();
+                ApiResponse<BookingResponse> apiResponse = gson.fromJson(jsonData, apiResponseType);
+
+                // Kiểm tra mã lỗi logic và dữ liệu trả về từ API
+                if (apiResponse != null && apiResponse.getCode() == 0 && apiResponse.getResult() != null) {
+
+                    // *** 2. Lấy đối tượng Result<BookingResponse> ***
+                    // apiResponse.getResult() giờ trả về Result<BookingResponse> theo định nghĩa mới
+                    Result<BookingResponse> resultData = apiResponse.getResult();
+
+                    // *** 3. Lấy List<BookingResponse> từ content của Result ***
+                    // resultData.getContent() trả về List<T>, tức là List<BookingResponse>
+                    if (resultData.getContent() != null) {
+                        return resultData.getContent(); // Trả về danh sách booking thành công
                     } else {
-                        System.err.println("API /my-bookings trả về kiểu result không xác định.");
+                        // Có result nhưng không có content? Coi như không có dữ liệu.
+                        System.err.println("Không có dữ liệu booking (content) trong response result.");
                         return Collections.emptyList();
                     }
-
-
                 } else {
-                    System.err.println("API my-bookings response không hợp lệ. Code: " + (apiResponse != null ? apiResponse.getCode() : "N/A"));
-                    return Collections.emptyList();
+                    // API trả về HTTP 2xx nhưng có mã lỗi logic (code != 0) hoặc result null
+                    String message = "Không rõ lỗi logic"; // Cần thêm getMessage() vào ApiResponse mới nếu API trả về
+                    // if (apiResponse != null && apiResponse.getMessage() != null) message = apiResponse.getMessage();
+                    int code = (apiResponse != null) ? apiResponse.getCode() : -1;
+                    System.err.println("API my-bookings response không thành công về mặt logic. Code: " + code + ", Message: " + message);
+                    throw new IOException("API my-bookings trả về lỗi logic: " + message + " (Code: " + code + ")");
                 }
             } catch (JsonSyntaxException e) {
-                System.err.println("Parse my-bookings thất bại: " + e.getMessage());
-                throw e;
+                System.err.println("Raw JSON gây lỗi parse: " + jsonData.substring(0, Math.min(jsonData.length(), 500)) + "...");
+                throw new IOException("Lỗi parse JSON từ API my-bookings: " + e.getMessage(), e);
             }
-
-        } catch (JsonSyntaxException e) {
-            throw new IOException("Lỗi parse JSON từ API my-bookings: " + e.getMessage(), e);
         }
+        // Các IOException khác (lỗi mạng, lỗi token...) sẽ được ném ra từ các phần khác
     }
 
-
-    // --- Các hàm helper ---
+    /**
+     * Xây dựng một GET request đã được xác thực (thêm Authorization header).
+     */
     private Request buildAuthenticatedGetRequest(String url) throws IOException {
+        // ... (Code phần buildAuthenticatedGetRequest giữ nguyên) ...
         String token = TokenStorage.getToken();
         if (token == null || token.isEmpty()) {
-            throw new IOException("Token xác thực không tồn tại.");
+            throw new IOException("Token xác thực không tồn tại hoặc đã hết hạn.");
         }
         return new Request.Builder()
                 .url(url)
@@ -191,10 +185,14 @@ public class BookingService {
                 .build();
     }
 
+    /**
+     * Xây dựng một request (POST, PUT, PATCH, DELETE) có body và đã được xác thực.
+     */
     private Request buildAuthenticatedRequestWithBody(String method, String url, RequestBody body) throws IOException {
+        // ... (Code phần buildAuthenticatedRequestWithBody giữ nguyên) ...
         String token = TokenStorage.getToken();
         if (token == null || token.isEmpty()) {
-            throw new IOException("Token xác thực không tồn tại.");
+            throw new IOException("Token xác thực không tồn tại hoặc đã hết hạn.");
         }
         Request.Builder builder = new Request.Builder()
                 .url(url)
@@ -215,7 +213,7 @@ public class BookingService {
                 else builder.delete();
                 break;
             default:
-                throw new IllegalArgumentException("Unsupported HTTP method: " + method);
+                throw new IllegalArgumentException("Phương thức HTTP không được hỗ trợ: " + method);
         }
         return builder.build();
     }

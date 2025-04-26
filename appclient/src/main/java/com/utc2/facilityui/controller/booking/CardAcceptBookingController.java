@@ -34,14 +34,13 @@ public class CardAcceptBookingController {
 
     @FXML
     private Text timeBooking;
-    public void setData(CardAcceptBooking cardAcceptBooking) {
-        nameBooking.setText(cardAcceptBooking.getNameBooking());
-        purposeBooking.setText(cardAcceptBooking.getPurposeBooking());
-        dateBooking.setText(cardAcceptBooking.getDateBooking());
-        timeBooking.setText(cardAcceptBooking.getTimeBooking());
-        requestBooking.setText(cardAcceptBooking.getRequestBooking());
-        statusBooking.setText(cardAcceptBooking.getStatusBooking());
-        approvalByGD.setText(cardAcceptBooking.getApprovalByGD());
-        approvalByFM.setText(cardAcceptBooking.getApprovalByFM());
-    }
+//    public void setData(CardAcceptBooking cardAcceptBooking) {
+//        nameBooking.setText(cardAcceptBooking.getNameBooking());
+//        purposeBooking.setText(cardAcceptBooking.getPurposeBooking());
+//
+//        requestBooking.setText(cardAcceptBooking.getRequestBooking());
+//        statusBooking.setText(cardAcceptBooking.getStatusBooking());
+//        approvalByGD.setText(cardAcceptBooking.getApprovalByGD());
+//        approvalByFM.setText(cardAcceptBooking.getApprovalByFM());
+//    }
 }
