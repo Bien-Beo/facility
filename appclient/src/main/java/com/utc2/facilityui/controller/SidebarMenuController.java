@@ -7,7 +7,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
@@ -96,6 +99,34 @@ public class SidebarMenuController implements Initializable {
     void handleLogout(ActionEvent event) {
         System.out.println("Nút Logout được nhấp");
         // Xử lý logic đăng xuất (ví dụ: đóng ứng dụng)
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirm Logout");
+        alert.setHeaderText("Are you sure you want to logout?");
+        alert.setContentText("Click OK to logout.");
+
+        alert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                // Get the current stage
+                Stage stage = (Stage) logoutButton.getScene().getWindow();
+                // Close the stage
+                stage.close();
+
+                // Optional: Load the login screen here if you have one
+
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/utc2/facilityui/view/login2.fxml"));
+                    Parent loginRoot = loader.load();
+                    Scene loginScene = new Scene(loginRoot);
+                    Stage loginStage = new Stage();
+                    loginStage.setTitle("Login");
+                    loginStage.setScene(loginScene);
+                    loginStage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     private void loadView(String fxmlPath) {

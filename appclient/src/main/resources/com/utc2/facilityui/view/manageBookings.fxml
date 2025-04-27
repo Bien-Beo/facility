@@ -79,7 +79,7 @@
         <TableView fx:id="bookingsTable" prefHeight="200.0" prefWidth="681.0" stylesheets="@../styles/manageBooking.css">
             <columns>
                 <TableColumn fx:id="titleFacilityColumn" prefWidth="200.0" text="Title / Facility" />
-                <TableColumn fx:id="requestedByColumn" prefWidth="150.0" text="Requested By" />
+                <TableColumn fx:id="requestedByColumn" prefWidth="150.0" text="Requested At" />
                 <TableColumn fx:id="purposeColumn" prefWidth="150.0" text="Purpose" />
                 <TableColumn fx:id="dateColumn" prefWidth="150.0" text="Date" />
                 <TableColumn fx:id="timeSlotColumn" prefWidth="150.0" text="Time slot" />

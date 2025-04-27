@@ -16,7 +16,7 @@ module com.utc2.facilityui {
     requires java.desktop;
     requires kernel;
     requires layout;
-
+    requires java.net.http;
     exports com.utc2.facilityui.controller;
     opens com.utc2.facilityui.controller to javafx.fxml;
     opens com.utc2.facilityui.chatbot to javafx.fxml;
