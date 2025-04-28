@@ -40,9 +40,15 @@ public class BookingController {
     }
 
     @GetMapping
-    ApiResponse<Page<BookingResponse>> getAllBooking(Pageable pageable) {
+    ApiResponse<Page<BookingResponse>> getAllBooking(
+            @RequestParam(required = false) String roomId,
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) String userId,
+            Pageable pageable
+    ) {
         return ApiResponse.<Page<BookingResponse>>builder()
-                .result(bookingService.getAllBookings(pageable))
+                .result(bookingService.getAllBookings(roomId, month, year, userId, pageable))
                 .build();
     }
 

@@ -16,6 +16,7 @@ import com.utc2.facility.exception.ErrorCode;
 import com.utc2.facility.mapper.BookingEquipmentMapper;
 import com.utc2.facility.mapper.BookingMapper;
 import com.utc2.facility.repository.*;
+import com.utc2.facility.specification.BookingSpecification;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -239,9 +240,12 @@ public class BookingService {
 
     // Get tất cả bookings (phân trang)
     @PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER')")
-    public Page<BookingResponse> getAllBookings(Pageable pageable) {
+    public Page<BookingResponse> getAllBookings(String roomId, Integer month, Integer year, String userId, Pageable pageable) {
         log.debug("Fetching all bookings with pageable: {}", pageable);
-        Page<Booking> bookingsPage = bookingRepository.findAll(pageable);
+        Page<Booking> bookingsPage = bookingRepository.findAll(
+                BookingSpecification.filterByRoomId(roomId)
+                        .and(BookingSpecification.filterByUserId(userId))
+                        .and(BookingSpecification.filterByMonthAndYear(month, year)), pageable);
         return bookingsPage.map(this::buildFullBookingResponse);
     }
 

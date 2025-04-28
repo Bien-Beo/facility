@@ -13,7 +13,7 @@ import Layout from "./components/Layout";
 import { RequireAuth } from "./components/RequireAuth";
 import RouteError from "./components/RouteError";
 import HomePage from "./pages/HomePage";
-// import AdminBookingsPage from "./pages/AdminBookingsPage";
+import AdminBookingsPage from "./pages/AdminBookingsPage";
 import AdminFacilitiesPage from "./pages/AdminFacilitiesPage";
 import DashboardPage from "./pages/DashboardPage";
 // import FMApprovalsPage from "./pages/FMApprovalsPage";
@@ -192,15 +192,15 @@ const router = createBrowserRouter(
 
          {/* Trang Quản lý của Admin */}
          <Route path="admin">
-          {/* <Route
+          <Route
             path="bookings"
             element={
-              <RequireAuth Technician={false} FacilityManager={false} Admin={true}>
+              <RequireAuth>
                 <AdminBookingsPage />
               </RequireAuth>
             }
             errorElement={<RouteError />}
-          /> */}
+          />
 
           {/* Trang Quản lý Phòng/Thiết bị của Admin */}
           <Route
