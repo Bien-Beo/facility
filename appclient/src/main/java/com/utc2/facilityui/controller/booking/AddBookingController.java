@@ -1,118 +1,129 @@
 package com.utc2.facilityui.controller.booking;
 
+import com.google.gson.Gson;
+import com.utc2.facilityui.utils.LocalDateTimeAdapter; // Import lớp Adapter vừa tạo
+import com.google.gson.GsonBuilder; // Import GsonBuilder
+import java.time.LocalDateTime; // Import LocalDateTime
 import com.utc2.facilityui.model.BookingCreationRequest;
 import com.utc2.facilityui.response.BookingResponse;
 import com.utc2.facilityui.service.BookingService;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-//
+
 public class AddBookingController {
 
-    @FXML private Button bntAddBooking;
-    @FXML private Button bntCancel;
-    @FXML private TextField borrowDate;
-    @FXML private TextField expectedDateReturn;
-    @FXML private TextField expectedTimeReturn;
-    @FXML private Label name; // Hiển thị tên phòng/thiết bị
-    @FXML private TextArea reason;
-    @FXML private TextField timeBorrow;
+    @FXML
+    private Button bntAddBooking;
+    @FXML
+    private Button bntCancel;
+    @FXML
+    private TextField plannedStartTime;
+    @FXML
+    private TextField plannedEndTime;
+    @FXML
+    private Label name;
+    @FXML
+    private TextArea purpose;
+    @FXML
+    private Text Status;
 
-    private String targetId; // ID của phòng/thiết bị
+    private String targetId;
     private BookingService bookingService;
-    private static final String DATE_FORMAT_INPUT = "yyyy-MM-dd";
-    private static final String TIME_FORMAT_INPUT = "HH:mm:ss";
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT_INPUT);
-    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern(TIME_FORMAT_INPUT);
     private static final DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+            .create();
 
     @FXML
     public void initialize() {
         this.bookingService = new BookingService();
+        // Thêm gợi ý (prompt text) cho các trường nhập liệu
+        plannedStartTime.setPromptText("yyyy-MM-ddTHH:mm:ss");
+        plannedEndTime.setPromptText("yyyy-MM-ddTHH:mm:ss");
+        purpose.setPromptText("Nhập lý do đặt phòng...");
 
-        // Thiết lập placeholder text
-        setupPlaceholder(borrowDate, "Borrow date (" + DATE_FORMAT_INPUT + ")");
-        setupPlaceholder(expectedDateReturn, "Return date (" + DATE_FORMAT_INPUT + ")");
-        setupPlaceholder(timeBorrow, "Time borrow (" + TIME_FORMAT_INPUT + ")");
-        setupPlaceholder(expectedTimeReturn, "Time return (" + TIME_FORMAT_INPUT + ")");
-        setupPlaceholder(reason, "Reason for booking");
+        // Thêm tooltip hướng dẫn chi tiết (tùy chọn)
+        Tooltip startTimeTooltip = new Tooltip("Nhập thời gian bắt đầu theo định dạng: yyyy-MM-ddTHH:mm:ss (ví dụ: 2025-04-17T10:00:00)");
+        plannedStartTime.setTooltip(startTimeTooltip);
 
-        // Gán hành động cho nút ADD
-        bntAddBooking.setOnAction(event -> handleAddBooking());
+        Tooltip endTimeTooltip = new Tooltip("Nhập thời gian kết thúc theo định dạng: yyyy-MM-ddTHH:mm:ss (ví dụ: 2025-04-17T11:00:00)");
+        plannedEndTime.setTooltip(endTimeTooltip);
+
+        Tooltip purposeTooltip = new Tooltip("Mô tả chi tiết mục đích bạn muốn đặt phòng.");
+        purpose.setTooltip(purposeTooltip);
     }
 
-    /**
-     * Nhận ID và tên của đối tượng (Phòng/Thiết bị) cần đặt.
-     */
     public void setTargetInfo(String id, String targetName) {
         this.targetId = id;
         if (name != null && targetName != null) {
             name.setText(targetName);
-        } else if (name != null){
+        } else if (name != null) {
             name.setText("N/A");
         }
         System.out.println("AddBookingController received targetId: " + this.targetId);
     }
 
-    // --- Xử lý sự kiện nút ADD ---
-    private void handleAddBooking() {
-        // 1. Get user input & Validate
-        String borrowDateStr = getValueFromInput(borrowDate, "Borrow date (" + DATE_FORMAT_INPUT + ")");
-        String timeBorrowStr = getValueFromInput(timeBorrow, "Time borrow (" + TIME_FORMAT_INPUT + ")");
-        String returnDateStr = getValueFromInput(expectedDateReturn, "Return date (" + DATE_FORMAT_INPUT + ")");
-        String timeReturnStr = getValueFromInput(expectedTimeReturn, "Time return (" + TIME_FORMAT_INPUT + ")");
-        String reasonStr = getValueFromInput(reason, "Reason for booking");
+    @FXML
+    public void handleAddBooking(ActionEvent event) {
+        // --- BƯỚC KIỂM TRA EVENT HANDLER ---
+        System.out.println("handleAddBooking được gọi!");
+        // --- KẾT THÚC BƯỚC KIỂM TRA ---
+        String startTimeStr = plannedStartTime.getText();
+        String endTimeStr = plannedEndTime.getText();
+        String reasonStr = purpose.getText();
 
         if (targetId == null) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Target ID not set."); return;
+            showAlert(Alert.AlertType.ERROR, "Error", "Target ID not set.");
+            return;
         }
-        if (borrowDateStr == null || timeBorrowStr == null || returnDateStr == null || timeReturnStr == null || reasonStr == null) {
-            showAlert(Alert.AlertType.ERROR, "Missing Information", "Please fill in all date, time, and reason fields."); return;
+        if (startTimeStr == null || startTimeStr.trim().isEmpty() || endTimeStr == null || endTimeStr.trim().isEmpty() || reasonStr == null || reasonStr.trim().isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Missing Information", "Vui lòng điền đầy đủ thông tin về thời gian và lý do.");
+            return;
         }
 
-        // 2. Format Date/Time
         LocalDateTime plannedStart;
         LocalDateTime plannedEnd;
         try {
-            LocalDate startDate = LocalDate.parse(borrowDateStr, DATE_FORMATTER);
-            LocalTime startTime = LocalTime.parse(timeBorrowStr, TIME_FORMATTER);
-            LocalDate endDate = LocalDate.parse(returnDateStr, DATE_FORMATTER);
-            LocalTime endTime = LocalTime.parse(timeReturnStr, TIME_FORMATTER);
-
-            plannedStart = LocalDateTime.of(startDate, startTime);
-            plannedEnd = LocalDateTime.of(endDate, endTime);
+            plannedStart = LocalDateTime.parse(startTimeStr, ISO_FORMATTER);
+            plannedEnd = LocalDateTime.parse(endTimeStr, ISO_FORMATTER);
 
             if (!plannedEnd.isAfter(plannedStart)) {
-                showAlert(Alert.AlertType.ERROR, "Invalid Time", "Planned end time must be after planned start time."); return;
+                showAlert(Alert.AlertType.ERROR, "Invalid Time", "Thời gian kết thúc phải sau thời gian bắt đầu.");
+                return;
             }
-            if (plannedStart.isBefore(LocalDateTime.now().minusMinutes(1))) { // Cho phép sai số 1 phút
-                showAlert(Alert.AlertType.ERROR, "Invalid Time", "Planned start time cannot be in the past."); return;
+            if (plannedStart.isBefore(LocalDateTime.now().minusMinutes(1))) {
+                showAlert(Alert.AlertType.ERROR, "Invalid Time", "Thời gian bắt đầu không được ở trong quá khứ.");
+                return;
             }
 
         } catch (DateTimeParseException e) {
-            showAlert(Alert.AlertType.ERROR, "Invalid Format", "Invalid date ("+DATE_FORMAT_INPUT+") or time ("+TIME_FORMAT_INPUT+") format.");
-            e.printStackTrace(); return;
+            showAlert(Alert.AlertType.ERROR, "Invalid Format", "Định dạng thời gian không hợp lệ (yyyy-MM-ddTHH:mm:ss).");
+            e.printStackTrace();
+            return;
         }
 
-        // 3. Create Request DTO
         BookingCreationRequest requestDto = new BookingCreationRequest();
-        requestDto.setRoomId(this.targetId); // Chỉ dùng roomId theo DTO backend
+        requestDto.setRoomId(this.targetId);
         requestDto.setPurpose(reasonStr);
-        requestDto.setPlannedStartTime(plannedStart.format(ISO_FORMATTER)); // Format sang ISO String
-        requestDto.setPlannedEndTime(plannedEnd.format(ISO_FORMATTER));   // Format sang ISO String
-        requestDto.setAdditionalEquipmentItemIds(new ArrayList<>()); // Danh sách rỗng
-        requestDto.setNote(""); // Note rỗng
+        requestDto.setPlannedStartTime(plannedStart);
+        requestDto.setPlannedEndTime(plannedEnd);
+        requestDto.setAdditionalEquipmentItemIds(new ArrayList<>());
+        requestDto.setNote("");
 
-        // 4. Call API via Service (Background Thread)
+        // In ra JSON request body để debug
+        String jsonRequestBody = gson.toJson(requestDto);
+        System.out.println("JSON Request Body: " + jsonRequestBody);
+
         disableButtons(true);
         showLoadingIndicator(true);
 
@@ -120,16 +131,14 @@ public class AddBookingController {
             try {
                 BookingResponse bookingResponse = bookingService.createBooking(requestDto);
 
-                // 5. Handle Result on JavaFX Thread
                 Platform.runLater(() -> {
                     showLoadingIndicator(false);
                     if (bookingResponse != null && bookingResponse.getId() != null) {
-                        showAlert(Alert.AlertType.INFORMATION, "Success", "Booking request sent successfully!");
+                        showAlert(Alert.AlertType.INFORMATION, "Success", "Yêu cầu đặt phòng đã được gửi thành công!");
                         closeDialog();
-                        // Trigger navigation/refresh here if implemented
-                        System.out.println("TODO: Navigate to My Booking or refresh list.");
+                        System.out.println("TODO: Chuyển hướng đến trang quản lý đặt phòng hoặc làm mới danh sách.");
                     } else {
-                        showAlert(Alert.AlertType.WARNING, "Unknown Error", "Request sent but no confirmation received.");
+                        showAlert(Alert.AlertType.WARNING, "Unknown Error", "Yêu cầu đã được gửi nhưng không nhận được phản hồi xác nhận.");
                         disableButtons(false);
                     }
                 });
@@ -137,14 +146,14 @@ public class AddBookingController {
             } catch (IOException | IllegalArgumentException e) {
                 Platform.runLater(() -> {
                     showLoadingIndicator(false);
-                    showAlert(Alert.AlertType.ERROR, "Booking Failed", "Could not send request: " + e.getMessage());
+                    showAlert(Alert.AlertType.ERROR, "Booking Failed", "Không thể gửi yêu cầu đặt phòng: " + e.getMessage());
                     disableButtons(false);
                 });
                 e.printStackTrace();
             } catch (Exception e) {
                 Platform.runLater(() -> {
                     showLoadingIndicator(false);
-                    showAlert(Alert.AlertType.ERROR, "System Error", "An unexpected error occurred.");
+                    showAlert(Alert.AlertType.ERROR, "System Error", "Đã xảy ra lỗi không mong muốn.");
                     disableButtons(false);
                 });
                 e.printStackTrace();
@@ -152,36 +161,50 @@ public class AddBookingController {
         }).start();
     }
 
-    // --- Các hàm Helper ---
-    private void setupPlaceholder(TextInputControl input, String placeholder) {
-        input.setText(placeholder); input.setStyle("-fx-text-fill: gray;");
-        input.focusedProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal) { if (input.getText().equals(placeholder)) { input.setText(""); input.setStyle("-fx-text-fill: black;"); } }
-            else { if (input.getText().isEmpty()) { input.setText(placeholder); input.setStyle("-fx-text-fill: gray;"); } } });
+    @FXML
+    public void handleCancel(ActionEvent event) {
+        Stage stage = (Stage) bntCancel.getScene().getWindow();
+        if (stage != null) {
+            stage.close();
+        }
     }
-    private void setupPlaceholder(TextArea input, String placeholder) {
-        input.setText(placeholder); input.setStyle("-fx-text-fill: gray;");
-        input.focusedProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal) { if (input.getText().equals(placeholder)) { input.setText(""); input.setStyle("-fx-text-fill: black;"); } }
-            else { if (input.getText().isEmpty()) { input.setText(placeholder); input.setStyle("-fx-text-fill: gray;"); } } });
+
+    private void disableButtons(boolean disable) {
+        bntAddBooking.setDisable(disable);
+        bntCancel.setDisable(disable);
     }
-    private String getValueFromInput(TextInputControl input, String placeholder) {
-        String text = input.getText(); input.setStyle("-fx-text-fill: black;"); // Reset style
-        if (text == null || text.trim().isEmpty() || text.equals(placeholder)) {
-            input.setStyle("-fx-border-color: red; -fx-text-fill: black;"); return null; }
-        return text.trim();
+
+    private void showLoadingIndicator(boolean show) {
+        System.out.println("Loading: " + show);
+        // Bạn có thể thêm một visual indicator (ví dụ: ProgressBar) ở đây nếu muốn
     }
-    private String getValueFromInput(TextArea input, String placeholder) {
-        String text = input.getText(); input.setStyle("-fx-text-fill: black;");
-        if (text == null || text.trim().isEmpty() || text.equals(placeholder)) {
-            input.setStyle("-fx-border-color: red; -fx-text-fill: black;"); return null; }
-        return text.trim();
+
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(type);
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
+        });
     }
-    private void disableButtons(boolean disable) { bntAddBooking.setDisable(disable); bntCancel.setDisable(disable); }
-    private void showLoadingIndicator(boolean show) { System.out.println("Loading: " + show); /* Thêm logic hiển thị */ }
-    private void showAlert(Alert.AlertType type, String title, String message) { Platform.runLater(() -> { Alert alert = new Alert(type); alert.setTitle(title); alert.setHeaderText(null); alert.setContentText(message); alert.showAndWait(); }); }
-    private void closeDialog() { Stage stage = (Stage) bntAddBooking.getScene().getWindow(); if (stage != null) { stage.close(); } }
-    public Button getBntCancel() { return bntCancel; }
-    public Button getBntAddBooking() { return bntAddBooking; }
-    public Label getName() { return name; }
+
+    private void closeDialog() {
+        Stage stage = (Stage) bntAddBooking.getScene().getWindow();
+        if (stage != null) {
+            stage.close();
+        }
+    }
+
+    public Button getBntCancel() {
+        return bntCancel;
+    }
+
+    public Button getBntAddBooking() {
+        return bntAddBooking;
+    }
+
+    public Label getName() {
+        return name;
+    }
 }

@@ -57,8 +57,8 @@ public class CardEquipmentController {
     @FXML
     public void initialize() {
         if(showInfo != null) {
-                 showInfo.setOnAction(event -> handleCardClick(null)); // Truyền null hoặc tạo MouseEvent giả nếu cần
-             }
+            showInfo.setOnAction(event -> handleCardClick(null)); // Truyền null hoặc tạo MouseEvent giả nếu cần
+        }
     }
 
     // Hàm xử lý sự kiện click vào card
