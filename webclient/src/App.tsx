@@ -16,7 +16,7 @@ import HomePage from "./pages/HomePage";
 import AdminBookingsPage from "./pages/AdminBookingsPage";
 import AdminFacilitiesPage from "./pages/AdminFacilitiesPage";
 import DashboardPage from "./pages/DashboardPage";
-// import FMApprovalsPage from "./pages/FMApprovalsPage";
+import ApprovalsPage from "./pages/ApprovalsPage";
 // import FMBookingsPage from "./pages/FMBookingsPage";
 // import FMCancellationsPage from "./pages/FMCancellationPage";
 // import FacilityPage from "./pages/FacilityPage";
@@ -26,9 +26,9 @@ import DashboardPage from "./pages/DashboardPage";
 import LoginPage from "./pages/LoginPage";
 import MyBookingsPage from "./pages/MyBookingsPage";
 // import ResetPasswordPage from "./pages/ResetPasswordPage";
+import FacilityPage from "./pages/FacilityPage";
 import { AuthProvider } from "./utils/auth";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-import FacilityPage from "./pages/FacilityPage";
 
 
 declare module "@tanstack/react-query" {
@@ -136,28 +136,31 @@ const router = createBrowserRouter(
         </Route> */}
 
         <Route path="user">
-          {/* <Route path="approvals">
-            <Route
-              path="gd"
-              element={
-                <RequireAuth GD={true} FM={false} noAdmin={true}>
-                  <GDApprovalsPage />
-                </RequireAuth>
-              }
-              errorElement={<RouteError />}
-            />
+          <Route
+            path="mybookings"
+            element={
+              <RequireAuth>
+                <MyBookingsPage />
+              </RequireAuth>
+            }
+            errorElement={<RouteError />}
+          />
+        </Route>
+        
+        <Route path="facility-manager">
+          <Route path="approvals">
             <Route
               path="fm"
               element={
-                <RequireAuth GD={false} FM={true} noAdmin={true}>
-                  <FMApprovalsPage />
+                <RequireAuth allowedRoles={["FACILITY_MANAGER"]}>
+                  <ApprovalsPage />
                 </RequireAuth>
               }
               errorElement={<RouteError />}
             />
           </Route>
 
-          <Route path="cancellations">
+          {/* <Route path="cancellations">
             <Route
               path="gd"
               element={
@@ -177,21 +180,10 @@ const router = createBrowserRouter(
               errorElement={<RouteError />}
             />
           </Route> */}
-
-          <Route
-            path="mybookings"
-            element={
-              <RequireAuth>
-                <MyBookingsPage />
-              </RequireAuth>
-            }
-            errorElement={<RouteError />}
-          />
         </Route>
-        
 
          {/* Trang Quản lý của Admin */}
-         <Route path="admin">
+        <Route path="admin">
           <Route
             path="bookings"
             element={

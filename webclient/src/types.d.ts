@@ -476,6 +476,11 @@ interface RequireAuthProps {
   // Bỏ các boolean riêng: Technician?: boolean; FacilityManager?: boolean; Admin?: boolean; User?: boolean;
 }
 
+interface ApprovalCardProps {
+  booking: BookingEntry;
+  onActionSuccess?: () => void; // Callback khi duyệt/từ chối thành công
+}
+
 /**
  * Các kiểu dữ liệu khác (Error, Navigation...)
  */
