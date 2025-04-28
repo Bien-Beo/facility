@@ -132,6 +132,8 @@ type PaginatedBookingApiResponse = ApiResponse<PaginatedResult<BookingEntry>>;
  */
 type PaginatedRoomApiResponse = ApiResponse<PaginatedResult<RoomData>>;
 
+type PaginatedUserApiResponse = ApiResponse<PaginatedResult<UserData>>;
+
 /**
  * Kiểu dữ liệu cho API trả về chi tiết một Room
  */
@@ -215,9 +217,12 @@ type BookingUpdateRequest = {
   additionalEquipmentItemIds?: string[] | null; // null = không đổi, [] = xóa hết
   note?: string;
 };
-type CancelBookingRequest = { // Giữ lại nếu muốn bắt buộc lý do
+type CancelBookingRequest = { 
   reason: string;
 };
+interface RejectBookingRequest {
+  reason: string;
+}
 
 // --- Room ---
 type RoomCreationRequest = {
@@ -369,6 +374,82 @@ interface DeleteFacilityModalProps {
 interface MyBookingCardProps {
   booking: BookingEntry; // Chỉ cần nhận đối tượng booking
   onCancelSuccess?: () => void; // Optional callback
+}
+
+interface AdminBookingsTableProps {
+  bookings: BookingEntry[]; // Mảng BookingEntry cho trang hiện tại
+  totalBookingCount: number; // Tổng số lượng item
+  page: number; // Index trang hiện tại (0-based)
+  rowsPerPage: number; // Số dòng/trang
+  onPageChange: (event: unknown, newPage: number) => void;
+  onRowsPerPageChange: (event: ChangeEvent<HTMLInputElement>) => void;
+}
+
+interface AdminBookingApprovalModalProps {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+  setOpenSnackbar: (isOpen: boolean) => void;
+  bookingId: string | null; // ID của booking cần duyệt
+  bookingData?: BookingEntry | null; // Optional: Dữ liệu để hiển thị trong modal
+  onSuccessCallback?: () => void; // Optional: Callback khi duyệt thành công
+}
+
+interface AdminBookingRejectModalProps {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+  setOpenSnackbar: (isOpen: boolean) => void;
+  bookingId: string | null;
+  bookingData?: BookingEntry | null; // Optional: để hiển thị thông tin xác nhận
+  onSuccessCallback?: () => void;
+}
+
+interface AdminBookingRowData {
+  id: string;
+  requesterInfo: JSX.Element | string;
+  userName: string;
+  roomName: string | null;
+  purpose: string | null;
+  plannedTime: JSX.Element | string;
+  equipmentInfo: JSX.Element | string;
+  requestedAt: JSX.Element | string;
+  status: JSX.Element | string; // Có thể là Chip JSX hoặc string đã format
+  processedBy: string | null;
+  reasonOrNote: string | null;
+  actions?: JSX.Element;
+}
+
+interface AdminBookingColumnData {
+  id: keyof Omit<AdminBookingRowData, 'id'>;
+  label: string;
+  minWidth?: number;
+  align?: 'left' | 'right' | 'center';
+}
+
+// Dữ liệu một dòng trong bảng báo cáo Admin Bookings 
+interface ReportBookingRowData {
+  id: string;
+  userName: string;
+  roomName: string | null;
+  purpose: string | null;
+  plannedTime: JSX.Element | string;
+  requestedAt: JSX.Element | string;
+  status: BookingStatusType | string; // Giữ nguyên để style hoặc format
+  processedBy: string | null;
+  reasonOrNote: string | null;
+}
+
+// Định nghĩa cột cho bảng báo cáo Admin Bookings
+interface ReportBookingColumnData {
+    id: keyof Omit<ReportBookingRowData, 'id'>; 
+    label: string;
+    minWidth?: number;
+    align?: 'left' | 'right' | 'center';
+}
+
+// Props cho component
+interface AdminBookingsReportProps {
+  bookings: BookingEntry[]; // <<< Sửa: Nhận mảng BookingEntry
+  forwardedRef: React.Ref<HTMLDivElement>;
 }
 
 // Kiểu dữ liệu cho Context mà Provider sẽ cung cấp

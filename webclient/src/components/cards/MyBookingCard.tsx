@@ -265,30 +265,22 @@ import { useAuth } from "../../hooks/useAuth";
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 
-// SỬA: Props Interface chỉ nhận booking object
-interface MyBookingCardProps {
-    booking: BookingEntry;
-    onCancelSuccess?: () => void; // Optional callback
-}
-
 const MyBookingCard: FC<MyBookingCardProps> = ({
-    booking, // <<< Nhận prop booking object
+    booking, 
     onCancelSuccess
 }): JSX.Element => {
 
     const [remarkValue, setRemarkValue] = useState<string>(booking.cancellationReason || "");
     const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
-    const [backendError, setBackendError] = useState<ErrorMessage | null>(null); // Sửa state lỗi
+    const [backendError, setBackendError] = useState<ErrorMessage | null>(null); 
     const [validationError, setValidationError] = useState<string>("");
-
-    // Bỏ các state không cần thiết: statusMessage, cancelStatusMessage
 
     const auth = useAuth();
     const queryClient = useQueryClient();
 
-    // --- Cancel Mutation (Sửa lại theo API và DTO mới) ---
+    // --- Cancel Mutation ---
     const cancelMutation = useMutation<
-        ApiResponse<BookingEntry>, // Kiểu trả về mong đợi
+        ApiResponse<BookingEntry>, 
         AxiosError<ErrorMessage>,
         CancelBookingRequest      // Kiểu biến đầu vào { reason: string }
     >({
@@ -296,10 +288,9 @@ const MyBookingCard: FC<MyBookingCardProps> = ({
             const token = localStorage.getItem("token");
             if (!token) return Promise.reject(new Error("No token found"));
             console.log(`Sending cancellation request for booking ${booking.id} with reason: ${data.reason}`);
-            // Endpoint chuẩn: POST /bookings/{id}/cancel
             return axios.post<ApiResponse<BookingEntry>>(
-                `${import.meta.env.VITE_APP_SERVER_URL || 'http://localhost:8080'}/bookings/${booking.id}/cancel`, // <<< Dùng booking.id
-                data, // Gửi { reason: "..." }
+                `${import.meta.env.VITE_APP_SERVER_URL}/bookings/${booking.id}/cancel`,
+                data, 
                 { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
             );
         },
@@ -328,21 +319,20 @@ const MyBookingCard: FC<MyBookingCardProps> = ({
             setValidationError("Vui lòng nhập lý do hủy (ít nhất 5 ký tự).");
             return;
         }
-        // Sửa: Tạo đúng payload CancelBookingRequest
+        // payload CancelBookingRequest
         const cancelRequestData: CancelBookingRequest = { reason: remarkValue.trim() };
         cancelMutation.mutate(cancelRequestData);
     };
 
     // --- Xác định có cho phép hủy không ---
-    // Sửa: Dùng kiểu BookingStatusType chuẩn
     const canCancel = useMemo(() => {
         const status = booking.status as BookingStatusType;
-        // Cho phép hủy khi PENDING_APPROVAL hoặc CONFIRMED (có thể thêm check thời gian)
+        // Cho phép hủy khi PENDING_APPROVAL hoặc CONFIRMED 
          if (!["PENDING_APPROVAL", "CONFIRMED"].includes(status)) {
             return false;
          }
-         // Optional: Kiểm tra thời gian nếu đã CONFIRMED
-         const hoursBefore = 1; // Ví dụ: phải hủy trước 1 tiếng
+         // Kiểm tra thời gian nếu đã CONFIRMED
+         const hoursBefore = 1; // phải hủy trước 1 tiếng
          if (status === "CONFIRMED" && dayjs().isAfter(dayjs(booking.plannedStartTime).subtract(hoursBefore, 'hour'))) {
               console.log(`Cancellation for booking ${booking.id} is too late.`);
               return false; // Quá gần giờ
@@ -369,7 +359,6 @@ const MyBookingCard: FC<MyBookingCardProps> = ({
         const status = booking.status as BookingStatusType;
         let baseClasses = "justify-between items-start px-6 sm:px-10 py-6 sm:py-8 w-full h-full flex flex-col sm:flex-row mt-6 rounded-lg shadow-md border-0 border-l-[10px] border-solid";
 
-        // SỬA: Dùng BookingStatusType
         switch (status) {
             case "PENDING_APPROVAL": return `${baseClasses} bg-blue-50 border-blue-500`;
             case "CONFIRMED":

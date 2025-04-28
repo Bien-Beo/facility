@@ -58,7 +58,7 @@ const RoomCard: FC<RoomCardProps> = ({
       }
     >
       <div
-        className={`w-[180px] h-full min-h-[200px] gap-0 pt-0 m-6 p-0 border-0 border-b-4 border-solid bg-white flex flex-col items-center justify-evenly shadow-card cursor-pointer rounded-md hover:-translate-y-1 hover:shadow-cardHover transition-all duration-150 ease-in ${statusBackgroundColors[status]}`}
+        className={`w-[180px] h-full min-h-[200px] gap-0 pt-0 m-6 mt-4 p-0 border-0 border-b-4 border-solid bg-white flex flex-col items-center justify-evenly shadow-card cursor-pointer rounded-md hover:-translate-y-1 hover:shadow-cardHover transition-all duration-150 ease-in ${statusBackgroundColors[status]}`}
       >
         <img
           src={`http://localhost:8080/facility/images/${img}`}

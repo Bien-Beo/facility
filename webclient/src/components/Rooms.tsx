@@ -44,43 +44,45 @@ const Rooms: FC = (): JSX.Element => {
     );
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center pt-12 px-6">
-      <Typography variant="h2" component="h1">Rooms</Typography>
-      <div className="w-full flex flex-col justify-center items-center flex-wrap pt-4 gap-10">
-        {data?.map((section) =>
-          Array.isArray(section.rooms) && section.rooms.length > 0 && (
-            <div key={section.type} className="w-full flex flex-col gap-2">
-              <Typography variant="h4" component="h2">{section.type}</Typography>
-              <Divider color="gray" />
-              <div className="w-full flex flex-wrap gap-4">
-                {section.rooms.map((room) => (
-                  <div key={room.id} onClick={() => {
-                    setSelectedFacility(room);
-                    setOpen(true);
-                  }}>
-                    <RoomCard
-                      id={room.id ?? ""}
-                      name={room.name ?? ""}
-                      description={room.description ?? ""}
-                      capacity={room.capacity ?? 0}
-                      img={room.img ?? ""}
-                      status={room.status ?? "AVAILABLE"}
-                      buildingName={room.buildingName ?? ""}
-                      roomTypeName={room.roomTypeName ?? ""}
-                      nameFacilityManager={room.nameFacilityManager ?? ""}
-                      location={room.location ?? ""}
-                      createdAt={room.createdAt ?? ""}
-                      updatedAt={room.updatedAt ?? ""}
-                      deletedAt={room.deletedAt ?? ""}
-                      defaultEquipments={room.defaultEquipments || []}
-                    />
-                  </div>
-                ))}
-              </div>
+    <div className="w-full h-screen flex flex-col overflow-y-auto">
+      <div className="pt-12 px-6">
+      <Typography className="text-center" variant="h2" component="h1">Phòng</Typography>
+    </div>
+    <div className="w-full flex flex-col justify-center items-center pt-4 pb-12 px-6 gap-10">
+      {data?.map((section) =>
+        Array.isArray(section.rooms) && section.rooms.length > 0 && (
+          <div key={section.type} className="w-full flex flex-col gap-2">
+            <Typography variant="h4" component="h2">{section.type}</Typography>
+            <Divider color="gray" />
+            <div className="w-full flex flex-wrap gap-4">
+              {section.rooms.map((room) => (
+                <div key={room.id} onClick={() => {
+                  setSelectedFacility(room);
+                  setOpen(true);
+                }}>
+                  <RoomCard
+                    id={room.id ?? ""}
+                    name={room.name ?? ""}
+                    description={room.description ?? ""}
+                    capacity={room.capacity ?? 0}
+                    img={room.img ?? ""}
+                    status={room.status ?? "AVAILABLE"}
+                    buildingName={room.buildingName ?? ""}
+                    roomTypeName={room.roomTypeName ?? ""}
+                    nameFacilityManager={room.nameFacilityManager ?? ""}
+                    location={room.location ?? ""}
+                    createdAt={room.createdAt ?? ""}
+                    updatedAt={room.updatedAt ?? ""}
+                    deletedAt={room.deletedAt ?? ""}
+                    defaultEquipments={room.defaultEquipments || []}
+                  />
+                </div>
+              ))}
             </div>
-          )
-        )}
-      </div>
+          </div>
+        )
+      )}
+    </div>
 
       {selectedFacility && (
         <RoomDetail
