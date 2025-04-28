@@ -9,114 +9,106 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="650.0" prefWidth="770.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.Login2Controller">
+<AnchorPane prefHeight="650.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.Login2Controller">
 
-    <!-- Phần Form Đăng Nhập -->
-    <HBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+    <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 
-        <!-- Vùng bên trái (Form) -->
-        <VBox alignment="CENTER" maxHeight="650.0" prefHeight="637.0" prefWidth="320.0" spacing="15" style="-fx-background-color: white;">
-            <Label style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: blue;" text="WELCOME BACK">
-                <VBox.margin>
-                    <Insets bottom="20.0" />
-                </VBox.margin></Label>
-         <ImageView fitHeight="176.0" fitWidth="180.0" pickOnBounds="true" preserveRatio="true">
+        <!-- Background -->
+        <ImageView fitHeight="800.0" fitWidth="1580.0" preserveRatio="false">
             <image>
-               <Image url="@../images/utc2.png" />
-            </image>
-            <VBox.margin>
-               <Insets bottom="15.0" />
-            </VBox.margin>
-         </ImageView>
-         <HBox prefHeight="55.0" prefWidth="346.0">
-            <children>
-               <ImageView fitHeight="40.0" fitWidth="55.0" pickOnBounds="true" preserveRatio="true">
-                  <image>
-                     <Image url="@../images/userr.png" />
-                  </image>
-                  <HBox.margin>
-                     <Insets left="10.0" right="10.0" top="6.0" />
-                  </HBox.margin>
-               </ImageView>
-               <TextField fx:id="username" prefHeight="4.0" prefWidth="238.0" promptText="Username">
-                  <HBox.margin>
-                     <Insets top="15.0" />
-                  </HBox.margin>
-               </TextField>
-            </children>
-         </HBox>
-         <HBox prefHeight="55.0" prefWidth="346.0">
-            <children>
-               <ImageView fitHeight="40.0" fitWidth="55.0" pickOnBounds="true" preserveRatio="true">
-                  <image>
-                     <Image url="@../images/door-key.png" />
-                  </image>
-                  <HBox.margin>
-                     <Insets left="10.0" right="10.0" top="6.0" />
-                  </HBox.margin>
-               </ImageView>
-               <PasswordField fx:id="password" prefHeight="4.0" prefWidth="238.0" promptText="Password">
-                  <HBox.margin>
-                     <Insets top="15.0" />
-                  </HBox.margin>
-               </PasswordField>
-            </children>
-         </HBox>
-         <HBox prefHeight="36.0" prefWidth="320.0">
-            <children>
-               <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
-                  <HBox.margin>
-                     <Insets left="10.0" right="10.0" top="6.0" />
-                  </HBox.margin>
-                  <image>
-                     <Image url="@../images/padlock-unlock.png" />
-                  </image>
-               </ImageView>
-               <TextField fx:id="captchaInput" prefHeight="26.0" prefWidth="240.0" promptText="Mã an toàn">
-                  <HBox.margin>
-                     <Insets top="15.0" />
-                  </HBox.margin>
-               </TextField>
-            </children>
-         </HBox>
-         <HBox prefHeight="41.0" prefWidth="320.0">
-            <children>
-               <Label onMouseClicked="#refreshCaptcha" prefHeight="18.0" prefWidth="38.0" text="↻">
-                  <font>
-                     <Font size="30.0" />
-                  </font>
-                  <HBox.margin>
-                     <Insets left="20.0" right="10.0" />
-                  </HBox.margin></Label>
-               <Label fx:id="captchaLabel" prefHeight="38.0" prefWidth="89.0" text="A1B2C">
-                  <HBox.margin>
-                     <Insets />
-                  </HBox.margin>
-                  <font>
-                     <Font size="20.0" />
-                  </font></Label>
-            </children>
-         </HBox>
-
-            <Button fx:id="loginButton" maxWidth="250.0" prefHeight="40.0" style="-fx-background-color: blue; -fx-text-fill: white; -fx-font-size: 14px;" text="Log in">
-                <font>
-                    <Font name="System Bold" size="15.0" />
-                </font>
-                <VBox.margin>
-                    <Insets top="15.0" />
-                </VBox.margin>
-            </Button>
-            <Label fx:id="lbMessage" style="-fx-text-fill: red;" />
-        </VBox>
-
-        <ImageView fitHeight="650.0" fitWidth="450.0" pickOnBounds="true" preserveRatio="true">
-            <image>
-                <Image url="@../images/Grid.png" />
+                <Image url="@../images/bgutc2.jpg" />
             </image>
         </ImageView>
-    </HBox>
+
+        <!-- Nội dung -->
+        <HBox alignment="CENTER" layoutX="180.0" spacing="20" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="380.0" AnchorPane.rightAnchor="-180.0" AnchorPane.topAnchor="70.0">
+
+            <!-- Form Login -->
+            <VBox alignment="CENTER" maxHeight="650.0" prefHeight="637.0" prefWidth="320.0" spacing="15" style="-fx-background-color: rgba(255,255,255,0.7); -fx-background-radius: 15; -fx-padding: 20;">
+                <!--
+                    rgba(255,255,255,0.7)
+                    => màu trắng (255,255,255)
+                    => độ trong suốt 0.7 (70% không trong, 30% trong suốt)
+                -->
+                <Label style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: blue;" text="WELCOME BACK">
+                    <VBox.margin>
+                        <Insets bottom="20.0" />
+                    </VBox.margin>
+                </Label>
+
+                <ImageView fitHeight="127.0" fitWidth="176.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../images/logoutc2.png" />
+                    </image>
+                    <VBox.margin>
+                        <Insets bottom="15.0" />
+                    </VBox.margin>
+                </ImageView>
+
+                <!-- Username -->
+                <HBox alignment="CENTER_LEFT" prefHeight="55.0" prefWidth="346.0" spacing="10">
+                    <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@../images/userr.png" />
+                        </image>
+                    </ImageView>
+                    <TextField fx:id="username" prefHeight="40.0" prefWidth="238.0" promptText="Username" />
+                </HBox>
+
+                <!-- Password -->
+                <HBox alignment="CENTER_LEFT" prefHeight="55.0" prefWidth="346.0" spacing="10">
+                    <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@../images/door-key.png" />
+                        </image>
+                    </ImageView>
+                    <PasswordField fx:id="password" prefHeight="40.0" prefWidth="238.0" promptText="Password" />
+                </HBox>
+
+                <!-- Captcha -->
+                <HBox alignment="CENTER_LEFT" prefHeight="55.0" prefWidth="346.0" spacing="10">
+                    <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@../images/padlock-unlock.png" />
+                        </image>
+                    </ImageView>
+                    <TextField fx:id="captchaInput" prefHeight="40.0" prefWidth="238.0" promptText="Mã an toàn" />
+                </HBox>
+
+                <!-- Captcha Label -->
+                <HBox alignment="CENTER_LEFT" prefHeight="41.0" prefWidth="320.0" spacing="10">
+                    <Label onMouseClicked="#refreshCaptcha" text="↻">
+                        <font>
+                            <Font size="30.0" />
+                        </font>
+                    </Label>
+                    <Label fx:id="captchaLabel" text="A1B2C">
+                        <font>
+                            <Font size="20.0" />
+                        </font>
+                    </Label>
+                </HBox>
+
+                <!-- Button Login -->
+                <Button fx:id="loginButton" maxWidth="250.0" prefHeight="40.0" style="-fx-background-color: blue; -fx-text-fill: white; -fx-font-size: 14px;" text="Log in">
+                    <font>
+                        <Font name="System Bold" size="15.0" />
+                    </font>
+                    <VBox.margin>
+                        <Insets top="15.0" />
+                    </VBox.margin>
+                </Button>
+
+                <Label fx:id="lbMessage" style="-fx-text-fill: red;" />
+
+            </VBox>
+
+        </HBox>
+
+    </StackPane>
 
 </AnchorPane>
