@@ -1,10 +1,10 @@
 package com.utc2.facilityui.service;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder; // Dùng GsonBuilder nếu cần cấu hình đặc biệt (ví dụ date format)
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import com.utc2.facilityui.auth.TokenStorage;
+import com.utc2.facilityui.auth.TokenStorage; // Đảm bảo bạn có lớp này và nó hoạt động
 import com.utc2.facilityui.model.Facility;
 import com.utc2.facilityui.model.Room;
 import com.utc2.facilityui.response.ApiResponse;
@@ -12,85 +12,71 @@ import com.utc2.facilityui.response.DashboardRoomApiResponse;
 import com.utc2.facilityui.response.RoomGroupResponse;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody; // Import ResponseBody
+import okhttp3.*; // Import đầy đủ okhttp3
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class RoomService {
     private final OkHttpClient client;
     private final Gson gson;
+    // *** THAY ĐỔI BASE_URL NẾU CẦN ***
+    private static final String BASE_URL = "http://localhost:8080/facility";
+    private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
+
 
     public RoomService() {
+        // Cân nhắc cấu hình thêm cho OkHttpClient nếu cần (timeouts, interceptors, v.v.)
         client = new OkHttpClient();
-        // Cân nhắc dùng GsonBuilder nếu cần xử lý Date/Time phức tạp
-        gson = new GsonBuilder().create();
+        gson = new GsonBuilder().create(); // Có thể thêm cấu hình cho Gson nếu cần
     }
 
+    /**
+     * Lấy danh sách Room cơ bản (ví dụ).
+     * Endpoint: GET /facility/rooms
+     */
     public List<Room> getRooms() throws IOException {
-        String token = TokenStorage.getToken();
-        if (token == null || token.isEmpty()) {
-            System.err.println("Authentication token is missing. Cannot fetch rooms.");
-            return Collections.emptyList();
-            // Hoặc throw new IOException("Authentication token is missing.");
-        }
-
-        Request request = new Request.Builder()
-                .url("http://localhost:8080/facility/rooms") // Đảm bảo URL đúng
-                .header("Authorization", "Bearer " + token)
-                .build();
+        String url = BASE_URL + "/rooms";
+        Request request = buildAuthenticatedGetRequest(url);
 
         try (Response response = client.newCall(request).execute()) {
-            ResponseBody responseBody = response.body(); // Lấy body
+            ResponseBody responseBody = response.body();
 
             if (!response.isSuccessful()) {
-                String errorBody = (responseBody != null) ? responseBody.string() : "null";
-                throw new IOException("Unexpected code " + response.code() + " - Body: " + errorBody);
+                String errorBody = (responseBody != null) ? responseBody.string() : "N/A";
+                if(responseBody != null) responseBody.close();
+                throw new IOException("Lấy danh sách phòng thất bại. Mã lỗi: " + response.code() + ". Phản hồi: " + errorBody);
             }
+            if (responseBody == null) throw new IOException("Response body rỗng khi lấy danh sách phòng.");
 
-            if (responseBody == null) {
-                throw new IOException("Response body is null");
-            }
+            String jsonData;
+            try { jsonData = responseBody.string(); } finally { responseBody.close(); }
 
-            String jsonData = responseBody.string(); // Đọc body một lần duy nhất
-
-            // Định nghĩa kiểu dữ liệu phức tạp cho Gson
             Type apiResponseType = new TypeToken<ApiResponse<Room>>() {}.getType();
-
-            // Parse JSON thành đối tượng ApiResponse<Room>
             ApiResponse<Room> apiResponse = gson.fromJson(jsonData, apiResponseType);
 
-            // Kiểm tra kết quả từ API (ví dụ: mã lỗi do server trả về trong JSON)
             if (apiResponse == null || apiResponse.getCode() != 0 || apiResponse.getResult() == null || apiResponse.getResult().getContent() == null) {
-                System.err.println("API response indicates failure or missing data. Code: " + (apiResponse != null ? apiResponse.getCode() : "N/A"));
-                // Có thể throw Exception hoặc trả về list rỗng tùy logic
+                System.err.println("API response không hợp lệ hoặc báo lỗi. Code: " + (apiResponse != null ? apiResponse.getCode() : "N/A"));
                 return Collections.emptyList();
             }
-
-            // Trả về danh sách các phòng từ trường 'content'
             return apiResponse.getResult().getContent();
 
-        } catch (com.google.gson.JsonSyntaxException e) {
-            // Lỗi nếu JSON không đúng định dạng
-            throw new IOException("Error parsing JSON response: " + e.getMessage(), e);
+        } catch (JsonSyntaxException e) {
+            throw new IOException("Lỗi parse JSON khi lấy danh sách phòng: " + e.getMessage(), e);
         }
     }
-    // --- PHƯƠNG THỨC MỚI LẤY DATA DASHBOARD ---
+
     /**
-     * Lấy dữ liệu cơ sở vật chất (phòng) cho Dashboard, đã được gom nhóm theo loại.
-     * Gọi API: GET /facility/dashboard/room
-     * @return ObservableList<Facility> chứa tất cả các phòng từ các nhóm.
-     * @throws IOException Lỗi mạng hoặc parse.
+     * Lấy dữ liệu Facility cho Dashboard.
+     * Endpoint: GET /facility/dashboard/room
      */
     public ObservableList<Facility> getDashboardFacilities() throws IOException {
-
-        String url = "http://localhost:8080/facility/dashboard/room";
-        Request request = buildAuthenticatedGetRequest(url); // Dùng lại hàm helper
+        String url = BASE_URL + "/dashboard/room";
+        Request request = buildAuthenticatedGetRequest(url);
 
         try (Response response = client.newCall(request).execute()) {
             ResponseBody responseBody = response.body();
@@ -99,47 +85,137 @@ public class RoomService {
                 if(responseBody != null) responseBody.close();
                 throw new IOException("Yêu cầu API Dashboard thất bại: " + response.code() + ". Body: " + errorBodyStr);
             }
-            if (responseBody == null) {
-                throw new IOException("Response body rỗng từ API Dashboard.");
-            }
+            if (responseBody == null) throw new IOException("Response body rỗng từ API Dashboard.");
 
             String jsonData;
             try { jsonData = responseBody.string(); } finally { responseBody.close(); }
             System.out.println("Dashboard Raw JSON: " + jsonData); // Log để debug
 
             try {
-                // Parse bằng lớp response mới
                 DashboardRoomApiResponse apiResponse = gson.fromJson(jsonData, DashboardRoomApiResponse.class);
 
                 if (apiResponse != null && apiResponse.getCode() == 0 && apiResponse.getResult() != null) {
-                    // Làm phẳng danh sách: gom tất cả 'Facility' từ các nhóm vào một list
                     ObservableList<Facility> allFacilities = FXCollections.observableArrayList();
                     for (RoomGroupResponse group : apiResponse.getResult()) {
-                        if (group != null && group.getRooms() != null) { // Thêm kiểm tra group null
-                            // Lọc bỏ facility null nếu có thể xảy ra
+                        if (group != null && group.getRooms() != null) {
+                            // Lọc các facility null trước khi thêm vào danh sách
                             group.getRooms().stream()
-                                    .filter(java.util.Objects::nonNull)
+                                    .filter(Objects::nonNull)
                                     .forEach(allFacilities::add);
                         }
                     }
                     System.out.println("Fetched and flattened " + allFacilities.size() + " facilities.");
                     return allFacilities;
                 } else {
-                    System.err.println("API Dashboard response không hợp lệ. Code: " + (apiResponse != null ? apiResponse.getCode() : "N/A"));
-                    return FXCollections.observableArrayList(); // Trả về list rỗng
+                    String apiCode = (apiResponse != null) ? String.valueOf(apiResponse.getCode()) : "N/A";
+                    System.err.println("API Dashboard response không hợp lệ hoặc báo lỗi. Code: " + apiCode);
+                    // Trả về danh sách rỗng thay vì ném lỗi nếu API báo lỗi logic (ví dụ code != 0)
+                    return FXCollections.observableArrayList();
                 }
             } catch (JsonSyntaxException e) {
                 System.err.println("Lỗi parse JSON Dashboard: " + e.getMessage());
                 throw new IOException("Không thể parse response dashboard: " + e.getMessage(), e);
             }
-
-        } catch (JsonSyntaxException e) {
-            throw new IOException("Lỗi parse JSON chung khi gọi Dashboard API: " + e.getMessage(), e);
         }
     }
+
+    /**
+     * Gửi yêu cầu POST để tạo phòng mới sử dụng dữ liệu từ Map.
+     * Endpoint: POST /facility/rooms
+     * @param roomData Map chứa thông tin phòng cần tạo.
+     * @throws IOException Nếu có lỗi mạng hoặc lỗi từ API.
+     */
+    public void addRoomFromMap(Map<String, Object> roomData) throws IOException {
+        String token = TokenStorage.getToken();
+        if (token == null || token.isEmpty()) {
+            throw new IOException("Token xác thực không tồn tại. Không thể thêm phòng.");
+        }
+
+        String url = BASE_URL + "/rooms"; // Endpoint để tạo phòng
+        String jsonRequestBody = gson.toJson(roomData);
+        System.out.println("Sending request (from map) to add room: " + jsonRequestBody);
+
+        RequestBody body = RequestBody.create(jsonRequestBody, JSON);
+        Request request = new Request.Builder()
+                .url(url)
+                .header("Authorization", "Bearer " + token)
+                .post(body)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                ResponseBody errorBody = response.body();
+                String errorBodyString = (errorBody != null) ? errorBody.string() : "N/A";
+                if(errorBody != null) errorBody.close();
+                throw new IOException("Thêm phòng thất bại. Mã lỗi: " + response.code() + ". Phản hồi: " + errorBodyString);
+            } else {
+                System.out.println("Thêm phòng thành công! Code: " + response.code());
+                if(response.body() != null) response.body().close();
+            }
+        }
+    }
+
+    /**
+     * Gửi yêu cầu DELETE để xóa một facility/room dựa trên ID.
+     * Endpoint: DELETE /facility/rooms/{facilityId} (***Kiểm tra lại endpoint này***)
+     *
+     * @param facilityId ID của facility/room cần xóa (kiểu String).
+     * @return true nếu xóa thành công trên server (mã 2xx).
+     * @throws IOException Nếu có lỗi mạng, lỗi parse, token không hợp lệ, ID trống,
+     * hoặc server trả về mã lỗi HTTP không thành công (4xx, 5xx).
+     */
+    public boolean deleteFacilityById(String facilityId) throws IOException {
+        String token = TokenStorage.getToken();
+        if (token == null || token.isEmpty()) {
+            throw new IOException("Token xác thực không tồn tại. Không thể xóa.");
+        }
+        // Kiểm tra ID hợp lệ
+        if (facilityId == null || facilityId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Facility ID không được để trống khi yêu cầu xóa.");
+        }
+
+        // *** QUAN TRỌNG: Xác nhận lại URL endpoint xóa này với API backend của bạn ***
+        String url = BASE_URL + "/rooms/" + facilityId.trim(); // Trim ID để loại bỏ khoảng trắng thừa
+
+        System.out.println("Sending DELETE request for facility ID: " + facilityId + " to URL: " + url);
+
+        Request request = new Request.Builder()
+                .url(url)
+                .header("Authorization", "Bearer " + token)
+                .delete() // Sử dụng phương thức DELETE
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                // Xử lý lỗi từ server
+                ResponseBody errorBody = response.body();
+                String errorBodyString = (errorBody != null) ? errorBody.string() : "N/A";
+                if(errorBody != null) errorBody.close();
+                System.err.println("Xóa thất bại từ server. Mã lỗi: " + response.code() + ". Phản hồi: " + errorBodyString);
+                // Ném Exception để báo lỗi cho Controller xử lý
+                throw new IOException("Xóa thất bại. Mã lỗi server: " + response.code() + ". Phản hồi: " + errorBodyString);
+            } else {
+                // Thành công (mã 2xx)
+                System.out.println("Xóa facility/room thành công! Code: " + response.code());
+                // Đảm bảo đóng body ngay cả khi thành công (đặc biệt với 204 No Content)
+                if(response.body() != null) response.body().close();
+                return true; // Trả về true khi server xác nhận xóa thành công
+            }
+        }
+        // OkHttp tự động đóng Response khi dùng try-with-resources
+    }
+
+
+    /**
+     * Helper method để xây dựng yêu cầu GET có xác thực.
+     * @param url URL đích.
+     * @return Đối tượng Request đã có header Authorization.
+     * @throws IOException Nếu token không tồn tại.
+     */
     private Request buildAuthenticatedGetRequest(String url) throws IOException {
         String token = TokenStorage.getToken();
         if (token == null || token.isEmpty()) {
+            // Có thể ném lỗi cụ thể hơn hoặc điều hướng đến màn hình đăng nhập
             throw new IOException("Token xác thực không tồn tại.");
         }
         return new Request.Builder()
@@ -148,4 +224,4 @@ public class RoomService {
                 .get()
                 .build();
     }
-}//
+}
