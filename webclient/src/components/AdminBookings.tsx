@@ -373,13 +373,12 @@ const AdminBookings: FC = (): JSX.Element => {
   >({
     queryKey: ["adminFilterRoomsList"],
     queryFn: async () => {
-      /* ... fetch /rooms ... */
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No token");
       const response = await axios.get<ApiResponse<RoomData[]>>(
         `${import.meta.env.VITE_APP_SERVER_URL}/rooms?size=1000`,
         { headers: { Authorization: `Bearer ${token}` } }
-      ); // Lấy nhiều phòng cho filter
+      ); 
       if (response.data?.code !== 0 || !response.data?.result)
         throw new Error("Invalid rooms response");
       return response.data;
@@ -392,22 +391,20 @@ const AdminBookings: FC = (): JSX.Element => {
     PaginatedUserApiResponse,
     AxiosError<ErrorMessage>
   >({
-    // <<< SỬA: Dùng PaginatedUserApiResponse
-    queryKey: ["adminFilterUsersList"], // Có thể thêm page/size nếu muốn filter user có phân trang
+    queryKey: ["adminFilterUsersList"], 
     queryFn: async () => {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No token found");
-      // Endpoint này có thể cần hỗ trợ phân trang nếu danh sách user quá lớn
-      const response = await axios.get<PaginatedUserApiResponse>( // <<< SỬA: Dùng PaginatedUserApiResponse
+      const response = await axios.get<PaginatedUserApiResponse>( 
         `${
           import.meta.env.VITE_APP_SERVER_URL || "http://localhost:8080"
-        }/users`, // Endpoint ví dụ, tạm lấy 200 users
+        }/users`, 
         { headers: { Authorization: `Bearer ${token}` } }
       );
       // Kiểm tra cấu trúc đúng với kiểu Paginated
       if (
         response.data?.code !== 0 ||
-        !response.data?.result?.content /*|| !response.data?.result?.page*/
+        !response.data?.result?.content 
       ) {
         throw new Error(
           response.data?.message || "Invalid response for users list"
@@ -426,7 +423,6 @@ const AdminBookings: FC = (): JSX.Element => {
     isError,
     error,
   } = useQuery<PaginatedBookingApiResponse, AxiosError<ErrorMessage>>({
-    // SỬA: Query key bao gồm tất cả state filter và pagination
     queryKey: [
       "adminBookings",
       page,
@@ -443,7 +439,7 @@ const AdminBookings: FC = (): JSX.Element => {
       const params = new URLSearchParams();
       params.append("page", String(page));
       params.append("size", String(rowsPerPage));
-      params.append("sort", "plannedStartTime,desc"); // Sort mặc định
+      params.append("sort", "plannedStartTime,desc"); 
 
       if (hasText(selectedRoomId))
         params.append("roomId", selectedRoomId);
@@ -457,11 +453,11 @@ const AdminBookings: FC = (): JSX.Element => {
       )
         params.append("year", selectedYear);
       if (hasText(selectedUserId))
-        params.append("userId", selectedUserId); // Gửi userId (UUID)
+        params.append("userId", selectedUserId); 
 
       const url = `${
         import.meta.env.VITE_APP_SERVER_URL || "http://localhost:8080"
-      }/booking?${params.toString()}`; // Endpoint của Admin
+      }/booking?${params.toString()}`; 
       console.log("Fetching admin bookings with URL:", url);
 
       const response = await axios.get<PaginatedBookingApiResponse>(url, {
@@ -482,7 +478,6 @@ const AdminBookings: FC = (): JSX.Element => {
       return response.data;
     },
     keepPreviousData: true,
-    // Bỏ enabled: enabled
     retry: 1,
   });
 

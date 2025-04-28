@@ -143,7 +143,7 @@ const AdminBookingApprovalModal: FC<AdminBookingApprovalModalProps> = ({
             // SỬA: Endpoint và method (thường là PUT hoặc POST)
             // Không cần gửi body dữ liệu cho hành động approve này
             await axios.put( // <<< Dùng PUT (hoặc POST tùy thiết kế API)
-                `${import.meta.env.VITE_APP_SERVER_URL || 'http://localhost:8080'}/bookings/${bookingId}/approve`, // <<< URL đúng
+                `${import.meta.env.VITE_APP_SERVER_URL || 'http://localhost:8080'}/booking/${bookingId}/approve`, // <<< URL đúng
                 null, // <<< Không cần body
                 { headers: { Authorization: `Bearer ${token}` } }
             );

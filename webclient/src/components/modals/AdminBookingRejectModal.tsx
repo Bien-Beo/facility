@@ -184,7 +184,7 @@ const AdminBookingRejectModal: FC<AdminBookingRejectModalProps> = ({
             console.log(`Sending rejection request for booking ${bookingId} with reason: ${data.reason}`);
             // SỬA: Endpoint và method (thường là PUT hoặc POST), gửi reason trong body
             await axios.put( // <<< Dùng PUT (hoặc POST tùy backend API)
-                `${import.meta.env.VITE_APP_SERVER_URL || 'http://localhost:8080'}/bookings/${bookingId}/reject`, // <<< URL đúng
+                `${import.meta.env.VITE_APP_SERVER_URL || 'http://localhost:8080'}/booking/${bookingId}/reject`, // <<< URL đúng
                 data, // <<< Gửi payload { reason: "..." }
                 { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
             );
