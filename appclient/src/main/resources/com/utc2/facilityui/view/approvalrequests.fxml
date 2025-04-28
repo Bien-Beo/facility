@@ -4,9 +4,10 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="TOP_CENTER" prefWidth="200.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.ApprovalRequestController">
+<VBox alignment="TOP_CENTER" prefWidth="600.0" spacing="15.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.ApprovalRequestController">
     <stylesheets>
         <String fx:value="/com/utc2/facilityui/styles/approvalcards.css" />
     </stylesheets>
@@ -14,8 +15,11 @@
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
     <children>
-        <Label fx:id="mainTitleLabel" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-alignment: center;" text="Approval Status" />
-        <ScrollPane fitToWidth="true" maxWidth="500.0" vbarPolicy="AS_NEEDED">
+        <Label fx:id="mainTitleLabel" style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Approval Status" />
+
+        <ProgressIndicator fx:id="loadingIndicator" visible="false" maxWidth="50.0" maxHeight="50.0"/>
+
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" style="-fx-background-color: transparent; -fx-background: transparent;">
             <content>
                 <VBox fx:id="requestContainer" spacing="10.0" />
             </content>
