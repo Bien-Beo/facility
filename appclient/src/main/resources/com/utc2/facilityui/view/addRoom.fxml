@@ -9,77 +9,93 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.room.addRoomController">
+<AnchorPane prefHeight="450.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.room.addRoomController">
     <children>
-        <VBox layoutX="27.0" layoutY="25.0" prefHeight="350.0" prefWidth="546.0" spacing="15.0">
+        <VBox layoutX="27.0" layoutY="15.0" prefHeight="420.0" prefWidth="546.0" spacing="12.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="27.0" AnchorPane.rightAnchor="27.0" AnchorPane.topAnchor="15.0">
             <children>
                 <Label text="Thêm Phòng Mới">
                     <font>
                         <Font name="System Bold" size="20.0" />
                     </font>
+                    <VBox.margin>
+                        <Insets bottom="5.0" />
+                    </VBox.margin>
                 </Label>
-                <VBox spacing="5.0">
+
+                <VBox spacing="3.0">
                     <children>
                         <Label text="Tên phòng (*)" />
-                        <TextField fx:id="nameTextField" />
+                        <TextField fx:id="nameTextField" promptText="Ví dụ: Phòng học A101"/>
                     </children>
                 </VBox>
-                <VBox spacing="5.0">
+
+                <VBox spacing="3.0">
                     <children>
                         <Label text="Mô tả" />
-                        <TextField fx:id="descriptionTextField" />
+                        <TextField fx:id="descriptionTextField" promptText="Ví dụ: Phòng học lý thuyết có máy chiếu"/>
                     </children>
                 </VBox>
-                <VBox spacing="5.0">
+
+                <VBox spacing="3.0">
                     <children>
                         <Label text="Vị trí chi tiết" />
-                        <TextField fx:id="locationTextField" />
+                        <TextField fx:id="locationTextField" promptText="Ví dụ: Tầng 1, dãy nhà A"/>
                     </children>
                 </VBox>
-                <HBox spacing="10.0">
+
+                <HBox spacing="15.0">
                     <children>
-                        <VBox spacing="5.0">
+                        <VBox spacing="3.0" HBox.hgrow="ALWAYS">
                             <children>
                                 <Label text="Sức chứa (*)" />
-                                <TextField fx:id="capacityTextField" prefWidth="150.0" />
+                                <TextField fx:id="capacityTextField" promptText="Số chỗ ngồi" prefWidth="150.0" />
                             </children>
                         </VBox>
-                        <VBox spacing="5.0">
+                        <VBox spacing="3.0" HBox.hgrow="ALWAYS">
                             <children>
                                 <Label text="Ảnh URL/Path" />
-                                <TextField fx:id="imageURLTextField" prefWidth="380.0" />
+                                <TextField fx:id="imageURLTextField" promptText="Đường dẫn đến ảnh" prefWidth="380.0" />
                             </children>
                         </VBox>
                     </children>
                 </HBox>
-                <HBox spacing="10.0">
+
+                <HBox spacing="15.0">
                     <children>
-                        <VBox spacing="5.0">
+                        <VBox spacing="3.0" HBox.hgrow="ALWAYS">
                             <children>
-                                <Label text="Tòa nhà (*)" />
-                                <TextField fx:id="buildingTextField" prefWidth="250.0" />  </children>
+                                <Label text="ID Tòa nhà (*)" />
+                                <TextField fx:id="buildingIdTextField" promptText="Nhập ID của tòa nhà" prefWidth="250.0" />
+                            </children>
                         </VBox>
-                        <VBox spacing="5.0">
+                        <VBox spacing="3.0" HBox.hgrow="ALWAYS">
                             <children>
-                                <Label text="Loại phòng (*)" />
-                                <TextField fx:id="roomTypeTextField" prefWidth="250.0" />  </children>
+                                <Label text="ID Loại phòng (*)" />
+                                <TextField fx:id="roomTypeIdTextField" promptText="Nhập ID của loại phòng" prefWidth="250.0" />
+                            </children>
                         </VBox>
                     </children>
                 </HBox>
-                <VBox spacing="5.0">
+
+                <VBox spacing="3.0">
                     <children>
-                        <Label text="Người quản lý (Tùy chọn)" />
-                        <TextField fx:id="managerTextField" prefWidth="500.0" />  </children>
+                        <Label text="ID Người quản lý (Tùy chọn)" />
+                        <TextField fx:id="facilityManagerIdTextField" promptText="Nhập ID người quản lý (nếu có)" prefWidth="500.0" />
+                    </children>
                 </VBox>
+
                 <HBox alignment="CENTER_RIGHT" spacing="10.0">
                     <children>
-                        <Button mnemonicParsing="false" onAction="#handleCancelAddRoom" text="Hủy bỏ" />
-                        <Button mnemonicParsing="false" onAction="#handleAddRoom" style="-fx-background-color: #1976d2; -fx-text-fill: white;" text="Thêm phòng" />
+                        <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#handleCancelAddRoom" text="Hủy bỏ" />
+                        <Button fx:id="addButton" mnemonicParsing="false" onAction="#handleAddRoom" style="-fx-background-color: #1976d2; -fx-text-fill: white;" text="Thêm phòng" />
                     </children>
+                    <VBox.margin>
+                        <Insets top="10.0" />
+                    </VBox.margin>
                 </HBox>
             </children>
             <padding>
-                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                <Insets bottom="20.0" left="20.0" right="20.0" top="10.0" />
             </padding>
         </VBox>
     </children>
