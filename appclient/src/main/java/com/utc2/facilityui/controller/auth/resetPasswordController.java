@@ -1,81 +1,154 @@
 package com.utc2.facilityui.controller.auth;
 
+// Bỏ import DTO request: import com.utc2.facilityui.dto.request.PasswordResetRequest;
+import com.utc2.facilityui.service.UserServices;
+import javafx.concurrent.Task;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputControl;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+
+import java.io.IOException;
 
 public class resetPasswordController {
-//
-    @FXML private TextField oldPasswordField;
-    @FXML private TextField newPasswordField;
+
+    @FXML private PasswordField oldPasswordField;
+    @FXML private PasswordField newPasswordField;
     @FXML private Label oldPasswordEye;
     @FXML private Label newPasswordEye;
-    @FXML private StackPane oldPasswordPane;  // StackPane chứa oldPasswordField và eye icon
-    @FXML private StackPane newPasswordPane;  // StackPane chứa newPasswordField và eye icon
+    @FXML private StackPane oldPasswordPane;
+    @FXML private StackPane newPasswordPane;
+    @FXML private Label messageLabel;
+    @FXML private Button confirmButton;
 
+    private TextInputControl currentOldPasswordField;
+    private TextInputControl currentNewPasswordField;
     private boolean isOldPasswordVisible = false;
     private boolean isNewPasswordVisible = false;
 
-    // Toggle visibility for old password field
     @FXML
-    private void toggleOldPasswordVisibility() {
+    public void initialize() {
+        currentOldPasswordField = oldPasswordField;
+        currentNewPasswordField = newPasswordField;
+        messageLabel.setText("");
+    }
+
+    @FXML
+    private void toggleOldPasswordVisibility(MouseEvent event) {
+        String currentText = currentOldPasswordField.getText();
+        Node nodeToReplace;
         if (isOldPasswordVisible) {
-            // Chuyển lại thành PasswordField (ẩn mật khẩu)
-            PasswordField newOldPasswordField = new PasswordField();
-            newOldPasswordField.setText(oldPasswordField.getText());  // Preserve the text
-            oldPasswordPane.getChildren().set(0, newOldPasswordField); // Thay thế PasswordField cũ
-            oldPasswordField = newOldPasswordField;  // Cập nhật tham chiếu mới
+            PasswordField pf = new PasswordField(); pf.setText(currentText); pf.setPromptText("Old Password");
+            nodeToReplace = pf; currentOldPasswordField = pf; oldPasswordEye.setText("👁");
         } else {
-            // Hiển thị mật khẩu dưới dạng TextField
-            TextField newOldPasswordField = new TextField();
-            newOldPasswordField.setText(oldPasswordField.getText());  // Preserve the text
-            oldPasswordPane.getChildren().set(0, newOldPasswordField); // Thay thế PasswordField cũ bằng TextField
-            oldPasswordField = newOldPasswordField;  // Cập nhật tham chiếu mới
+            TextField tf = new TextField(); tf.setText(currentText); tf.setPromptText("Old Password");
+            nodeToReplace = tf; currentOldPasswordField = tf; oldPasswordEye.setText("");
         }
         isOldPasswordVisible = !isOldPasswordVisible;
+        oldPasswordPane.getChildren().set(0, nodeToReplace);
     }
 
-    // Toggle visibility for new password field
     @FXML
-    private void toggleNewPasswordVisibility() {
+    private void toggleNewPasswordVisibility(MouseEvent event) {
+        String currentText = currentNewPasswordField.getText();
+        Node nodeToReplace;
         if (isNewPasswordVisible) {
-            // Chuyển lại thành PasswordField (ẩn mật khẩu)
-            PasswordField newNewPasswordField = new PasswordField();
-            newNewPasswordField.setText(newPasswordField.getText());  // Preserve the text
-            newPasswordPane.getChildren().set(0, newNewPasswordField); // Thay thế PasswordField cũ
-            newPasswordField = newNewPasswordField;  // Cập nhật tham chiếu mới
+            PasswordField pf = new PasswordField(); pf.setText(currentText); pf.setPromptText("New Password");
+            nodeToReplace = pf; currentNewPasswordField = pf; newPasswordEye.setText("👁");
         } else {
-            // Hiển thị mật khẩu dưới dạng TextField
-            TextField newNewPasswordField = new TextField();
-            newNewPasswordField.setText(newPasswordField.getText());  // Preserve the text
-            newPasswordPane.getChildren().set(0, newNewPasswordField); // Thay thế PasswordField cũ bằng TextField
-            newPasswordField = newNewPasswordField;  // Cập nhật tham chiếu mới
+            TextField tf = new TextField(); tf.setText(currentText); tf.setPromptText("New Password");
+            nodeToReplace = tf; currentNewPasswordField = tf; newPasswordEye.setText("");
         }
         isNewPasswordVisible = !isNewPasswordVisible;
+        newPasswordPane.getChildren().set(0, nodeToReplace);
     }
 
-    // Handle the password change logic (e.g., send the request to the server)
     @FXML
     private void handleChangePassword() {
-        String oldPassword = oldPasswordField.getText();
-        String newPassword = newPasswordField.getText();
+        String oldPassword = currentOldPasswordField.getText();
+        String newPassword = currentNewPasswordField.getText();
 
-        // Implement your logic to handle password change here
-        // For example, send the passwords to the server or validate them
-        System.out.println("Old Password: " + oldPassword);
-        System.out.println("New Password: " + newPassword);
+        // --- Validation ---
+        if (oldPassword.isEmpty()) { showMessage("Old Password cannot be empty.", Color.RED); return; }
+        if (newPassword.isEmpty()) { showMessage("New Password cannot be empty.", Color.RED); return; }
+        if (newPassword.length() < 5) { showMessage("The new password must be minimum of 5 characters long.", Color.RED); return; }
+        if (newPassword.equals(oldPassword)) { showMessage("New password must be different from the old password.", Color.RED); return; }
+        // --- Hết Validation ---
+
+        showMessage("", Color.BLACK);
+        confirmButton.setDisable(true);
+        confirmButton.setText("UPDATING...");
+
+        // KHÔNG tạo DTO nữa
+        // PasswordResetRequest request = PasswordResetRequest.builder()...
+
+        Task<Boolean> resetTask = new Task<>() {
+            @Override
+            protected Boolean call() throws Exception {
+                // Gọi service với hai chuỗi mật khẩu
+                return UserServices.resetPassword(oldPassword, newPassword);
+            }
+        };
+
+        resetTask.setOnSucceeded(event -> {
+            boolean success = resetTask.getValue();
+            if (success) {
+                showMessage("Password updated successfully!", Color.GREEN);
+                currentOldPasswordField.clear();
+                currentNewPasswordField.clear();
+                if (isOldPasswordVisible) toggleOldPasswordVisibility(null);
+                if (isNewPasswordVisible) toggleNewPasswordVisibility(null);
+            } else {
+                // Ít xảy ra nếu service ném Exception
+                showMessage("Password update failed. Please check details.", Color.RED);
+            }
+            confirmButton.setDisable(false);
+            confirmButton.setText("CONFIRM");
+        });
+
+        resetTask.setOnFailed(event -> {
+            Throwable exception = resetTask.getException();
+            System.err.println("Password reset task failed: " + exception.getMessage());
+            exception.printStackTrace();
+            String errorMessage = exception.getMessage();
+            // Cố gắng hiển thị lỗi cụ thể hơn
+            if (errorMessage != null && errorMessage.toLowerCase().contains("incorrect old password")) {
+                showMessage("Incorrect old password.", Color.RED);
+            } else if (errorMessage != null && errorMessage.contains("HTTP status: 401")) { // Ví dụ bắt lỗi 401
+                showMessage("Authentication error. Please log in again.", Color.RED);
+            } else if (exception instanceof IOException) {
+                showMessage("Error connecting to server. Please try again.", Color.RED);
+            } else {
+                showMessage("An unexpected error occurred: " + exception.getMessage(), Color.RED);
+            }
+            confirmButton.setDisable(false);
+            confirmButton.setText("CONFIRM");
+        });
+
+        new Thread(resetTask).start();
     }
 
-    // Handle the eye icon click events
-    @FXML
-    private void handleOldPasswordEyeClick() {
-        toggleOldPasswordVisibility();
+    private void showMessage(String message, Color color) {
+        Platform.runLater(() -> {
+            messageLabel.setText(message);
+            messageLabel.setTextFill(color);
+            messageLabel.setVisible(!message.isEmpty());
+        });
     }
 
-    @FXML
-    private void handleNewPasswordEyeClick() {
-        toggleNewPasswordVisibility();
+    private void showErrorAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

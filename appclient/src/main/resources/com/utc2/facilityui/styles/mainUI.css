@@ -73,6 +73,17 @@
     -fx-background-radius: 10px;
     -fx-cursor: hand;
 }
+.card-Rejectbooking{
+
+    -fx-border-color: #880000;
+    -fx-border-width: 0px 0px 0px 10px;
+    -fx-background-radius: 10px;
+    -fx-cursor: hand;
+}
+
+.card-Rejectbooking1{
+    -fx-background-color: #fdc2c2;
+}
 .bntBack{
     -fx-cursor: hand;
 }
