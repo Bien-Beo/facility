@@ -481,6 +481,11 @@ interface ApprovalCardProps {
   onActionSuccess?: () => void; // Callback khi duyệt/từ chối thành công
 }
 
+interface CancellationCardProps {
+  booking: BookingEntry;
+  onActionSuccess?: () => void;
+}
+
 /**
  * Các kiểu dữ liệu khác (Error, Navigation...)
  */

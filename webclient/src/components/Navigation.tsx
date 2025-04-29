@@ -349,13 +349,7 @@ const Navigation: FC = (): JSX.Element => {
         {role !== "USER" && role !== "TECHNICIAN" && (
           <>
             <NavLink
-              to={`/facility-manager/approvals/${
-                role === "ADMIN"
-                  ? "ad"
-                  : role === "FACILITY_MANAGER"
-                  ? "fm"
-                  : ""
-              }`}
+              to={`/facility-manager/approvals/`}
             >
               {({ isActive }) => (
                 <ListItemButton
@@ -393,13 +387,7 @@ const Navigation: FC = (): JSX.Element => {
         {role !== "USER" && role !== "TECHNICIAN" && (
           <>
             <NavLink
-              to={`/facility-management/cancellations/${
-                role === "ADMIN"
-                  ? "ad"
-                  : role === "FACILITY_MANAGER"
-                  ? "fm"
-                  : ""
-              }`}
+              to={`/facility-manager/cancellations/`}
             >
               {({ isActive }) => (
                 <ListItemButton
@@ -427,50 +415,6 @@ const Navigation: FC = (): JSX.Element => {
                       component: "li",
                     }}
                     primary="Yêu cầu hủy"
-                  />
-                </ListItemButton>
-              )}
-            </NavLink>
-            <Divider color="#0c0051" />
-          </>
-        )}
-
-        {/* Bookings ADMIN and FM */}
-        {(role === "ADMIN" || role === "FACILITY_MANAGER") && (
-          <>
-            <NavLink
-              to={`/bookings/${
-                role === "ADMIN"
-                  ? "ad"
-                  : role === "FACILITY_MANAGER"
-                  ? "fm"
-                  : ""
-              }`}
-            >
-              {({ isActive }) => (
-                <ListItemButton
-                  className="flex gap-3"
-                  sx={{
-                    paddingLeft: "1.4em",
-                    paddingBlock: "1.4em",
-                    borderLeft: isActive ? "4px solid white" : "",
-                    color: "white",
-                    backgroundColor: isActive
-                      ? " rgb(255, 255, 255, 0.02)"
-                      : "",
-                  }}
-                >
-                  <ListItemIcon sx={{ minWidth: "0px" }}>
-                    <SummarizeIcon
-                      sx={{ width: "26px", height: "26px", color: "white" }}
-                    />
-                  </ListItemIcon>
-                  <ListItemText
-                    primaryTypographyProps={{
-                      variant: "body1",
-                      component: "li",
-                    }}
-                    primary="Báo cáo"
                   />
                 </ListItemButton>
               )}

@@ -9,7 +9,7 @@ import {
 } from "react-router-dom";
 
 import Layout from "./components/Layout";
-// import PageNotFound from "./components/PageNotFound";
+import PageNotFound from "./components/PageNotFound";
 import { RequireAuth } from "./components/RequireAuth";
 import RouteError from "./components/RouteError";
 import HomePage from "./pages/HomePage";
@@ -17,12 +17,7 @@ import AdminBookingsPage from "./pages/AdminBookingsPage";
 import AdminFacilitiesPage from "./pages/AdminFacilitiesPage";
 import DashboardPage from "./pages/DashboardPage";
 import ApprovalsPage from "./pages/ApprovalsPage";
-// import FMBookingsPage from "./pages/FMBookingsPage";
-// import FMCancellationsPage from "./pages/FMCancellationPage";
-// import FacilityPage from "./pages/FacilityPage";
-// import GDApprovalsPage from "./pages/GDApprovalsPage";
-// import GDBookingsPage from "./pages/GDBookingsPage";
-// import GDCancellationsPage from "./pages/GDCancellationsPage";
+import CancellationsPage from "./pages/CancellationPage";
 import LoginPage from "./pages/LoginPage";
 import MyBookingsPage from "./pages/MyBookingsPage";
 // import ResetPasswordPage from "./pages/ResetPasswordPage";
@@ -114,27 +109,6 @@ const router = createBrowserRouter(
           {/* <Route index element={<RequireAuth><RoomListPage /></RequireAuth>} /> */}
         </Route>
 
-        {/* <Route path="bookings">
-          <Route
-            path="gd"
-            element={
-              <RequireAuth GD={true} FM={false} noAdmin={true}>
-                <GDBookingsPage />
-              </RequireAuth>
-            }
-            errorElement={<RouteError />}
-          />
-          <Route
-            path="fm"
-            element={
-              <RequireAuth GD={false} FM={true} noAdmin={true}>
-                <FMBookingsPage />
-              </RequireAuth>
-            }
-            errorElement={<RouteError />}
-          />
-        </Route> */}
-
         <Route path="user">
           <Route
             path="mybookings"
@@ -148,38 +122,20 @@ const router = createBrowserRouter(
         </Route>
         
         <Route path="facility-manager">
-          <Route path="approvals">
-            <Route
-              path="fm"
+          <Route path="approvals"
               element={
-                <RequireAuth allowedRoles={["FACILITY_MANAGER"]}>
+                <RequireAuth allowedRoles={["FACILITY_MANAGER", "ADMIN"]}>
                   <ApprovalsPage />
                 </RequireAuth>
               }
-              errorElement={<RouteError />}
-            />
-          </Route>
+              errorElement={<RouteError />} />
 
-          {/* <Route path="cancellations">
-            <Route
-              path="gd"
-              element={
-                <RequireAuth GD={true} FM={false} noAdmin={true}>
-                  <GDCancellationsPage />
+          <Route path="cancellations" element={
+                <RequireAuth allowedRoles={["FACILITY_MANAGER", "ADMIN"]}>
+                  <CancellationsPage />
                 </RequireAuth>
               }
-              errorElement={<RouteError />}
-            />
-            <Route
-              path="fm"
-              element={
-                <RequireAuth GD={false} FM={true} noAdmin={true}>
-                  <FMCancellationsPage />
-                </RequireAuth>
-              }
-              errorElement={<RouteError />}
-            />
-          </Route> */}
+              errorElement={<RouteError />} />
         </Route>
 
          {/* Trang Quản lý của Admin */}
@@ -214,7 +170,7 @@ const router = createBrowserRouter(
                      /> */}
         </Route>
       </Route>  
-      {/* <Route path="*" element={<PageNotFound />} /> */}
+      <Route path="*" element={<PageNotFound />} />
     </>
   )
 );

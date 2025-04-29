@@ -282,14 +282,14 @@ const MyBookingCard: FC<MyBookingCardProps> = ({
     const cancelMutation = useMutation<
         ApiResponse<BookingEntry>, 
         AxiosError<ErrorMessage>,
-        CancelBookingRequest      // Kiểu biến đầu vào { reason: string }
+        CancelBookingRequest      
     >({
         mutationFn: (data: CancelBookingRequest) => {
             const token = localStorage.getItem("token");
             if (!token) return Promise.reject(new Error("No token found"));
             console.log(`Sending cancellation request for booking ${booking.id} with reason: ${data.reason}`);
             return axios.post<ApiResponse<BookingEntry>>(
-                `${import.meta.env.VITE_APP_SERVER_URL}/bookings/${booking.id}/cancel`,
+                `${import.meta.env.VITE_APP_SERVER_URL}/booking/${booking.id}/cancel`,
                 data, 
                 { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
             );
