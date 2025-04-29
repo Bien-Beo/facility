@@ -1,12 +1,91 @@
+/* --- Notification Badge Style --- */
 .notification-badge {
     -fx-background-color: #2196F3; /* Blue */
     -fx-text-fill: white;
     -fx-font-size: 10px;
     -fx-font-weight: bold;
-    -fx-padding: 2 5 2 5; /* Adjust padding as needed */
+    -fx-padding: 2 5 2 5; /* Top/Bottom 2px, Left/Right 5px */
     -fx-background-radius: 10; /* Make it rounded */
-    -fx-border-radius: 10;
-    -fx-alignment: center;
+    -fx-border-radius: 10;     /* Border radius (should match background) */
+    -fx-alignment: center;     /* Center text inside */
+    /* Translate properties might need adjustment depending on the layout */
+    /* These position the badge relative to its normal layout position */
     -fx-translate-x: 5; /* Adjust horizontal position */
     -fx-translate-y: -5; /* Adjust vertical position */
 }
+
+/* --- Approval Card Style --- */
+.approval-card {
+    -fx-background-color: #ffffff; /* White background */
+    -fx-border-color: #cccccc;    /* Light grey border */
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;      /* Rounded corners */
+    -fx-background-radius: 5px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0.1, 0, 2); /* Subtle shadow */
+    -fx-padding: 15px;           /* Internal padding */
+}
+
+/* --- Card Title Style --- */
+.card-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333; /* Dark grey text */
+}
+
+/* --- Default Label Style within Approval Card --- */
+/* This rule applies to all labels inside .approval-card unless overridden */
+.approval-card .label {
+    -fx-text-fill: black; /* Default text color set to black */
+    -fx-font-size: 16px; /* Default font size */
+    /* Add other default label properties if needed */
+}
+
+/* --- Specific Label Style: Requested By --- */
+.requested-by-label { /* Ensure this class is used in your FXML if needed */
+    -fx-font-size: 16px;
+    -fx-text-fill: #777777; /* Lighter grey, overrides the default black */
+}
+
+/* --- Button Styles --- */
+/* Common styles for buttons within the card */
+.approval-card .button {
+    -fx-font-weight: bold;
+    -fx-background-radius: 3px;
+    -fx-pref-height: 30px; /* Fixed height for buttons */
+    -fx-text-fill: white;  /* Default text color for buttons */
+}
+
+/* Specific style for the accept button */
+.accept-button {
+    -fx-background-color: #4CAF50; /* Green */
+    /* You can override the inline style from FXML here if preferred */
+    /* -fx-background-color: #2e7d32; */
+}
+
+.accept-button:hover {
+    -fx-background-color: #45a049; /* Darker green on hover */
+}
+
+/* Specific style for the reject button */
+.reject-button {
+    -fx-background-color: #f44336; /* Red */
+    /* You can override the inline style from FXML here if preferred */
+    /* -fx-background-color: #d32f2f; */
+}
+
+.reject-button:hover {
+    -fx-background-color: #e53935; /* Darker red on hover */
+}
+
+/* --- ScrollPane Styles --- */
+/* Make the ScrollPane background transparent */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+/* Make the viewport (the area showing content) transparent */
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+

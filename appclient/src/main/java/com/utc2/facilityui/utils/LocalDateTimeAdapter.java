@@ -1,4 +1,4 @@
-package com.utc2.facilityui.utils; // Hoặc một package phù hợp khác
+package com.utc2.facilityui.utils;
 
 import com.google.gson.*;
 import java.lang.reflect.Type;

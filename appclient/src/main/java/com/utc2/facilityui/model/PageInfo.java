@@ -1,12 +1,11 @@
 package com.utc2.facilityui.model;
-//
+
 public class PageInfo {
     private int size;
     private int number;
-    private long totalElements; // Sử dụng long phòng trường hợp số lượng lớn
+    private long totalElements;
     private int totalPages;
 
-    // Getters and Setters
     public int getSize() { return size; }
     public void setSize(int size) { this.size = size; }
     public int getNumber() { return number; }
