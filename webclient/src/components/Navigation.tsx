@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState, JSX } from "react";
+import { FC, useEffect, useState, JSX } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { NavLink } from "react-router-dom";
 import axios from "axios";
@@ -11,7 +11,6 @@ import {
 } from "@mui/material";
 import BookmarksIcon from "@mui/icons-material/Bookmarks";
 import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
-import SummarizeIcon from "@mui/icons-material/Summarize";
 import LogoutIcon from "@mui/icons-material/Logout";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -54,50 +53,51 @@ const Navigation: FC = (): JSX.Element => {
   });
   
 
-  const { data, isPending, isError, error } = useQuery<NavigationProps>({
-    queryKey: ["navigation"],
-    queryFn: async () => {
-      const response = await API.get<NavigationProps>(
-        `${import.meta.env.VITE_APP_SERVER_URL}/dashboard/count/${
-          auth?.user?.userId
-        }`,
-        {
-          withCredentials: true,
-        }
-      );
-      return response.data;
-    },
-    refetchInterval: 5 * 1000,
-    gcTime: 0,
-  });
+  // const { data, isPending, isError, error } = useQuery<NavigationProps>({
+  //   queryKey: ["navigation"],
+  //   queryFn: async () => {
+  //     const response = await API.get<NavigationProps>(
+  //       `${import.meta.env.VITE_APP_SERVER_URL}/dashboard/count/${
+  //         auth?.user?.userId
+  //       }`,
+  //       {
+  //         withCredentials: true,
+  //       }
+  //     );
+  //     return response.data;
+  //   },
+  //   refetchInterval: 5 * 1000,
+  //   gcTime: 0,
+  // });
 
-  useEffect(() => {
-    if (!isPending) {
-      setApprovalCount(data!.approvalCount!);
-      setCancellationCount(data!.cancellationCount!);
-    }
-  }, [data, isPending]);
+  // useEffect(() => {
+  //   if (!isPending) {
+  //     setApprovalCount(data!.approvalCount!);
+  //     setCancellationCount(data!.cancellationCount!);
+  //   }
+  // }, [data, isPending]);
 
-  if (isError) {
-    const errorData = error.response!.data as ErrorMessage;
-    return (
-      <ErrorComponent
-        status={errorData.status!}
-        message={errorData.message}
-      />
-    );
-  }
+  // if (isError) {
+  //   const errorData = error.response!.data as ErrorMessage;
+  //   return (
+  //     <ErrorComponent
+  //       status={errorData.status!}
+  //       message={errorData.message}
+  //     />
+  //   );
+  // }
 
   return (
     <div className="min-w-[250px] max-w-[400px] w-1/4 h-[100dvh] bg-[#271756] text-white pt-5 overflow-y-scroll sticky top-0">
       <div className="w-full flex flex-col justify-between items-center pt-4 pb-8 gap-2 flex-wrap">
         <Avatar
           sx={{ width: "80px", height: "80px" }}
-          src={auth?.user?.avatar}
+          //src={auth?.user?.avatar}
+          src={`http://localhost:8080/facility/images/${auth?.user?.avatar}`}
           alt="avatar-image"
         />
         <div className="w-fit flex flex-col justify-center">
-          <Typography variant="h5" className="text-center">{auth?.user?.username}</Typography>
+          <Typography variant="h5" className="text-center">{auth?.user?.fullName}</Typography>
           <Typography variant="subtitle1" className="font-normal text-center">
             ID: {auth?.user?.userId}
           </Typography>

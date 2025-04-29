@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.text.ParseException;
-//
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -49,6 +48,13 @@ public class AuthenticationController {
     @PostMapping("/logout")
     ApiResponse<Void> logout(@RequestBody LogoutRequest request) throws ParseException, JOSEException {
         authenticationService.logout(request);
+        return ApiResponse.<Void>builder()
+                .build();
+    }
+
+    @PostMapping("/password/reset")
+    ApiResponse<Void> resetPassword(@RequestBody PasswordResetRequest request) {
+        authenticationService.resetPassword(request);
         return ApiResponse.<Void>builder()
                 .build();
     }

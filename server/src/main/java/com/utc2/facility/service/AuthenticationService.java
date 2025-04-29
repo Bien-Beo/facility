@@ -5,10 +5,7 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.utc2.facility.dto.request.AuthenticationRequest;
-import com.utc2.facility.dto.request.IntrospectRequest;
-import com.utc2.facility.dto.request.LogoutRequest;
-import com.utc2.facility.dto.request.RefreshRequest;
+import com.utc2.facility.dto.request.*;
 import com.utc2.facility.dto.response.AuthenticationResponse;
 import com.utc2.facility.dto.response.IntrospectResponse;
 import com.utc2.facility.entity.InvalidatedToken;
@@ -175,5 +172,19 @@ public class AuthenticationService {
         }
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED, "Authenticated user not found in database: " + username));
+    }
+
+    public void resetPassword(PasswordResetRequest request) {
+        User user = getCurrentAuthenticatedUser();
+
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            throw new AppException(ErrorCode.INVALID_OLD_PASSWORD, "Mật khẩu cũ không đúng.");
+        }
+
+        String hashedPassword = passwordEncoder.encode(request.getNewPassword());
+        user.setPassword(hashedPassword);
+        userRepository.save(user);
     }
 }

@@ -55,7 +55,8 @@ public enum ErrorCode {
     CANCELLATION_WINDOW_EXPIRED(1041, "Cancellation window expired", HttpStatus.BAD_REQUEST),
     BUILDING_EXISTED(1043, "Building existed !", HttpStatus.BAD_REQUEST),
     ROOM_TYPE_EXISTED(1044, "Room type existed !", HttpStatus.BAD_REQUEST),
-    ROOM_TYPE_IN_USE(1045, "Room type in use !", HttpStatus.METHOD_NOT_ALLOWED);
+    ROOM_TYPE_IN_USE(1045, "Room type in use !", HttpStatus.METHOD_NOT_ALLOWED),
+    INVALID_OLD_PASSWORD(1046, "Invalid old password", HttpStatus.BAD_REQUEST),;
 
     private int code;
     private String message;
