@@ -20,7 +20,7 @@ import ApprovalsPage from "./pages/ApprovalsPage";
 import CancellationsPage from "./pages/CancellationPage";
 import LoginPage from "./pages/LoginPage";
 import MyBookingsPage from "./pages/MyBookingsPage";
-// import ResetPasswordPage from "./pages/ResetPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import FacilityPage from "./pages/FacilityPage";
 import { AuthProvider } from "./utils/auth";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
@@ -60,15 +60,15 @@ const router = createBrowserRouter(
         }
         errorElement={<RouteError />}
       >
-        {/* <Route
+        <Route
           path="auth/reset-password"
           element={
-            <RequireAuth GD={false} FM={false}>
+            <RequireAuth>
               <ResetPasswordPage />
             </RequireAuth>
           }
           errorElement={<RouteError />}
-        /> */}
+        />
 
         {/* Trang chủ (index) - Dashboard Rooms */}
         <Route

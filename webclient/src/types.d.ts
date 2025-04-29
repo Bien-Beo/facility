@@ -200,6 +200,10 @@ interface AuthenticationRequest {
 interface IntrospectRequest { token: string; }
 interface LogoutRequest { token: string; }
 interface RefreshRequest { token: string; } 
+interface ResetPasswordRequest {
+  oldPassword: string;
+  newPassword: string;
+}
 
 // --- Booking ---
 type BookingCreationRequest = {
