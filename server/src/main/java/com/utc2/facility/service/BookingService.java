@@ -536,7 +536,7 @@ public class BookingService {
     }
 
     @Transactional
-    @PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER') or @bookingSecurityService.isOwner(#bookingId, principal.username)")
+    //@PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER') or @bookingSecurityService.isOwner(#bookingId, principal.username)")
     public void cancelBookingByUser(String bookingId, CancelBookingRequest cancelBookingRequest) {
         log.info("User cancelling booking with ID: {}", bookingId);
         Booking booking = findBookingByIdOrThrow(bookingId);

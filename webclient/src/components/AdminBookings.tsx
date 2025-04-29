@@ -1,308 +1,3 @@
-// import { JSX, ChangeEvent, FC, useEffect, useRef, useState } from "react";
-// import {
-//   Button,
-//   Chip,
-//   CircularProgress,
-//   FormControl,
-//   InputLabel,
-//   MenuItem,
-//   Select,
-//   SelectChangeEvent,
-//   TextField,
-//   Typography,
-// } from "@mui/material";
-// import generatePDF, { Options } from "react-to-pdf";
-// import { useQuery } from "@tanstack/react-query";
-// import axios from "axios";
-// import DownloadIcon from "@mui/icons-material/Download";
-
-// import AdminBookingsTable from "./tables/AdminBookingsTable";
-// import AdminBookingsReport from "../reports/AdminBookingsReport";
-// import ErrorComponent from "./Error";
-// import { months } from "../../constants/months";
-
-// const AdminBookings: FC = (): JSX.Element => {
-//   const [bookingsData, setBookingsData] = useState<AdminBookingsData>({
-//     bookings: [],
-//     facilities: [],
-//   });
-//   const [timeFilter, setTimeFilter] = useState<boolean>(false);
-//   const [selectValue, setSelectValue] = useState<string>("");
-//   const [enabled, setEnabled] = useState<boolean>(true);
-//   const [slug, setSlug] = useState<string>("");
-//   const [selectedMonth, setSelectedMonth] = useState<string>("");
-//   const [selectedYear, setSelectedYear] = useState<string>("");
-//   const [selectedUser, setSelectedUser] = useState<string>("");
-//   const [isPrint, setIsPrint] = useState<boolean>(false);
-
-//   const targetRef = useRef<HTMLDivElement>(null);
-
-//   const d = new Date();
-
-//   const { data, isPending, refetch, isError, error } = useQuery({
-//     queryKey: ["adminbookings"],
-//     queryFn: async () => {
-//       let url = `${import.meta.env.VITE_APP_SERVER_URL}/admin/bookings`;
-
-//       if (selectValue) {
-//         url += `?facility=${slug}`;
-//       }
-
-//       if (timeFilter) {
-//         if (selectValue) {
-//           url += `&month=${d.getMonth() + 1}`;
-//         } else {
-//           url += `?month=${d.getMonth() + 1}`;
-//         }
-//       }
-
-//       if (selectedMonth) {
-//         if (selectValue) {
-//           url += `&month=${months.indexOf(selectedMonth) + 1}`;
-//         } else {
-//           url += `?month=${months.indexOf(selectedMonth) + 1}`;
-//         }
-//       }
-
-//       if (selectedYear) {
-//         if (selectValue || timeFilter || selectedMonth) {
-//           url += `&year=${selectedYear}`;
-//         } else {
-//           url += `?year=${selectedYear}`;
-//         }
-//       }
-
-//       if (selectedUser) {
-//         if (selectValue || timeFilter || selectedMonth || selectedYear) {
-//           url += `&user=${selectedUser}`;
-//         } else {
-//           url += `?user=${selectedUser}`;
-//         }
-//       }
-
-//       const response = await axios.get(url, {
-//         withCredentials: true,
-//       });
-//       return response.data;
-//     },
-//     enabled: enabled,
-//     refetchInterval: 5 * 1000,
-//     retry: 1,
-//     gcTime: 0,
-//   });
-
-//   useEffect(() => {
-//     selectedMonth && timeFilter && setTimeFilter(false);
-//   }, [selectedMonth, timeFilter]);
-
-//   useEffect(() => {
-//     if (!isPending) {
-//       setBookingsData(data);
-//     }
-//   }, [data, isPending]);
-
-//   useEffect(() => {
-//     if (isPrint) {
-//       setTimeout(() => {
-//         setIsPrint(false);
-//       }, 3000);
-//     }
-
-//     if (isPrint) {
-//       document.body.style.overflowY = "hidden";
-//     } else {
-//       document.body.style.overflowY = "auto";
-//     }
-//   }, [isPrint]);
-
-//   if (isError) {
-//     const errorData = error.response!.data as ErrorMessage;
-//     return (
-//       <ErrorComponent
-//         status={errorData.error.status!}
-//         message={errorData.error.message}
-//       />
-//     );
-//   }
-
-//   if (isPending)
-//     return (
-//       <div className="w-[74vw] min-h-screen h-full flex flex-col items-center justify-center">
-//         <CircularProgress />
-//       </div>
-//     );
-
-//   const options: Options = {
-//     filename: "admin-bookings-report.pdf",
-//     page: {
-//       orientation: "landscape",
-//     },
-//   };
-
-//   return (
-//     <div className="w-full flex flex-col px-6 pt-8 gap-6 overflow-hidden">
-//       <div className="w-full flex justify-between items-center">
-//         <Typography variant="h3" component="h1">
-//           Manage bookings
-//         </Typography>
-//         <Button
-//           variant="contained"
-//           color="primary"
-//           endIcon={<DownloadIcon sx={{ height: "20px", width: "20px" }} />}
-//           sx={{ paddingX: "2em", height: "45px" }}
-//           size="large"
-//           onClick={() => {
-//             setIsPrint(true);
-//             setTimeout(() => {
-//               generatePDF(targetRef, options);
-//             }, 1000);
-//           }}
-//         >
-//           Export
-//         </Button>
-//       </div>
-//       <div className="w-full flex justify-center">
-//         <div className="w-full flex gap-4 flex-wrap">
-//           <Chip
-//             label="All"
-//             clickable={true}
-//             sx={{
-//               minWidth: "100px",
-//               minHeight: "40px",
-//               fontSize: "1rem",
-//               borderRadius: "4px",
-//             }}
-//             variant={timeFilter ? "outlined" : "filled"}
-//             onClick={() => setTimeFilter(false)}
-//           />
-//           <Chip
-//             label="This month"
-//             clickable={true}
-//             sx={{
-//               minWidth: "100px",
-//               minHeight: "40px",
-//               fontSize: "1rem",
-//               borderRadius: "4px",
-//             }}
-//             variant={timeFilter ? "filled" : "outlined"}
-//             onClick={() => {
-//               setSelectedMonth("");
-//               setTimeFilter(true);
-//             }}
-//           />
-//           <FormControl size="small" className="w-[150px]">
-//             <InputLabel>Select month</InputLabel>
-//             <Select
-//               label="Select month"
-//               size="small"
-//               value={selectedMonth}
-//               onChange={(e: SelectChangeEvent<string | null>) => {
-//                 setSelectedMonth(e.target.value!);
-//               }}
-//             >
-//               {months.map((month) => (
-//                 <MenuItem key={month} value={month}>
-//                   {month}
-//                 </MenuItem>
-//               ))}
-//             </Select>
-//           </FormControl>
-
-//           <FormControl size="small" className="w-[150px]">
-//             <TextField
-//               id="year"
-//               label="Enter year"
-//               variant="outlined"
-//               className="w-full transition-all duration-200 ease-in"
-//               value={selectedYear}
-//               onChange={(e: ChangeEvent<HTMLInputElement>) => {
-//                 setSelectedYear(e.target.value);
-//               }}
-//               size="small"
-//               autoComplete="off"
-//             />
-//           </FormControl>
-
-//           <FormControl size="small" className="w-[150px]">
-//             <InputLabel>Select facility</InputLabel>
-//             <Select
-//               label="Select facility"
-//               size="small"
-//               value={selectValue}
-//               onChange={(e: SelectChangeEvent<string | null>) => {
-//                 setSelectValue(e.target.value!);
-//                 setSlug(
-//                   bookingsData.facilities.find(
-//                     (facility) => facility.name === e.target.value
-//                   )!.slug
-//                 );
-//               }}
-//             >
-//               {bookingsData.facilities.map((facility) => (
-//                 <MenuItem key={facility.name} value={facility.name}>
-//                   {facility.name}
-//                 </MenuItem>
-//               ))}
-//             </Select>
-//           </FormControl>
-
-//           <FormControl size="small" className="w-[170px]">
-//             <TextField
-//               id="user"
-//               label="Enter employeeId"
-//               variant="outlined"
-//               className="w-full transition-all duration-200 ease-in"
-//               value={selectedUser}
-//               onChange={(e: ChangeEvent<HTMLInputElement>) => {
-//                 setSelectedUser(e.target.value);
-//               }}
-//               size="small"
-//               autoComplete="off"
-//             />
-//           </FormControl>
-//           <Button
-//             variant="contained"
-//             onClick={() => {
-//               setSelectValue("");
-//               setSelectedMonth("");
-//               setTimeFilter(false);
-//               setSelectedYear("");
-//               setSelectedUser("");
-//               setSlug("");
-//               enabled && setEnabled(false);
-//               refetch();
-//             }}
-//           >
-//             Reset
-//           </Button>
-//           <Button
-//             variant="contained"
-//             onClick={() => {
-//               enabled && setEnabled(false);
-//               refetch();
-//             }}
-//           >
-//             Filter
-//           </Button>
-//         </div>
-//       </div>
-//       {!isPending && (
-//         <AdminBookingsTable bookingsData={bookingsData.bookings} />
-//       )}
-//       {isPrint && (
-//         <div className="mt-[100dvh]">
-//           <AdminBookingsReport
-//             bookingsData={bookingsData.bookings}
-//             forwardedRef={targetRef}
-//           />
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default AdminBookings;
-
 import React, {
   JSX,
   FC,
@@ -333,7 +28,8 @@ import {
 } from "@mui/material";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
-import generatePDF, { Options } from "react-to-pdf";
+import html2canvas from 'html2canvas-pro'; 
+import jsPDF from 'jspdf';
 
 // Import components và types
 import AdminBookingsTable from "./tables/AdminBookingsTable"; // Đảm bảo component này nhận props mới
@@ -516,23 +212,103 @@ const AdminBookings: FC = (): JSX.Element => {
     setSelectedYear(String(new Date().getFullYear()));
     setSelectedUserId("");
     setPage(0);
-    // Query sẽ tự chạy lại do queryKey thay đổi (các state filter về giá trị ban đầu)
   };
 
-  // --- Logic PDF (Giữ nguyên) ---
-  useEffect(() => {
-    /* ... isPrint logic ... */
-  }, [isPrint]);
-  const options: Options = {
+  const handleCloseSnackbar = (): void => { setOpenSnackbar(false); };
+
+// --- Logic PDF ---
+const pdfOptions = {
     filename: "admin-bookings-report.pdf",
-    page: { orientation: "landscape" },
-  };
-  const handleExportPdf = () => {
-    /* ... logic export ... */
-  };
-  const handleCloseSnackbar = (): void => {
-    setOpenSnackbar(false);
-  };
+    page: {
+        orientation: "landscape",
+        format: 'a4',
+        unit: 'pt' 
+    }
+};
+
+// Hàm xử lý khi nhấn nút Export
+const handleExportPdfClick = () => {
+    if (bookingsForCurrentPage.length === 0) {
+        alert("Không có dữ liệu đặt phòng để xuất báo cáo.");
+        return;
+    }
+    // Chỉ set isPrint = true để component Report được render
+    console.log("Setting isPrint to true...");
+    setIsPrint(true);
+};
+
+// useEffect sẽ chạy sau khi component render lại với isPrint = true
+useEffect(() => {
+    // Chỉ thực hiện khi isPrint là true VÀ ref đã được gắn
+    if (isPrint && targetRef.current) {
+        const elementToCapture = targetRef.current;
+        console.log("Report component rendered, starting PDF generation...");
+
+        const canvasOptions = { scale: 2, useCORS: true, logging: false };
+
+        // Gọi html2canvas
+        html2canvas(elementToCapture, canvasOptions)
+            .then((canvas) => {
+                console.log("Canvas generated.");
+                try {
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdf = new jsPDF(pdfOptions.page.orientation, pdfOptions.page.unit, pdfOptions.page.format);
+
+                    // Tính toán kích thước ảnh vừa trang PDF (có lề)
+                    const margin = 40; // lề pt
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = pdf.internal.pageSize.getHeight();
+                    const availableWidth = pdfWidth - margin * 2;
+                    const availableHeight = pdfHeight - margin * 2;
+                    const imgProps = pdf.getImageProperties(imgData);
+                    const imgRatio = imgProps.width / imgProps.height;
+                    let imgRenderWidth = imgProps.width;
+                    let imgRenderHeight = imgProps.height;
+
+                    if (imgRenderWidth > availableWidth) {
+                         imgRenderWidth = availableWidth;
+                         imgRenderHeight = imgRenderWidth / imgRatio;
+                    }
+                     if (imgRenderHeight > availableHeight) {
+                         imgRenderHeight = availableHeight;
+                         imgRenderWidth = imgRenderHeight * imgRatio;
+                     }
+
+                     // Canh giữa ảnh
+                     const imgX = margin + (availableWidth - imgRenderWidth) / 2;
+                     const imgY = margin;
+
+                    // Thêm ảnh vào PDF
+                    pdf.addImage(imgData, 'PNG', imgX, imgY, imgRenderWidth, imgRenderHeight);
+                    console.log("Image added to PDF.");
+
+                    // Lưu PDF
+                    pdf.save(pdfOptions.filename);
+                    console.log("PDF saved.");
+
+                } catch (pdfError) {
+                    console.error("Error generating PDF from canvas:", pdfError);
+                    alert("Đã xảy ra lỗi khi tạo file PDF."); // Thông báo lỗi đơn giản
+                } finally {
+                    // Luôn reset trạng thái print sau khi hoàn tất (kể cả lỗi)
+                    console.log("Resetting isPrint to false.");
+                    setIsPrint(false);
+                }
+            })
+            .catch(canvasError => {
+                console.error("html2canvas failed:", canvasError);
+                setIsPrint(false); // Reset nếu chụp ảnh lỗi
+                alert("Đã xảy ra lỗi khi xử lý giao diện báo cáo.");
+            });
+    }
+
+    // Quản lý overflow cho body (giữ nguyên từ code gốc)
+    const overflowY = isPrint ? "hidden" : "auto";
+    document.body.style.overflowY = overflowY;
+    return () => { document.body.style.overflowY = "auto"; }; // Cleanup
+
+}, [isPrint]); // Chạy lại khi isPrint thay đổi
+  
 
   // --- Render Logic ---
   if (isError) {
@@ -559,13 +335,8 @@ const AdminBookings: FC = (): JSX.Element => {
         <Typography variant="h4" component="h1">
           Quản lý Đặt phòng
         </Typography>
-        <Button
-          variant="contained"
-          color="secondary"
-          startIcon={<DownloadIcon />}
-          onClick={handleExportPdf}
-        >
-          Xuất Báo cáo PDF
+        <Button variant="contained" color="secondary" startIcon={<DownloadIcon />} onClick={handleExportPdfClick}> 
+            Xuất Báo cáo PDF
         </Button>
       </Box>
       {/* Filter Controls */}
@@ -669,7 +440,6 @@ const AdminBookings: FC = (): JSX.Element => {
             >
               Reset
             </Button>
-            {/* Nút filter không cần thiết vì query tự chạy */}
           </Grid>
         </Grid>
       </Paper>
@@ -684,7 +454,6 @@ const AdminBookings: FC = (): JSX.Element => {
             Không tìm thấy lượt đặt phòng nào khớp.
           </Typography>
         ) : (
-          // Truyền đúng props phân trang
           <AdminBookingsTable
             bookings={bookingsForCurrentPage}
             totalBookingCount={totalBookingCount}
@@ -698,7 +467,6 @@ const AdminBookings: FC = (): JSX.Element => {
       {/* PDF Target */}
       {isPrint && bookingsForCurrentPage.length > 0 && (
         <div ref={targetRef} className="absolute -left-[9999px] top-0">
-          {/* Sửa: Truyền đúng prop */}
           <AdminBookingsReport
             bookings={bookingsForCurrentPage}
             forwardedRef={targetRef}
