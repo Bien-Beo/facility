@@ -4,20 +4,25 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class ApprovalRequest {
+    private String bookingId;
     private String facilityName;
     private String purpose;
     private LocalDateTime date;
     private String timeRange;
     private String requestedBy;
     private LocalDateTime requestedAt;
-
-    public ApprovalRequest(String facilityName, String purpose, LocalDateTime date, String timeRange, String requestedBy, LocalDateTime requestedAt) {
+    public ApprovalRequest( String bookingId, String facilityName, String purpose, LocalDateTime date, String timeRange, String requestedBy, LocalDateTime requestedAt) {
+        this.bookingId = bookingId;
         this.facilityName = facilityName;
         this.purpose = purpose;
         this.date = date;
         this.timeRange = timeRange;
         this.requestedBy = requestedBy;
         this.requestedAt = requestedAt;
+
+    }
+    public String getBookingId() {
+        return bookingId;
     }
 
     public String getFacilityName() {
@@ -85,7 +90,8 @@ public class ApprovalRequest {
     @Override
     public String toString() {
         return "ApprovalRequest{" +
-                "facilityName='" + facilityName + '\'' +
+                "bookingId='" + bookingId + '\'' +
+                ", facilityName='" + facilityName + '\'' +
                 ", purpose='" + purpose + '\'' +
                 ", date=" + date +
                 ", timeRange='" + timeRange + '\'' +

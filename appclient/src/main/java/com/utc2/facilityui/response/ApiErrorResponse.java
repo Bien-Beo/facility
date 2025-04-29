@@ -1,4 +1,4 @@
-package com.utc2.facilityui.response; // Hoặc package dto.response
+package com.utc2.facilityui.response;
 
 /**
  * Lớp đại diện cho cấu trúc JSON của một response lỗi trả về từ API.
