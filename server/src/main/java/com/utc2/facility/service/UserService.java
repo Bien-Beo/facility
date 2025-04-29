@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page; // Import Page
 import org.springframework.data.domain.Pageable; // Import Pageable
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -118,5 +119,16 @@ public class UserService {
                 .map(userMapper::toUserResponse)
                 .collect(Collectors.toList());
         return facilityManagersResponse;
+    }
+
+    public User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() ||
+                (authentication.getPrincipal() instanceof String && authentication.getPrincipal().equals("anonymousUser"))) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        return userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
     }
 }

@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "maintenance_tickets",
-        indexes = { // Thêm index nếu cần tối ưu truy vấn
+        indexes = {
                 @Index(name = "idx_mt_room_id", columnList = "room_id"),
                 @Index(name = "idx_mt_item_id", columnList = "item_id"),
                 @Index(name = "idx_mt_technician_id", columnList = "technician_user_id"),
@@ -38,11 +38,11 @@ public class MaintenanceTicket {
     EquipmentItem item;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reported_by_user_id") // Đổi tên từ user
+    @JoinColumn(name = "reported_by_user_id")
     User reportedBy;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "technician_user_id") // KTV được gán (Mới)
+    @JoinColumn(name = "technician_user_id")
     User technician;
 
     @Column(name = "report_date", nullable = false, updatable = false) // Đổi tên từ createdAt

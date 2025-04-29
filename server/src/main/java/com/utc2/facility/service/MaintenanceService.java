@@ -19,6 +19,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -27,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -39,17 +44,12 @@ public class MaintenanceService {
     UserRepository userRepository;
     RoomRepository roomRepository;
     MaintenanceMapper maintenanceMapper;
+    UserService userService;
 
     @PreAuthorize("isAuthenticated()")
     public MaintenanceResponse createMaintenanceRequest(MaintenanceRequest request) {
         // Lấy thông tin người dùng đang đăng nhập
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal() instanceof String && authentication.getPrincipal().equals("anonymousUser")) {
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
-        }
-        // Giả sử Principal là UserDetails hoặc đối tượng chứa thông tin User
-        User currentUser = userRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        User currentUser = userService.getCurrentUser();
 
         MaintenanceTicket maintenanceTicket = maintenanceMapper.toMaintenance(request);
         maintenanceTicket.setReportedBy(currentUser); // Gán người báo cáo
@@ -81,10 +81,30 @@ public class MaintenanceService {
         return maintenanceMapper.toMaintenanceResponse(savedTicket);
     }
 
-    public MaintenanceResponse getMaintenanceTicket(@Param("id") String id) {
-        MaintenanceTicket maintenanceTicket = maintenanceRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.MAINTENANCE_TICKET_NOT_FOUND));
-        return maintenanceMapper.toMaintenanceResponse(maintenanceTicket);
+    public Page<MaintenanceResponse> getMaintenanceTickets(
+            Integer page, Integer size, List<String> statusList
+    ) {
+        int pageNumber = page != null ? page : 0;
+        int pageSize = size != null ? size : 10;
+
+        User currentUser = userService.getCurrentUser();
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
+        Page<MaintenanceTicket> maintenanceTicketsPage;
+
+        if (statusList == null || statusList.isEmpty()) {
+            maintenanceTicketsPage = Page.empty(pageable);
+        } else {
+            List<MaintenanceStatus> statuses = statusList.stream()
+                    .map(String::toUpperCase)
+                    .map(MaintenanceStatus::valueOf)
+                    .toList();
+
+            maintenanceTicketsPage = maintenanceRepository
+                    .findByTechnician_IdAndStatusIn(currentUser.getId(), statuses, pageable);
+        }
+
+        return maintenanceTicketsPage.map(maintenanceMapper::toMaintenanceResponse);
     }
 
     public List<MaintenanceResponse> getMaintenanceTicketsByRoomName(@Param("roomName") String roomName) {

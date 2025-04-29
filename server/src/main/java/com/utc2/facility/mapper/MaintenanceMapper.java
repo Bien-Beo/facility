@@ -14,6 +14,16 @@ public interface MaintenanceMapper {
     @Mapping(target = "modelName", source = "item.model.name")
     @Mapping(target = "reportByUser", source = "reportedBy.fullName")
     @Mapping(target = "technicianName", source = "technician.fullName")
+    @Mapping(target = "id", source = "id")
+    @Mapping(target = "description", source = "description")
+    @Mapping(target = "notes", source = "notes")
+    @Mapping(target = "cost", source = "cost")
+    @Mapping(target = "actionTaken", source = "actionTaken")
+    @Mapping(target = "status", expression = "java(maintenanceTicket.getStatus().name())")
+    @Mapping(target = "updatedAt", source = "updatedAt")
+    @Mapping(target = "startDate", source = "startDate")
+    @Mapping(target = "completionDate", source = "completionDate")
+    @Mapping(target = "reportDate", source = "reportDate")
     MaintenanceResponse toMaintenanceResponse(MaintenanceTicket maintenanceTicket);
 
     @Mapping(target = "room", ignore = true)
