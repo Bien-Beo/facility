@@ -503,11 +503,8 @@ interface ErrorProps {
   status: number;
 }
 interface NavigationProps {
-  id: string; // ID của người dùng hoặc context
-  count: number; // Số lượng (ví dụ: số phòng quản lý)
-  // Đổi tên các trường cho rõ ràng hơn
-  // approvalCount: number;
-  // cancellationCount: number;
+  id: string;
+  count: number; 
 }
 
 // ==================================

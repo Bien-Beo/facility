@@ -42,14 +42,8 @@ const router = createBrowserRouter(
           element = {<LoginPage />}
           errorElement = {<RouteError />}
         />
+        
       </Route>
-
-      {/* Route Không có quyền truy cập
-      <Route
-                path="/unauthorized"
-                element={<UnauthorizedPage />} // Component hiển thị thông báo lỗi 403
-                errorElement={<RouteError />}
-             /> */}
 
       <Route
         path="/"
@@ -82,11 +76,10 @@ const router = createBrowserRouter(
         />
 
         {/* Dashboard Equipment */}
-        {/* Chỉ cho phép ADMIN và FACILITY_MANAGER */}
         <Route
           path="dashboard/equipment"
           element={
-            <RequireAuth>
+            <RequireAuth allowedRoles={["FACILITY_MANAGER", "ADMIN"]}>
               <DashboardPage type="equipment" />
             </RequireAuth>
           }
@@ -94,7 +87,6 @@ const router = createBrowserRouter(
         />
 
         {/* Trang Chi tiết Phòng và Lịch */}
-        {/* Cho phép tất cả các vai trò đã đăng nhập */}
         <Route path="rooms">
           <Route
             path=":id"
@@ -105,8 +97,6 @@ const router = createBrowserRouter(
             }
             errorElement={<RouteError />}
           />
-          {/* Có thể thêm route index cho "/rooms" nếu cần trang danh sách chung */}
-          {/* <Route index element={<RequireAuth><RoomListPage /></RequireAuth>} /> */}
         </Route>
 
         <Route path="user">
@@ -160,14 +150,6 @@ const router = createBrowserRouter(
             }
             errorElement={<RouteError />}
           />
-
-          {/* Các route admin khác nếu có */}
-                    {/* Ví dụ: Quản lý User */}
-                     {/* <Route
-                         path="users"
-                         element={ <RequireAuth allowedRoles={[UserRoleType.ADMIN]}><AdminUserPage /></RequireAuth> }
-                         errorElement={<RouteError />}
-                     /> */}
         </Route>
       </Route>  
       <Route path="*" element={<PageNotFound />} />
