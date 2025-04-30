@@ -1,6 +1,6 @@
 package com.utc2.facilityui.model;
 
-// Lớp mô hình dữ liệu cho CardBooking, chứa các chuỗi đã được chuẩn bị để hiển thị
+
 public class CardBooking {
     private String nameBooking;
     private String purposeBooking;
