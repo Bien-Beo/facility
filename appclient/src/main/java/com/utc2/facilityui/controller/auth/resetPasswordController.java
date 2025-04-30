@@ -1,6 +1,5 @@
 package com.utc2.facilityui.controller.auth;
 
-// Bỏ import DTO request: import com.utc2.facilityui.dto.request.PasswordResetRequest;
 import com.utc2.facilityui.service.UserServices;
 import javafx.concurrent.Task;
 import javafx.application.Platform;
@@ -16,12 +15,10 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 
-import java.io.IOException;
-
 public class resetPasswordController {
 
-    @FXML private PasswordField oldPasswordField;
-    @FXML private PasswordField newPasswordField;
+    @FXML private PasswordField oldPassword;
+    @FXML private PasswordField newPassword;
     @FXML private Label oldPasswordEye;
     @FXML private Label newPasswordEye;
     @FXML private StackPane oldPasswordPane;
@@ -36,9 +33,10 @@ public class resetPasswordController {
 
     @FXML
     public void initialize() {
-        currentOldPasswordField = oldPasswordField;
-        currentNewPasswordField = newPasswordField;
-        messageLabel.setText("");
+        currentOldPasswordField = oldPassword;
+        currentNewPasswordField = newPassword;
+        messageLabel.setText(""); // Xóa text mặc định
+        messageLabel.setVisible(false); // Ẩn ban đầu
     }
 
     @FXML
@@ -83,12 +81,9 @@ public class resetPasswordController {
         if (newPassword.equals(oldPassword)) { showMessage("New password must be different from the old password.", Color.RED); return; }
         // --- Hết Validation ---
 
-        showMessage("", Color.BLACK);
+        showMessage("", Color.BLACK); // Xóa thông báo cũ
         confirmButton.setDisable(true);
         confirmButton.setText("UPDATING...");
-
-        // KHÔNG tạo DTO nữa
-        // PasswordResetRequest request = PasswordResetRequest.builder()...
 
         Task<Boolean> resetTask = new Task<>() {
             @Override
@@ -99,36 +94,26 @@ public class resetPasswordController {
         };
 
         resetTask.setOnSucceeded(event -> {
-            boolean success = resetTask.getValue();
-            if (success) {
-                showMessage("Password updated successfully!", Color.GREEN);
-                currentOldPasswordField.clear();
-                currentNewPasswordField.clear();
-                if (isOldPasswordVisible) toggleOldPasswordVisibility(null);
-                if (isNewPasswordVisible) toggleNewPasswordVisibility(null);
-            } else {
-                // Ít xảy ra nếu service ném Exception
-                showMessage("Password update failed. Please check details.", Color.RED);
-            }
+            // Chỉ chạy vào đây nếu service trả về true (và không ném exception)
+            showMessage("Password updated successfully!", Color.GREEN);
+            // Xóa các trường sau khi thành công
+            currentOldPasswordField.clear();
+            currentNewPasswordField.clear();
+            // Đặt lại trạng thái ẩn nếu đang hiện
+            if (isOldPasswordVisible) toggleOldPasswordVisibility(null);
+            if (isNewPasswordVisible) toggleNewPasswordVisibility(null);
+
             confirmButton.setDisable(false);
             confirmButton.setText("CONFIRM");
         });
 
         resetTask.setOnFailed(event -> {
-            Throwable exception = resetTask.getException();
+            Throwable exception = resetTask.getException(); // Lỗi IOException từ service
             System.err.println("Password reset task failed: " + exception.getMessage());
             exception.printStackTrace();
-            String errorMessage = exception.getMessage();
-            // Cố gắng hiển thị lỗi cụ thể hơn
-            if (errorMessage != null && errorMessage.toLowerCase().contains("incorrect old password")) {
-                showMessage("Incorrect old password.", Color.RED);
-            } else if (errorMessage != null && errorMessage.contains("HTTP status: 401")) { // Ví dụ bắt lỗi 401
-                showMessage("Authentication error. Please log in again.", Color.RED);
-            } else if (exception instanceof IOException) {
-                showMessage("Error connecting to server. Please try again.", Color.RED);
-            } else {
-                showMessage("An unexpected error occurred: " + exception.getMessage(), Color.RED);
-            }
+            // Hiển thị lỗi cho người dùng
+            showMessage(exception.getMessage(), Color.RED); // Hiển thị message từ Exception
+
             confirmButton.setDisable(false);
             confirmButton.setText("CONFIRM");
         });
@@ -138,12 +123,13 @@ public class resetPasswordController {
 
     private void showMessage(String message, Color color) {
         Platform.runLater(() -> {
-            messageLabel.setText(message);
+            messageLabel.setText(message != null ? message : "An unknown error occurred."); // Xử lý message null
             messageLabel.setTextFill(color);
-            messageLabel.setVisible(!message.isEmpty());
+            messageLabel.setVisible(message != null && !message.isEmpty()); // Chỉ hiện khi có message
         });
     }
 
+    // Có thể giữ lại showErrorAlert nếu muốn dùng song song
     private void showErrorAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
@@ -152,3 +138,4 @@ public class resetPasswordController {
         alert.showAndWait();
     }
 }
+    
