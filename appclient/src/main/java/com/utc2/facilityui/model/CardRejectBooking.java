@@ -1,7 +1,7 @@
 package com.utc2.facilityui.model;
 
 
-public class CardAcceptBooking {
+public class CardRejectBooking {
     private String nameBooking;
     private String purposeBooking;
     private String plannedStartTimeDisplay;
@@ -11,7 +11,7 @@ public class CardAcceptBooking {
     private String bookingId;
 
     // Constructor
-    public CardAcceptBooking() {}
+    public CardRejectBooking() {}
 
     // Getters and Setters
     public String getNameBooking() { return nameBooking; }

@@ -2,6 +2,7 @@ package com.utc2.facilityui.controller.booking;
 
 // Import model CardAcceptBooking
 import com.utc2.facilityui.model.CardAcceptBooking;
+import com.utc2.facilityui.model.CardRejectBooking;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -9,7 +10,7 @@ import javafx.scene.text.Text;
 
 // Không cần import BookingResponse nữa
 
-public class CardAcceptBookingController {
+public class CardRejectBookingController {
 
     @FXML private Label nameBooking;        // Label hiển thị tên phòng/booking
     @FXML private Text purposeBooking;      // Text hiển thị mục đích
@@ -23,10 +24,10 @@ public class CardAcceptBookingController {
     // Ví dụ: @FXML private Label approvedByLabel;
     //        @FXML private Text approvedByText;
 
-    private CardAcceptBooking booking; // Model chứa dữ liệu cho card này
+    private CardRejectBooking booking; // Model chứa dữ liệu cho card này
     // private BookingService bookingService; // Khởi tạo nếu cần gọi khi hủy
 
-    public void setAcceptBooking(CardAcceptBooking booking) {
+    public void setRejectBooking(CardRejectBooking booking) {
         this.booking = booking;
         // this.bookingService = new BookingService(); // Khởi tạo service nếu cần
         updateCard();
