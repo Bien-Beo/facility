@@ -1,5 +1,5 @@
-import { FC, useEffect, useState, JSX } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { FC, useState, JSX } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { NavLink } from "react-router-dom";
 import axios from "axios";
 import {
@@ -18,16 +18,13 @@ import ListItemText from "@mui/material/ListItemText";
 import ApprovalIcon from "@mui/icons-material/Approval";
 import EventBusyIcon from "@mui/icons-material/EventBusy";
 import PasswordIcon from "@mui/icons-material/Password";
-
-import ErrorComponent from "./Error";
 import { useAuth } from "../hooks/useAuth";
-import { API } from "../api";
 
 const Navigation: FC = (): JSX.Element => {
   const auth = useAuth();
   const role = auth?.user?.roleName;
-  const [approvalCount, setApprovalCount] = useState<number>(0);
-  const [cancellationCount, setCancellationCount] = useState<number>(0);
+  const [approvalCount] = useState<number>(0);
+  const [cancellationCount] = useState<number>(0);
 
   const mutation = useMutation({
     mutationFn: () => {
@@ -51,48 +48,12 @@ const Navigation: FC = (): JSX.Element => {
       console.log("Logout error:", error);
     },
   });
-  
-
-  // const { data, isPending, isError, error } = useQuery<NavigationProps>({
-  //   queryKey: ["navigation"],
-  //   queryFn: async () => {
-  //     const response = await API.get<NavigationProps>(
-  //       `${import.meta.env.VITE_APP_SERVER_URL}/dashboard/count/${
-  //         auth?.user?.userId
-  //       }`,
-  //       {
-  //         withCredentials: true,
-  //       }
-  //     );
-  //     return response.data;
-  //   },
-  //   refetchInterval: 5 * 1000,
-  //   gcTime: 0,
-  // });
-
-  // useEffect(() => {
-  //   if (!isPending) {
-  //     setApprovalCount(data!.approvalCount!);
-  //     setCancellationCount(data!.cancellationCount!);
-  //   }
-  // }, [data, isPending]);
-
-  // if (isError) {
-  //   const errorData = error.response!.data as ErrorMessage;
-  //   return (
-  //     <ErrorComponent
-  //       status={errorData.status!}
-  //       message={errorData.message}
-  //     />
-  //   );
-  // }
 
   return (
     <div className="min-w-[250px] max-w-[400px] w-1/4 h-[100dvh] bg-[#271756] text-white pt-5 overflow-y-scroll sticky top-0">
       <div className="w-full flex flex-col justify-between items-center pt-4 pb-8 gap-2 flex-wrap">
         <Avatar
           sx={{ width: "80px", height: "80px" }}
-          //src={auth?.user?.avatar}
           src={`http://localhost:8080/facility/images/${auth?.user?.avatar}`}
           alt="avatar-image"
         />
@@ -246,7 +207,7 @@ const Navigation: FC = (): JSX.Element => {
         {/* Technician */}
         {role === "TECHNICIAN" && (
           <>
-            <NavLink to="/technician/facilities">
+            <NavLink to="/technician/maintenance">
               {({ isActive }) => (
                 <ListItemButton
                   className={"flex gap-3"}
@@ -270,7 +231,7 @@ const Navigation: FC = (): JSX.Element => {
                       variant: "body1",
                       component: "li",
                     }}
-                    primary="Maintenance Facilities"
+                    primary="Bảo trì"
                   />
                 </ListItemButton>
               )}

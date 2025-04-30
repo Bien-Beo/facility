@@ -4,12 +4,14 @@ import com.utc2.facility.dto.request.ApiResponse;
 import com.utc2.facility.dto.request.MaintenanceRequest;
 import com.utc2.facility.dto.request.MaintenanceUpdate;
 import com.utc2.facility.dto.response.MaintenanceResponse;
+import com.utc2.facility.enums.MaintenanceStatus;
 import com.utc2.facility.service.MaintenanceService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,12 +31,12 @@ public class MaintenanceController {
                 .build();
     }
 
-    @GetMapping("/{maintenanceTicketId}")
-    ApiResponse<MaintenanceResponse> getRepairRoomRequest(@PathVariable String maintenanceTicketId) {
-        return ApiResponse.<MaintenanceResponse>builder()
-                .result(maintenanceService.getMaintenanceTicket(maintenanceTicketId))
-                .build();
-    }
+//    @GetMapping("/{maintenanceTicketId}")
+//    ApiResponse<MaintenanceResponse> getRepairRoomRequest(@PathVariable String maintenanceTicketId) {
+//        return ApiResponse.<MaintenanceResponse>builder()
+//                .result(maintenanceService.getMaintenanceTicket(maintenanceTicketId))
+//                .build();
+//    }
 
     @GetMapping("/user/{userId}")
     ApiResponse<List<MaintenanceResponse>> getMaintenanceTicketsByUserId(@PathVariable String userId) {
@@ -51,9 +53,13 @@ public class MaintenanceController {
     }
 
     @GetMapping
-    ApiResponse<List<MaintenanceResponse>> getAllMaintenanceTicket() {
-        return ApiResponse.<List<MaintenanceResponse>>builder()
-                .result(maintenanceService.getAllMaintenanceTickets())
+    ApiResponse<Page<MaintenanceResponse>> getMaintenanceTickets(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) List<String> status
+    ) {
+        return ApiResponse.<Page<MaintenanceResponse>>builder()
+                .result(maintenanceService.getMaintenanceTickets(page, size, status))
                 .build();
     }
 

@@ -15,6 +15,7 @@ import RouteError from "./components/RouteError";
 import HomePage from "./pages/HomePage";
 import AdminBookingsPage from "./pages/AdminBookingsPage";
 import AdminFacilitiesPage from "./pages/AdminFacilitiesPage";
+import TechnicianMaintenancePage from "./pages/TechnicianMaintenancePage";
 import DashboardPage from "./pages/DashboardPage";
 import ApprovalsPage from "./pages/ApprovalsPage";
 import CancellationsPage from "./pages/CancellationPage";
@@ -24,6 +25,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import FacilityPage from "./pages/FacilityPage";
 import { AuthProvider } from "./utils/auth";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
+import ReportIssuePage from "./pages/ReportIssuePage";
 
 
 declare module "@tanstack/react-query" {
@@ -99,6 +101,20 @@ const router = createBrowserRouter(
           />
         </Route>
 
+        <Route path="report">
+            <Route path="room">
+                <Route
+                    path=":id"
+                    element={
+                        <RequireAuth>
+                            <ReportIssuePage />
+                        </RequireAuth>
+                    }
+                    errorElement={<RouteError />}
+                />
+            </Route>
+        </Route>
+
         <Route path="user">
           <Route
             path="mybookings"
@@ -135,6 +151,30 @@ const router = createBrowserRouter(
             element={
               <RequireAuth>
                 <AdminBookingsPage />
+              </RequireAuth>
+            }
+            errorElement={<RouteError />}
+          />
+
+          {/* Trang Quản lý Phòng/Thiết bị của Admin */}
+          <Route
+            path="rooms"
+            element={
+              <RequireAuth allowedRoles={["ADMIN"]}>
+                <AdminFacilitiesPage />
+              </RequireAuth>
+            }
+            errorElement={<RouteError />}
+          />
+        </Route>
+
+         {/* Trang Quản lý của Technician */}
+         <Route path="technician">
+          <Route
+            path="maintenance"
+            element={
+              <RequireAuth allowedRoles={["TECHNICIAN"]}>
+                <TechnicianMaintenancePage />
               </RequireAuth>
             }
             errorElement={<RouteError />}

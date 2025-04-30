@@ -29,7 +29,6 @@ const HomePage: React.FC = () => {
     // Dựa vào vai trò để quyết định nội dung/điều hướng
     switch (role) {
         case "ADMIN":
-            // Redirect đến trang quản lý chính của Admin
             console.log("Redirecting ADMIN to /admin/rooms");
             return <Navigate to="/admin/rooms" replace />; 
 
@@ -37,16 +36,15 @@ const HomePage: React.FC = () => {
         case "USER":
             // Với FM và User, trang chủ là Dashboard phòng
             console.log("Rendering Room Dashboard for role:", role);
-            return <DashboardPage type="room" />; // <<< Render Dashboard phòng
+            return <DashboardPage type="room" />; 
 
         case "TECHNICIAN":
             console.log("Redirecting TECHNICIAN to /technician/maintenance");
-            return <Navigate to="/technician/maintenance" replace />; // <<< Redirect đến route technician
+            return <Navigate to="/technician/maintenance" replace />; 
 
         default:
-            // Xử lý vai trò không xác định (phòng trường hợp lỗi)
              console.warn("Unknown user role encountered in HomePage:", role);
-             return <Navigate to="/auth/login" replace />; // Hoặc trang lỗi
+             return <Navigate to="/auth/login" replace />; 
     }
 };
 
