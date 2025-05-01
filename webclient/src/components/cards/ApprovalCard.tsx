@@ -128,11 +128,11 @@ const ApprovalCard: FC<ApprovalCardProps> = ({
                      <Typography variant="h6" component="div" sx={{ fontWeight: 600, mb: 1 }}>
                          Phòng: {booking.roomName || 'N/A'} | <Typography component="span" variant="body1"><strong>{booking.purpose}</strong></Typography>
                      </Typography>
-                     <Typography variant="body2" ><strong>Người đặt:</strong> {booking.userName}</Typography>
-                     <Typography variant="body2" ><strong>Ngày:</strong> {isoToDate(booking.plannedStartTime)}</Typography>
-                     <Typography variant="body2" ><strong>Thời gian:</strong> {`${isoToTime(booking.plannedStartTime)} - ${isoToTime(booking.plannedEndTime)}`}</Typography>
-                     <Typography variant="body2" ><strong>Yêu cầu lúc:</strong> {booking.createdAt ? `${isoToDate(booking.createdAt)}, ${isoToTime(booking.createdAt)}` : 'N/A'}</Typography>
-                     <Typography variant="body2" ><strong>Trạng thái:</strong> <Chip label={displayStatus.text} color={displayStatus.color} size="small" /></Typography>
+                     <Typography variant="body2" sx={{mt: 0.5}} ><strong>Người đặt:</strong> {booking.userName}</Typography>
+                     <Typography variant="body2" sx={{mt: 0.5}} ><strong>Ngày:</strong> {isoToDate(booking.plannedStartTime)}</Typography>
+                     <Typography variant="body2" sx={{mt: 0.5}} ><strong>Thời gian:</strong> {`${isoToTime(booking.plannedStartTime)} - ${isoToTime(booking.plannedEndTime)}`}</Typography>
+                     <Typography variant="body2" sx={{mt: 0.5}} ><strong>Yêu cầu lúc:</strong> {booking.createdAt ? `${isoToDate(booking.createdAt)}, ${isoToTime(booking.createdAt)}` : 'N/A'}</Typography>
+                     <Typography variant="body2" sx={{mt: 1}} ><strong>Trạng thái:</strong> <Chip label={displayStatus.text} color={displayStatus.color} size="small" /></Typography>
                      {booking.note && (<Typography variant="body2" sx={{mt: 1}}>Ghi chú: {booking.note}</Typography> )}
                      {booking.bookedEquipments && booking.bookedEquipments.length > 0 && (
                           <Typography variant="body2" component="div" sx={{mt: 1}}>

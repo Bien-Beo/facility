@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { JSX, FC } from "react";
 import { Fade, Modal, Typography } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -14,7 +14,7 @@ const EventModal: FC<EventModalProps> = ({
       sx={{ border: "none" }}
     >
       <Fade in={isOpen}>
-        <div className="bg-bgPrimary w-full max-w-[500px] flex flex-col gap-6 absolute left-[50%] top-[50%] -translate-x-[50%] -translate-y-[50%] rounded-md shadow-cardHover border-none">
+        <div className="bg-bgPrimary w-full max-w-[800px] flex flex-col gap-6 absolute left-[50%] top-[50%] -translate-x-[50%] -translate-y-[50%] rounded-md shadow-cardHover border-none">
           <div className="w-full flex items-center justify-between bg-primary px-10 py-8 rounded-md rounded-b-none border-none">
             <Typography
               variant="h4"
@@ -22,7 +22,7 @@ const EventModal: FC<EventModalProps> = ({
               className="mb-1 text-white"
               style={{ fontWeight: "bold" }}
             >
-              Booking details
+              Chi tiết sự kiện
             </Typography>
             <CloseIcon
               className="cursor-pointer"
@@ -32,55 +32,60 @@ const EventModal: FC<EventModalProps> = ({
           </div>
           <div className="flex flex-col gap-1 px-10 pb-10">
             <Typography variant="h6" component="p">
-              <span className="font-bold tracking-normal">Title:</span>{" "}
-              {eventInfo.title}
+              <span className="font-bold tracking-normal">Phòng:</span>{" "}
+              {eventInfo?.roomName}
             </Typography>
             <Typography variant="h6" component="p">
-              <span className="font-bold tracking-normal">Purpose:</span>{" "}
-              {eventInfo.purpose}
+              <span className="font-bold tracking-normal">Mục đích mượn:</span>{" "}
+              {eventInfo?.purpose}
             </Typography>
+            {eventInfo?.bookedEquipments && eventInfo.bookedEquipments.length > 0 ? (
+              <Typography variant="h6" component="p">
+                <span className="font-bold tracking-normal">Thiết bị:</span>{" "}
+                {eventInfo.bookedEquipments.map((item, index) => (
+                  <span key={index}>
+                    {item.equipmentModelName}
+                    {index !== eventInfo.bookedEquipments.length - 1 && ", "}
+                  </span>
+                ))}
+              </Typography>
+            ) : (
+              <Typography variant="h6" component="p">
+                <span className="font-bold tracking-normal">Thiết bị:</span>{" "}
+                Không có thiết bị nào được yêu cầu
+              </Typography>
+            )}
             <Typography variant="h6" component="p">
-              <span className="font-bold tracking-normal">Date:</span>{" "}
+              <span className="font-bold tracking-normal">Ngày mượn:</span>{" "}
               {eventInfo.date}
             </Typography>
             <Typography variant="h6" component="p">
-              <span className="font-bold tracking-normal">Time:</span>{" "}
+              <span className="font-bold tracking-normal">Thời gian mượn:</span>{" "}
               {eventInfo.start} - {eventInfo.end}
             </Typography>
-            {eventInfo.status === "PENDING" && (
+            {eventInfo.status === "PENDING_APPROVAL" && (
               <Typography variant="h6" component="p">
-                <span className="font-bold tracking-normal">Status:</span>{" "}
-                Pending
+                <span className="font-bold tracking-normal">Trạng thái:</span>{" "}
+                Đang chờ phê duyệt
               </Typography>
             )}
 
             <Typography variant="h6" component="p">
-              <span className="font-bold tracking-normal">Requested by:</span>{" "}
-              {eventInfo.requestBy}
+              <span className="font-bold tracking-normal">Người mượn:</span>{" "}
+              {eventInfo?.requestBy}
             </Typography>
-            {eventInfo.statusUpdateByGD && (
-              <Typography variant="h6" component="p">
-                <span className="font-bold tracking-normal">
-                  Approved by GD:
-                </span>{" "}
-                {eventInfo.statusUpdateByGD}
-              </Typography>
-            )}
-            {eventInfo.statusUpdateByFM && (
-              <Typography variant="h6" component="p">
-                <span className="font-bold tracking-normal">
-                  Approved by FM:
-                </span>{" "}
-                {eventInfo.statusUpdateByFM}
-              </Typography>
-            )}
-            {eventInfo.statusUpdateByAdmin && (
-              <Typography variant="h6" component="p">
-                <span className="font-bold tracking-normal">
-                  Approved by Admin
-                </span>
-              </Typography>
-            )}
+            <Typography variant="h6" component="p">
+              <span className="font-bold tracking-normal">Ngày tạo:</span>{" "}
+              {eventInfo?.createdAt}
+            </Typography>
+            <Typography variant="h6" component="p">
+              <span className="font-bold tracking-normal">Ngày cập nhật:</span>{" "}
+              {eventInfo?.updatedAt}
+            </Typography>
+            <Typography variant="h6" component="p">
+              <span className="font-bold tracking-normal">Ghi chú:</span>{" "}
+              {eventInfo?.note || "Không có ghi chú"}
+            </Typography>
           </div>
         </div>
       </Fade>

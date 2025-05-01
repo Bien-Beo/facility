@@ -110,7 +110,14 @@ const Calendar: FC = (): JSX.Element => {
             date: isoToDate(bookingData.plannedStartTime), // Format ngày
             requestBy: bookingData.userName,
             roomName: bookingData.roomName,
-            bookedEquipments: bookingData.bookedEquipments || [] // Lấy danh sách thiết bị
+            bookedEquipments: bookingData.bookedEquipments || [], // Lấy danh sách thiết bị
+            actualCheckInTime: bookingData.actualCheckInTime,
+            actualCheckOutTime: bookingData.actualCheckOutTime,
+            cancellationReason: bookingData.cancellationReason,
+            cancelledByUserName: bookingData.cancelledByUserName,
+            createdAt: isoToDate(bookingData.createdAt),
+            updatedAt: bookingData.updatedAt ? isoToDate(bookingData.updatedAt) : "N/A",
+            note: bookingData.note,
         });
         setIsOpenInfo(true); // Mở modal thông tin
     };

@@ -199,11 +199,11 @@ const AddEventModal: FC<AddEventModalProps> = ({
         const dataToSend: BookingCreationRequest = {
             roomId: roomId,
             purpose: formData.purpose.trim(),
-            plannedStartTime: startDateTime.toISOString(),
-            plannedEndTime: endDateTime.toISOString(),
+            plannedStartTime: startDateTime.format("YYYY-MM-DDTHH:mm:ss"),
+            plannedEndTime: endDateTime.format("YYYY-MM-DDTHH:mm:ss"),
             additionalEquipmentItemIds: formData.additionalEquipmentItemIds,
             note: formData.note.trim(),
-        };
+        };        
 
         mutation.mutate(dataToSend);
     };

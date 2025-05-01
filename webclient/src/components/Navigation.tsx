@@ -310,7 +310,7 @@ const Navigation: FC = (): JSX.Element => {
         {role !== "USER" && role !== "TECHNICIAN" && (
           <>
             <NavLink
-              to={`/facility-manager/approvals/`}
+              to={`/bookings/approvals/`}
             >
               {({ isActive }) => (
                 <ListItemButton
@@ -348,7 +348,7 @@ const Navigation: FC = (): JSX.Element => {
         {role !== "USER" && role !== "TECHNICIAN" && (
           <>
             <NavLink
-              to={`/facility-manager/cancellations/`}
+              to={`/bookings/overdue/`}
             >
               {({ isActive }) => (
                 <ListItemButton
@@ -375,7 +375,7 @@ const Navigation: FC = (): JSX.Element => {
                       variant: "body1",
                       component: "li",
                     }}
-                    primary="Yêu cầu hủy"
+                    primary="Yêu cầu quá hạn"
                   />
                 </ListItemButton>
               )}

@@ -378,7 +378,6 @@ interface ReportIssueProps {
 
 interface EventInfoProps {
   bookingId?: string;
-  title: string;
   purpose: string;
   status: BookingStatusType;
   start: string; // Formatted time
@@ -387,6 +386,15 @@ interface EventInfoProps {
   requestBy: string; // Username
   roomName: string | null;
   bookedEquipments: BookedEquipmentSummary[]; // Dùng kiểu tóm tắt
+
+  actualCheckInTime: string | null;
+  actualCheckOutTime: string | null;
+  approvedByUserName: string | null;
+  cancellationReason: string | null;
+  cancelledByUserName: string | null;
+  createdAt: string; // ISO String
+  updatedAt: string | null; // ISO String
+  note: string | null;
 }
 
 interface EventModalProps {
@@ -445,7 +453,7 @@ interface MaintenanceTicketTableProps {
   rowsPerPage: number;
   onPageChange: (event: unknown, newPage: number) => void;
   onRowsPerPageChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  // onUpdateStatusClick?: (ticket: MaintenanceTicketData) => void;
+  //onUpdateStatusClick?: (ticket: MaintenanceTicketData) => void;
 }
 
 interface EditFacilityModalProps {
@@ -595,7 +603,7 @@ interface ApprovalCardProps {
   onActionSuccess?: () => void; // Callback khi duyệt/từ chối thành công
 }
 
-interface CancellationCardProps {
+interface OverdueCardProps {
   booking: BookingEntry;
   onActionSuccess?: () => void;
 }

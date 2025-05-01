@@ -22,6 +22,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -236,6 +238,24 @@ public class BookingService {
         log.debug("Fetching bookings with plannedEndTime: {}", plannedEndTime);
         List<Booking> bookings = bookingRepository.findByPlannedEndTime(plannedEndTime);
         return bookings.stream().map(this::buildFullBookingResponse).toList();
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER')")
+    public Page<BookingResponse> getOverdueBookings(Pageable pageable, int page, int size) {
+        List<Booking> allOverdues = bookingRepository.findByStatus(BookingStatus.OVERDUE)
+                .stream()
+                .filter(booking -> booking.getPlannedEndTime().isBefore(LocalDateTime.now()))
+                .toList();
+
+        // Tạo phân trang thủ công
+        int start = page * size;
+        int end = Math.min(start + size, allOverdues.size());
+        List<BookingResponse> pagedList = allOverdues.subList(start, end)
+                .stream()
+                .map(bookingMapper::toBookingResponse)
+                .toList();
+
+        return new PageImpl<>(pagedList, PageRequest.of(page, size), allOverdues.size());
     }
 
     // Get tất cả bookings (phân trang)
