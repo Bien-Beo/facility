@@ -13,37 +13,34 @@ import EditIcon from "@mui/icons-material/Edit";
 
 import isoToDate from "../../utils/isoToDate";
 import isoToTime from "../../utils/isoToTime";
-import EditFacilityModal from "../modals/EditFacilityModal";
-import DeleteFacilityModal from "../modals/DeleteFacilityModal";
+import EditEquipmentModal from "../modals/EditEquipmentModal";
+import DeleteEquipmentModal from "../modals/DeleteEquipmentModal";
 
 // Định nghĩa cột 
 const columns: readonly EquipmentColumnData[] = [
-    { id: "name", label: "Tên/Tòa", minWidth: 145 },
-    { id: "description", label: "Mô tả", minWidth: 140 },
+    { id: "modelName", label: "Tên model", minWidth: 145 },
+    { id: "notes", label: "Mô tả", minWidth: 140 },
     { id: "status", label: "Trạng thái", minWidth: 100 },
-    { id: "createdAt", label: "Thời gian tạo", minWidth: 150 },
+    { id: "purchaseDate", label: "Thời gian mua", minWidth: 150 },
+    { id: "warrantyExpiryDate", label: "Thời gian bảo hành", minWidth: 150 },
     { id: "updatedAt", label: "Thời gian cập nhật", minWidth: 150 },
-    { id: "facilityManager", label: "Quản lý", minWidth: 170 },
+    { id: "defaultRoomName", label: "Phòng sở hữu", minWidth: 170 },
     { id: "actions", label: "Sửa/Xóa", minWidth: 130, align: 'center' },
 ];
 
-// --- Component AdminFacilitiesTable ---
-const ManagementEquipmentsTable: FC<AdminRoomsTableProps> = ({
-    rooms,              // Mảng dữ liệu RoomData cho trang hiện tại
-    totalRoomCount,     // Tổng số lượng item trên tất cả các trang
-    page,               // Index trang hiện tại (từ 0)
-    rowsPerPage,        // Số dòng trên mỗi trang
-    onPageChange,       // Hàm callback từ cha khi đổi trang
-    onRowsPerPageChange,// Hàm callback từ cha khi đổi số dòng/trang
-    buildings,       // Vẫn nhận buildings nếu Modal Edit cần
-    roomTypes,
-    facilityManagers
+const ManagementEquipmentsTable: FC<EquipmentsTableProps> = ({
+    equipments,             
+    totalEquipmentCount,   
+    page,             
+    rowsPerPage,        
+    onPageChange,     
+    onRowsPerPageChange,
+    defaultRoom
 }): JSX.Element => {
 
-    // Giữ lại state cho modal và snackbar
-    const [isEditFacilityModalOpen, setIsEditFacilityModalOpen] = useState<boolean>(false);
-    const [isDeleteFacilityModalOpen, setIsDeleteFacilityModalOpen] = useState<boolean>(false);
-    const [modalData, setModalData] = useState<RoomData | null>(null); 
+    const [isEditEquipmentModalOpen, setIsEditEquipmentModalOpen] = useState<boolean>(false);
+    const [isDeleteEquipmentModalOpen, setIsDeleteEquipmentModalOpen] = useState<boolean>(false);
+    const [modalData, setModalData] = useState<EquipmentItemData | null>(null); 
     const [openEditSnackbar, setOpenEditSnackbar] = useState<boolean>(false);
     const [openDeleteSnackbar, setOpenDeleteSnackbar] = useState<boolean>(false);
 
@@ -53,48 +50,46 @@ const ManagementEquipmentsTable: FC<AdminRoomsTableProps> = ({
     };
 
     // Mapping dữ liệu sang định dạng hàng (Giữ nguyên logic mapping đã sửa)
-    const rows: AdminRoomsRowData[] = useMemo(() =>
-        rooms?.map((room) => ({
-            id: room.id,
-            name: (<>{room.name}<br /><Typography variant="caption" color="text.secondary">({room.buildingName ?? 'N/A'})</Typography></>),
-            description: room.description,
-            status: room.status,
-            createdAt: room.createdAt ? (<>{isoToTime(room.createdAt)}<br />{isoToDate(room.createdAt)}</>) : 'N/A',
-            updatedAt: room.updatedAt ? (<>{isoToTime(room.updatedAt)}<br />{isoToDate(room.updatedAt)}</>) : 'N/A',
-            deletedAt: room.deletedAt ? (<>{isoToTime(room.deletedAt)}<br />{isoToDate(room.deletedAt)}</>) : 'N/A',
-            facilityManager: room.nameFacilityManager ?? 'N/A',
+    const rows: EquipmentsRowData[] = useMemo(() =>
+        equipments?.map((equipment) => ({
+            id: equipment.id,
+            modelName: (<>{equipment.modelName}<br /><Typography variant="caption" color="text.secondary">({equipment.typeName ?? 'N/A'})</Typography></>),
+            notes: equipment.notes,
+            status: equipment.status,
+            purchaseDate: equipment.purchaseDate ? (<>{isoToTime(equipment.purchaseDate)}<br />{isoToDate(equipment.purchaseDate)}</>) : 'N/A',
+            warrantyExpiryDate: equipment.warrantyExpiryDate ? (<>{isoToTime(equipment.warrantyExpiryDate)}<br />{isoToDate(equipment.warrantyExpiryDate)}</>) : 'N/A',
+            updatedAt: equipment.updatedAt ? (<>{isoToTime(equipment.updatedAt)}<br />{isoToDate(equipment.updatedAt)}</>) : 'N/A',
+            defaultRoomName: equipment.defaultRoomName ?? 'N/A',
             actions: (
                 <Box sx={{ display: 'flex', justifyContent: 'center', gap: 0.5 }}>
-                    <IconButton size="small" color="primary" onClick={() => { setModalData(room); setIsEditFacilityModalOpen(true); }} aria-label="edit">
+                    <IconButton size="small" color="primary" onClick={() => { setModalData(equipment); setIsEditEquipmentModalOpen(true); }} aria-label="edit">
                         <EditIcon fontSize="small"/>
                     </IconButton>
-                    <IconButton size="small" color="error" onClick={() => { setModalData(room); setIsDeleteFacilityModalOpen(true); }} aria-label="delete">
+                    <IconButton size="small" color="error" onClick={() => { setModalData(equipment); setIsDeleteEquipmentModalOpen(true); }} aria-label="delete">
                         <DeleteIcon fontSize="small"/>
                     </IconButton>
                 </Box>
             ),
         })) || [],
-    [rooms]);
+    [equipments]);
 
     return (
         <Paper sx={{ width: "100%", overflow: "hidden" }}> 
-             {isEditFacilityModalOpen && modalData && (
-                 <EditFacilityModal
-                     isOpen={isEditFacilityModalOpen}
-                     setIsOpen={setIsEditFacilityModalOpen}
+             {isEditEquipmentModalOpen && modalData && (
+                 <EditEquipmentModal
+                     isOpen={isEditEquipmentModalOpen}
+                     setIsOpen={setIsEditEquipmentModalOpen}
                      setOpenSnackbar={setOpenEditSnackbar}
-                     facilityData={modalData} // Truyền dữ liệu phòng cần sửa
-                    buildings={buildings || []} // Truyền danh sách buildings
-                    roomTypes={roomTypes || []}
-                    facilityManagers={facilityManagers || []}
+                     equipmentData={modalData} 
+                    defaultRoom={defaultRoom}
                  />
              )}
-             {isDeleteFacilityModalOpen && modalData && (
-                 <DeleteFacilityModal
-                     isOpen={isDeleteFacilityModalOpen}
-                     setIsOpen={setIsDeleteFacilityModalOpen}
+             {isDeleteEquipmentModalOpen && modalData && (
+                 <DeleteEquipmentModal
+                     isOpen={isDeleteEquipmentModalOpen}
+                     setIsOpen={setIsDeleteEquipmentModalOpen}
                      setOpenSnackbar={setOpenDeleteSnackbar}
-                     facilityData={modalData} // Truyền dữ liệu phòng cần xóa (ít nhất ID)
+                     equipmentData={modalData} 
                  />
              )}
              <Snackbar open={openEditSnackbar}  >
@@ -104,8 +99,7 @@ const ManagementEquipmentsTable: FC<AdminRoomsTableProps> = ({
                   <Alert severity="success" sx={{ width: "100%" }}>Xóa phòng thành công !</Alert>
              </Snackbar>
 
-             {/* Sửa: maxHeight để table không bị cố định chiều cao */}
-            <TableContainer sx={{ maxHeight: 600 }}> {/* Ví dụ maxHeight */}
+            <TableContainer sx={{ maxHeight: 600 }}> 
                 <Table stickyHeader size="small">
                      <TableHead>
                          <TableRow>
@@ -117,16 +111,14 @@ const ManagementEquipmentsTable: FC<AdminRoomsTableProps> = ({
                          </TableRow>
                      </TableHead>
                     <TableBody>
-                        {/* BỎ .slice() - Map trực tiếp 'rows' đã là dữ liệu của trang hiện tại */}
                         {rows.map((row) => {
                             return (
                                 <TableRow hover role="checkbox" tabIndex={-1} key={row.id}> {/* <<< Dùng row.id làm key */}
                                     {columns.map((column) => {
-                                        const columnId = column.id as keyof AdminRoomsRowData;
+                                        const columnId = column.id as keyof EquipmentsRowData;
                                         const value = columnId === 'actions' ? row.actions : row[columnId];
                                         return (
                                             <TableCell key={column.id} align={column.align || "left"}>
-                                                 {/* Sửa: Render value trực tiếp, fallback */}
                                                 {value ?? 'N/A'}
                                             </TableCell>
                                         );
@@ -142,7 +134,7 @@ const ManagementEquipmentsTable: FC<AdminRoomsTableProps> = ({
             <TablePagination
                 rowsPerPageOptions={[10, 25, 100]}
                 component="div"
-                count={totalRoomCount} // <<< Dùng tổng số lượng từ props
+                count={totalEquipmentCount} // <<< Dùng tổng số lượng từ props
                 rowsPerPage={rowsPerPage} // <<< Dùng giá trị từ props
                 page={page} // <<< Dùng giá trị từ props
                 onPageChange={onPageChange} // <<< Dùng handler từ props
