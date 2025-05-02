@@ -1,102 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="450.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.room.addRoomController">
+<AnchorPane prefHeight="450.0" prefWidth="600.0"
+            xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.utc2.facilityui.controller.room.addRoomController"
+            style="-fx-background-color: #f4f6f8;">
     <children>
-        <VBox layoutX="27.0" layoutY="15.0" prefHeight="420.0" prefWidth="546.0" spacing="12.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="27.0" AnchorPane.rightAnchor="27.0" AnchorPane.topAnchor="15.0">
+        <VBox spacing="12.0" AnchorPane.topAnchor="15.0" AnchorPane.leftAnchor="27.0" AnchorPane.rightAnchor="27.0" AnchorPane.bottomAnchor="15.0"
+              style="-fx-background-color: white; -fx-background-radius: 10px; -fx-padding: 20px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 4);">
             <children>
-                <Label text="Thêm Phòng Mới">
-                    <font>
-                        <Font name="System Bold" size="20.0" />
-                    </font>
-                    <VBox.margin>
-                        <Insets bottom="5.0" />
-                    </VBox.margin>
-                </Label>
+                <Label text="➕ Thêm Phòng Mới"
+                       style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1976d2;" />
 
-                <VBox spacing="3.0">
-                    <children>
-                        <Label text="Tên phòng (*)" />
-                        <TextField fx:id="nameTextField" promptText="Ví dụ: Phòng học A101"/>
-                    </children>
+                <VBox spacing="4.0">
+                    <Label text="Tên phòng (*)" style="-fx-font-weight: bold;" />
+                    <TextField fx:id="nameTextField" promptText="Ví dụ: Phòng học A101"/>
                 </VBox>
 
-                <VBox spacing="3.0">
-                    <children>
-                        <Label text="Mô tả" />
-                        <TextField fx:id="descriptionTextField" promptText="Ví dụ: Phòng học lý thuyết có máy chiếu"/>
-                    </children>
+                <VBox spacing="4.0">
+                    <Label text="Mô tả" style="-fx-font-weight: bold;" />
+                    <TextField fx:id="descriptionTextField" promptText="Ví dụ: Phòng học lý thuyết có máy chiếu"/>
                 </VBox>
 
-                <VBox spacing="3.0">
-                    <children>
-                        <Label text="Vị trí chi tiết" />
-                        <TextField fx:id="locationTextField" promptText="Ví dụ: Tầng 1, dãy nhà A"/>
-                    </children>
+                <VBox spacing="4.0">
+                    <Label text="Vị trí chi tiết" style="-fx-font-weight: bold;" />
+                    <TextField fx:id="locationTextField" promptText="Ví dụ: Tầng 1, dãy nhà A"/>
                 </VBox>
 
                 <HBox spacing="15.0">
-                    <children>
-                        <VBox spacing="3.0" HBox.hgrow="ALWAYS">
-                            <children>
-                                <Label text="Sức chứa (*)" />
-                                <TextField fx:id="capacityTextField" promptText="Số chỗ ngồi" prefWidth="150.0" />
-                            </children>
-                        </VBox>
-                        <VBox spacing="3.0" HBox.hgrow="ALWAYS">
-                            <children>
-                                <Label text="Ảnh URL/Path" />
-                                <TextField fx:id="imageURLTextField" promptText="Đường dẫn đến ảnh" prefWidth="380.0" />
-                            </children>
-                        </VBox>
-                    </children>
+                    <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                        <Label text="Sức chứa (*)" style="-fx-font-weight: bold;" />
+                        <TextField fx:id="capacityTextField" promptText="Số chỗ ngồi" />
+                    </VBox>
+                    <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                        <Label text="Ảnh URL/Path" style="-fx-font-weight: bold;" />
+                        <TextField fx:id="imageURLTextField" promptText="Đường dẫn đến ảnh" />
+                    </VBox>
                 </HBox>
 
                 <HBox spacing="15.0">
-                    <children>
-                        <VBox spacing="3.0" HBox.hgrow="ALWAYS">
-                            <children>
-                                <Label text="ID Tòa nhà (*)" />
-                                <TextField fx:id="buildingIdTextField" promptText="Nhập ID của tòa nhà" prefWidth="250.0" />
-                            </children>
-                        </VBox>
-                        <VBox spacing="3.0" HBox.hgrow="ALWAYS">
-                            <children>
-                                <Label text="ID Loại phòng (*)" />
-                                <TextField fx:id="roomTypeIdTextField" promptText="Nhập ID của loại phòng" prefWidth="250.0" />
-                            </children>
-                        </VBox>
-                    </children>
+                    <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                        <Label text="ID Tòa nhà (*)" style="-fx-font-weight: bold;" />
+                        <TextField fx:id="buildingIdTextField" promptText="Nhập ID của tòa nhà" />
+                    </VBox>
+                    <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                        <Label text="ID Loại phòng (*)" style="-fx-font-weight: bold;" />
+                        <TextField fx:id="roomTypeIdTextField" promptText="Nhập ID của loại phòng" />
+                    </VBox>
                 </HBox>
 
-                <VBox spacing="3.0">
-                    <children>
-                        <Label text="ID Người quản lý (Tùy chọn)" />
-                        <TextField fx:id="facilityManagerIdTextField" promptText="Nhập ID người quản lý (nếu có)" prefWidth="500.0" />
-                    </children>
+                <VBox spacing="4.0">
+                    <Label text="ID Người quản lý (Tùy chọn)" style="-fx-font-weight: bold;" />
+                    <TextField fx:id="facilityManagerIdTextField" promptText="Nhập ID người quản lý (nếu có)" />
                 </VBox>
 
                 <HBox alignment="CENTER_RIGHT" spacing="10.0">
-                    <children>
-                        <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#handleCancelAddRoom" text="Hủy bỏ" />
-                        <Button fx:id="addButton" mnemonicParsing="false" onAction="#handleAddRoom" style="-fx-background-color: #1976d2; -fx-text-fill: white;" text="Thêm phòng" />
-                    </children>
-                    <VBox.margin>
-                        <Insets top="10.0" />
-                    </VBox.margin>
+                    <Button fx:id="cancelButton"
+                            onAction="#handleCancelAddRoom"
+                            text="Hủy bỏ"
+                            style="-fx-background-color: #e0e0e0; -fx-text-fill: #333; -fx-font-weight: bold;" />
+
+                    <Button fx:id="addButton"
+                            onAction="#handleAddRoom"
+                            text="Thêm phòng"
+                            style="-fx-background-color: #1976d2; -fx-text-fill: white; -fx-font-weight: bold;" />
                 </HBox>
             </children>
-            <padding>
-                <Insets bottom="20.0" left="20.0" right="20.0" top="10.0" />
-            </padding>
         </VBox>
     </children>
 </AnchorPane>
