@@ -71,13 +71,6 @@ public class BookingController {
                 .build();
     }
 
-//    @GetMapping("/overdue")
-//    public ApiResponse<List<BookingResponse>> getOverdueBookings() {
-//        return ApiResponse.<List<BookingResponse>>builder()
-//                .result(bookingService.getOverdueBookings())
-//                .build();
-//    }
-
     @GetMapping("/overdue")
     public ApiResponse<Page<BookingResponse>> getOverdueBookings(
             @RequestParam(defaultValue = "0") int page,
@@ -133,7 +126,7 @@ public class BookingController {
                 .build();
     }
 
-    @PutMapping("/{bookingId}/complete") // Đổi path
+    @PutMapping("/{bookingId}/complete")
     ApiResponse<BookingResponse> completeBooking(@PathVariable String bookingId) {
         return ApiResponse.<BookingResponse>builder()
                 .result(bookingService.completeBooking(bookingId))

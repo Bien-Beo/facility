@@ -281,6 +281,7 @@ type EquipmentItemCreationRequest = {
   defaultRoomId?: string | null; // ID
   notes?: string | null;
 };
+
 type EquipmentItemUpdateRequest = {
   assetTag?: string | null;
   status?: EquipmentStatusType; // Cẩn thận khi cho update qua đây
@@ -416,9 +417,31 @@ interface AdminRoomsRowData {
   actions?: JSX.Element;
 }
 
+interface EquipmentRowData {
+  id: string;
+  modelName: string | JSX.Element;
+  typeName: string | null;
+  serialNumber: string;
+  status: string;
+  notes: string;
+  purchaseDate: JSX.Element | string;
+  warrantyExpiryDate: JSX.Element | string;
+  createdAt: JSX.Element | string;
+  updatedAt: JSX.Element | string;
+  defaultRoomName: string | null;
+  actions?: JSX.Element;
+}
+
 // Kiểu dữ liệu định nghĩa cột cho bảng Admin Room
 interface AdminRoomsColumnData {
   id: keyof AdminRoomsRowData | 'actions'; // Key của row data hoặc 'actions'
+  label: string;
+  minWidth?: number;
+  align?: 'left' | 'right' | 'center'; // Thêm align nếu cần
+}
+
+interface EquipmentColumnData {
+  id: keyof EquipmentRowData | 'actions'; 
   label: string;
   minWidth?: number;
   align?: 'left' | 'right' | 'center'; // Thêm align nếu cần
@@ -444,6 +467,13 @@ interface AddFacilityModalProps {
   buildings: BuildingData[]; 
   roomTypes: RoomTypeData[];
   facilityManagers: UserData[];
+}
+
+interface AddEquipmentModalProps {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+  setOpenSnackbar: (isOpen: boolean) => void;
+  defaultRoom: string | null; 
 }
 
 interface MaintenanceTicketTableProps {
