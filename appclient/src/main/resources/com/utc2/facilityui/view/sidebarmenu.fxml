@@ -14,14 +14,15 @@
 
 <VBox alignment="TOP_CENTER" prefHeight="616.0" prefWidth="235.0" style="-fx-background-color: #00275e;" stylesheets="@../styles/menuAdmin.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.SidebarMenuController">
     <children>
-        <ImageView fx:id="imgAdminAvatar" fitHeight="73.0" fitWidth="80.0" pickOnBounds="true" preserveRatio="true">
+        <ImageView fitHeight="73.0" fitWidth="80.0" pickOnBounds="true" preserveRatio="true">
             <image>
-                <Image url="@../images/man.png" /> </image>
+                <Image url="@../images/man.png" />
+            </image>
             <VBox.margin>
                 <Insets top="15.0" />
             </VBox.margin>
         </ImageView>
-        <Text fx:id="txtAdminName" fill="#faf9f6" strokeType="OUTSIDE" strokeWidth="0.0" text="Loading Name..." textAlignment="CENTER" wrappingWidth="233.759765625">
+        <Text fill="#faf9f6" strokeType="OUTSIDE" strokeWidth="0.0" text="Admin">
             <font>
                 <Font size="18.0" />
             </font>
@@ -29,7 +30,7 @@
                 <Insets top="10.0" />
             </VBox.margin>
         </Text>
-        <Text fx:id="txtAdminId" fill="#faf9f6" strokeType="OUTSIDE" strokeWidth="0.0" text="ID: Loading..." textAlignment="CENTER" wrappingWidth="235.2998046875">
+        <Text fill="#faf9f6" strokeType="OUTSIDE" strokeWidth="0.0" text="ID: 99999">
             <font>
                 <Font size="15.0" />
             </font>
@@ -37,7 +38,6 @@
                 <Insets bottom="15.0" top="3.0" />
             </VBox.margin>
         </Text>
-
         <Button fx:id="manageFacilitiesButton" graphicTextGap="10.0" mnemonicParsing="false" onAction="#handleManageFacilities" prefHeight="64.0" prefWidth="306.0" style="-fx-background-color: #00275e;" styleClass="sidebar-button" text="Manage Facilities " textFill="WHITE">
             <graphic>
                 <HBox alignment="CENTER">
@@ -80,20 +80,23 @@
         </Button>
         <Button fx:id="approvalRequestsButton" graphicTextGap="10.0" mnemonicParsing="false" onAction="#handleApprovalRequests" prefHeight="64.0" prefWidth="344.0" style="-fx-background-color: #00275e;" styleClass="sidebar-button" text="Approval Requests" textFill="WHITE">
             <graphic>
-                <HBox alignment="CENTER" spacing="5.0"> <ImageView fitHeight="37.0" fitWidth="33.0" pickOnBounds="true" preserveRatio="true">
-                    <image>
-                        <Image url="@../images/stamp.png" />
-                    </image>
-                </ImageView>
+                <HBox alignment="CENTER">
+                    <ImageView fitHeight="37.0" fitWidth="33.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@../images/stamp.png" />
+                        </image>
+                    </ImageView>
                     <StackPane>
-                        <Label fx:id="approvalCountLabel" styleClass="notification-badge" text="0" visible="false" /> </StackPane>
+                        <Label fx:id="approvalCountLabel" styleClass="notification-badge" text="4" />
+                    </StackPane>
                 </HBox>
             </graphic>
             <font>
                 <Font name="System Bold" size="14.0" />
             </font>
             <padding>
-                <Insets right="80.0" /> </padding>
+                <Insets right="80.0" />
+            </padding>
             <tooltip>
                 <Tooltip text="Approval Requests" />
             </tooltip>
@@ -116,26 +119,6 @@
             </padding>
             <tooltip>
                 <Tooltip text="Cancellation Requests" />
-            </tooltip>
-        </Button>
-        <Button fx:id="reportButton" graphicTextGap="10.0" mnemonicParsing="false" onAction="#handleReport" prefHeight="64.0" prefWidth="322.0" style="-fx-background-color: #00275e;" styleClass="sidebar-button" text="Report" textFill="WHITE">
-            <graphic>
-                <HBox alignment="CENTER">
-                    <ImageView fitHeight="37.0" fitWidth="33.0" pickOnBounds="true" preserveRatio="true">
-                        <image>
-                            <Image url="@../images/file.png" />
-                        </image>
-                    </ImageView>
-                </HBox>
-            </graphic>
-            <font>
-                <Font name="System Bold" size="14.0" />
-            </font>
-            <padding>
-                <Insets right="160.0" />
-            </padding>
-            <tooltip>
-                <Tooltip text="Reports" />
             </tooltip>
         </Button>
         <Button fx:id="resetPasswordButton" graphicTextGap="10.0" mnemonicParsing="false" onAction="#handleResetPassword" prefHeight="64.0" prefWidth="350.0" style="-fx-background-color: #00275e;" styleClass="sidebar-button" text="Reset Password" textFill="WHITE">

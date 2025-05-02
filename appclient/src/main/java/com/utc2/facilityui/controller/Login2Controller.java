@@ -10,6 +10,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import okhttp3.*;
 import javafx.util.Duration;
@@ -22,7 +24,9 @@ import java.util.Random;
 public class Login2Controller {
 
     @FXML private TextField username;
-    @FXML private PasswordField password;
+    @FXML private PasswordField passwordField;
+    @FXML private TextField visiblePassword;
+    @FXML private ImageView togglePasswordIcon;
     @FXML private Button loginButton;
     @FXML private Label lbMessage;
     @FXML private TextField captchaInput;
@@ -31,6 +35,7 @@ public class Login2Controller {
     private static final String LOGIN_URL = "http://localhost:8080/facility/auth/token";
     private final OkHttpClient client = new OkHttpClient();
     private String generatedCaptcha;
+    private boolean passwordVisible = false;
 
     // --- THÊM CÁC HẰNG SỐ FXML ---
     private static final String ADMIN_DASHBOARD_FXML = "/com/utc2/facilityui/view/mainscreen.fxml"; // Đường dẫn admin view
@@ -46,7 +51,7 @@ public class Login2Controller {
     @FXML
     private void handleLogin() {
         String username = this.username.getText();
-        String password = this.password.getText();
+        String password = this.passwordField.getText();
         String captcha = this.captchaInput.getText();
 
         if (username.isEmpty() || password.isEmpty() || captcha.isEmpty()) {
@@ -218,6 +223,31 @@ public class Login2Controller {
         }
     }
     // ---------------------------------
+
+    @FXML
+    private void togglePasswordVisibility() {
+        passwordVisible = !passwordVisible;
+
+        if (passwordVisible) {
+            visiblePassword.setText(passwordField.getText());
+            visiblePassword.setVisible(true);
+            visiblePassword.setManaged(true);
+
+            passwordField.setVisible(false);
+            passwordField.setManaged(false);
+
+            togglePasswordIcon.setImage(new Image(getClass().getResourceAsStream("/images/hide.png")));
+        } else {
+            passwordField.setText(visiblePassword.getText());
+            passwordField.setVisible(true);
+            passwordField.setManaged(true);
+
+            visiblePassword.setVisible(false);
+            visiblePassword.setManaged(false);
+
+            togglePasswordIcon.setImage(new Image(getClass().getResourceAsStream("/images/visible.png")));
+        }
+    }
 
     private void generateCaptcha() {
         generatedCaptcha = generateRandomCode(5); // Độ dài mã captcha

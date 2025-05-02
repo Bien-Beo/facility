@@ -1,0 +1,68 @@
+.root {
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+/* Login Form */
+.login-form {
+    -fx-background-color: linear-gradient(to bottom right, #ffffffcc, #ddeeffcc);
+    -fx-background-radius: 20;
+    -fx-padding: 30;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 4);
+}
+
+/* Title */
+.title-label {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0044cc;
+}
+
+/* Text Inputs */
+.input-field {
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: #0044cc;
+    -fx-background-color: #ffffff;
+    -fx-padding: 5 10 5 10;
+}
+
+/* Login Button */
+.login-button {
+    -fx-background-color: #0044cc;
+    -fx-background-radius: 10;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 5, 0.3, 0, 2);
+}
+
+/* Login Button Hover */
+.login-button:hover {
+    -fx-background-color: #0066ff;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 8, 0.5, 0, 4);
+}
+
+/* Refresh Label */
+.refresh-label {
+    -fx-font-size: 28px;
+    -fx-text-fill: #0044cc;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+}
+
+.refresh-label:hover {
+    -fx-text-fill: #0066ff;
+}
+
+/* Captcha Code */
+.captcha-code-label {
+    -fx-font-size: 20px;
+    -fx-text-fill: #333333;
+}
+
+/* Error Message */
+.error-message {
+    -fx-text-fill: red;
+    -fx-font-size: 14px;
+}
