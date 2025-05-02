@@ -14,10 +14,14 @@ import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
 import LogoutIcon from "@mui/icons-material/Logout";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
+import BookmarkAddedIcon from '@mui/icons-material/BookmarkAdded';
 import ListItemText from "@mui/material/ListItemText";
+import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import ApprovalIcon from "@mui/icons-material/Approval";
 import EventBusyIcon from "@mui/icons-material/EventBusy";
 import PasswordIcon from "@mui/icons-material/Password";
+import TableRestaurantIcon from '@mui/icons-material/TableRestaurant';
+import HomeWorkIcon from '@mui/icons-material/HomeWork';
 import { useAuth } from "../hooks/useAuth";
 
 const Navigation: FC = (): JSX.Element => {
@@ -103,41 +107,6 @@ const Navigation: FC = (): JSX.Element => {
           </>
         )}
 
-        {role !== "ADMIN" && role !== "TECHNICIAN" && (
-          <>
-            <NavLink to="/dashboard/equipment">
-              {({ isActive }) => (
-                <ListItemButton
-                  className="flex gap-3"
-                  sx={{
-                    paddingLeft: "1.4em",
-                    paddingBlock: "1.4em",
-                    borderLeft: isActive ? "4px solid white" : "",
-                    color: "white",
-                    backgroundColor: isActive
-                      ? " rgb(255, 255, 255, 0.02)"
-                      : "",
-                  }}
-                >
-                  <ListItemIcon sx={{ minWidth: "0px" }}>
-                    <WorkspacePremiumIcon
-                      sx={{ width: "26px", height: "26px", color: "white" }}
-                    />
-                  </ListItemIcon>
-                  <ListItemText
-                    primaryTypographyProps={{
-                      variant: "body1",
-                      component: "li",
-                    }}
-                    primary="Thiết bị"
-                  />
-                </ListItemButton>
-              )}
-            </NavLink>
-            <Divider color="#0c0051" />
-          </>
-        )}
-
         {/* Admin management facilities */}
         {role === "ADMIN" && (
           <>
@@ -156,7 +125,7 @@ const Navigation: FC = (): JSX.Element => {
                   }}
                 >
                   <ListItemIcon sx={{ minWidth: "0px" }}>
-                    <WorkspacePremiumIcon
+                    <HomeWorkIcon
                       sx={{ width: "26px", height: "26px", color: "white" }}
                     />
                   </ListItemIcon>
@@ -186,7 +155,7 @@ const Navigation: FC = (): JSX.Element => {
                   }}
                 >
                   <ListItemIcon sx={{ minWidth: "0px" }}>
-                    <BookmarksIcon
+                    <ConfirmationNumberIcon
                       sx={{ width: "26px", height: "26px", color: "white" }}
                     />
                   </ListItemIcon>
@@ -196,6 +165,41 @@ const Navigation: FC = (): JSX.Element => {
                       component: "li",
                     }}
                     primary="Quản lý đặt phòng"
+                  />
+                </ListItemButton>
+              )}
+            </NavLink>
+            <Divider color="#0c0051" />
+          </>
+        )}
+
+        {role !== "USER" && role !== "TECHNICIAN" && (
+          <>
+            <NavLink to="/management/equipments">
+              {({ isActive }) => (
+                <ListItemButton
+                  className="flex gap-3"
+                  sx={{
+                    paddingLeft: "1.4em",
+                    paddingBlock: "1.4em",
+                    borderLeft: isActive ? "4px solid white" : "",
+                    color: "white",
+                    backgroundColor: isActive
+                      ? " rgb(255, 255, 255, 0.02)"
+                      : "",
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: "0px" }}>
+                    <TableRestaurantIcon
+                      sx={{ width: "26px", height: "26px", color: "white" }}
+                    />
+                  </ListItemIcon>
+                  <ListItemText
+                    primaryTypographyProps={{
+                      variant: "body1",
+                      component: "li",
+                    }}
+                    primary="Quản lý thiết bị"
                   />
                 </ListItemButton>
               )}
