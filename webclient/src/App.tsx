@@ -14,9 +14,9 @@ import { RequireAuth } from "./components/RequireAuth";
 import RouteError from "./components/RouteError";
 import HomePage from "./pages/HomePage";
 import AdminBookingsPage from "./pages/AdminBookingsPage";
-import AdminFacilitiesPage from "./pages/AdminFacilitiesPage";
+import AdminFacilitiesPage from "./pages/ManagementRoomsPage";
 import TechnicianMaintenancePage from "./pages/TechnicianMaintenancePage";
-import DashboardPage from "./pages/DashboardPage";
+import ManagementEquipmentsPage from "./pages/ManagementEquipmentsPage";
 import ApprovalsPage from "./pages/ApprovalsPage";
 import OverduePage from "./pages/OverduePage";
 import LoginPage from "./pages/LoginPage";
@@ -79,10 +79,10 @@ const router = createBrowserRouter(
 
         {/* Dashboard Equipment */}
         <Route
-          path="dashboard/equipment"
+          path="management/equipments"
           element={
             <RequireAuth allowedRoles={["FACILITY_MANAGER", "ADMIN"]}>
-              <DashboardPage type="equipment" />
+              <ManagementEquipmentsPage />
             </RequireAuth>
           }
           errorElement={<RouteError />}
