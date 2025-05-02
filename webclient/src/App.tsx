@@ -18,7 +18,7 @@ import AdminFacilitiesPage from "./pages/AdminFacilitiesPage";
 import TechnicianMaintenancePage from "./pages/TechnicianMaintenancePage";
 import DashboardPage from "./pages/DashboardPage";
 import ApprovalsPage from "./pages/ApprovalsPage";
-import CancellationsPage from "./pages/CancellationPage";
+import OverduePage from "./pages/OverduePage";
 import LoginPage from "./pages/LoginPage";
 import MyBookingsPage from "./pages/MyBookingsPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
@@ -127,7 +127,7 @@ const router = createBrowserRouter(
           />
         </Route>
         
-        <Route path="facility-manager">
+        <Route path="bookings">
           <Route path="approvals"
               element={
                 <RequireAuth allowedRoles={["FACILITY_MANAGER", "ADMIN"]}>
@@ -136,9 +136,9 @@ const router = createBrowserRouter(
               }
               errorElement={<RouteError />} />
 
-          <Route path="cancellations" element={
+          <Route path="overdue" element={
                 <RequireAuth allowedRoles={["FACILITY_MANAGER", "ADMIN"]}>
-                  <CancellationsPage />
+                  <OverduePage />
                 </RequireAuth>
               }
               errorElement={<RouteError />} />

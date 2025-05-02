@@ -30,6 +30,7 @@ public interface BookingMapper {
     @Mapping(target = "approvedByUser", ignore = true)
     @Mapping(target = "cancellationReason", ignore = true)
     @Mapping(target = "cancelledByUser", ignore = true)
+    @Mapping(target = "note", source = "note") // Nếu có note trong request
     Booking toBooking(BookingCreationRequest request);
 
 

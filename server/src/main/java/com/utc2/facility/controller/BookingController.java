@@ -12,10 +12,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/booking")
@@ -65,6 +68,24 @@ public class BookingController {
     ApiResponse<Page<BookingResponse>> getBookingByRoomId(@PathVariable String roomId, Pageable pageable) {
         return ApiResponse.<Page<BookingResponse>>builder()
                 .result(bookingService.getBookingsByRoomId(roomId, pageable))
+                .build();
+    }
+
+//    @GetMapping("/overdue")
+//    public ApiResponse<List<BookingResponse>> getOverdueBookings() {
+//        return ApiResponse.<List<BookingResponse>>builder()
+//                .result(bookingService.getOverdueBookings())
+//                .build();
+//    }
+
+    @GetMapping("/overdue")
+    public ApiResponse<Page<BookingResponse>> getOverdueBookings(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Pageable pageable
+    ) {
+        return ApiResponse.<Page<BookingResponse>>builder()
+                .result(bookingService.getOverdueBookings(pageable, page, size))
                 .build();
     }
 

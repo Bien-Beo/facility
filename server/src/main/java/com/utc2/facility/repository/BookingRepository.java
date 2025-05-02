@@ -39,4 +39,5 @@ public interface BookingRepository extends JpaRepository<Booking, String> {
                                                  @Param("endTime") LocalDateTime endTime);
 
     Page<Booking> findAll(Specification<Booking> and, Pageable pageable);
+    List<Booking> findByStatus(BookingStatus status);
 }

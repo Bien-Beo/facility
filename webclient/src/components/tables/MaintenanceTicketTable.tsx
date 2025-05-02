@@ -1,14 +1,17 @@
 import React, { JSX, FC, useState, useMemo } from "react";
 import {
   Paper, Table, TableBody, TableCell, TableContainer, TableHead,
-  TablePagination, TableRow, Chip, Tooltip, IconButton, Box, Typography
+  TablePagination, TableRow, Chip, Tooltip, IconButton, Box, Typography, Button
 } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit'; 
 import VisibilityIcon from '@mui/icons-material/Visibility'; 
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 import isoToDate from "../../utils/isoToDate";
 import isoToTime from "../../utils/isoToTime";
 import UpdateMaintenanceModal from '../modals/UpdateMaintenanceModal';
+import ViewTicketDetailsModal from '../modals/ViewTicketDetailsModal';
 
 // --- Helper: Trạng thái bảo trì thành Chip ---
 const getMaintenanceStatusChip = (status: MaintenanceStatusType | string): JSX.Element => {
@@ -56,6 +59,7 @@ const MaintenanceTicketTable: FC<MaintenanceTicketTableProps> = ({
 }): JSX.Element => {
 
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<MaintenanceTicketData | null>(null);
 
   const rows: MaintenanceTicketRowData[] = useMemo(() => (
@@ -99,7 +103,8 @@ const MaintenanceTicketTable: FC<MaintenanceTicketTableProps> = ({
               color="info"
               onClick={() => {
                 setSelectedTicket(ticket);
-              }}
+                setIsViewModalOpen(true);
+              }}              
               aria-label={`view-details-ticket-${ticket.id}`}
             >
               <VisibilityIcon fontSize="small" />
@@ -110,6 +115,37 @@ const MaintenanceTicketTable: FC<MaintenanceTicketTableProps> = ({
     })) || []
   ), [tickets]);
 
+  const handleExportExcel = () => {
+    const exportData = tickets.map((ticket) => ({
+      "Phòng": ticket.roomName || 'N/A',
+      "Thiết bị": ticket.modelName || 'N/A',
+      "Mô tả sự cố": ticket.description || 'N/A',
+      "Trạng thái": statusLabelMap[ticket.status as MaintenanceStatusType] || ticket.status,
+      "Người báo cáo": ticket.reportByUser || 'N/A',
+      "Ngày báo cáo": isoToDate(ticket.reportDate),
+      "Giờ báo cáo": isoToTime(ticket.reportDate),
+      "KTV được giao": ticket.technicianName || 'Chưa giao',
+    }));
+  
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Maintenance Tickets");
+  
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(data, `danh-sach-bao-tri_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  };
+  
+  // Bản đồ trạng thái thuần text để đưa vào Excel
+  const statusLabelMap: Record<string, string> = {
+    REPORTED: "Mới báo cáo",
+    ASSIGNED: "Đã giao KTV",
+    IN_PROGRESS: "Đang xử lý",
+    COMPLETED: "Đã hoàn thành",
+    CANNOT_REPAIR: "Không sửa được",
+    CANCELLED: "Đã hủy",
+  };
+
   return (
     <Paper sx={{ width: "100%", overflow: "hidden" }}>
       {isUpdateModalOpen && selectedTicket && (
@@ -119,6 +155,20 @@ const MaintenanceTicketTable: FC<MaintenanceTicketTableProps> = ({
           ticketData={selectedTicket}
         />
       )}
+      
+      {isViewModalOpen && selectedTicket && (
+        <ViewTicketDetailsModal
+          open={isViewModalOpen}
+          onClose={() => setIsViewModalOpen(false)}
+          ticketData={selectedTicket}
+        />
+      )}
+
+      <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
+        <Button variant="contained" color="success" onClick={handleExportExcel}>
+          Xuất Excel
+        </Button>
+      </Box>
 
       <TableContainer sx={{ maxHeight: 650 }}>
         <Table stickyHeader size="small">
@@ -152,7 +202,6 @@ const MaintenanceTicketTable: FC<MaintenanceTicketTableProps> = ({
           </TableBody>
         </Table>
       </TableContainer>
-
       <TablePagination
         rowsPerPageOptions={[10, 25, 50]}
         component="div"
