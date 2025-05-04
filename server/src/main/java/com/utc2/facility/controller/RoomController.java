@@ -38,9 +38,14 @@ public class RoomController {
     }
 
     @GetMapping
-    ApiResponse<Page<RoomResponse>> getRooms(Pageable pageable) {
+    ApiResponse<Page<RoomResponse>> getRooms(
+            @RequestParam(required = false) String buildingId,
+            @RequestParam(required = false) String roomTypeId,
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) String userId,
+            Pageable pageable) {
         return ApiResponse.<Page<RoomResponse>>builder()
-                .result(roomService.getRooms(pageable))
+                .result(roomService.getRooms(buildingId, roomTypeId, year, userId, pageable))
                 .build();
     }
 

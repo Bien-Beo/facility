@@ -11,6 +11,8 @@ import com.utc2.facility.exception.ErrorCode;
 import com.utc2.facility.mapper.EquipmentMapper;
 import com.utc2.facility.mapper.RoomMapper;
 import com.utc2.facility.repository.*;
+import com.utc2.facility.specification.BookingSpecification;
+import com.utc2.facility.specification.RoomSpecification;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -80,9 +82,13 @@ public class RoomService {
     }
 
     @PreAuthorize("isAuthenticated()")
-    public Page<RoomResponse> getRooms(Pageable pageable) {
-        Page<Room> roomPage = roomRepository.findAll(pageable);
-        return roomPage.map(this::buildFullRoomResponse); 
+    public Page<RoomResponse> getRooms(String buildingId, String roomTypeId, Integer year, String userId, Pageable pageable) {
+        Page<Room> roomPage = roomRepository.findAll(
+                RoomSpecification.filterByBuildingId(buildingId)
+                        .and(RoomSpecification.filterByFacilityManagerId(userId))
+                        .and(RoomSpecification.filterByRoomTypeId(roomTypeId))
+                        .and(RoomSpecification.filterByYear(year)), pageable);
+        return roomPage.map(this::buildFullRoomResponse);
     }
 
     @Transactional
@@ -104,22 +110,16 @@ public class RoomService {
     public RoomResponse updateRoom(String id, RoomUpdateRequest request) {
         Room existingRoom = findRoomByIdOrThrow(id);
 
-//        if (StringUtils.hasText(request.getName())
-//                && !request.getName().equals(existingRoom.getName())
-//                && roomRepository.existsByNameAndIdNot(request.getName(), id)) {
-//            throw new AppException(ErrorCode.ROOM_EXISTED);
-//        }
-
         roomMapper.updateRoom(existingRoom, request);
 
-        if (StringUtils.hasText(request.getBuildingName())) {
-            Building building = buildingRepository.findByName(request.getBuildingName())
+        if (StringUtils.hasText(request.getBuildingId())) {
+            Building building = buildingRepository.findById(request.getBuildingId())
                     .orElseThrow(() -> new AppException(ErrorCode.BUILDING_NOT_FOUND));
             existingRoom.setBuilding(building);
         }
 
-        if (StringUtils.hasText(request.getRoomTypeName())) {
-            RoomType roomType = roomTypeRepository.findByName(request.getRoomTypeName())
+        if (StringUtils.hasText(request.getRoomTypeId())) {
+            RoomType roomType = roomTypeRepository.findById(request.getRoomTypeId())
                     .orElseThrow(() -> new AppException(ErrorCode.ROOM_TYPE_NOT_FOUND));
             existingRoom.setRoomType(roomType);
         }
@@ -128,13 +128,11 @@ public class RoomService {
             if (StringUtils.hasText(request.getFacilityManagerId())) {
                 User facilityManager = userRepository.findById(request.getFacilityManagerId())
                         .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-                // TODO: Optional: Check role của user này?
                 existingRoom.setFacilityManager(facilityManager);
             }
         }
 
         if (request.getStatus() != null) {
-            // TODO: Thêm validation nếu cần (ví dụ: không cho chuyển từ UNDER_MAINTENANCE sang AVAILABLE qua đây?)
             existingRoom.setStatus(request.getStatus());
         }
 

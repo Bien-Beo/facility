@@ -258,8 +258,6 @@ import "dayjs/locale/en-gb";
 import ErrorComponent from "../Error";
 
 // --- Component EditFacilityModal ---
-
-
 const EditFacilityModal: FC<EditFacilityModalProps> = ({
     isOpen,
     setIsOpen,
