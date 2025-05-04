@@ -8,7 +8,6 @@ import React, {
   useCallback,
 } from "react";
 import DownloadIcon from "@mui/icons-material/Download";
-// import InsertInvitationIcon from "@mui/icons-material/InsertInvitation"; // Không dùng nút Add ở đây
 import {
   Alert,
   Box,
@@ -42,12 +41,12 @@ import { hasText } from "../utils/stringUtils";
 
 const AdminBookings: FC = (): JSX.Element => {
   // --- State cho Filters ---
-  const [selectedRoomId, setSelectedRoomId] = useState<string>(""); // Lưu Room ID
-  const [selectedMonth, setSelectedMonth] = useState<string>(""); // Tên tháng
+  const [selectedRoomId, setSelectedRoomId] = useState<string>(""); 
+  const [selectedMonth, setSelectedMonth] = useState<string>(""); 
   const [selectedYear, setSelectedYear] = useState<string>(
     String(new Date().getFullYear())
-  ); // Năm hiện tại
-  const [selectedUserId, setSelectedUserId] = useState<string>(""); // Lưu User ID (UUID)
+  ); 
+  const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
 
   // --- State cho UI ---
@@ -237,6 +236,14 @@ const handleExportPdfClick = () => {
     setIsPrint(true);
 };
 
+// Hàm xử lý khi nhấn nút Export Excel 
+const handleExportExcelClick = () => {
+    if (bookingsForCurrentPage.length === 0) {
+        alert("Không có dữ liệu đặt phòng để xuất báo cáo.");
+        return;
+    }
+  }
+
 // useEffect sẽ chạy sau khi component render lại với isPrint = true
 useEffect(() => {
     // Chỉ thực hiện khi isPrint là true VÀ ref đã được gắn
@@ -335,9 +342,14 @@ useEffect(() => {
         <Typography variant="h4" component="h1">
           Quản lý Đặt phòng
         </Typography>
+        <Box sx={{ display: "flex", gap: 1 }}>
         <Button variant="contained" color="secondary" startIcon={<DownloadIcon />} onClick={handleExportPdfClick}> 
             Xuất Báo cáo PDF
         </Button>
+        <Button variant="contained" color="secondary" startIcon={<DownloadIcon />} onClick={handleExportExcelClick}> 
+            Xuất Excel
+        </Button>
+        </Box>
       </Box>
       {/* Filter Controls */}
       <Paper sx={{ p: 2, mb: 2 }}>

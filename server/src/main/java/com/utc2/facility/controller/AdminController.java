@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -23,10 +24,16 @@ public class AdminController {
     RoomService roomService;
 
     @GetMapping("/rooms")
-    ApiResponse<Page<RoomResponse>> getRooms(Pageable pageable) {
-        return ApiResponse.<Page<RoomResponse>>builder()
-                .result(roomService.getRooms(pageable))
-                .build();
+    ApiResponse<Page<RoomResponse>> getRooms(
+            @RequestParam(required = false) String buildingId,
+            @RequestParam(required = false) String roomTypeId,
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) String userId,
+            Pageable pageable) {
+        {
+            return ApiResponse.<Page<RoomResponse>>builder()
+                    .result(roomService.getRooms(buildingId, roomTypeId, year, userId, pageable))
+                    .build();
+        }
     }
-
 }

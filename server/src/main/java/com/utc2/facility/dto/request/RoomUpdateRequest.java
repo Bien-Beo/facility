@@ -25,9 +25,9 @@ public class RoomUpdateRequest {
     @Size(max = 255, message = "Vị trí không được vượt quá 255 ký tự")
     String location;
 
-    String buildingName;
+    String buildingId;
 
-    String roomTypeName;
+    String roomTypeId;
 
     String facilityManagerId;
 
