@@ -18,16 +18,17 @@ import AddEquipmentModal from "./modals/AddEquipmentModal";
 import ManagementEquipmentsTable from "./tables/ManagementEquipmentsTable";
 
 const ManagementEquipments: FC = (): JSX.Element => {
-	const [facilitiesData, setFacilitiesData] =
-		useState<AdminRoomsTableProps>({
-			rooms: [],
-			totalRoomCount: 0,
+	const [equipmentsData, setEquipmentsData] =
+		useState<EquipmentsTableProps>({
+			equipments: [],
+			totalEquipmentCount: 0,
 			page: 0,
 			rowsPerPage: 0,
 			onPageChange: () => {},
 			onRowsPerPageChange: () => {},
+            defaultRoom: null,
 		});
-	const [isAddFacilityModalOpen, setIsAddFacilityModalOpen] =
+	const [isAddEquipmentModalOpen, setIsAddEquipmentModalOpen] =
 		useState<boolean>(false);
 	const [isPrint, setIsPrint] = useState<boolean>(false);
 	const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
@@ -35,12 +36,12 @@ const ManagementEquipments: FC = (): JSX.Element => {
 	const targetRef = useRef<HTMLDivElement>(null);
 
 	const { data, isPending, isError, error } = useQuery({
-		queryKey: ["adminfacilities"],
+		queryKey: ["managementequipments"],
 		queryFn: async () => {
             const token = localStorage.getItem("token");
             if (!token) throw new Error("No token found");
 			const response = await axios.get(
-				`${import.meta.env.VITE_APP_SERVER_URL}/admin/rooms`,
+				`${import.meta.env.VITE_APP_SERVER_URL}/equipments`,
 				{ headers: { Authorization: `Bearer ${token}` } }
 			);
 			return response.data;
@@ -55,10 +56,19 @@ const ManagementEquipments: FC = (): JSX.Element => {
 	};
 
 	useEffect(() => {
-		if (!isPending) {
-			setFacilitiesData(data);
-		}
-	}, [data, isPending]);
+        if (!isPending && data?.result?.content) {
+            setEquipmentsData({
+                equipments: data.result.content,
+                totalEquipmentCount: data.result.page.totalElements,
+                page: data.result.page.number,
+                rowsPerPage: data.result.page.size,
+                onPageChange: () => {},
+                onRowsPerPageChange: () => {},
+                defaultRoom: null,
+            });
+        }
+    }, [data, isPending]);
+    
 
 	useEffect(() => {
 		if (isPrint) {
@@ -100,12 +110,12 @@ const ManagementEquipments: FC = (): JSX.Element => {
 
 	return (
 		<div className="w-full flex flex-col px-6 pt-8 gap-6">
-			{isAddFacilityModalOpen && (
+			{isAddEquipmentModalOpen && (
 				<AddEquipmentModal
-					isOpen={isAddFacilityModalOpen}
-					setIsOpen={setIsAddFacilityModalOpen}
+					isOpen={isAddEquipmentModalOpen}
+					setIsOpen={setIsAddEquipmentModalOpen}
 					setOpenSnackbar={setOpenSnackbar}
-					//buildings={facilitiesData.buildings!}
+                    defaultRoom={equipmentsData.defaultRoom}
 				/>
 			)}
 
@@ -124,7 +134,7 @@ const ManagementEquipments: FC = (): JSX.Element => {
 					sx={{ paddingX: "2em", height: "45px" }}
 					size="large"
 					onClick={() => {
-						setIsAddFacilityModalOpen(true);
+						setIsAddEquipmentModalOpen(true);
 					}}
 				>
 					Thêm thiết bị
@@ -150,14 +160,18 @@ const ManagementEquipments: FC = (): JSX.Element => {
 			</div>
 			{!isPending && (
 				<ManagementEquipmentsTable
-					rooms={facilitiesData.rooms}
-					buildings={facilitiesData.buildings}
+					equipments={equipmentsData.equipments}
+					totalEquipmentCount={equipmentsData.totalEquipmentCount}
+					page={equipmentsData.page}
+					rowsPerPage={equipmentsData.rowsPerPage}
+					onPageChange={equipmentsData.onPageChange}
+					onRowsPerPageChange={equipmentsData.onRowsPerPageChange}
 				/>
 			)}
 			{isPrint && (
 				<div className="mt-[100dvh]">
 					<EquipmentsReport
-						facilities={facilitiesData.rooms}
+						equipments={equipmentsData.equipments}
 						forwardedRef={targetRef}
 					/>
 				</div>

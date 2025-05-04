@@ -417,7 +417,7 @@ interface AdminRoomsRowData {
   actions?: JSX.Element;
 }
 
-interface EquipmentRowData {
+interface EquipmentsRowData {
   id: string;
   modelName: string | JSX.Element;
   typeName: string | null;
@@ -460,6 +460,16 @@ interface AdminRoomsTableProps {
   facilityManagers: UserData[];
 }
 
+interface EquipmentsTableProps {
+  equipments: EquipmentItemData[]; 
+  totalEquipmentCount: number; 
+  page: number;
+  rowsPerPage: number; 
+  onPageChange: (event: unknown, newPage: number) => void;
+  onRowsPerPageChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  defaultRoom: RoomData[];
+}
+
 interface AddFacilityModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
@@ -497,11 +507,28 @@ interface EditFacilityModalProps {
   onSuccessCallback?: () => void;
 }
 
+interface EditEquipmentModalProps {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+  setOpenSnackbar: (isOpen: boolean) => void;
+  equipmentData: EquipmentDataWithIds; 
+  defaultRoom?: RoomData[] | null;  
+  onSuccessCallback?: () => void;
+}
+
 interface DeleteFacilityModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void; // Hoặc onClose(): void;
   setOpenSnackbar: (isOpen: boolean) => void; // Hoặc onSuccess(): void;
   facilityData: Pick<RoomData, 'id' | 'name'> | null; // Dùng Pick và cho phép null
+  onSuccessCallback?: () => void; // Optional callback khi xóa thành công
+}
+
+interface DeleteEquipmentModalProps {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void; // Hoặc onClose(): void;
+  setOpenSnackbar: (isOpen: boolean) => void; // Hoặc onSuccess(): void;
+  equipmentData: Pick<EquipmentItemData, 'id' | 'modelName'> | null; // Dùng Pick và cho phép null
   onSuccessCallback?: () => void; // Optional callback khi xóa thành công
 }
 
