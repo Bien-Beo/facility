@@ -57,7 +57,8 @@ public enum ErrorCode {
     ROOM_TYPE_EXISTED(1044, "Room type existed !", HttpStatus.BAD_REQUEST),
     ROOM_TYPE_IN_USE(1045, "Room type in use !", HttpStatus.METHOD_NOT_ALLOWED),
     INVALID_OLD_PASSWORD(1046, "Invalid old password", HttpStatus.BAD_REQUEST),
-    INVALID_SORT_FORMAT(1047, "Invalid sort format", HttpStatus.BAD_REQUEST),;
+    INVALID_SORT_FORMAT(1047, "Invalid sort format", HttpStatus.BAD_REQUEST),
+    BOOKING_NOT_YET_ENDED(1048, "Booking not yet ended", HttpStatus.BAD_REQUEST),;
 
     private int code;
     private String message;

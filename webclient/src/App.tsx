@@ -130,7 +130,7 @@ const router = createBrowserRouter(
           <Route
             path="mybookings"
             element={
-              <RequireAuth>
+              <RequireAuth allowedRoles={["USER", "TECHNICIAN"]}>
                 <MyBookingsPage />
               </RequireAuth>
             }

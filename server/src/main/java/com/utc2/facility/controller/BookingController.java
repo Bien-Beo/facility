@@ -125,6 +125,13 @@ public class BookingController {
                 .build();
     }
 
+    @PutMapping("/{bookingId}/checkin")
+    ApiResponse<BookingResponse> checkIn(@PathVariable String bookingId) {
+        return ApiResponse.<BookingResponse>builder()
+                .result(bookingService.checkInBooking(bookingId))
+                .build();
+    }
+
     @PutMapping("/{bookingId}/approve")
     ApiResponse<BookingResponse> approveBooking(@PathVariable String bookingId) {
         return ApiResponse.<BookingResponse>builder()

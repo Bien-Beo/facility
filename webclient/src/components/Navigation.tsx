@@ -9,6 +9,7 @@ import {
   ListItemIcon,
   Typography,
 } from "@mui/material";
+import ConstructionIcon from '@mui/icons-material/Construction';
 import NotificationImportantIcon from '@mui/icons-material/NotificationImportant';
 import BookmarksIcon from "@mui/icons-material/Bookmarks";
 import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
@@ -89,7 +90,7 @@ const Navigation: FC = (): JSX.Element => {
                   }}
                 >
                   <ListItemIcon sx={{ minWidth: "0px" }}>
-                    <WorkspacePremiumIcon
+                    <HomeWorkIcon
                       sx={{ width: "26px", height: "26px", color: "white" }}
                     />
                   </ListItemIcon>
@@ -226,7 +227,7 @@ const Navigation: FC = (): JSX.Element => {
                   }}
                 >
                   <ListItemIcon sx={{ minWidth: "0px" }}>
-                    <WorkspacePremiumIcon
+                    <ConstructionIcon
                       sx={{ width: "26px", height: "26px", color: "white" }}
                     />
                   </ListItemIcon>
@@ -245,7 +246,7 @@ const Navigation: FC = (): JSX.Element => {
         )}
 
         {/* My bookings */}
-        {role !== "ADMIN" && role !== "TECHNICIAN" && (
+        {role !== "ADMIN" && role !== "FACILITY_MANAGER" && (
           <>
             <NavLink to="/user/mybookings">
               {({ isActive }) => (

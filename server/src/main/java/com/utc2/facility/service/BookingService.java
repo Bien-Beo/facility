@@ -561,15 +561,45 @@ public class BookingService {
 
     // --- Các phương thức Hành động khác (Ví dụ) ---
 
-    @Transactional
-    @PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER', 'TECHNICIAN') or @bookingSecurityService.isOwner(#bookingId, principal.username)")
+    //@Transactional
+    //@PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER', 'TECHNICIAN') or @bookingSecurityService.isOwner(#bookingId, principal.username)")
     public BookingResponse checkOutBooking(String bookingId) {
         log.info("Checking out booking with ID: {}", bookingId);
         Booking booking = findBookingByIdOrThrow(bookingId);
 
-        if (booking.getStatus() != BookingStatus.CONFIRMED) {
+        if (booking.getStatus() != BookingStatus.IN_PROGRESS &&
+                booking.getStatus() != BookingStatus.OVERDUE) {
             log.warn("Cannot check out booking {} with status {}", bookingId, booking.getStatus());
-            throw new AppException(ErrorCode.BOOKING_STATUS_INVALID, "Chỉ có thể check-out booking đã được duyệt (CONFIRMED).");
+            throw new AppException(ErrorCode.BOOKING_STATUS_INVALID, "Chỉ có thể check-out booking đang được sử dụng (IN_PROGRESS) và booking quá hạn (OVERDUE).");
+        }
+
+        if (booking.getStatus() == BookingStatus.IN_PROGRESS) {
+            // Kiểm tra xem đã đến giờ trả chưa?
+            if (LocalDateTime.now().isAfter(booking.getPlannedEndTime())) {
+                throw new AppException(ErrorCode.BOOKING_NOT_YET_ENDED);
+            }
+        }
+
+        booking.setStatus(BookingStatus.COMPLETED);
+        booking.setActualCheckOutTime(LocalDateTime.now());
+
+        if (booking.getStatus() == BookingStatus.OVERDUE) {
+            booking.setNote("Trả phòng không đúng hạn.");
+        }
+
+        Booking savedBooking = bookingRepository.save(booking);
+        log.info("Booking {} checked out.", bookingId);
+        return buildFullBookingResponse(savedBooking);
+    }
+
+    //@PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER', 'TECHNICIAN') or @bookingSecurityService.isOwner(#bookingId, principal.username)")
+    public BookingResponse checkInBooking(String bookingId) {
+        log.info("Checking in booking with ID: {}", bookingId);
+        Booking booking = findBookingByIdOrThrow(bookingId);
+
+        if (booking.getStatus() != BookingStatus.CONFIRMED) {
+            log.warn("Cannot check in booking {} with status {}", bookingId, booking.getStatus());
+            throw new AppException(ErrorCode.BOOKING_STATUS_INVALID, "Chỉ có thể check-in booking đã được phê duyệt (CONFIRMED).");
         }
 
         // Kiểm tra xem đã đến giờ mượn chưa?
@@ -578,10 +608,10 @@ public class BookingService {
         }
 
         booking.setStatus(BookingStatus.IN_PROGRESS);
-        booking.setActualCheckOutTime(LocalDateTime.now());
+        booking.setActualCheckInTime(LocalDateTime.now());
 
         Booking savedBooking = bookingRepository.save(booking);
-        log.info("Booking {} checked out.", bookingId);
+        log.info("Booking {} checked in.", bookingId);
         return buildFullBookingResponse(savedBooking);
     }
 
