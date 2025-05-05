@@ -24,10 +24,10 @@ const EditEquipmentModal: FC<EditEquipmentModalProps> = ({
         if (isOpen && equipmentData) {
             console.log("Initializing edit form with equipment data:", equipmentData);
             setFormData({
-                assetTag: equipmentData.assetTag ?? "",
-                defaultRoomId: equipmentData.defaultRoomId ?? "",   
-                notes: equipmentData.notes ?? "",
-                status: equipmentData.status as EquipmentStatusType, // <<< Lấy status
+                assetTag: equipmentData.assetTag,
+                defaultRoomId: equipmentData.defaultRoomId,   
+                notes: equipmentData.notes,
+                status: equipmentData.status as EquipmentStatusType,
             });
         }
          setBackendError(null); // Reset lỗi khi mở
@@ -44,15 +44,14 @@ const EditEquipmentModal: FC<EditEquipmentModalProps> = ({
     const mutation = useMutation<
         ApiResponse<EquipmentItemData>,      // Kiểu response thành công
         AxiosError<ErrorMessage>, // Kiểu lỗi
-        EquipmentItemUpdateRequest         // <<< SỬA: Kiểu biến là DTO Update
+        EquipmentItemUpdateRequest        
     >({
-        mutationFn: (updateData: EquipmentItemUpdateRequest) => { // <<< SỬA: Kiểu biến
+        mutationFn: (updateData: EquipmentItemUpdateRequest) => { 
             const token = localStorage.getItem("token");
             if (!token) throw new Error("No token found");
             console.log(`Sending equipment update request for ID ${equipmentData.id}:`, updateData);
-            // SỬA: Endpoint là PUT hoặc PATCH đến /admin/equipment/{id}
-            return axios.patch<ApiResponse<EquipmentItemData>>( 
-                `${import.meta.env.VITE_APP_SERVER_URL}/equipments/${equipmentData.id}`, // <<< Thêm ID vào URL
+            return axios.put<ApiResponse<EquipmentItemData>>( 
+                `${import.meta.env.VITE_APP_SERVER_URL}/equipments/${equipmentData.id}`, 
                 updateData, // Gửi đi payload đúng DTO Update
                 { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
             );
@@ -129,7 +128,6 @@ const EditEquipmentModal: FC<EditEquipmentModalProps> = ({
              } else {
                   setValidationError(backendError.message); // Hiển thị lỗi khác nếu có
              }
-             // setTimeout(() => { setValidationError(""); }, 4000); // Có thể không cần tự xóa lỗi
          }
      }, [backendError]);
 
@@ -142,18 +140,18 @@ const EditEquipmentModal: FC<EditEquipmentModalProps> = ({
                         Chỉnh sửa thông tin thiết bị
                     </Typography>
                      <Typography variant="subtitle1" gutterBottom sx={{ textAlign: 'center', mb: 3 }}>
-                        {/* ID: {equipmentData.id} */}
+                        Serial Number: {equipmentData.serialNumber}
                      </Typography>
                     <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
 
-                         <TextField label="Mã tài sản (*)" name="assetTag" value={formData.assetTag ?? ''} onChange={handleInputChange} required fullWidth size="small" />
+                         <TextField label="Mã tài sản" name="assetTag" value={formData.assetTag ?? ''} onChange={handleInputChange} required fullWidth size="small" />
 
                         <Box sx={{ display: 'flex', gap: 2 }}>
                              <FormControl size="small" fullWidth required>
-                                <InputLabel id="edit-building-select-label">Phòng quản lý</InputLabel>
+                                <InputLabel id="edit-room-select-label">Phòng quản lý</InputLabel>
                                 <Select
-                                    labelId="edit-building-select-label" label="Tòa nhà (*)"
-                                    name="buildingId" value={formData.defaultRoomId ?? ''} onChange={handleSelectChange}
+                                    labelId="edit-room-select-label" label="Phòng (*)"
+                                    name="defaultRoomId" value={formData.defaultRoomId ?? ''} onChange={handleSelectChange}
                                 >
                                      <MenuItem value=""><em>Chọn phòng</em></MenuItem>
                                     {defaultRoom?.map((room) => (
@@ -176,7 +174,7 @@ const EditEquipmentModal: FC<EditEquipmentModalProps> = ({
                               </Select>
                           </FormControl>
 
-                         <TextField label="Ghi chú" name="note" value={formData.notes ?? ''} onChange={handleInputChange} fullWidth multiline rows={2} size="small" />
+                         <TextField label="Ghi chú" name="notes" value={formData.notes ?? ''} onChange={handleInputChange} fullWidth multiline rows={2} size="small" />
 
 
                         {/* Hiển thị lỗi */}
