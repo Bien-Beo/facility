@@ -72,6 +72,12 @@ type RoomTypeData = {
   description?: string | null;
 };
 
+type EquipmentModelData = {
+  id: string;
+  name: string;
+  description?: string | null;
+};
+
 type BookedEquipmentSummary = {
   itemId: string;
   equipmentModelName: string;
@@ -477,13 +483,16 @@ interface AddFacilityModalProps {
   buildings: BuildingData[]; 
   roomTypes: RoomTypeData[];
   facilityManagers: UserData[];
+  onSuccessCallback?: () => void;
 }
 
 interface AddEquipmentModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   setOpenSnackbar: (isOpen: boolean) => void;
-  defaultRoom: string | null; 
+  defaultRoom: RoomData[] | null;
+  models: EquipmentModelData[];
+  onSuccessCallback?: () => void;
 }
 
 interface MaintenanceTicketTableProps {

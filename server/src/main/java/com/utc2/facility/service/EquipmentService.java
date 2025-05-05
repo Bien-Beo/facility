@@ -9,6 +9,8 @@ import com.utc2.facility.exception.AppException;
 import com.utc2.facility.exception.ErrorCode;
 import com.utc2.facility.mapper.EquipmentMapper;
 import com.utc2.facility.repository.*;
+import com.utc2.facility.specification.EquipmentSpecification;
+import com.utc2.facility.specification.RoomSpecification;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -86,9 +88,12 @@ public class EquipmentService {
 
 
     @PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER', 'TECHNICIAN')")
-    public Page<EquipmentResponse> getEquipmentItems(Pageable pageable) {
-        Page<EquipmentItem> itemPage = equipmentItemRepository.findAll(pageable);
-        return itemPage.map(this::buildFullEquipmentResponse); // Map từng item trong page sang response
+    public Page<EquipmentResponse> getEquipmentItems(String roomId, String modelId, Integer year, Pageable pageable) {
+        Page<EquipmentItem> itemPage = equipmentItemRepository.findAll(
+                EquipmentSpecification.filterByRoomId(roomId)
+                        .and(EquipmentSpecification.filterByModelId(modelId))
+                        .and(EquipmentSpecification.filterByYear(year)), pageable);
+        return itemPage.map(this::buildFullEquipmentResponse);
     }
 
     @Transactional

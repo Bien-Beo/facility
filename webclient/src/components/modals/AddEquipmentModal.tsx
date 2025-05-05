@@ -10,16 +10,18 @@ const AddEquipmentModal: FC<AddEquipmentModalProps> = ({
     isOpen,
     setIsOpen,
     setOpenSnackbar,
-    defaultRoom,
+    defaultRoom = [],
+    models = []
 }): JSX.Element => {
 
     const [formData, setFormData] = useState<EquipmentItemCreationRequest>({
-        serialNumber: "",
+        serialNumber: "", 
         assetTag: "",
         purchaseDate: "", 
         warrantyExpiryDate: "",
         notes: "",
-        defaultRoomId: defaultRoom || null,
+        defaultRoomId: "",
+        modelId: "",
     });
 
     const [backendError, setBackendError] = useState<ErrorMessage | null>(null);
@@ -86,6 +88,7 @@ const AddEquipmentModal: FC<AddEquipmentModalProps> = ({
         const submitData: EquipmentItemCreationRequest = {
             ...formData,
             defaultRoomId: formData.defaultRoomId || null,
+            modelId: formData.modelId || "",
             purchaseDate: new Date(formData.purchaseDate).toISOString(),
             warrantyExpiryDate: new Date(formData.warrantyExpiryDate).toISOString(),
             notes: formData.notes || "",
@@ -104,7 +107,8 @@ const AddEquipmentModal: FC<AddEquipmentModalProps> = ({
             purchaseDate: "", 
             warrantyExpiryDate: "",
             notes: "",
-            defaultRoomId: null,
+            defaultRoomId: "",
+            modelId: "",
         });
         setValidationError("");
         setBackendError(null);
@@ -119,13 +123,101 @@ const AddEquipmentModal: FC<AddEquipmentModalProps> = ({
                         Thêm Thiết Bị
                     </Typography>
                     <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-                         <TextField label="Phòng mặc định" name="defaultRoom" value={defaultRoom} onChange={handleInputChange} fullWidth size="small" />
-                            <TextField label="Số hiệu thiết bị (*)" name="serialNumber" value={formData.serialNumber} onChange={handleInputChange} required fullWidth size="small" />
-                            <TextField label="Mã tài sản (*)" name="assetTag" value={formData.assetTag} onChange={handleInputChange} required fullWidth size="small" />
-                            <TextField label="Ngày mua (*)" name="purchaseDate" type="date" value={formData.purchaseDate} onChange={handleInputChange} required fullWidth size="small" InputLabelProps={{ shrink: true }} />
-                            <TextField label="Ngày hết bảo hành (*)" name="warrantyExpiryDate" type="date" value={formData.warrantyExpiryDate} onChange={handleInputChange} required fullWidth size="small" InputLabelProps={{ shrink: true }} />
-                            <TextField label="Ghi chú (Tùy chọn)" name="notes" value={formData.notes} onChange={handleInputChange} fullWidth multiline rows={2} size="small" />
-                        </Box>
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="model-select-label">Mẫu thiết bị *</InputLabel>
+                            <Select
+                                labelId="model-select-label"
+                                id="model-select"
+                                name="modelId"
+                                value={formData.modelId}
+                                onChange={(e: SelectChangeEvent<string>) => setFormData(prev => ({ ...prev, modelId: e.target.value }))}
+                                label="Mẫu thiết bị"
+                                required
+                            >
+                                {models.map((model) => (
+                                    <MenuItem key={model.id} value={model.id}>
+                                        {model.name}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                        <FormControl fullWidth size="small">
+                            <InputLabel id="room-select-label">Thiết bị tự do</InputLabel>
+                            <Select
+                                labelId="room-select-label"
+                                id="room-select"
+                                name="defaultRoomId"
+                                value={formData.defaultRoomId ?? undefined}
+                                onChange={(e: SelectChangeEvent<string>) => setFormData(prev => ({ ...prev, defaultRoomId: e.target.value }))}
+                                label="Phòng"
+                            >
+                                {(defaultRoom || []).map((room) => (
+                                    <MenuItem key={room.id} value={room.id}>
+                                        {room.name}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                        <TextField
+                            label="Số hiệu thiết bị"
+                            name="serialNumber"
+                            value={formData.serialNumber}
+                            onChange={handleInputChange}
+                            size="small"
+                            required
+                            fullWidth
+                            error={!!validationError && formData.serialNumber?.trim() === ""}
+                        />
+                        <TextField
+                            label="Mã tài sản"
+                            name="assetTag"
+                            value={formData.assetTag}
+                            onChange={handleInputChange}
+                            size="small"
+                            required
+                            fullWidth
+                            error={!!validationError && formData.assetTag?.trim() === ""}
+                        />
+                        <TextField
+                            label="Ngày mua"
+                            name="purchaseDate"
+                            type="date"
+                            value={formData.purchaseDate}
+                            onChange={handleInputChange}
+                            size="small"
+                            required
+                            fullWidth
+                            InputLabelProps={{ shrink: true }}
+                            error={!!validationError && !formData.purchaseDate}
+                        />
+                        <TextField
+                            label="Ngày hết bảo hành"
+                            name="warrantyExpiryDate"
+                            type="date"
+                            value={formData.warrantyExpiryDate}
+                            onChange={handleInputChange}
+                            size="small"
+                            required
+                            fullWidth
+                            InputLabelProps={{ shrink: true }}
+                            error={!!validationError && !formData.warrantyExpiryDate}
+                        />
+                        <TextField
+                            label="Ghi chú"
+                            name="notes"
+                            value={formData.notes}
+                            onChange={handleInputChange}
+                            size="small"
+                            fullWidth
+                            multiline
+                            rows={3}
+                            maxRows={4}
+                        />
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Typography variant="body2" color="text.secondary">Các trường có dấu (*) là bắt buộc</Typography>
+                                <Typography variant="body2" color="text.secondary">Trạng thái: {mutation.isPending ? "Đang xử lý..." : mutation.isSuccess ? "Thành công" : "Chưa xử lý"}</Typography>
+                            </Box>
+                            
 
                         {/* Hiển thị lỗi */}
                          {validationError && (<Typography variant="body2" color="error" sx={{ mt: 1 }}>{validationError}</Typography>)}
@@ -137,6 +229,7 @@ const AddEquipmentModal: FC<AddEquipmentModalProps> = ({
                             <Button type="submit" variant="contained" color="primary" disabled={mutation.isPending}>
                                 {mutation.isPending ? <CircularProgress size={24} color="inherit" /> : "Thêm Thiết Bị"}
                             </Button>
+                        </Box>
                         </Box>
                     </Box>
             </Fade>

@@ -4,6 +4,7 @@ import com.utc2.facility.entity.EquipmentItem;
 import com.utc2.facility.enums.EquipmentStatus; // Import Enum
 import org.springframework.data.domain.Page;       // Import Page
 import org.springframework.data.domain.Pageable;  // Import Pageable
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -39,4 +40,5 @@ public interface EquipmentItemRepository extends JpaRepository<EquipmentItem, St
     // Page<EquipmentItem> findAll(Pageable pageable);
     boolean existsBySerialNumberAndIdNot(String serialNumber, String id);
 
+    Page<EquipmentItem> findAll(Specification<EquipmentItem> and, Pageable pageable);
 }

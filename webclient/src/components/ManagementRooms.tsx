@@ -39,7 +39,6 @@ const ManagementRooms: FC = (): JSX.Element => {
     const {
         data: apiResponse,
         isPending,
-        isLoading,
         isError,
         error,
       } = useQuery<PaginatedRoomApiResponse, AxiosError<ErrorMessage>>({
@@ -255,8 +254,8 @@ const ManagementRooms: FC = (): JSX.Element => {
                     setIsOpen={setIsAddFacilityModalOpen}
                     setOpenSnackbar={setOpenSnackbar}
                     buildings={buildingsList} 
-					roomTypes={roomTypesList}
-					facilityManagers={facilityManagersList}
+					          roomTypes={roomTypesList}
+					          facilityManagers={facilityManagersList}
                     onSuccessCallback={() => { 
                         queryClient.invalidateQueries({ queryKey: ["adminRooms"] });
                     }}
@@ -373,10 +372,9 @@ const ManagementRooms: FC = (): JSX.Element => {
 
             {/* Bảng dữ liệu */}
             <Box sx={{ width: '100%' }}>
-                 {/* Dùng isPending từ useQuery để hiển thị loading */}
                  {isPending ? (
                      <Box sx={{ display: 'flex', justifyContent: 'center', p: 5 }}><CircularProgress /></Box>
-                 ) : roomsForCurrentPage.length === 0 && page === 0 ? ( // Chỉ báo không có nếu ở trang đầu tiên
+                 ) : roomsForCurrentPage.length === 0 && page === 0 ? (
                       <Typography sx={{ textAlign: 'center', p: 5 }}>No rooms found.</Typography>
                  ) : (
                      // === TRUYỀN PROPS PHÂN TRANG XUỐNG TABLE ===
@@ -388,8 +386,8 @@ const ManagementRooms: FC = (): JSX.Element => {
                           onPageChange={handleChangePage} // <<< Handler đổi trang
                           onRowsPerPageChange={handleChangeRowsPerPage} // <<< Handler đổi số dòng
                           buildings={buildingsList} 
-					    roomTypes={roomTypesList}
-					    facilityManagers={facilityManagersList}
+					                roomTypes={roomTypesList}
+					                facilityManagers={facilityManagersList}
                      />
                  )}
             </Box>
