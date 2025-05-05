@@ -34,7 +34,7 @@ const BookingApprovalList: FC = (): JSX.Element => {
             params.append('status', 'PENDING_APPROVAL'); 
             params.append('sort', 'plannedStartTime,asc'); 
 
-            const url = `${import.meta.env.VITE_APP_SERVER_URL || 'http://localhost:8080'}/booking?${params.toString()}`;
+            const url = `${import.meta.env.VITE_APP_SERVER_URL || 'http://localhost:8080'}/booking/approval-request?${params.toString()}`;
             console.log("Fetching pending bookings with URL:", url);
 
             const response = await axios.get<PaginatedBookingApiResponse>(url, {
@@ -60,6 +60,13 @@ const BookingApprovalList: FC = (): JSX.Element => {
              setPendingBookings([]);
          }
     }, [apiResponse, isPending]);
+
+    useEffect(() => {
+        const total = apiResponse?.result?.page?.totalPages ?? 0;
+        if (page >= total && total > 0) {
+            setPage(0); // Reset về trang đầu nếu trang hiện tại vượt quá totalPages
+        }
+    }, [apiResponse, page]);    
 
     // Handlers cho Pagination
     const handlePageChange = (event: React.ChangeEvent<unknown>, newPage: number) => {

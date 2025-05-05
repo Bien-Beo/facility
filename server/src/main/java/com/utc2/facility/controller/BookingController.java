@@ -55,6 +55,19 @@ public class BookingController {
                 .build();
     }
 
+    @GetMapping("/approval-request")
+    public ApiResponse<Page<BookingResponse>> getBookingsPendingApproval(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "PENDING_APPROVAL") String status,
+            @RequestParam(defaultValue = "plannedStartTime,asc") String sort) {
+
+        Page<BookingResponse> result = bookingService.getBookingsByStatus(status, page, size, sort);
+        return ApiResponse.<Page<BookingResponse>>builder()
+                .result(result)
+                .build();
+    }
+
     @GetMapping("/my")
     public ApiResponse<Page<BookingResponse>> getMyBookings(Pageable pageable) {
         Page<BookingResponse> resultPage = bookingService.getMyBookings(pageable);
@@ -130,6 +143,17 @@ public class BookingController {
     ApiResponse<BookingResponse> completeBooking(@PathVariable String bookingId) {
         return ApiResponse.<BookingResponse>builder()
                 .result(bookingService.completeBooking(bookingId))
+                .build();
+    }
+
+    @PutMapping("/revoke")
+    public ApiResponse<Void> revokeBooking
+            (@RequestParam String bookingId,
+             @RequestParam(required = false) String reason)
+    {
+        bookingService.revokeBooking(bookingId, reason);
+        return ApiResponse.<Void>builder()
+                .message("Đã thu hồi phòng thành công.")
                 .build();
     }
 }

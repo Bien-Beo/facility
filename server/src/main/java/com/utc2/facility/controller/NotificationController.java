@@ -11,7 +11,9 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -31,7 +33,7 @@ public class NotificationController {
     }
 
     @GetMapping
-    ApiResponse<Page<NotificationResponse>> getAll(@RequestParam(required = false) String userId , Pageable pageable) {
+    ApiResponse<Page<NotificationResponse>> getAll(@RequestParam(required = false) String userId, Pageable pageable) {
         return ApiResponse.<Page<NotificationResponse>>builder()
                 .result(notificationService.getAll(userId, pageable))
                 .build();
@@ -50,4 +52,17 @@ public class NotificationController {
                 .result(notificationService.markNotificationAsRead(notificationId))
                 .build();
     }
+
+    @GetMapping("/overdue-reminder")
+    public ApiResponse<Void> sendOverdueReminder(@RequestParam String bookingId) {
+        if (bookingId == null || bookingId.trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "bookingId không được để trống");
+        }
+
+        notificationService.sendOverdueReminder(bookingId);
+        return ApiResponse.<Void>builder()
+                .message("Đã gửi thông báo nhắc nhở quá hạn.")
+                .build();
+    }
+
 }

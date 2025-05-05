@@ -265,6 +265,10 @@ interface RejectBookingRequest {
   reason: string;
 }
 
+interface RecallBookingRequest {
+  reason: string;
+}
+
 // --- Room ---
 type RoomCreationRequest = {
   name: string;

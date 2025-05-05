@@ -99,4 +99,10 @@ public class Booking {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    public boolean isOverdue() {
+        return this.getPlannedEndTime().isBefore(LocalDateTime.now())
+                && this.getStatus() == BookingStatus.CONFIRMED;
+    }
+
 }

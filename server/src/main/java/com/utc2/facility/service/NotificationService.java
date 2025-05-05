@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -202,4 +203,29 @@ public class NotificationService {
         }
     }
 
+    //@PreAuthorize("hasRole('FACILITY_MANAGER', 'ADMIN')")
+    public void sendOverdueReminder(String bookingId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy booking với ID: " + bookingId));
+
+        // Kiểm tra xem booking có bị quá hạn không
+        if (!booking.isOverdue()) {
+            throw new IllegalStateException("Booking chưa quá hạn, không thể gửi nhắc nhở.");
+        }
+
+        log.info("Gửi thông báo nhắc nhở cho booking: {}", bookingId);
+
+        // Gửi thông báo nhắc nhở
+        Notification notification = Notification.builder()
+                .user(booking.getUser())
+                .room(booking.getRoom())
+                .booking(booking)
+                .message("Bạn đang giữ phòng " + booking.getRoom().getName() + " quá hạn. Vui lòng trả phòng sớm nhất có thể.")
+                .type(NotificationType.RETURN)
+                .status(NotificationStatus.UNREAD)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        notificationRepository.save(notification);
+    }
 }

@@ -1,4 +1,4 @@
-import React, { JSX, FC, useState, useCallback, useMemo } from "react";
+import React, { JSX, FC, useState, useCallback, useMemo, ChangeEvent } from "react";
 import { Box, Button, CircularProgress, FormControl, FormLabel, Paper, Slide, Snackbar, TextField, Typography, IconButton, Alert, Chip, Tooltip } from "@mui/material";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import TaskAltIcon from "@mui/icons-material/TaskAlt"; 
@@ -22,7 +22,7 @@ const OverdueCard: FC<OverdueCardProps> = ({
     onActionSuccess
 }): JSX.Element => {
 
-    const [remarkValue, setRemarkValue] = useState<string>("");
+    const [recallValue, setRecallValue] = useState<string>("");
     const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
     const [snackbarMessage, setSnackbarMessage] = useState<string>("");
     const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error" | "warning">("success");
@@ -30,53 +30,66 @@ const OverdueCard: FC<OverdueCardProps> = ({
 
     const queryClient = useQueryClient();
 
-    const approveMutation = useMutation<ApiResponse<BookingEntry> | void, AxiosError<ErrorMessage>, void>({
+    const reminderMutation = useMutation<void, AxiosError<ErrorMessage>, void>({
             mutationFn: async () => {
                 const token = localStorage.getItem("token");
                 if (!token) throw new Error("No token found");
-                console.log(`Sending approval request for booking ${booking.id}`);
-                await axios.put(
-                    `${import.meta.env.VITE_APP_SERVER_URL || 'http://localhost:8080'}/booking/${booking.id}/approve`, null,
-                    { headers: { Authorization: `Bearer ${token}` } }
+                console.log(`Sending reminder request for booking ${booking.id}`);
+                const param = { bookingId: booking.id };
+                await axios.get(
+                    `${import.meta.env.VITE_APP_SERVER_URL}/api/notifications/overdue-reminder`, 
+                    { 
+                        params: param, 
+                        headers: { Authorization: `Bearer ${token}` } 
+                    }
                 );
             },
             onSuccess: () => {
-                console.log("Booking approved:", booking.id);
-                setSnackbarMessage("Yêu cầu đã được duyệt thành công!");
+                console.log("Reminder sent for booking:", booking.id);
+                setSnackbarMessage("Nhắc nhở đã được gửi thành công!");
                 setSnackbarSeverity("success");
                 setOpenSnackbar(true);
-                queryClient.invalidateQueries({ queryKey: ["adminBookings"] }); 
+                queryClient.invalidateQueries({ queryKey: ["reminderNotification"] }); 
                 if (onActionSuccess) onActionSuccess();
                 setBackendError(null);
             },
             onError: (error) => {
-                console.error("Approve failed:", error);
-                const errMsg = error.response?.data?.message || error.message || "Lỗi khi duyệt";
+                console.error("Reminder failed:", error);
+                const errMsg = error.response?.data?.message || error.message || "Lỗi khi gửi nhắc nhở";
                 setBackendError({ message: errMsg });
-                setSnackbarMessage(`Duyệt thất bại: ${errMsg}`);
+                setSnackbarMessage(`Gửi nhắc nhở thất bại: ${errMsg}`);
                 setSnackbarSeverity("error");
                 setOpenSnackbar(true);
             },
         });
 
-        const rejectMutation = useMutation<ApiResponse<BookingEntry> | void, AxiosError<ErrorMessage>, RejectBookingRequest>({
-            mutationFn: async (data: RejectBookingRequest) => {
+        const recallMutation = useMutation<void, AxiosError<ErrorMessage>, RecallBookingRequest>({
+            mutationFn: async (data: RecallBookingRequest) => {
                 const token = localStorage.getItem("token");
                 if (!token) throw new Error("No token found");
-                 console.log(`Sending rejection request for booking ${booking.id} with reason: ${data.reason}`);
+                console.log(`Sending recall request for booking ${booking.id} with reason: ${data.reason}`);
                 await axios.put(
-                    `${import.meta.env.VITE_APP_SERVER_URL || 'http://localhost:8080'}/booking/${booking.id}/reject`,
-                    data, 
-                    { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
-                );
+                    `${import.meta.env.VITE_APP_SERVER_URL}/booking/revoke`,
+                    null,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        params: {
+                            bookingId: booking.id,
+                            reason: data.reason
+                        }
+                    }
+                );                
             },
              onSuccess: () => {
-                console.log("Booking rejected:", booking.id);
-                setSnackbarMessage("Yêu cầu đã được từ chối!");
+                console.log("Booking recalled:", booking.id);
+                setSnackbarMessage("Yêu cầu đã được thu hồi!");
                 setSnackbarSeverity("warning");
                 setOpenSnackbar(true);
-                setRemarkValue("");
-                queryClient.invalidateQueries({ queryKey: ["adminBookings"] }); 
+                setRecallValue("");
+                queryClient.invalidateQueries({ queryKey: ["recallBooking"] }); 
                 if (onActionSuccess) onActionSuccess();
                 setBackendError(null);
             },
@@ -91,19 +104,19 @@ const OverdueCard: FC<OverdueCardProps> = ({
         });
     
         // --- Handlers ---
-        const handleApprove = () => {
+        const handleReminder = () => {
             setBackendError(null);
-            approveMutation.mutate();
+            reminderMutation.mutate();
         };
     
-        const handleReject = () => {
+        const handleRecall = () => {
             setBackendError(null);
-            if (!remarkValue.trim() || remarkValue.length < 5) {
-                setBackendError({ message: "Vui lòng nhập lý do từ chối (ít nhất 5 ký tự)." });
+            if (!recallValue.trim() || recallValue.length < 5) {
+                setBackendError({ message: "Vui lòng nhập lý do thu hồi (ít nhất 5 ký tự)." });
                 return;
             }
-            const rejectData: RejectBookingRequest = { reason: remarkValue.trim() };
-            rejectMutation.mutate(rejectData);
+            const recallData: RecallBookingRequest = { reason: recallValue.trim() };
+            recallMutation.mutate(recallData);
         };
 
     const handleCloseSnackbar = (): void => { setOpenSnackbar(false); };
@@ -129,11 +142,11 @@ const OverdueCard: FC<OverdueCardProps> = ({
                  <Box sx={{ width: { xs: '100%', md: '40%' }, pl: { md: 3 }, borderLeft: { md: `1px solid` }, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                     <FormControl fullWidth >
                         <TextField
-                            id={`reject-reason-${booking.id}`}
+                            id={`recall-reason-${booking.id}`}
                             label="Thông báo thu hồi"
                             variant="outlined"
-                            value={remarkValue}
-                            onChange={(e: ChangeEvent<HTMLInputElement>) => setRemarkValue(e.target.value)}
+                            value={recallValue}
+                            onChange={(e: ChangeEvent<HTMLInputElement>) => setRecallValue(e.target.value)}
                             size="small"
                             multiline
                             rows={2}
@@ -147,23 +160,22 @@ const OverdueCard: FC<OverdueCardProps> = ({
                           <Alert severity="error" size="small" sx={{ mt: 1 }}>{backendError.message}</Alert>
                       )}
 
-                     {/* Nút Approve và Reject */}
                      <Box sx={{ display: 'flex', gap: 1.5, justifyContent: 'space-between', mt: 1 }}>
                           <Button
                              variant="contained" startIcon={<TaskAltIcon />} color="success" size="medium"
-                             onClick={handleApprove}
-                             disabled={approveMutation.isPending || rejectMutation.isPending}
-                             sx={{ flexGrow: 1 }} // Chia đều không gian
+                             onClick={handleReminder}
+                             disabled={reminderMutation.isPending || recallMutation.isPending}
+                             sx={{ flexGrow: 1 }} 
                          >
-                              {approveMutation.isPending ? <CircularProgress size={20} color="inherit"/> : "Nhắc nhở"}
+                              {reminderMutation.isPending ? <CircularProgress size={20} color="inherit"/> : "Nhắc nhở"}
                          </Button>
                          <Button
                              variant="contained" startIcon={<HighlightOffIcon />} color="error" size="medium"
-                             onClick={handleReject} // Gọi handler riêng
-                             disabled={approveMutation.isPending || rejectMutation.isPending || !remarkValue.trim()}
+                             onClick={handleRecall}
+                             disabled={reminderMutation.isPending || recallMutation.isPending || !recallValue.trim()}
                              sx={{ flexGrow: 1 }}
                          >
-                             {rejectMutation.isPending ? <CircularProgress size={20} color="inherit"/> : "Thu hồi"}
+                             {recallMutation.isPending ? <CircularProgress size={20} color="inherit"/> : "Thu hồi"}
                          </Button>
                      </Box>
                  </Box>
