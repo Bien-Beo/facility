@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "notification")
-public class Notification {//
+public class Notification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -30,7 +30,7 @@ public class Notification {//
     String message;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false)
+    @Column(name = "notification_type", nullable = false)
     NotificationType type;
 
     @Enumerated(EnumType.STRING)
@@ -39,4 +39,12 @@ public class Notification {//
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     LocalDateTime createdAt;
+
+    @ManyToOne
+    @JoinColumn(name = "room_id", nullable = false)
+    Room room;
+
+    @ManyToOne
+    @JoinColumn(name = "booking_id", nullable = false)
+    Booking booking;
 }

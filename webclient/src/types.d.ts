@@ -50,6 +50,17 @@ interface RoomDataWithIds extends RoomData {
   facilityManagerId: string | null;
 }
 
+type Notification = {
+  id: string; // ID của thông báo
+  message: string; // Nội dung thông báo
+  createdAt: string; // Thời gian tạo thông báo (ISO DateTime string)
+  isRead: boolean; // Trạng thái đã đọc hay chưa
+  type: string; // Loại thông báo (vd: "booking", "maintenance", ...)
+  bookingId?: string | null; // ID của booking liên quan (nếu có)
+  userId?: string | null; // ID của người dùng liên quan (nếu có)
+  roomId?: string | null; // ID của phòng liên quan (nếu có)
+}
+
 type UserData = {
   id: string; // UUID khóa chính
   userId: string; // Mã nghiệp vụ (NV/SV)
@@ -150,6 +161,8 @@ type PaginatedResult<T> = {
  */
 type PaginatedBookingApiResponse = ApiResponse<PaginatedResult<BookingEntry>>;
 
+type PaginatedNotificationApiResponse = ApiResponse<PaginatedResult<Notification>>;
+
 /**
  * Kiểu dữ liệu cho API trả về danh sách Room có phân trang (dùng cho AdminFacilitiesTable)
  */
@@ -249,6 +262,10 @@ type CancelBookingRequest = {
   reason: string;
 };
 interface RejectBookingRequest {
+  reason: string;
+}
+
+interface RecallBookingRequest {
   reason: string;
 }
 

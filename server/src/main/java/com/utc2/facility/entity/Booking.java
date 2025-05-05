@@ -78,6 +78,18 @@ public class Booking {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "borrow_notified", nullable = false)
+    private boolean borrowNotified = false;
+
+    @Column(name = "return_notified", nullable = false)
+    private boolean returnNotified = false;
+
+    @Column(name = "approved_notified", nullable = false)
+    private boolean approvedNotified = false;
+
+    @Column(name = "overdue_notified", nullable = false)
+    private boolean overdueNotified = false;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -87,4 +99,10 @@ public class Booking {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    public boolean isOverdue() {
+        return this.getPlannedEndTime().isBefore(LocalDateTime.now())
+                && this.getStatus() == BookingStatus.CONFIRMED;
+    }
+
 }

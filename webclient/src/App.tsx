@@ -26,6 +26,7 @@ import FacilityPage from "./pages/FacilityPage";
 import { AuthProvider } from "./utils/auth";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import ReportIssuePage from "./pages/ReportIssuePage";
+import Notification from "./pages/NotificationPage";
 
 
 declare module "@tanstack/react-query" {
@@ -77,6 +78,16 @@ const router = createBrowserRouter(
           errorElement={<RouteError />}
         />
 
+        <Route
+          path="notification"
+          element={
+            <RequireAuth allowedRoles={["USER", "TECHNICIAN"]}>
+              <Notification />
+            </RequireAuth>
+          }
+          errorElement={<RouteError />}
+        />
+
         {/* Dashboard Equipment */}
         <Route
           path="management/equipments"
@@ -119,7 +130,7 @@ const router = createBrowserRouter(
           <Route
             path="mybookings"
             element={
-              <RequireAuth>
+              <RequireAuth allowedRoles={["USER", "TECHNICIAN"]}>
                 <MyBookingsPage />
               </RequireAuth>
             }
