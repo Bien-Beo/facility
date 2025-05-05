@@ -12,6 +12,9 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.paint.LinearGradient?>
+<?import javafx.scene.paint.Stop?>
+<?import javafx.scene.text.Font?>
 <AnchorPane prefHeight="650.0" prefWidth="1200.0" stylesheets="@../styles/login2.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.Login2Controller">
 
     <StackPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -29,7 +32,20 @@
             <!-- Login Form -->
             <VBox alignment="CENTER" maxHeight="200.0" prefWidth="360.0" spacing="20" styleClass="login-form">
 
-                <Label styleClass="title-label" text="WELCOME BACK" />
+                <Label text="WELCOME BACK">
+                    <font>
+                        <Font name="Arial Bold" size="30.0" />
+                    </font>
+                    <textFill>
+                        <LinearGradient endX="1.0" endY="1.0">
+                            <stops>
+                                <Stop offset="0.0" color="#1976d2" />
+                                <Stop offset="1.0" color="#00bcd4" />
+                            </stops>
+                        </LinearGradient>
+                    </textFill>
+                </Label>
+
 
                 <ImageView fitHeight="120.0" fitWidth="160.0" pickOnBounds="true" preserveRatio="true">
                     <image>

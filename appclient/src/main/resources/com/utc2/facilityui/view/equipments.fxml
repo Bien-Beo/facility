@@ -8,6 +8,8 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
+<?import javafx.scene.paint.Stop?>
+<?import javafx.scene.paint.LinearGradient?>
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="685.0" prefWidth="830.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.equipment.EquipmentsController">
     <children>
         <VBox fx:id="mainEquipmentsContainer" prefHeight="685.0" prefWidth="830.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -21,10 +23,18 @@
                             <children>
                                 <HBox prefHeight="49.0" prefWidth="745.0" alignment="CENTER">
                                     <children>
-                                        <Label alignment="CENTER" prefHeight="45.0" text="Equipments">
+                                        <Label text="Equipments" alignment="CENTER" prefHeight="45.0">
                                             <font>
-                                                <Font size="30.0" />
+                                                <Font name="Arial Bold" size="30.0" />
                                             </font>
+                                            <textFill>
+                                                <LinearGradient endX="1.0" endY="1.0">
+                                                    <stops>
+                                                        <Stop offset="0.0" color="#1976d2" />
+                                                        <Stop offset="1.0" color="#00bcd4" />
+                                                    </stops>
+                                                </LinearGradient>
+                                            </textFill>
                                         </Label>
                                     </children>
                                 </HBox>
