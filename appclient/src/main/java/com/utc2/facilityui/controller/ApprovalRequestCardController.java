@@ -1,4 +1,3 @@
-// --- File: src/main/java/com/utc2/facilityui/controller/ApprovalRequestCardController.java ---
 package com.utc2.facilityui.controller;
 
 import com.utc2.facilityui.model.ApprovalRequest;

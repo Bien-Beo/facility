@@ -152,7 +152,7 @@ public class InfoRoomController {
 
             // Xác định đường dẫn trang cần quay về
             String viewPath = "/com/utc2/facilityui/view/" +
-                            (sourceView != null ? sourceView : "rooms") + ".fxml";
+                    (sourceView != null ? sourceView : "rooms") + ".fxml";
 
             System.out.println("Quay về trang: " + viewPath); // Debug log
 

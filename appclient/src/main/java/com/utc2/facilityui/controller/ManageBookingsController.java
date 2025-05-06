@@ -1,470 +1,450 @@
 package com.utc2.facilityui.controller;
 
-
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.element.Table;
-import com.itextpdf.layout.property.UnitValue;
-import com.utc2.facilityui.model.Booking;
+// === CÁC IMPORT CẦN THIẾT ===
+import com.utc2.facilityui.response.BookingResponse;
+import com.utc2.facilityui.response.Page;
+import com.utc2.facilityui.service.BookingService;
+import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
+import javafx.concurrent.Task;
+import javafx.event.ActionEvent; // *** CHO onAction ***
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.KeyEvent;
-import com.itextpdf.layout.property.TextAlignment;
+import javafx.scene.input.KeyEvent; // *** CHO onKeyReleased ***
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
 
-
-
+// iText PDF Imports (Nếu giữ lại export)
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.property.TextAlignment;
+import com.itextpdf.layout.property.UnitValue;
+
+// Java Standard Imports
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+// ===========================
 
 public class ManageBookingsController implements Initializable {
 
-    @FXML
-    private TableView<Booking> bookingsTable;
+    // --- FXML Components (Đảm bảo fx:id khớp FXML) ---
+    @FXML private TableView<BookingResponse> bookingsTable;
+    @FXML private TableColumn<BookingResponse, String> roomNameColumn;
+    @FXML private TableColumn<BookingResponse, String> userNameColumn;
+    @FXML private TableColumn<BookingResponse, String> purposeColumn;
+    @FXML private TableColumn<BookingResponse, String> statusColumn;
+    @FXML private TableColumn<BookingResponse, LocalDateTime> dateColumn;
+    @FXML private TableColumn<BookingResponse, String> timeSlotColumn;
+    @FXML private TableColumn<BookingResponse, LocalDateTime> createdAtColumn;
+    @FXML private TableColumn<BookingResponse, String> approvedByColumn;
 
-    @FXML
-    private TableColumn<Booking, String> titleFacilityColumn;
+    @FXML private ComboBox<String> monthComboBox;
+    @FXML private TextField yearTextField;
+    @FXML private TextField roomSearchField;
+    @FXML private TextField userSearchField;
 
-    @FXML
-    private TableColumn<Booking, String> requestedByColumn;
+    @FXML private ComboBox<String> rowsPerPageComboBox;
+    @FXML private Label pageInfoLabel;
+    @FXML private Button previousButton;
+    @FXML private Button nextButton;
 
-    @FXML
-    private TableColumn<Booking, String> purposeColumn;
+    // --- Data List (Chỉ hiển thị trang hiện tại) ---
+    private final ObservableList<BookingResponse> displayedBookings = FXCollections.observableArrayList();
 
-    @FXML
-    private TableColumn<Booking, LocalDateTime> dateColumn;
+    // --- Service ---
+    private BookingService bookingService;
 
-    @FXML
-    private TableColumn<Booking, String> timeSlotColumn;
+    // --- State Variables ---
+    private int currentPage = 0; // 0-based for API
+    private int currentPageSize = 6; // Default (PHẢI > 0)
+    private int totalPages = 0;
+    private long totalElements = 0;
 
-    @FXML
-    private TableColumn<Booking, LocalDateTime> requestedAtColumn;
+    // --- Formatters ---
+    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    @FXML
-    private TableColumn<Booking, String> groupDirectorColumn;
-
-    @FXML
-    private TableColumn<Booking, String> facilityManColumn;
-
-    @FXML
-    private ComboBox<String> monthComboBox;
-
-    @FXML
-    private TextField yearTextField;
-
-    @FXML
-    private TextField facilityTextField;
-
-    @FXML
-    private TextField employeeIdTextField;
-
-    @FXML
-    private ComboBox<String> rowsPerPageComboBox;
-
-    @FXML
-    private Label currentPageLabel;
-
-    private ObservableList<Booking> allBookingData = FXCollections.observableArrayList();
-    private ObservableList<Booking> bookingData = FXCollections.observableArrayList();
-    private int currentPage = 1;
-    private int rowsPerPage = 10;
+    private final Map<String, Integer> monthMap = Stream.of(Month.values())
+            .collect(Collectors.toMap(
+                    m -> m.getDisplayName(TextStyle.FULL, Locale.ENGLISH), // Dùng English để khớp giá trị ComboBox
+                    Month::getValue
+            ));
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // Initialize table columns
-        titleFacilityColumn.setCellValueFactory(new PropertyValueFactory<>("titleFacility"));
-        requestedByColumn.setCellValueFactory(new PropertyValueFactory<>("requestedBy"));
+        bookingService = new BookingService();
+        setupTableColumns();
+        setupControls();
+        fetchAndDisplayBookings(); // Tải dữ liệu ban đầu
+    }
+
+    private void setupTableColumns() {
+        roomNameColumn.setCellValueFactory(new PropertyValueFactory<>("roomName"));
+        userNameColumn.setCellValueFactory(new PropertyValueFactory<>("userName"));
         purposeColumn.setCellValueFactory(new PropertyValueFactory<>("purpose"));
+        statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+        approvedByColumn.setCellValueFactory(new PropertyValueFactory<>("approvedByUserName"));
 
-        // Format for Date column
-        dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
-        dateColumn.setCellFactory(column -> {
-            return new TableCell<Booking, LocalDateTime>() {
-                private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM dd, yyyy"); // Định dạng đầy đủ
+        dateColumn.setCellValueFactory(new PropertyValueFactory<>("plannedStartTime"));
+        dateColumn.setCellFactory(column -> new TableCell<>() {
+            @Override protected void updateItem(LocalDateTime item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : dateFormatter.format(item));
+            }
+        });
+        dateColumn.setStyle("-fx-alignment: CENTER;");
 
-                @Override
-                protected void updateItem(LocalDateTime item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText(null);
-                    } else {
-                        setText(dateFormatter.format(item)); // Hiển thị theo định dạng đầy đủ
-                    }
-                }
-            };
+        timeSlotColumn.setCellValueFactory(cellData -> {
+            BookingResponse booking = cellData.getValue();
+            if (booking != null && booking.getPlannedStartTime() != null && booking.getPlannedEndTime() != null) {
+                return new SimpleStringProperty(timeFormatter.format(booking.getPlannedStartTime()) + " - " + timeFormatter.format(booking.getPlannedEndTime()));
+            }
+            return new SimpleStringProperty("");
+        });
+        timeSlotColumn.setStyle("-fx-alignment: CENTER;");
+
+        createdAtColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
+        createdAtColumn.setCellFactory(column -> new TableCell<>() {
+            @Override protected void updateItem(LocalDateTime item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : dateTimeFormatter.format(item));
+            }
         });
 
-
-
-        timeSlotColumn.setCellValueFactory(new PropertyValueFactory<>("timeSlot"));
-
-        // Format for Requested At column
-        requestedAtColumn.setCellValueFactory(new PropertyValueFactory<>("requestedAt"));
-        requestedAtColumn.setCellFactory(column -> {
-            return new TableCell<Booking, LocalDateTime>() {
-                private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("h:mm a EEE MMM dd yyyy");
-
-                @Override
-                protected void updateItem(LocalDateTime item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText(null);
-                    } else {
-                        setText(dateTimeFormatter.format(item));
-                    }
-                }
-            };
-        });
-
-        groupDirectorColumn.setCellValueFactory(new PropertyValueFactory<>("groupDirector"));
-        facilityManColumn.setCellValueFactory(new PropertyValueFactory<>("facilityMan"));
-
-        // Initialize table data
-        loadBookingDataForPage(currentPage, rowsPerPage);
-        bookingsTable.setItems(bookingData);
-
-        // Initialize combo boxes
-        monthComboBox.setItems(FXCollections.observableArrayList(
-                "January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"
-        ));
-        rowsPerPageComboBox.setItems(FXCollections.observableArrayList("6", "10", "20").sorted());
-        rowsPerPageComboBox.setValue(String.valueOf(6));
-        updateCurrentPageLabel();
+        bookingsTable.setItems(displayedBookings);
+        bookingsTable.setPlaceholder(new Label("Loading bookings..."));
     }
 
-    private void loadBookingDataForPage(int pageNumber, int rowsPerPage) {
-        bookingData.clear();
+    private void setupControls() {
+        // Lấy danh sách tên tháng từ Map để đưa vào ComboBox
+        List<String> monthNames = new ArrayList<>(monthMap.keySet());
+        // Sắp xếp tên tháng theo thứ tự lịch (tùy chọn)
+        monthNames.sort(Comparator.comparingInt(monthName -> monthMap.getOrDefault(monthName, 0)));
+        monthComboBox.setItems(FXCollections.observableArrayList(monthNames));
+        monthComboBox.setPromptText("Select Month");
 
-        // Nếu dữ liệu gốc chưa có, load 1 lần và giữ lại
-        if (allBookingData.isEmpty()) {
-            List<Booking> loadedData = List.of(
-                    new Booking("Lunch Courtyard", "Sam Bergnaum", "A lunch party",
-                            LocalDateTime.of(2025, 4, 22, 12, 30), // April
-                            "12:30 PM - 02:00 PM",
-                            LocalDateTime.now(),
-                            "Not approved",
-                            "Not approved"),
+        rowsPerPageComboBox.setItems(FXCollections.observableArrayList("6", "10", "20", "50"));
+        // Đặt giá trị mặc định cho ComboBox và biến state
+        currentPageSize = 6; // Đặt giá trị mặc định > 0
+        rowsPerPageComboBox.setValue(String.valueOf(currentPageSize));
 
-                    new Booking("Celebration Courtyard", "Sam Bergnaum", "a celebration party",
-                            LocalDateTime.of(2025, 5, 15, 10, 0), // May
-                            "10:00 AM - 12:00 PM",
-                            LocalDateTime.now(),
-                            "Grace Cummerata",
-                            "Grady Turco"),
-
-                    new Booking("Celebration Courtyard", "Sam Bergnaum", "a celebration party",
-                            LocalDateTime.of(2025, 5, 15, 10, 0), // May
-                            "10:00 AM - 12:00 PM",
-                            LocalDateTime.now(),
-                            "Grace Cummerata",
-                            "Grady Turco"),
-
-                    new Booking("Celebration Courtyard", "Sam Bergnaum", "a celebration party",
-                            LocalDateTime.of(2025, 5, 15, 10, 0), // May
-                            "10:00 AM - 12:00 PM",
-                            LocalDateTime.now(),
-                            "Grace Cummerata",
-                            "Grady Turco"),
-
-                    new Booking("Celebration Courtyard", "Sam Bergnaum", "a celebration party",
-                            LocalDateTime.of(2025, 5, 15, 10, 0), // May
-                            "10:00 AM - 12:00 PM",
-                            LocalDateTime.now(),
-                            "Grace Cummerata",
-                            "Grady Turco"),
-
-                    new Booking("Celebration Courtyard", "Sam Bergnaum", "a celebration party",
-                            LocalDateTime.of(2025, 5, 15, 10, 0), // May
-                            "10:00 AM - 12:00 PM",
-                            LocalDateTime.now(),
-                            "Grace Cummerata",
-                            "Grady Turco"),
-
-                    new Booking("Celebration Courtyard", "Sam Bergnaum", "a celebration party",
-                            LocalDateTime.of(2025, 5, 15, 10, 0), // May
-                            "10:00 AM - 12:00 PM",
-                            LocalDateTime.now(),
-                            "Grace Cummerata",
-                            "Grady Turco")
-            );
-
-            allBookingData.setAll(loadedData);
-        }
-
-        int startIndex = (pageNumber - 1) * rowsPerPage;
-        int endIndex = Math.min(startIndex + rowsPerPage, allBookingData.size());
-
-        // Chỉ tải dữ liệu nằm trong khoảng startIndex đến endIndex
-        for (int i = startIndex; i < endIndex; i++) {
-            bookingData.add(allBookingData.get(i));
-        }
-
-        // Debug log
-        bookingData.forEach(booking -> {
-            System.out.println("Loaded booking: " + booking);
-        });
-
-        updateCurrentPageLabel(allBookingData.size());
+        previousButton.setDisable(true);
+        nextButton.setDisable(true);
     }
 
-
-    private int calculateTotalPages(int rowsPerPage) {
-        if (rowsPerPage <= 0) return 1;
-        return (int) Math.ceil((double) allBookingData.size() / rowsPerPage);
-    }
-
-    private void updateCurrentPageLabel() {
-        int totalPages = calculateTotalPages(rowsPerPage);
-        currentPageLabel.setText("Page " + currentPage + " of " + totalPages);
-    }
-
-    @FXML
-    void handleShowAllBookings(ActionEvent event) {
-        // Implement logic
-        currentPage = 1;
-        loadBookingDataForPage(currentPage, Integer.MAX_VALUE);
-        updateCurrentPageLabel();
-    }
-
-    @FXML
-    void handleShowThisMonthBookings(ActionEvent event) {
-        // Implement logic
-        currentPage = 1;
-        int currentMonth = LocalDateTime.now().getMonthValue();
-        bookingData.clear();
-        bookingData.addAll(allBookingData.stream().filter(booking -> booking.getDate().getMonthValue() == currentMonth).collect(Collectors.toList()));
-        updateCurrentPageLabel();
-    }
-
-    @FXML
-    void handleSearchByMonth(ActionEvent event) {
-        for (Booking b : allBookingData) {
-            if (b.getDate() != null) {
-                System.out.println("Booking date: " + b.getDate() +
-                        " | Month: " + b.getDate().getMonth().getDisplayName(TextStyle.FULL, Locale.ENGLISH));
+    // ==============================================================
+    // === PHƯƠNG THỨC QUAN TRỌNG ĐỂ TẢI DỮ LIỆU (ĐÃ SỬA LỖI size=0) ===
+    // ==============================================================
+    private void fetchAndDisplayBookings() {
+        // +++ KIỂM TRA VÀ ĐẢM BẢO currentPageSize LUÔN > 0 +++
+        if (this.currentPageSize <= 0) {
+            System.err.println("[WARN] currentPageSize was invalid (" + this.currentPageSize + "). Resetting to default (6).");
+            this.currentPageSize = 6; // Đặt lại về giá trị mặc định an toàn
+            // Cập nhật lại ComboBox nếu cần
+            if (rowsPerPageComboBox != null) {
+                rowsPerPageComboBox.setValue(String.valueOf(this.currentPageSize));
             }
         }
-        String selectedMonth = monthComboBox.getValue();
-        bookingData.clear();
+        // +++ KẾT THÚC KIỂM TRA +++
 
-        if (selectedMonth != null && !selectedMonth.isEmpty()) {
-            // In ra tháng đã chọn để debug
-            System.out.println("Selected Month (Search): " + selectedMonth);
+        // Hiển thị trạng thái đang tải
+        Platform.runLater(() -> {
+            displayedBookings.clear();
+            bookingsTable.setPlaceholder(new Label("Loading bookings..."));
+            pageInfoLabel.setText("Loading...");
+            previousButton.setDisable(true);
+            nextButton.setDisable(true);
+        });
 
-            // Lọc dữ liệu theo tên tháng đầy đủ (ví dụ: "April")
-            List<Booking> filtered = allBookingData.stream()
-                    .filter(booking -> {
-                        if (booking.getDate() != null) {
-                            String bookingMonth = booking.getDate()
-                                    .getMonth()
-                                    .getDisplayName(TextStyle.FULL, Locale.ENGLISH);
-                            return bookingMonth.equalsIgnoreCase(selectedMonth);
-                        }
-                        return false;
-                    })
-                    .collect(Collectors.toList());
-
-            bookingData.addAll(filtered);
-            System.out.println("Filtered Booking Data Size (Selected Month): " + filtered.size());
-        } else {
-            loadBookingDataForPage(currentPage, rowsPerPage);
-        }
-
-        updateCurrentPageLabel(bookingData.size());
-    }
-
-    @FXML
-    void handleFilterByYear(ActionEvent event) {
-        currentPage = 1;
-        String yearText = yearTextField.getText().trim(); // Xóa khoảng trắng nếu có
-
-        if (!yearText.isEmpty()) {
-            try {
-                int yearValue = Integer.parseInt(yearText);
-                bookingData.clear();
-
-                List<Booking> filteredByYear = allBookingData.stream()
-                        .filter(booking -> booking.getDate() != null && booking.getDate().getYear() == yearValue)
-                        .collect(Collectors.toList());
-
-                bookingData.addAll(filteredByYear);
-                System.out.println("Filtered Booking Data Size (Selected Year): " + filteredByYear.size());
-
-            } catch (NumberFormatException e) {
-                System.err.println("Invalid year format: " + yearText);
-                // Optionally show alert to user here
+        // Lấy giá trị bộ lọc (khai báo final để dùng trong Task)
+        final String roomIdFilter = roomSearchField.getText().trim();
+        final String userFilter = userSearchField.getText().trim();
+        final Integer monthFilter = monthMap.get(monthComboBox.getValue()); // Lấy số tháng từ tên tháng đã chọn
+        Integer tempYearFilter = null;
+        try {
+            if (yearTextField.getText() != null && !yearTextField.getText().trim().isEmpty()) {
+                tempYearFilter = Integer.parseInt(yearTextField.getText().trim());
             }
-        } else {
-            // Nếu để trống thì load lại toàn bộ dữ liệu cho trang đầu
-            loadBookingDataForPage(currentPage, rowsPerPage);
-        }
+        } catch (NumberFormatException e) { System.err.println("Invalid year input: " + yearTextField.getText()); }
+        final Integer yearFilter = tempYearFilter;
+        final int pageToFetch = this.currentPage; // Sử dụng biến final cho Task
+        final int sizeToFetch = this.currentPageSize; // Sử dụng biến final cho Task (đã được kiểm tra > 0)
 
-        updateCurrentPageLabel(bookingData.size());
+
+        // Tạo Task chạy nền
+        Task<Page<BookingResponse>> fetchTask = new Task<>() {
+            @Override
+            protected Page<BookingResponse> call() throws Exception {
+                System.out.printf("[FETCH] Requesting Page: %d, Size: %d, Room: '%s', User: '%s', Month: %s, Year: %s%n",
+                        pageToFetch, sizeToFetch, roomIdFilter, userFilter, monthFilter, yearFilter);
+                // Gọi service để lấy dữ liệu
+                return bookingService.getAllBookings(
+                        roomIdFilter.isEmpty() ? null : roomIdFilter,
+                        monthFilter,
+                        yearFilter,
+                        userFilter.isEmpty() ? null : userFilter,
+                        pageToFetch,
+                        sizeToFetch // Truyền size đã được kiểm tra
+                );
+            }
+        };
+
+        // Xử lý khi Task thành công
+        fetchTask.setOnSucceeded(event -> {
+            Page<BookingResponse> resultPage = fetchTask.getValue();
+            if (resultPage != null) {
+                System.out.println("[FETCH] Success. Received page " + resultPage.getNumber() + "/" + (resultPage.getTotalPages() > 0 ? resultPage.getTotalPages()-1 : 0) + ", Elements: " + resultPage.getNumberOfElements() + "/" + resultPage.getTotalElements());
+                updateUIAfterFetch(resultPage); // Cập nhật UI
+            } else {
+                System.err.println("[FETCH] Succeeded but received null Page object.");
+                updateUIAfterFetch(null); // Xử lý trường hợp null
+            }
+        });
+
+        // Xử lý khi Task thất bại
+        fetchTask.setOnFailed(event -> {
+            Throwable exception = fetchTask.getException();
+            System.err.println("[FETCH] Failed: " + exception.getMessage());
+            exception.printStackTrace();
+            Platform.runLater(() -> {
+                bookingsTable.setPlaceholder(new Label("Error loading bookings."));
+                pageInfoLabel.setText("Error");
+                showErrorAlert("Load Failed", "Could not load bookings: " + exception.getMessage());
+                previousButton.setDisable(true); // Vô hiệu hóa nút khi lỗi
+                nextButton.setDisable(true);
+            });
+        });
+
+        new Thread(fetchTask).start(); // Bắt đầu Task
     }
 
+    // Cập nhật UI sau khi fetch dữ liệu
+    private void updateUIAfterFetch(Page<BookingResponse> resultPage) {
+        Platform.runLater(() -> {
+            if (resultPage != null) {
+                displayedBookings.setAll(resultPage.getContent() != null ? resultPage.getContent() : Collections.emptyList());
+                totalPages = resultPage.getTotalPages();
+                totalElements = resultPage.getTotalElements();
+                currentPage = resultPage.getNumber(); // Cập nhật trang hiện tại (0-based)
+                currentPageSize = resultPage.getSize(); // Cập nhật kích thước trang thực tế từ phản hồi
+
+                // Cập nhật label thông tin trang (hiển thị 1-based)
+                String pageText = String.format("Page %d of %d (%d items)",
+                        (totalElements == 0 ? 0 : currentPage + 1), // Hiển thị trang 0 nếu không có item nào
+                        totalPages,
+                        totalElements);
+                pageInfoLabel.setText(pageText);
+
+                // Cập nhật trạng thái nút Previous/Next
+                previousButton.setDisable(resultPage.isFirst());
+                nextButton.setDisable(resultPage.isLast());
+
+                // Cập nhật placeholder nếu trang trống
+                bookingsTable.setPlaceholder(new Label(resultPage.isEmpty() ? "No bookings match filters." : null));
+
+            } else {
+                // Xử lý nếu resultPage là null
+                displayedBookings.clear();
+                totalPages = 0; totalElements = 0; currentPage = 0;
+                pageInfoLabel.setText("Page 0 of 0 (0 items)"); // Cập nhật label
+                previousButton.setDisable(true); nextButton.setDisable(true);
+                bookingsTable.setPlaceholder(new Label("Error loading data."));
+            }
+        });
+    }
+
+
+    // ==========================================================
+    // === CÁC PHƯƠNG THỨC XỬ LÝ SỰ KIỆN (ĐÃ SỬA LỖI THAM SỐ) ===
+    // ==========================================================
+
+    // --- Dùng cho onKeyReleased từ TextFields ---
     @FXML
-    public void handleLiveSearchFacility(KeyEvent event) {
-        String input = facilityTextField.getText().trim().toLowerCase();
-        bookingData.clear();
-
-        if (!input.isEmpty()) {
-            List<Booking> filtered = allBookingData.stream()
-                    .filter(b -> b.getTitleFacility().toLowerCase().contains(input))
-                    .collect(Collectors.toList());
-            bookingData.addAll(filtered);
-        } else {
-            loadBookingDataForPage(currentPage, rowsPerPage); // hoặc bookingData.addAll(allBookingData);
-        }
-
-        updateCurrentPageLabel(bookingData.size());
+    void handleFilterChange(KeyEvent event) {
+        System.out.println("[FILTER] Key event triggered filter change.");
+        currentPage = 0; // Reset về trang đầu khi lọc
+        fetchAndDisplayBookings(); // Gọi hàm tải lại dữ liệu
     }
 
+    // --- Dùng cho onAction từ ComboBox và Year TextField ---
     @FXML
-    void handleLiveSearchByFacilityMan(KeyEvent event) {
-        String input = employeeIdTextField.getText().trim().toLowerCase();
-        bookingData.clear();
-
-        if (!input.isEmpty()) {
-            bookingData.addAll(allBookingData.stream()
-                    .filter(booking -> booking.getFacilityMan() != null &&
-                            booking.getFacilityMan().toLowerCase().contains(input))
-                    .collect(Collectors.toList()));
-        } else {
-            loadBookingDataForPage(currentPage, rowsPerPage);
-        }
-
-        updateCurrentPageLabel(bookingData.size());
+    void handleFilterChange(ActionEvent event) {
+        System.out.println("[FILTER] Action event triggered filter change.");
+        currentPage = 0; // Reset về trang đầu khi lọc
+        fetchAndDisplayBookings(); // Gọi hàm tải lại dữ liệu
     }
+    // ----------------------------------------------------------
+
 
     @FXML
     void handleResetFilters(ActionEvent event) {
-        // Reset current page and rows per page
-        currentPage = 1;
-        rowsPerPage = 6;
+        System.out.println("[FILTER] Resetting filters.");
+        // Xóa các control lọc
+        monthComboBox.setValue(null);
+        yearTextField.clear();
+        roomSearchField.clear();
+        userSearchField.clear();
 
-        // Clear all TextFields
-        monthComboBox.setValue(null); // Reset ComboBox (Month)
-        yearTextField.clear(); // Clear Year TextField
-        employeeIdTextField.clear(); // Clear Employee ID TextField
+        // Đặt lại kích thước trang về mặc định
+        currentPageSize = 6; // Hoặc giá trị mặc định của bạn
+        rowsPerPageComboBox.setValue(String.valueOf(currentPageSize));
 
-        // If you have more TextFields to reset, add them here
-        facilityTextField.clear(); // Example TextField for Facility Name
-
-        // Reload all data without any filters
-        loadBookingDataForPage(currentPage, rowsPerPage);
-
-        // Update the pagination label
-        updateCurrentPageLabel();
+        // Đặt lại trang và tải lại
+        currentPage = 0;
+        fetchAndDisplayBookings();
     }
 
-    private void updateCurrentPageLabel(int totalItems) {
-        int totalPages = calculateTotalPages(rowsPerPage, totalItems);
-
-        int startItem = (currentPage - 1) * rowsPerPage + 1;
-        int endItem = Math.min(currentPage * rowsPerPage, totalItems);
-
-        if (totalItems == 0) {
-            currentPageLabel.setText("0-0 of 0");
-        } else {
-            currentPageLabel.setText(startItem + "-" + endItem + " of " + totalItems);
-        }
-    }
-
-    private int calculateTotalPages(int rowsPerPage, int totalItems) {
-        if (rowsPerPage <= 0) {
-            return 1; // Tránh chia cho 0
-        }
-        return (int) Math.ceil((double) totalItems / rowsPerPage);
-    }
-
-    public void handleExportBookings(ActionEvent actionEvent) {
-        System.out.println("Export Bookings clicked");
-
-        String dest = "bookings_export.pdf"; // Output file path
-
+    @FXML
+    void handleRowsPerPageChange(ActionEvent event) {
+        System.out.println("[PAGINATION] Rows per page changed.");
         try {
-            PdfWriter writer = new PdfWriter(new FileOutputStream(dest));
-            PdfDocument pdf = new PdfDocument(writer);
-            Document document = new Document(pdf);
+            int selectedRows = Integer.parseInt(rowsPerPageComboBox.getValue());
+            // Đảm bảo size luôn > 0
+            currentPageSize = (selectedRows > 0) ? selectedRows : 6; // Nếu <=0 thì về mặc định
+        } catch (NumberFormatException | NullPointerException e) {
+            currentPageSize = 6; // Mặc định nếu lỗi
+        }
+        // Không cần setValue lại ở đây vì giá trị đã được lấy và kiểm tra
+        // rowsPerPageComboBox.setValue(String.valueOf(currentPageSize)); // Có thể bỏ dòng này
+        currentPage = 0; // Về trang đầu
+        fetchAndDisplayBookings();
+    }
 
-            document.add(new Paragraph("Booking Export")
-                    .setBold()
-                    .setFontSize(14)
-                    .setTextAlignment(TextAlignment.CENTER));
+    @FXML
+    void handlePreviousPage(ActionEvent event) {
+        System.out.println("[PAGINATION] Previous page requested.");
+        if (currentPage > 0) {
+            currentPage--;
+            fetchAndDisplayBookings();
+        }
+    }
+
+    @FXML
+    void handleNextPage(ActionEvent event) {
+        System.out.println("[PAGINATION] Next page requested.");
+        if (currentPage < totalPages - 1) {
+            currentPage++;
+            fetchAndDisplayBookings();
+        }
+    }
+
+    // --- Export Functionality (Giữ nguyên logic export trang hiện tại) ---
+    @FXML
+    public void handleExportBookings(ActionEvent actionEvent) {
+        if (displayedBookings.isEmpty()) {
+            showInfoAlert("No Data", "There is no data currently displayed to export.");
+            return;
+        }
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Current Page as PDF");
+        fileChooser.setInitialFileName("Bookings_Page_" + (currentPage + 1) + "_" + java.time.LocalDate.now() + ".pdf");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files (*.pdf)", "*.pdf"));
+        Window stage = getWindow();
+        File file = fileChooser.showSaveDialog(stage);
+        if (file != null) {
+            String filePath = file.getAbsolutePath();
+            System.out.println("[EXPORT] Exporting current page data to PDF: " + filePath);
+            // Tạo bản sao của danh sách hiện tại để truyền vào luồng nền
+            List<BookingResponse> dataToExport = new ArrayList<>(displayedBookings);
+            new Thread(() -> createPdf(filePath, dataToExport)).start();
+        } else {
+            System.out.println("[EXPORT] PDF Export cancelled by user.");
+        }
+    }
+
+    private void createPdf(String filePath, List<BookingResponse> dataToExport) {
+        System.out.println("[EXPORT] Starting PDF creation with " + dataToExport.size() + " items...");
+        try (FileOutputStream fos = new FileOutputStream(filePath);
+             PdfWriter writer = new PdfWriter(fos);
+             PdfDocument pdf = new PdfDocument(writer);
+             Document document = new Document(pdf)) {
+
+            document.add(new Paragraph("Bookings Export (Current View)").setBold().setFontSize(16).setTextAlignment(TextAlignment.CENTER));
+            document.add(new Paragraph("Generated on: " + dateTimeFormatter.format(LocalDateTime.now())).setFontSize(10).setTextAlignment(TextAlignment.CENTER));
             document.add(new Paragraph("\n"));
 
-            Table table = new Table(UnitValue.createPercentArray(new float[]{2, 2, 2, 2, 2, 2, 2, 2}))
-                    .useAllAvailableWidth();
+            float[] columnWidths = {2f, 1.5f, 2f, 1f, 1.5f, 1.5f, 2f, 1.5f};
+            Table pdfTable = new Table(UnitValue.createPercentArray(columnWidths)).useAllAvailableWidth();
 
-            // Header row
-            table.addHeaderCell("Title/Facility");
-            table.addHeaderCell("Requested By");
-            table.addHeaderCell("Purpose");
-            table.addHeaderCell("Date");
-            table.addHeaderCell("Time Slot");
-            table.addHeaderCell("Requested At");
-            table.addHeaderCell("Group Director");
-            table.addHeaderCell("Facility Man");
+            addPdfHeaderCell(pdfTable, "Room Name"); addPdfHeaderCell(pdfTable, "Requested By"); addPdfHeaderCell(pdfTable, "Purpose"); addPdfHeaderCell(pdfTable, "Status"); addPdfHeaderCell(pdfTable, "Date"); addPdfHeaderCell(pdfTable, "Time Slot"); addPdfHeaderCell(pdfTable, "Requested At"); addPdfHeaderCell(pdfTable, "Processed By");
 
-            // Data rows
-            for (Booking booking : allBookingData) {
-                table.addCell(booking.getTitleFacility());
-                table.addCell(booking.getRequestedBy());
-                table.addCell(booking.getPurpose());
-                table.addCell(booking.getDate().toString());
-                table.addCell(booking.getTimeSlot());
-                table.addCell(booking.getRequestedAt().toString());
-                table.addCell(booking.getGroupDirector());
-                table.addCell(booking.getFacilityMan());
+            if (dataToExport.isEmpty()) {
+                document.add(new Paragraph("No booking data to export in this view.").setTextAlignment(TextAlignment.CENTER));
+            } else {
+                for (BookingResponse booking : dataToExport) {
+                    if (booking == null) continue;
+                    pdfTable.addCell(getStringOrEmpty(booking.getRoomName()));
+                    pdfTable.addCell(getStringOrEmpty(booking.getUserName()));
+                    pdfTable.addCell(getStringOrEmpty(booking.getPurpose()));
+                    pdfTable.addCell(getStringOrEmpty(booking.getStatus()));
+                    pdfTable.addCell(booking.getPlannedStartTime() != null ? dateFormatter.format(booking.getPlannedStartTime()) : "");
+                    String timeSlotStr = "";
+                    if (booking.getPlannedStartTime() != null && booking.getPlannedEndTime() != null) {
+                        timeSlotStr = timeFormatter.format(booking.getPlannedStartTime()) + " - " + timeFormatter.format(booking.getPlannedEndTime());
+                    }
+                    pdfTable.addCell(timeSlotStr);
+                    pdfTable.addCell(booking.getCreatedAt() != null ? dateTimeFormatter.format(booking.getCreatedAt()) : "");
+                    pdfTable.addCell(getStringOrEmpty(booking.getApprovedByUserName()));
+                }
+                document.add(pdfTable);
             }
-
-            document.add(table);
-            document.close();
-
-            System.out.println("PDF exported successfully to: " + dest);
-
-        } catch (FileNotFoundException e) {
+            System.out.println("[EXPORT] PDF created successfully at: " + filePath);
+            Platform.runLater(() -> showInfoAlert("Export Successful", "Current page data exported successfully to:\n" + filePath));
+        } catch (Exception e) {
+            System.err.println("[EXPORT] Error during PDF export: " + e.getMessage());
             e.printStackTrace();
+            Platform.runLater(() -> showErrorAlert("Export Failed", "An error occurred during export:\n" + e.getMessage()));
         }
+        System.out.println("[EXPORT] createPdf() finished.");
     }
 
-    public void handleRowsPerPageChange(ActionEvent actionEvent) {
-        rowsPerPage = 6;
-        currentPage = 1; // Bắt đầu từ trang đầu tiên
-        loadBookingDataForPage(currentPage, rowsPerPage);
-        updateCurrentPageLabel(allBookingData.size());
+
+    private void addPdfHeaderCell(Table table, String text) {
+        table.addHeaderCell(new Paragraph(text).setBold().setFontSize(10));
     }
 
-    public void handlePreviousPage(ActionEvent actionEvent) {
-        if (currentPage > 1) {
-            currentPage--;
-            loadBookingDataForPage(currentPage, rowsPerPage);
-            updateCurrentPageLabel(allBookingData.size());
+    // --- Utility Methods ---
+    private String getStringOrEmpty(String str) { return str != null ? str : ""; }
+    private void showInfoAlert(String title, String message) { showAlert(Alert.AlertType.INFORMATION, title, message); }
+    private void showErrorAlert(String title, String message) { showAlert(Alert.AlertType.ERROR, title, message); }
+    private void showAlert(Alert.AlertType alertType, String title, String message) {
+        if (!Platform.isFxApplicationThread()) {
+            Platform.runLater(() -> showAlert(alertType, title, message));
+            return;
         }
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title); alert.setHeaderText(null);
+        TextArea textArea = new TextArea(message);
+        textArea.setEditable(false); textArea.setWrapText(true);
+        textArea.setMaxWidth(Double.MAX_VALUE); textArea.setMaxHeight(Double.MAX_VALUE);
+        alert.getDialogPane().setContent(textArea); alert.setResizable(true);
+        Window owner = getWindow();
+        if (owner != null) alert.initOwner(owner);
+        alert.showAndWait();
     }
-
-    public void handleNextPage(ActionEvent actionEvent) {
-        int totalPages = calculateTotalPages(rowsPerPage, allBookingData.size());
-        if (currentPage < totalPages) {
-            currentPage++;
-            loadBookingDataForPage(currentPage, rowsPerPage);
-            updateCurrentPageLabel(allBookingData.size());
-        }
+    private Window getWindow() {
+        try {
+            if (bookingsTable != null && bookingsTable.getScene() != null) return bookingsTable.getScene().getWindow();
+            if (monthComboBox != null && monthComboBox.getScene() != null) return monthComboBox.getScene().getWindow();
+        } catch (Exception e) { System.err.println("Could not reliably determine the window owner: " + e.getMessage()); }
+        return null;
     }
 }

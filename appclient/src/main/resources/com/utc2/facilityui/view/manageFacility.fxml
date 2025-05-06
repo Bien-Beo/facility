@@ -55,7 +55,7 @@
                             </graphic>
                         </Button>
                         <Pane prefHeight="55.0" prefWidth="850.0" />
-                        <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="110.0" style="-fx-background-color: #1976d2; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5px; -fx-effect: dropshadow( three-pass-box, rgba(0, 0, 0, 0.2), 5, 0.0, 0, 1 );">
+                        <Button fx:id="btnExport"  onAction="#handleExportToPdf" mnemonicParsing="false" prefHeight="40.0" prefWidth="110.0" style="-fx-background-color: #1976d2; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5px; -fx-effect: dropshadow( three-pass-box, rgba(0, 0, 0, 0.2), 5, 0.0, 0, 1 );">
                             <graphic>
                                 <HBox alignment="CENTER">
                                     <Label style="-fx-text-fill: white; -fx-font-size: 13px;" text="EXPORT" />

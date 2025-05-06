@@ -1,256 +1,281 @@
-package com.utc2.facilityui.controller.booking;
+package com.utc2.facilityui.controller.booking; // Hoặc package đúng của bạn
 
-// Import các lớp model
-import com.utc2.facilityui.model.CardAcceptBooking;
-import com.utc2.facilityui.model.CardBooking;
-import com.utc2.facilityui.model.CardRejectBooking; // *** Import model mới (Giả định) ***
-
-// Import các controller của component card (Đảm bảo đường dẫn package đúng)
-// import com.utc2.facilityui.controller.component.CardAcceptBookingController; // FQCN sẽ được dùng trong code
-// import com.utc2.facilityui.controller.component.CardBookingController;
-// import com.utc2.facilityui.controller.component.CardRejectBookingController; // *** Controller mới (Giả định) ***
-
-// Import các lớp cần thiết khác
 import com.utc2.facilityui.response.BookingResponse;
+import com.utc2.facilityui.response.Page;
 import com.utc2.facilityui.service.BookingService;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Window; // Cần để hiển thị Alert
 
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
+import java.util.Collections;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
-/**
- * Controller quản lý màn hình hiển thị danh sách các yêu cầu đặt phòng
- * của người dùng đang đăng nhập.
- * Hiển thị PENDING_APPROVAL bằng CardBooking.
- * Hiển thị CONFIRMED bằng CardAcceptBooking.
- * Hiển thị REJECTED bằng CardRejectBooking.
- */
 public class MyBookingsController implements Initializable {
 
-    @FXML private VBox bookingListContainer;
-    @FXML private ScrollPane scrollPane;
-    @FXML private Label statusLabel;
+    // --- FXML Components (Đảm bảo fx:id khớp FXML của bạn) ---
+    @FXML private TableView<BookingResponse> myBookingsTable;
+    @FXML private TableColumn<BookingResponse, String> myRoomNameColumn;
+    @FXML private TableColumn<BookingResponse, String> myPurposeColumn;
+    @FXML private TableColumn<BookingResponse, String> myStatusColumn;
+    @FXML private TableColumn<BookingResponse, LocalDateTime> myDateColumn;
+    @FXML private TableColumn<BookingResponse, String> myTimeSlotColumn;
+    @FXML private TableColumn<BookingResponse, LocalDateTime> myCreatedAtColumn;
+    // Thêm cột Actions nếu cần (ví dụ: nút Cancel)
+    // @FXML private TableColumn<BookingResponse, Void> myActionsColumn;
 
+    @FXML private ComboBox<String> myRowsPerPageComboBox;
+    @FXML private Label myPageInfoLabel;
+    @FXML private Button myPreviousButton;
+    @FXML private Button myNextButton;
+
+    // --- Data List (Chỉ hiển thị trang hiện tại) ---
+    private final ObservableList<BookingResponse> displayedMyBookings = FXCollections.observableArrayList();
+
+    // --- Service ---
     private BookingService bookingService;
-    private static final DateTimeFormatter DISPLAY_FORMATTER = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
 
-    // Hằng số cho các trạng thái cần xử lý
-    private static final String PENDING_APPROVAL_STATUS = "PENDING_APPROVAL";
-    private static final String CONFIRMED_STATUS = "CONFIRMED";
-    private static final String REJECTED_STATUS = "REJECTED"; // Giả định đây là giá trị đúng
+    // --- State Variables for Pagination ---
+    private int currentPage = 0; // Backend dùng 0-based indexing
+    private int currentPageSize = 10; // Default (nên khớp với giá trị mặc định của ComboBox)
+    private int totalPages = 0;
+    private long totalElements = 0;
+
+    // --- Formatters ---
+    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        this.bookingService = new BookingService();
-        loadMyBookings();
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        bookingService = new BookingService();
+
+        setupTableColumns(); // Cấu hình cột
+        setupControls();     // Cấu hình ComboBox phân trang
+        loadMyBookingsData(); // Tải dữ liệu lần đầu
     }
 
     /**
-     * Tải danh sách các booking có trạng thái PENDING_APPROVAL, CONFIRMED, hoặc REJECTED
-     * từ backend và hiển thị chúng lên giao diện bằng các card tương ứng.
+     * Cấu hình các cột TableView
      */
-    public void loadMyBookings() {
-        statusLabel.setText("Đang tải danh sách booking...");
-        statusLabel.setVisible(true);
-        bookingListContainer.getChildren().clear();
+    private void setupTableColumns() {
+        // Đảm bảo các chuỗi trong PropertyValueFactory khớp tên getter trong BookingResponse
+        myRoomNameColumn.setCellValueFactory(new PropertyValueFactory<>("roomName"));
+        myPurposeColumn.setCellValueFactory(new PropertyValueFactory<>("purpose"));
+        myStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
 
-        new Thread(() -> {
-            try {
-                final List<BookingResponse> allMyBookings = bookingService.getMyBookings();
-
-                final List<BookingResponse> bookingsToShow = allMyBookings.stream()
-                        .filter(booking -> booking != null &&
-                                (PENDING_APPROVAL_STATUS.equalsIgnoreCase(booking.getStatus()) ||
-                                        CONFIRMED_STATUS.equalsIgnoreCase(booking.getStatus()) ||
-                                        REJECTED_STATUS.equalsIgnoreCase(booking.getStatus())
-                                ))
-                        .collect(Collectors.toList());
-
-                Platform.runLater(() -> {
-                    statusLabel.setText("");
-                    statusLabel.setVisible(false);
-
-                    if (!bookingsToShow.isEmpty()) {
-                        for (BookingResponse booking : bookingsToShow) {
-                            try {
-                                FXMLLoader loader;
-                                Node cardNode;
-
-                                // 6. Tải FXML và Controller phù hợp dựa trên trạng thái booking
-                                if (PENDING_APPROVAL_STATUS.equalsIgnoreCase(booking.getStatus())) {
-                                    // Tải card booking tiêu chuẩn cho trạng thái chờ duyệt
-                                    loader = new FXMLLoader(getClass().getResource("/com/utc2/facilityui/component/cardBooking.fxml"));
-                                    cardNode = loader.load();
-                                    CardBookingController cardController = loader.getController();
-
-                                    // Tạo model CardBooking và truyền vào controller
-                                    CardBooking cardBookingModel = createCardBookingModel(booking);
-                                    cardController.setBooking(cardBookingModel);
-
-                                } else if (CONFIRMED_STATUS.equalsIgnoreCase(booking.getStatus())) {
-                                    // Tải card booking đã duyệt cho trạng thái đã xác nhận
-                                    loader = new FXMLLoader(getClass().getResource("/com/utc2/facilityui/component/cardAcceptBooking.fxml"));
-                                    cardNode = loader.load();
-                                    CardAcceptBookingController acceptCardController = loader.getController();
-
-                                    // Tạo model CardAcceptBooking và truyền vào controller
-                                    CardAcceptBooking cardAcceptBookingModel = createCardAcceptBookingModel(booking);
-                                    acceptCardController.setAcceptBooking(cardAcceptBookingModel);
-                                } else if (REJECTED_STATUS.equalsIgnoreCase(booking.getStatus())) {
-
-                                    loader = new FXMLLoader(getClass().getResource("/com/utc2/facilityui/component/cardRejectBooking.fxml"));
-                                    cardNode = loader.load();
-                                    CardRejectBookingController rejectCardController = loader.getController();
-
-                                    // Tạo model CardAcceptBooking và truyền vào controller
-                                    CardRejectBooking cardRejectBookingModel = createCardRejectBookingModel(booking);
-                                    rejectCardController.setRejectBooking(cardRejectBookingModel);
-
-                                } else {
-                                    System.err.println("WARN: Bỏ qua booking với trạng thái không xử lý: " + booking.getStatus() + ", ID: " + booking.getId());
-                                    continue;
-                                }
-
-                                bookingListContainer.getChildren().add(cardNode);
-
-                            } catch (IOException e) {
-                                String bookingIdForError = (booking != null) ? booking.getId() : "UNKNOWN_ID";
-                                System.err.println("ERROR: Không thể tải FXML cho booking ID: " + bookingIdForError + " - Status: " + (booking != null ? booking.getStatus() : "N/A") + " - " + e.getMessage());
-                                e.printStackTrace();
-                                statusLabel.setText("Lỗi khi hiển thị một booking (Không tìm thấy FXML?).");
-                                statusLabel.setVisible(true);
-                            } catch (Exception e) {
-                                String bookingIdForError = (booking != null) ? booking.getId() : "UNKNOWN_ID";
-                                System.err.println("ERROR: Lỗi xử lý dữ liệu cho booking ID: " + bookingIdForError + " - Status: " + (booking != null ? booking.getStatus() : "N/A") + " - " + e.getMessage());
-                                e.printStackTrace();
-                                statusLabel.setText("Lỗi dữ liệu booking.");
-                                statusLabel.setVisible(true);
-                            }
-                        } // Kết thúc vòng lặp for
-                    } else {
-                        // Cập nhật thông báo nếu không có booking nào phù hợp
-                        statusLabel.setText("Bạn không có yêu cầu đặt phòng nào đang chờ, đã duyệt hoặc bị từ chối.");
-                        statusLabel.setVisible(true);
-                    }
-                }); // Kết thúc Platform.runLater
-            } catch (IOException e) {
-                Platform.runLater(() -> {
-                    statusLabel.setText("Lỗi kết nối: Không thể tải danh sách booking.");
-                    statusLabel.setVisible(true);
-                    System.err.println("ERROR: Lỗi IOException khi gọi BookingService.getMyBookings(): " + e.getMessage());
-                    e.printStackTrace();
-                });
-            } catch (Exception e) {
-                Platform.runLater(() -> {
-                    statusLabel.setText("Đã xảy ra lỗi không mong muốn.");
-                    statusLabel.setVisible(true);
-                    System.err.println("ERROR: Lỗi không xác định trong luồng tải booking: " + e.getMessage());
-                    e.printStackTrace();
-                });
+        // Cột Ngày (Planned Start)
+        myDateColumn.setCellValueFactory(new PropertyValueFactory<>("plannedStartTime"));
+        myDateColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(LocalDateTime item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : dateFormatter.format(item));
             }
-        }).start(); // Bắt đầu chạy luồng
-    } // Kết thúc phương thức loadMyBookings
+        });
+        myDateColumn.setStyle("-fx-alignment: CENTER;");
 
-    /**
-     * Tạo đối tượng model CardBooking từ dữ liệu BookingResponse. (Dùng cho PENDING_APPROVAL)
-     */
-    private CardBooking createCardBookingModel(BookingResponse booking) {
-        CardBooking model = new CardBooking();
-        model.setBookingId(booking.getId());
-        model.setNameBooking(getValueOrDefault(booking.getRoomName()));
-        model.setPurposeBooking(getValueOrDefault(booking.getPurpose()));
-        model.setPlannedStartTimeDisplay(formatDateTime(booking.getPlannedStartTime()));
-        model.setPlannedEndTimeDisplay(formatDateTime(booking.getPlannedEndTime()));
-        model.setRequestBooking(formatDateTime(booking.getCreatedAt()));
-        model.setStatusBooking(mapStatus(booking.getStatus()));
-        return model;
-    }
-
-    /**
-     * Tạo đối tượng model CardAcceptBooking từ dữ liệu BookingResponse. (Dùng cho CONFIRMED)
-     */
-    private CardAcceptBooking createCardAcceptBookingModel(BookingResponse booking) {
-        CardAcceptBooking model = new CardAcceptBooking();
-        // Điền các trường kế thừa
-        model.setBookingId(booking.getId());
-        model.setNameBooking(getValueOrDefault(booking.getRoomName()));
-        model.setPurposeBooking(getValueOrDefault(booking.getPurpose()));
-        model.setPlannedStartTimeDisplay(formatDateTime(booking.getPlannedStartTime()));
-        model.setPlannedEndTimeDisplay(formatDateTime(booking.getPlannedEndTime()));
-        model.setRequestBooking(formatDateTime(booking.getCreatedAt()));
-        model.setStatusBooking(mapStatus(booking.getStatus()));
-        return model;
-    }
-
-    /**
-     * *** MỚI: Tạo đối tượng model CardRejectBooking từ dữ liệu BookingResponse. (Dùng cho REJECTED) ***
-     * *** Giả định lớp CardRejectBooking tồn tại và có phương thức setRejectionReason ***
-     */
-    private CardRejectBooking createCardRejectBookingModel(BookingResponse booking) {
-        // *** Giả định lớp CardRejectBooking kế thừa CardBooking và thêm rejectionReason ***
-        CardRejectBooking model = new CardRejectBooking();
-        // Điền các trường kế thừa
-        model.setBookingId(booking.getId());
-        model.setNameBooking(getValueOrDefault(booking.getRoomName()));
-        model.setPurposeBooking(getValueOrDefault(booking.getPurpose()));
-        model.setPlannedStartTimeDisplay(formatDateTime(booking.getPlannedStartTime()));
-        model.setPlannedEndTimeDisplay(formatDateTime(booking.getPlannedEndTime()));
-        model.setRequestBooking(formatDateTime(booking.getCreatedAt()));
-        model.setStatusBooking(mapStatus(booking.getStatus())); // Sẽ là "Đã từ chối"
-
-
-        return model;
-    }
-
-    /**
-     * Định dạng đối tượng LocalDateTime thành chuỗi "HH:mm dd/MM/yyyy".
-     */
-    private String formatDateTime(LocalDateTime dateTime) {
-        if (dateTime != null) {
-            try {
-                return dateTime.format(DISPLAY_FORMATTER);
-            } catch (Exception e) {
-                System.err.println("WARN: Lỗi định dạng thời gian: " + dateTime + " - " + e.getMessage());
-                return dateTime.toString();
+        // Cột Time Slot (Planned Start - End)
+        myTimeSlotColumn.setCellValueFactory(cellData -> {
+            BookingResponse booking = cellData.getValue();
+            if (booking != null && booking.getPlannedStartTime() != null && booking.getPlannedEndTime() != null) {
+                String start = timeFormatter.format(booking.getPlannedStartTime());
+                String end = timeFormatter.format(booking.getPlannedEndTime());
+                return new SimpleStringProperty(start + " - " + end);
             }
+            return new SimpleStringProperty("");
+        });
+        myTimeSlotColumn.setStyle("-fx-alignment: CENTER;");
+
+        // Cột Requested At (Created At)
+        myCreatedAtColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
+        myCreatedAtColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(LocalDateTime item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : dateTimeFormatter.format(item));
+            }
+        });
+
+        // TODO: Thêm CellFactory cho cột Actions nếu có (ví dụ: nút Cancel)
+
+        // Gán danh sách hiển thị và placeholder
+        myBookingsTable.setItems(displayedMyBookings);
+        myBookingsTable.setPlaceholder(new Label("Loading your bookings..."));
+    }
+
+    /**
+     * Cấu hình trạng thái ban đầu cho các control (ComboBox)
+     */
+    private void setupControls() {
+        myRowsPerPageComboBox.setItems(FXCollections.observableArrayList("5", "10", "20"));
+        myRowsPerPageComboBox.setValue(String.valueOf(currentPageSize)); // Set giá trị mặc định
+
+        // Vô hiệu hóa nút phân trang ban đầu
+        myPreviousButton.setDisable(true);
+        myNextButton.setDisable(true);
+    }
+
+    /**
+     * Tải dữ liệu booking của người dùng hiện tại từ backend (chạy trên luồng nền)
+     */
+    private void loadMyBookingsData() {
+        // Hiển thị trạng thái đang tải
+        Platform.runLater(() -> {
+            displayedMyBookings.clear(); // Xóa bảng khi đang tải
+            myBookingsTable.setPlaceholder(new Label("Loading your bookings..."));
+            myPageInfoLabel.setText("Loading...");
+            myPreviousButton.setDisable(true);
+            myNextButton.setDisable(true);
+        });
+
+        // Tạo Task để gọi API trên luồng nền
+        Task<Page<BookingResponse>> fetchTask = new Task<>() {
+            @Override
+            protected Page<BookingResponse> call() throws Exception {
+                System.out.printf("[FETCH MY] Requesting Page: %d, Size: %d%n", currentPage, currentPageSize);
+                // *** GỌI PHƯƠNG THỨC ĐÚNG ***
+                return bookingService.getMyBookingsPaged(currentPage, currentPageSize);
+            }
+        };
+
+        // Xử lý khi Task thành công
+        fetchTask.setOnSucceeded(event -> {
+            Page<BookingResponse> resultPage = fetchTask.getValue();
+            if (resultPage != null) {
+                System.out.println("[FETCH MY] Success. Received page " + resultPage.getNumber() + "/" + (resultPage.getTotalPages()-1) + ", Elements: " + resultPage.getNumberOfElements() + "/" + resultPage.getTotalElements());
+                updateMyBookingsUI(resultPage); // Cập nhật UI trên luồng JavaFX
+            } else {
+                // Xử lý trường hợp trả về null (bất thường)
+                System.err.println("[FETCH MY] Succeeded but received null Page object.");
+                updateMyBookingsUI(null);
+            }
+        });
+
+        // Xử lý khi Task thất bại
+        fetchTask.setOnFailed(event -> {
+            Throwable exception = fetchTask.getException();
+            System.err.println("[FETCH MY] Failed: " + exception.getMessage());
+            exception.printStackTrace();
+            Platform.runLater(() -> {
+                myBookingsTable.setPlaceholder(new Label("Error loading your bookings."));
+                myPageInfoLabel.setText("Error");
+                showErrorAlert("Load Failed", "Could not load your bookings: " + exception.getMessage());
+            });
+        });
+
+        // Chạy Task
+        new Thread(fetchTask).start();
+    }
+
+    /**
+     * Cập nhật TableView và các control phân trang sau khi nhận dữ liệu từ API.
+     * Phải được gọi trên luồng JavaFX Application Thread.
+     */
+    private void updateMyBookingsUI(Page<BookingResponse> resultPage) {
+        Platform.runLater(() -> { // Đảm bảo chạy trên luồng UI
+            if (resultPage != null) {
+                displayedMyBookings.setAll(resultPage.getContent() != null ? resultPage.getContent() : Collections.emptyList());
+                totalPages = resultPage.getTotalPages();
+                totalElements = resultPage.getTotalElements();
+                currentPage = resultPage.getNumber(); // Cập nhật trang hiện tại (0-based)
+                currentPageSize = resultPage.getSize(); // Cập nhật kích thước trang
+
+                // Cập nhật Label thông tin trang (hiển thị 1-based)
+                String pageText = String.format("Page %d of %d (%d items)",
+                        currentPage + 1,
+                        totalPages,
+                        totalElements);
+                myPageInfoLabel.setText(pageText);
+
+                // Cập nhật trạng thái nút Previous/Next
+                myPreviousButton.setDisable(resultPage.isFirst());
+                myNextButton.setDisable(resultPage.isLast());
+
+                // Cập nhật placeholder nếu danh sách rỗng
+                myBookingsTable.setPlaceholder(new Label(resultPage.isEmpty() ? "You have no bookings." : null));
+
+            } else {
+                // Xử lý nếu resultPage là null
+                displayedMyBookings.clear();
+                totalPages = 0;
+                totalElements = 0;
+                currentPage = 0;
+                myPageInfoLabel.setText("Page 1 of 1 (0 items)");
+                myPreviousButton.setDisable(true);
+                myNextButton.setDisable(true);
+                myBookingsTable.setPlaceholder(new Label("Error loading data."));
+            }
+        });
+    }
+
+    // --- Event Handlers cho phân trang ---
+
+    @FXML
+    void handleMyRowsPerPageChange(ActionEvent event) {
+        System.out.println("[PAGINATION MY] Rows per page changed.");
+        try {
+            int selectedRows = Integer.parseInt(myRowsPerPageComboBox.getValue());
+            currentPageSize = (selectedRows > 0) ? selectedRows : 10; // Cập nhật biến state
+        } catch (NumberFormatException | NullPointerException e) {
+            currentPageSize = 10; // Về giá trị mặc định
+            myRowsPerPageComboBox.setValue("10"); // Sửa lại UI nếu nhập sai
         }
-        return "N/A";
+        currentPage = 0; // Luôn về trang đầu khi đổi kích thước trang
+        loadMyBookingsData(); // Tải lại dữ liệu
     }
 
-    /**
-     * Ánh xạ mã trạng thái từ API sang chuỗi thân thiện với người dùng.
-     */
-    private String mapStatus(String status) {
-        if (status == null) return "Không xác định";
-        switch (status.toUpperCase()) {
-            case PENDING_APPROVAL_STATUS: return "Chờ duyệt";
-            case CONFIRMED_STATUS: return "Đã duyệt";
-            case REJECTED_STATUS: return "Đã từ chối";
-            case "CANCELLED": return "Đã hủy";
-            case "COMPLETED": return "Đã hoàn thành";
-            case "CHECKED_IN": return "Đã check-in";
-            default:
-                System.out.println("INFO: Trạng thái không xác định trong mapStatus: " + status);
-                return status;
+    @FXML
+    void handleMyPreviousPage(ActionEvent event) {
+        System.out.println("[PAGINATION MY] Previous page requested.");
+        if (currentPage > 0) {
+            currentPage--; // Giảm chỉ số trang (0-based)
+            loadMyBookingsData(); // Tải lại dữ liệu
         }
     }
 
-    /**
-     * Helper nhỏ để trả về giá trị mặc định "N/A" nếu chuỗi đầu vào là null hoặc rỗng.
-     */
-    private String getValueOrDefault(String value) {
-        return (value != null && !value.trim().isEmpty()) ? value : "N/A";
+    @FXML
+    void handleMyNextPage(ActionEvent event) {
+        System.out.println("[PAGINATION MY] Next page requested.");
+        if (currentPage < totalPages - 1) {
+            currentPage++; // Tăng chỉ số trang (0-based)
+            loadMyBookingsData(); // Tải lại dữ liệu
+        }
+    }
+
+    // --- Phương thức tiện ích ---
+    private void showErrorAlert(String title, String message) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            TextArea textArea = new TextArea(message);
+            textArea.setEditable(false); textArea.setWrapText(true);
+            textArea.setMaxWidth(Double.MAX_VALUE); textArea.setMaxHeight(Double.MAX_VALUE);
+            alert.getDialogPane().setContent(textArea); alert.setResizable(true);
+            Window owner = getWindow(); // Lấy cửa sổ chủ
+            if (owner != null) alert.initOwner(owner);
+            alert.showAndWait();
+        });
+    }
+    private Window getWindow() {
+        try {
+            if (myBookingsTable != null && myBookingsTable.getScene() != null) return myBookingsTable.getScene().getWindow();
+            // Thêm các control khác nếu cần
+        } catch (Exception e) {
+            System.err.println("Could not reliably determine the window owner: " + e.getMessage());
+        }
+        return null;
     }
 }

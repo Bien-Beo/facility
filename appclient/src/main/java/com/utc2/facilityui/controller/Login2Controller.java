@@ -236,7 +236,7 @@ public class Login2Controller {
             passwordField.setVisible(false);
             passwordField.setManaged(false);
 
-            togglePasswordIcon.setImage(new Image(getClass().getResourceAsStream("/images/hide.png")));
+            togglePasswordIcon.setImage(new Image(getClass().getResourceAsStream("/com/utc2/facilityui/images/hide.png")));
         } else {
             passwordField.setText(visiblePassword.getText());
             passwordField.setVisible(true);
@@ -245,7 +245,7 @@ public class Login2Controller {
             visiblePassword.setVisible(false);
             visiblePassword.setManaged(false);
 
-            togglePasswordIcon.setImage(new Image(getClass().getResourceAsStream("/images/visible.png")));
+            togglePasswordIcon.setImage(new Image(getClass().getResourceAsStream("/com/utc2/facilityui/images/visible.png")));
         }
     }
 
