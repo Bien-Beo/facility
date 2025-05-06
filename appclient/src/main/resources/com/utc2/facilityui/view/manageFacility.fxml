@@ -19,7 +19,7 @@
         <VBox prefHeight="618.0" prefWidth="1200.0" spacing="10.0">
             <children>
                 <!-- Title with improved style -->
-                <Label fx:id="titleLabel" maxHeight="93.0" prefHeight="50.0" prefWidth="353.0" text="Manage Facilities">
+                <Label fx:id="titleLabel" maxHeight="93.0" prefHeight="50.0" prefWidth="353.0" text="Quản lý cơ sở vật chất">
                     <font>
                         <Font name="Arial Bold" size="30.0" />
                     </font>
@@ -42,7 +42,7 @@
                         <Button fx:id="btnAddFacility" mnemonicParsing="false" onAction="#handleAddFacility" prefHeight="40.0" prefWidth="160.0" style="-fx-background-color: #1976d2; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5px; -fx-effect: dropshadow( three-pass-box, rgba(0, 0, 0, 0.2), 5, 0.0, 0, 1 );">
                             <graphic>
                                 <HBox alignment="CENTER">
-                                    <Label style="-fx-text-fill: white; -fx-font-size: 13px;" text="ADD ROOM" />
+                                    <Label style="-fx-text-fill: white; -fx-font-size: 13px;" text="Thêm phòng" />
                                     <ImageView fitHeight="16.0" fitWidth="16.0">
                                         <image>
                                             <Image url="@../images/calendar.png" />
@@ -58,7 +58,7 @@
                         <Button mnemonicParsing="false" prefHeight="40.0" prefWidth="110.0" style="-fx-background-color: #1976d2; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5px; -fx-effect: dropshadow( three-pass-box, rgba(0, 0, 0, 0.2), 5, 0.0, 0, 1 );">
                             <graphic>
                                 <HBox alignment="CENTER">
-                                    <Label style="-fx-text-fill: white; -fx-font-size: 13px;" text="EXPORT" />
+                                    <Label style="-fx-text-fill: white; -fx-font-size: 13px;" text="Xuất file" />
                                     <ImageView fitHeight="16.0" fitWidth="16.0">
                                         <image>
                                             <Image url="@../images/download.png" />
@@ -79,14 +79,14 @@
                 <!-- TableView with rounded corners and better style -->
                 <TableView fx:id="facilityTable" maxWidth="1200.0" prefHeight="670.0" prefWidth="1200.0" stylesheets="@../styles/manageFacility.css">
                     <columns>
-                        <TableColumn fx:id="nameColumn" prefWidth="200.79998797178268" text="Name/Building" />
-                        <TableColumn fx:id="descriptionColumn" prefWidth="120.99996948242188" text="Description" />
-                        <TableColumn fx:id="statusColumn" prefWidth="100.79998779296875" text="Status" />
-                        <TableColumn fx:id="createdAtColumn" prefWidth="150.39996337890625" text="Created At" />
-                        <TableColumn fx:id="updatedAtColumn" minWidth="0.0" prefWidth="150.39996337890625" text="Updated At" />
-                        <TableColumn fx:id="deletedAtColumn" minWidth="0.0" prefWidth="130.0" text="Deleted At" />
-                        <TableColumn fx:id="managerColumn" prefWidth="170.99993896484375" text="Facility Manager" />
-                        <TableColumn fx:id="operationsColumn" prefWidth="155.199951171875" text="Operations" />
+                        <TableColumn fx:id="nameColumn" prefWidth="200.79998797178268" text="Tên/Tòa nhà" />
+                        <TableColumn fx:id="descriptionColumn" prefWidth="120.99996948242188" text="Mô tả" />
+                        <TableColumn fx:id="statusColumn" prefWidth="100.79998779296875" text="Trạng thái" />
+                        <TableColumn fx:id="createdAtColumn" prefWidth="150.39996337890625" text="Ngày tạo" />
+                        <TableColumn fx:id="updatedAtColumn" minWidth="0.0" prefWidth="150.39996337890625" text="Ngày cập nhật" />
+                        <TableColumn fx:id="deletedAtColumn" minWidth="0.0" prefWidth="130.0" text="Ngày xóa" />
+                        <TableColumn fx:id="managerColumn" prefWidth="170.99993896484375" text="Quản lý" />
+                        <TableColumn fx:id="operationsColumn" prefWidth="161.5999755859375" text="Hoạt động" />
                     </columns>
                     <VBox.margin>
                         <Insets left="12.0" />

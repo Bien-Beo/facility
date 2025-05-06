@@ -1,14 +1,14 @@
 
 .nav-form{
-    -fx-background-color:  #525eda;
+    -fx-background-color:  #00275e;
 }
 .button1{
-      -fx-background-color: #525eda;;
+      -fx-background-color: #00275e;;
     -fx-cursor: hand;
     -fx-font-size:14px;
     -fx-text-fill: white;
     -fx-font-weight: bold;
-    -fx-border-color: #4c57cc;
+    -fx-border-color: #061151;
 
 }
 .button1:hover{
