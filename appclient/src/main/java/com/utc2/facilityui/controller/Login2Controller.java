@@ -229,25 +229,32 @@ public class Login2Controller {
         passwordVisible = !passwordVisible;
 
         if (passwordVisible) {
+            // Hiện TextField, ẩn PasswordField
             visiblePassword.setText(passwordField.getText());
+            visiblePassword.positionCaret(visiblePassword.getText().length());
             visiblePassword.setVisible(true);
             visiblePassword.setManaged(true);
 
             passwordField.setVisible(false);
             passwordField.setManaged(false);
 
-            togglePasswordIcon.setImage(new Image(getClass().getResourceAsStream("/images/hide.png")));
+            // Đổi icon sang "ẩn"
+            togglePasswordIcon.setImage(new Image(getClass().getResourceAsStream("/com/utc2/facilityui/images/hide.png")));
         } else {
+            // Hiện PasswordField, ẩn TextField
             passwordField.setText(visiblePassword.getText());
+            passwordField.positionCaret(passwordField.getText().length());
             passwordField.setVisible(true);
             passwordField.setManaged(true);
 
             visiblePassword.setVisible(false);
             visiblePassword.setManaged(false);
 
-            togglePasswordIcon.setImage(new Image(getClass().getResourceAsStream("/images/visible.png")));
+            // Đổi icon sang "hiện"
+            togglePasswordIcon.setImage(new Image(getClass().getResourceAsStream("/com/utc2/facilityui/images/visible.png")));
         }
     }
+
 
     private void generateCaptcha() {
         generatedCaptcha = generateRandomCode(5); // Độ dài mã captcha

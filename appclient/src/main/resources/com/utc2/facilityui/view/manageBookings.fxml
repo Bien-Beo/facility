@@ -22,7 +22,7 @@
             <children>
                 <HBox alignment="CENTER_LEFT">
                     <children>
-                        <Label text="Manage bookings">
+                        <Label text="Quản lý đặt phòng">
                             <font>
                                 <Font name="Arial Bold" size="30.0" />
                             </font>

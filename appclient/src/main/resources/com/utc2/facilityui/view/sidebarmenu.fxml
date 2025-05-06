@@ -2,7 +2,6 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -38,7 +37,7 @@
                 <Insets bottom="15.0" top="3.0" />
             </VBox.margin>
         </Text>
-        <Button fx:id="manageFacilitiesButton" graphicTextGap="10.0" mnemonicParsing="false" onAction="#handleManageFacilities" prefHeight="64.0" prefWidth="306.0" style="-fx-background-color: #00275e;" styleClass="sidebar-button" text="Manage Facilities " textFill="WHITE">
+        <Button fx:id="manageFacilitiesButton" graphicTextGap="10.0" mnemonicParsing="false" onAction="#handleManageFacilities" prefHeight="64.0" prefWidth="306.0" style="-fx-background-color: #00275e;" styleClass="sidebar-button" text="Quản lý cơ sở vật chất" textFill="WHITE">
             <graphic>
                 <HBox alignment="CENTER">
                     <ImageView fitHeight="35.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true">
@@ -58,7 +57,7 @@
                 <Tooltip text="Manage Facilities" />
             </tooltip>
         </Button>
-        <Button fx:id="manageBookingsButton" graphicTextGap="10.0" mnemonicParsing="false" onAction="#handleManageBookings" prefHeight="64.0" prefWidth="318.0" style="-fx-background-color: #00275e;" styleClass="sidebar-button" text="Manage Bookings" textFill="WHITE">
+        <Button fx:id="manageBookingsButton" graphicTextGap="10.0" mnemonicParsing="false" onAction="#handleManageBookings" prefHeight="64.0" prefWidth="318.0" style="-fx-background-color: #00275e;" styleClass="sidebar-button" text="Quản lý đặt phòng" textFill="WHITE">
             <graphic>
                 <HBox alignment="CENTER">
                     <ImageView fitHeight="35.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true">
@@ -78,7 +77,7 @@
                 <Tooltip text="Manage Bookings" />
             </tooltip>
         </Button>
-        <Button fx:id="approvalRequestsButton" graphicTextGap="10.0" mnemonicParsing="false" onAction="#handleApprovalRequests" prefHeight="64.0" prefWidth="344.0" style="-fx-background-color: #00275e;" styleClass="sidebar-button" text="Approval Requests" textFill="WHITE">
+        <Button fx:id="approvalRequestsButton" graphicTextGap="10.0" mnemonicParsing="false" onAction="#handleApprovalRequests" prefHeight="64.0" prefWidth="344.0" style="-fx-background-color: #00275e;" styleClass="sidebar-button" text="Yêu cầu phê duyệt" textFill="WHITE">
             <graphic>
                 <HBox alignment="CENTER">
                     <ImageView fitHeight="37.0" fitWidth="33.0" pickOnBounds="true" preserveRatio="true">
@@ -86,9 +85,7 @@
                             <Image url="@../images/stamp.png" />
                         </image>
                     </ImageView>
-                    <StackPane>
-                        <Label fx:id="approvalCountLabel" styleClass="notification-badge" text="4" />
-                    </StackPane>
+                    <StackPane />
                 </HBox>
             </graphic>
             <font>
@@ -101,7 +98,7 @@
                 <Tooltip text="Approval Requests" />
             </tooltip>
         </Button>
-        <Button fx:id="cancellationRequestsButton" graphicTextGap="10.0" mnemonicParsing="false" onAction="#handleCancellationRequests" prefHeight="64.0" prefWidth="300.0" style="-fx-background-color: #00275e;" styleClass="sidebar-button" text="Cancellation Requests" textFill="WHITE">
+        <Button fx:id="cancellationRequestsButton" graphicTextGap="10.0" mnemonicParsing="false" onAction="#handleCancellationRequests" prefHeight="64.0" prefWidth="300.0" style="-fx-background-color: #00275e;" styleClass="sidebar-button" text="Yêu cầu hủy" textFill="WHITE">
             <graphic>
                 <HBox alignment="CENTER">
                     <ImageView fitHeight="37.0" fitWidth="33.0" pickOnBounds="true" preserveRatio="true">
@@ -121,7 +118,7 @@
                 <Tooltip text="Cancellation Requests" />
             </tooltip>
         </Button>
-        <Button fx:id="resetPasswordButton" graphicTextGap="10.0" mnemonicParsing="false" onAction="#handleResetPassword" prefHeight="64.0" prefWidth="350.0" style="-fx-background-color: #00275e;" styleClass="sidebar-button" text="Reset Password" textFill="WHITE">
+        <Button fx:id="resetPasswordButton" graphicTextGap="10.0" mnemonicParsing="false" onAction="#handleResetPassword" prefHeight="64.0" prefWidth="350.0" style="-fx-background-color: #00275e;" styleClass="sidebar-button" text="Đặt lại mật khẩu" textFill="WHITE">
             <graphic>
                 <HBox alignment="CENTER">
                     <ImageView fitHeight="39.0" fitWidth="34.0" pickOnBounds="true" preserveRatio="true">
@@ -141,7 +138,7 @@
                 <Tooltip text="Reset Your Password" />
             </tooltip>
         </Button>
-        <Button fx:id="logoutButton" graphicTextGap="10.0" mnemonicParsing="false" onAction="#handleLogout" prefHeight="64.0" prefWidth="350.0" style="-fx-background-color: #00275e;" styleClass="sidebar-button" text="Logout" textFill="WHITE">
+        <Button fx:id="logoutButton" graphicTextGap="10.0" mnemonicParsing="false" onAction="#handleLogout" prefHeight="64.0" prefWidth="350.0" style="-fx-background-color: #00275e;" styleClass="sidebar-button" text="Đăng xuất" textFill="WHITE">
             <graphic>
                 <HBox alignment="CENTER">
                     <ImageView fitHeight="39.0" fitWidth="34.0" pickOnBounds="true" preserveRatio="true">
