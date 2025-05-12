@@ -12,10 +12,10 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-<?import javafx.scene.paint.Stop?>
-
 <?import javafx.scene.paint.LinearGradient?>
+<?import javafx.scene.paint.Stop?>
+<?import javafx.scene.text.Font?>
+
 <BorderPane prefHeight="600.0" prefWidth="850.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.ManageBookingsController">
     <top>
         <VBox alignment="TOP_LEFT" spacing="10.0" style="-fx-background-color: #f9f9f9; -fx-padding: 10;">
@@ -29,15 +29,15 @@
                             <textFill>
                                 <LinearGradient endX="1.0" endY="1.0">
                                     <stops>
-                                        <Stop offset="0.0" color="#1976d2" />
-                                        <Stop offset="1.0" color="#00bcd4" />
+                                        <Stop color="#1976d2" offset="0.0" />
+                                        <Stop color="#00bcd4" offset="1.0" />
                                     </stops>
                                 </LinearGradient>
                             </textFill>
                         </Label>
                         <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
                             <children>
-                                <Button onAction="#handleExportBookings" prefHeight="28.0" prefWidth="92.0" style="-fx-background-color: #1976d2; -fx-background-radius: 5px; -fx-text-fill: white;" text="EXPORT">
+                                <Button onAction="#handleExportBookings" prefHeight="34.0" prefWidth="115.0" style="-fx-background-color: #1976d2; -fx-background-radius: 5px; -fx-text-fill: white;" text="XUẤT PDF">
                                     <font>
                                         <Font name="System Bold" size="12.0" />
                                     </font>
@@ -52,7 +52,26 @@
                                             </children>
                                         </HBox>
                                     </graphic>
+                           <HBox.margin>
+                              <Insets right="15.0" />
+                           </HBox.margin>
                                 </Button>
+                        <Button onAction="#handleExportBookings" prefHeight="34.0" prefWidth="117.0" style="-fx-background-color: #1976d2; -fx-background-radius: 5px; -fx-text-fill: white;" text="XUẤT EXCEL">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                           <graphic>
+                              <HBox prefHeight="20.0" prefWidth="26.0">
+                                 <children>
+                                    <ImageView fitHeight="20.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@../images/download.png" />
+                                       </image>
+                                    </ImageView>
+                                 </children>
+                              </HBox>
+                           </graphic>
+                        </Button>
                             </children>
                         </HBox>
                     </children>
@@ -60,12 +79,10 @@
 
                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                     <children>
-                        <Button onAction="#handleShowAllBookings" text="All" style="-fx-background-color: #ffffff; -fx-text-fill: #1976d2; -fx-border-radius: 5px; -fx-padding: 10px;"/>
-                        <Button onAction="#handleShowThisMonthBookings" style="-fx-background-color: #ffffff; -fx-text-fill: #1976d2; -fx-border-radius: 5px; -fx-padding: 10px;" text="This month"/>
-                        <ComboBox fx:id="monthComboBox" onAction="#handleSearchByMonth" promptText="Select month" style="-fx-background-color: #ffffff; -fx-border-radius: 5px; -fx-padding: 10px;"/>
-                        <TextField fx:id="yearTextField" onAction="#handleFilterByYear" promptText="Search year" style="-fx-background-color: #ffffff; -fx-border-radius: 5px; -fx-padding: 10px;"/>
-                        <TextField fx:id="facilityTextField" onKeyReleased="#handleLiveSearchFacility" promptText="Search facility" style="-fx-background-color: #ffffff; -fx-border-radius: 5px; -fx-padding: 10px;"/>
-                        <TextField fx:id="employeeIdTextField" onKeyReleased="#handleLiveSearchByFacilityMan" promptText="Search manager" style="-fx-background-color: #ffffff; -fx-border-radius: 5px; -fx-padding: 10px;"/>
+                        <ComboBox fx:id="filterByRoomComboBox" promptText="Lọc theo phòng" style="-fx-background-color: #ffffff; -fx-border-radius: 5px; -fx-padding: 8;" />
+                        <ComboBox fx:id="filterByMonthComboBox" promptText="Lọc theo tháng" style="-fx-background-color: #ffffff; -fx-border-radius: 5px; -fx-padding: 8;" />
+                        <TextField fx:id="yearTextField" promptText="Năm 2025" style="-fx-background-color: #ffffff; -fx-border-radius: 5px; -fx-padding: 8; -fx-pref-width: 80;" />
+                        <ComboBox fx:id="filterByUserComboBox" promptText="Lọc theo người đặt" style="-fx-background-color: #ffffff; -fx-border-radius: 5px; -fx-padding: 8;" />
                         <Button onAction="#handleResetFilters" style="-fx-background-color: #1976d2; -fx-background-radius: 5px; -fx-text-fill: white; -fx-padding: 10px;" text="RESET">
                             <font>
                                 <Font name="System Bold" size="12.0" />
@@ -77,16 +94,17 @@
         </VBox>
     </top>
     <center>
-        <TableView fx:id="bookingsTable" prefHeight="200.0" prefWidth="681.0" stylesheets="@../styles/manageBooking.css">
+        <TableView fx:id="bookingsTable" prefHeight="400.0" prefWidth="970.0" stylesheets="@../styles/manageBooking.css">
             <columns>
-                <TableColumn fx:id="titleFacilityColumn" prefWidth="200.0" text="Title / Facility" />
-                <TableColumn fx:id="requestedByColumn" prefWidth="150.0" text="Requested By" />
-                <TableColumn fx:id="purposeColumn" prefWidth="150.0" text="Purpose" />
-                <TableColumn fx:id="dateColumn" prefWidth="150.0" text="Date" />
-                <TableColumn fx:id="timeSlotColumn" prefWidth="150.0" text="Time slot" />
-                <TableColumn fx:id="requestedAtColumn" prefWidth="150.0" text="Requested At" />
-                <TableColumn fx:id="groupDirectorColumn" prefWidth="150.0" text="Group Director" />
-                <TableColumn fx:id="facilityManColumn" prefWidth="160.0" text="Facility Man" />
+                <TableColumn fx:id="titleFacilityColumn" prefWidth="150.0" text="Người đặt/Phòng" />
+                <TableColumn fx:id="purposeColumn" prefWidth="120.0" text="Mục đích" />
+                <TableColumn fx:id="timeSlotColumn" prefWidth="180.0" text="Thời gian dự kiến" />
+                <TableColumn fx:id="equipmentColumn" prefWidth="150.0" text="Thiết bị" />
+                <TableColumn fx:id="requestedAtColumn" prefWidth="150.0" text="Yêu cầu lúc" />
+                <TableColumn fx:id="statusColumn" prefWidth="100.0" text="Trạng thái" />
+                <TableColumn fx:id="handledByColumn" prefWidth="150.0" text="Người xử lý" />
+                <TableColumn fx:id="reasonNoteColumn" prefWidth="150.0" text="Lý do/Ghi chú" />
+                <TableColumn fx:id="actionColumn" prefWidth="150.0" text="Hành động" />
             </columns>
         </TableView>
     </center>
