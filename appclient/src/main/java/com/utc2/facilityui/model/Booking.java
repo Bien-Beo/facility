@@ -1,205 +1,116 @@
 package com.utc2.facilityui.model;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableValue;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 
 public class Booking {
-    private final StringProperty titleFacility;
-    private final StringProperty requestedBy;
-    private final StringProperty purpose;
-    private final StringProperty timeSlot;
-    private final StringProperty requestedAt;
-    private final StringProperty groupDirector;
-    private final StringProperty facilityMan;
-    private final StringProperty equipment;
-    private final StringProperty canceled;// Thuộc tính mới
+    private String id;
+    private String userId;
+    private String roomId;
+    private String purpose;
+    private LocalDateTime plannedStartTime;
+    private LocalDateTime plannedEndTime;
+    private LocalDateTime actualCheckInTime;
+    private LocalDateTime actualCheckOutTime;
+    private String status;
+    private String approvedByUserId;
+    private String cancellationReason;
+    private String cancelledByUserId;
+    private LocalDateTime createdAt;
+    private String note;
+    private LocalDateTime updatedAt;
 
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-    private static final DateTimeFormatter REQUESTED_AT_FORMATTER = DateTimeFormatter.ofPattern("EEE MMM dd yyyy hh:mm a");
+    private boolean approvedNotified;
+    private boolean borrowNotified;
+    private boolean overdueNotified;
+    private boolean returnNotified;
 
-    public Booking(String titleFacility, String requestedBy, String purpose, LocalDateTime date,
-                   String timeSlot, LocalDateTime requestedAt, String groupDirector, String facilityMan, String equipment, String canceled) {
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEE MMM dd yyyy", Locale.ENGLISH);
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH);
+    // Constructors
+    public Booking() {}
 
-        // Tách và định dạng timeSlot
-        String[] times = timeSlot.split("-");
-        LocalTime startTime = LocalTime.parse(times[0].trim());
-        LocalTime endTime = LocalTime.parse(times[1].trim());
-        String formattedTimeSlot = startTime.format(timeFormatter) + " - " + endTime.format(timeFormatter);
-        this.titleFacility = new SimpleStringProperty(requestedBy + " / " + titleFacility);
-        this.requestedBy = new SimpleStringProperty(requestedBy);
-        this.purpose = new SimpleStringProperty(purpose);
-        this.timeSlot = new SimpleStringProperty(date.format(dateFormatter) + " " + formattedTimeSlot);
-        this.requestedAt = new SimpleStringProperty(requestedAt.format(DATE_TIME_FORMATTER));
-        this.groupDirector = new SimpleStringProperty(groupDirector);
-        this.facilityMan = new SimpleStringProperty(facilityMan);
-        this.equipment = new SimpleStringProperty(equipment);
-        this.canceled = new SimpleStringProperty(canceled);// Khởi tạo thuộc tính mới
+    public Booking(String id, String userId, String roomId, String purpose,
+                   LocalDateTime plannedStartTime, LocalDateTime plannedEndTime,
+                   LocalDateTime actualCheckInTime, LocalDateTime actualCheckOutTime,
+                   String status, String approvedByUserId, String cancellationReason,
+                   String cancelledByUserId, LocalDateTime createdAt, String note,
+                   LocalDateTime updatedAt, boolean approvedNotified, boolean borrowNotified,
+                   boolean overdueNotified, boolean returnNotified) {
+        this.id = id;
+        this.userId = userId;
+        this.roomId = roomId;
+        this.purpose = purpose;
+        this.plannedStartTime = plannedStartTime;
+        this.plannedEndTime = plannedEndTime;
+        this.actualCheckInTime = actualCheckInTime;
+        this.actualCheckOutTime = actualCheckOutTime;
+        this.status = status;
+        this.approvedByUserId = approvedByUserId;
+        this.cancellationReason = cancellationReason;
+        this.cancelledByUserId = cancelledByUserId;
+        this.createdAt = createdAt;
+        this.note = note;
+        this.updatedAt = updatedAt;
+        this.approvedNotified = approvedNotified;
+        this.borrowNotified = borrowNotified;
+        this.overdueNotified = overdueNotified;
+        this.returnNotified = returnNotified;
     }
 
-    // Getter cho equipment
-    public String getEquipment() {
-        return equipment.get();
-    }
+    // Getters and Setters
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    // Các phương thức Property
-    public ObservableValue<String> titleFacilityProperty() {
-        return titleFacility;
-    }
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
 
-    public ObservableValue<String> purposeProperty() {
-        return purpose;
-    }
+    public String getRoomId() { return roomId; }
+    public void setRoomId(String roomId) { this.roomId = roomId; }
 
-    public ObservableValue<String> timeSlotProperty() {
-        return timeSlot;
-    }
+    public String getPurpose() { return purpose; }
+    public void setPurpose(String purpose) { this.purpose = purpose; }
 
-    public ObservableValue<String> requestedAtProperty() {
-        return new SimpleStringProperty(getRequestedAt());
-    }
+    public LocalDateTime getPlannedStartTime() { return plannedStartTime; }
+    public void setPlannedStartTime(LocalDateTime plannedStartTime) { this.plannedStartTime = plannedStartTime; }
 
-    public ObservableValue<String> equipmentProperty() {
-        return equipment;  // Trả về equipmentProperty
-    }
+    public LocalDateTime getPlannedEndTime() { return plannedEndTime; }
+    public void setPlannedEndTime(LocalDateTime plannedEndTime) { this.plannedEndTime = plannedEndTime; }
 
-    public ObservableValue<String> statusProperty() {
-        return new SimpleStringProperty(getStatus());
-    }
+    public LocalDateTime getActualCheckInTime() { return actualCheckInTime; }
+    public void setActualCheckInTime(LocalDateTime actualCheckInTime) { this.actualCheckInTime = actualCheckInTime; }
 
-    public ObservableValue<String> handledByProperty() {
-        return new SimpleStringProperty(getHandledBy());
-    }
+    public LocalDateTime getActualCheckOutTime() { return actualCheckOutTime; }
+    public void setActualCheckOutTime(LocalDateTime actualCheckOutTime) { this.actualCheckOutTime = actualCheckOutTime; }
 
-    public ObservableValue<String> reasonNoteProperty() {
-        return new SimpleStringProperty(getReasonNote());
-    }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
-    // Các phương thức setter cho các thuộc tính
-    public void setTitleFacility(String titleFacility) {
-        this.titleFacility.set(titleFacility);
-    }
+    public String getApprovedByUserId() { return approvedByUserId; }
+    public void setApprovedByUserId(String approvedByUserId) { this.approvedByUserId = approvedByUserId; }
 
-    public void setRequestedBy(String requestedBy) {
-        this.requestedBy.set(requestedBy);
-    }
+    public String getCancellationReason() { return cancellationReason; }
+    public void setCancellationReason(String cancellationReason) { this.cancellationReason = cancellationReason; }
 
-    public void setPurpose(String purpose) {
-        this.purpose.set(purpose);
-    }
+    public String getCancelledByUserId() { return cancelledByUserId; }
+    public void setCancelledByUserId(String cancelledByUserId) { this.cancelledByUserId = cancelledByUserId; }
 
-    public void setTimeSlot(String timeSlot) {
-        this.timeSlot.set(timeSlot);
-    }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    public void setRequestedAt(String requestedAt) {
-        this.requestedAt.set(requestedAt);
-    }
+    public String getNote() { return note; }
+    public void setNote(String note) { this.note = note; }
 
-    public void setGroupDirector(String groupDirector) {
-        this.groupDirector.set(groupDirector);
-    }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
-    public void setFacilityMan(String facilityMan) {
-        this.facilityMan.set(facilityMan);
-    }
+    public boolean isApprovedNotified() { return approvedNotified; }
+    public void setApprovedNotified(boolean approvedNotified) { this.approvedNotified = approvedNotified; }
 
-    public void setEquipment(String equipment) {
-        this.equipment.set(equipment);  // Cập nhật giá trị thiết bị
-    }
+    public boolean isBorrowNotified() { return borrowNotified; }
+    public void setBorrowNotified(boolean borrowNotified) { this.borrowNotified = borrowNotified; }
 
-    // Các phương thức getter khác và phương thức xử lý trạng thái vẫn không thay đổi
-    public String getTitleFacility() {
-        return titleFacility.get();
-    }
+    public boolean isOverdueNotified() { return overdueNotified; }
+    public void setOverdueNotified(boolean overdueNotified) { this.overdueNotified = overdueNotified; }
 
-    public String getRequestedBy() {
-        return requestedBy.get();
-    }
-
-    public String getPurpose() {
-        return purpose.get();
-    }
-
-    public String getTimeSlot() {
-        return timeSlot.get();
-    }
-
-    public StringProperty canceledProperty() {
-        return canceled;
-    }
-
-    public String getCanceled() {
-        return canceled.get();
-    }
-
-    public void setCanceled(String canceled) {
-        this.canceled.set(canceled);
-    }
-
-    public String getRequestedAt() {
-        try {
-            LocalDateTime dateTime = LocalDateTime.parse(requestedAt.get(), DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-            return dateTime.format(REQUESTED_AT_FORMATTER);
-        } catch (Exception e) {
-            return requestedAt.get(); // fallback nếu parse lỗi
-        }
-    }
-
-    public String getStatus() {
-        if ("true".equals(canceled.get())) {
-            return "Đã hủy";
-        } else if (groupDirector.get() != null && facilityMan.get() != null) {
-            // Kiểm tra nếu đang sử dụng hôm nay
-            LocalDate bookingDate = getDate().toLocalDate(); // ngày dự kiến
-            LocalDate today = LocalDate.now();
-
-            if (bookingDate.equals(today)) {
-                return "Đang sử dụng";
-            }
-            return "Đã duyệt";
-        } else {
-            return "Chờ duyệt";
-        }
-    }
-
-
-
-    public String getHandledBy() {
-        if (facilityMan.get() != null) {
-            return facilityMan.get();
-        } else if (groupDirector.get() != null) {
-            return groupDirector.get();
-        } else {
-            return "Chưa xử lý";
-        }
-    }
-
-    public String getReasonNote() {
-        return purpose.get();
-    }
-
-    public LocalDateTime getDate() {
-        return LocalDateTime.parse(requestedAt.get(), DATE_TIME_FORMATTER);
-    }
-
-    public String getGroupDirector() {
-        return groupDirector.get();
-    }
-
-    public String getFacilityMan() {
-        return facilityMan.get();
-    }
-
-    public String getTitleFacilityOriginal() {
-        return titleFacility.get().split(" / ", 2)[1];
-    }
+    public boolean isReturnNotified() { return returnNotified; }
+    public void setReturnNotified(boolean returnNotified) { this.returnNotified = returnNotified; }
 }
+

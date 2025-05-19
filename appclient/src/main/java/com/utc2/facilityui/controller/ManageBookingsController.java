@@ -1,234 +1,502 @@
 package com.utc2.facilityui.controller;
 
+import com.itextpdf.io.font.PdfEncodings;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.property.TextAlignment;
+import com.itextpdf.layout.property.UnitValue;
+import com.utc2.facilityui.model.User;
+import com.utc2.facilityui.response.BookingResponse;
+import com.utc2.facilityui.response.EquipmentResponse;
+import com.utc2.facilityui.service.BookingService;
+import com.utc2.facilityui.service.UserServices;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
-import com.utc2.facilityui.model.Booking;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.TreeSet;
 
-public class ManageBookingsController {
+public class ManageBookingsController implements Initializable {
 
-    // Các ComboBox và các thành phần giao diện
-    @FXML
-    private ComboBox<String> filterByRoomComboBox;
+    @FXML private TableView<BookingResponse> bookingsTable;
+    private final Map<String, String> userIdToUsername = new HashMap<>();
 
-    @FXML
-    private ComboBox<String> filterByMonthComboBox;
+    @FXML private TableColumn<BookingResponse, String> userIdColumn;
+    @FXML private TableColumn<BookingResponse, String> roomIdColumn;
+    @FXML private TableColumn<BookingResponse, String> purposeColumn;
+    @FXML private TableColumn<BookingResponse, String> plannedTimeColumn;
+    @FXML private TableColumn<BookingResponse, String> equipmentColumn;
+    @FXML private TableColumn<BookingResponse, String> actualTimeColumn;
+    @FXML private TableColumn<BookingResponse, String> statusColumn;
+    @FXML private TableColumn<BookingResponse, String> approvedByColumn;
+    @FXML private TableColumn<BookingResponse, String> cancellationReasonColumn;
+    @FXML private TableColumn<BookingResponse, String> noteColumn;
+    @FXML private TableColumn<BookingResponse, String> actionColumn;
 
+    @FXML private ComboBox<String> filterByRoomComboBox;
+    @FXML private ComboBox<String> filterByMonthComboBox;
+    @FXML private ComboBox<String> filterByUserComboBox;
     @FXML
-    private TextField yearTextField;
+    private TextField filterByUserTextField;
+    @FXML private ComboBox<Integer> rowsPerPageComboBox;
+    @FXML private Label pageInfoLabel;
+    @FXML private Button prevPageButton;
+    @FXML private Button nextPageButton;
 
-    @FXML
-    private ComboBox<String> filterByUserComboBox;
+    private final BookingService bookingService = new BookingService();
+    private ObservableList<BookingResponse> masterData = FXCollections.observableArrayList();
+    private FilteredList<BookingResponse> filteredData;
+    private int currentPage = 1;
+    private int rowsPerPage = 10;
 
-    @FXML
-    private ComboBox<String> rowsPerPageComboBox;
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        loadUserMap();
+        initTableColumns();
+        // Gọi API lấy danh sách bookings
+        List<BookingResponse> listFromApi = null;
+        try {
+            listFromApi = bookingService.getAllBookings();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        masterData.setAll(listFromApi);
 
-    @FXML
-    private TableView<Booking> bookingsTable;
+        filteredData = new FilteredList<>(masterData, b -> true);
+        SortedList<BookingResponse> sortedData = new SortedList<>(filteredData);
+        sortedData.comparatorProperty().bind(bookingsTable.comparatorProperty());
+        bookingsTable.setItems(sortedData);
+        // --- ComboBox lọc phòng ---
+        Set<String> uniqueRooms = masterData.stream()
+                .map(BookingResponse::getRoomName)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(TreeSet::new));
+        filterByRoomComboBox.getItems().add("Tất cả phòng");
+        filterByRoomComboBox.getItems().addAll(uniqueRooms);
+        filterByRoomComboBox.getSelectionModel().selectFirst();
 
-    @FXML
-    private TableColumn<Booking, String> titleFacilityColumn;
-    @FXML
-    private TableColumn<Booking, String> purposeColumn;
-    @FXML
-    private TableColumn<Booking, String> timeSlotColumn;
-    @FXML
-    private TableColumn<Booking, String> equipmentColumn;
-    @FXML
-    private TableColumn<Booking, String> requestedAtColumn;
-    @FXML
-    private TableColumn<Booking, String> statusColumn;
-    @FXML
-    private TableColumn<Booking, String> handledByColumn;
-    @FXML
-    private TableColumn<Booking, String> reasonNoteColumn;
-    @FXML
-    private TableColumn<Booking, String> actionColumn;
+        filterByRoomComboBox.valueProperty().addListener((obs, oldVal, newVal) -> updateFilters());
 
-    @FXML
-    private Label currentPageLabel;
+        // --- ComboBox lọc tháng ---
+        List<String> monthNames = Arrays.stream(Month.values())
+                .map(m -> m.getDisplayName(TextStyle.FULL, Locale.ENGLISH))
+                .collect(Collectors.toList());
+        filterByMonthComboBox.getItems().add("Tất cả tháng");
+        filterByMonthComboBox.getItems().addAll(monthNames);
+        filterByMonthComboBox.getSelectionModel().selectFirst();
+        filterByMonthComboBox.valueProperty().addListener((obs, oldVal, newVal) -> updateFilters());
 
-    // Khởi tạo các thành phần trong TableView và ComboBox
-    @FXML
-    private void initialize() {
-        setupTableColumns();
-        setupFilters();
-        addSampleBookings();
+        // --- ComboBox lọc người đặt ---
+        Set<String> uniqueUsers = masterData.stream()
+                .map(BookingResponse::getUserName)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(TreeSet::new));
+        filterByUserComboBox.getItems().add("Tất cả người đặt");
+        filterByUserComboBox.getItems().addAll(uniqueUsers);
+        filterByUserComboBox.getSelectionModel().selectFirst();
+        filterByUserComboBox.valueProperty().addListener((obs, oldVal, newVal) -> updateFilters());
+        // Khởi tạo combo box rows per page
+        rowsPerPageComboBox.getItems().addAll(10, 20, 50, 100);
+        rowsPerPageComboBox.setValue(rowsPerPage);
+        rowsPerPageComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+            rowsPerPage = newVal;
+            currentPage = 0;
+            updatePagination();
+        });
+
+        prevPageButton.setOnAction(e -> handlePreviousPage());
+        nextPageButton.setOnAction(e -> handleNextPage());
     }
 
-    // Thiết lập các cột trong TableView
-    private void setupTableColumns() {
-        titleFacilityColumn.setCellFactory(column -> new TableCell<Booking, String>() {
+    private void updatePagination() {
+        int totalItems = filteredData.size();
+        int totalPages = (int) Math.ceil((double) totalItems / rowsPerPage);
+
+        if (currentPage < 0) currentPage = 0;
+        if (currentPage >= totalPages) currentPage = totalPages - 1;
+
+        int fromIndex = currentPage * rowsPerPage;
+        int toIndex = Math.min(fromIndex + rowsPerPage, totalItems);
+
+        List<BookingResponse> pageItems = filteredData.subList(fromIndex, toIndex);
+        bookingsTable.setItems(FXCollections.observableArrayList(pageItems));
+
+        pageInfoLabel.setText("Page " + (currentPage + 1) + " of " + (totalPages == 0 ? 1 : totalPages));
+
+        prevPageButton.setDisable(currentPage <= 0);
+        nextPageButton.setDisable(currentPage >= totalPages - 1);
+    }
+
+
+    // Hàm cập nhật bộ lọc tổng hợp
+    private void updateFilters() {
+        String selectedRoom = filterByRoomComboBox.getValue();
+        String selectedMonth = filterByMonthComboBox.getValue();
+        String selectedUser = filterByUserComboBox.getValue();
+
+        filteredData.setPredicate(booking -> {
+            // Lọc theo phòng
+            if (selectedRoom != null && !selectedRoom.equals("Tất cả phòng") &&
+                    (booking.getRoomName() == null || !booking.getRoomName().equals(selectedRoom))) {
+                return false;
+            }
+            // Lọc theo tháng (theo plannedStartTime)
+            if (selectedMonth != null && !selectedMonth.equals("Tất cả tháng")) {
+                if (booking.getPlannedStartTime() == null) return false;
+                Month bookingMonth = booking.getPlannedStartTime().getMonth();
+                if (!bookingMonth.getDisplayName(TextStyle.FULL, Locale.ENGLISH).equals(selectedMonth)) {
+                    return false;
+                }
+            }
+            // Lọc theo người đặt
+            if (selectedUser != null && !selectedUser.equals("Tất cả người đặt") && !selectedUser.equals(booking.getUserName())) {
+                return false;
+            }
+            return true;
+        });
+    }
+
+    private Integer getMonthFromBooking(BookingResponse booking) {
+        if (booking.getCreatedAt() == null) return null;
+        return booking.getCreatedAt().getMonthValue(); // Nếu dùng LocalDate/LocalDateTime
+    }
+
+    private void loadUserMap() {
+        try {
+            List<User> users = UserServices.getAllUsers();
+            for (User user : users) {
+                userIdToUsername.put(user.getId(), user.getUsername());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void initTableColumns() {
+        userIdColumn.setCellValueFactory(new PropertyValueFactory<>("userName")); // Hiển thị tên người đặt
+        roomIdColumn.setCellValueFactory(new PropertyValueFactory<>("roomName"));
+        purposeColumn.setCellValueFactory(new PropertyValueFactory<>("purpose"));
+        purposeColumn.setCellFactory(column -> new TableCell<BookingResponse, String>() {
+            private final Text text = new Text();
+
+            {
+                text.setStyle("-fx-font-size: 12px;");
+                text.wrappingWidthProperty().bind(column.widthProperty().subtract(10));
+                setGraphic(text);
+                setPrefHeight(Control.USE_COMPUTED_SIZE);
+            }
+
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || getTableRow() == null || getTableRow().getItem() == null) {
-                    setText(null);
-                    setGraphic(null);
+                text.setText(empty || item == null ? null : item);
+            }
+        });
+
+        plannedTimeColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(
+                        formatTimeRange(cellData.getValue().getPlannedStartTime(), cellData.getValue().getPlannedEndTime())
+                )
+        );
+        plannedTimeColumn.setCellFactory(column -> new TableCell<BookingResponse, String>() {
+            private final Text text = new Text();
+
+            {
+                text.setStyle("-fx-font-size: 12px;"); // hoặc bạn chỉnh theo style riêng
+                text.wrappingWidthProperty().bind(column.widthProperty().subtract(10));
+                setGraphic(text);
+                setPrefHeight(Control.USE_COMPUTED_SIZE); // Cho phép tự động điều chỉnh chiều cao
+            }
+
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    text.setText(null);
                 } else {
-                    Booking booking = (Booking) getTableRow().getItem();
-
-                    Label requestedByLabel = new Label(booking.getRequestedBy());
-                    requestedByLabel.setStyle("-fx-font-weight: bold;");
-
-                    Label facilityLabel = new Label(booking.getTitleFacilityOriginal());
-                    VBox vbox = new VBox(requestedByLabel, facilityLabel);
-                    vbox.setSpacing(2);
-                    setGraphic(vbox);
+                    text.setText(item);
                 }
             }
         });
-        purposeColumn.setCellValueFactory(cellData -> cellData.getValue().purposeProperty());
-        timeSlotColumn.setCellValueFactory(cellData -> cellData.getValue().timeSlotProperty());
-        requestedAtColumn.setCellValueFactory(cellData -> cellData.getValue().requestedAtProperty());
-        equipmentColumn.setCellValueFactory(cellData -> cellData.getValue().equipmentProperty());
-        statusColumn.setCellValueFactory(cellData -> cellData.getValue().statusProperty());
-        handledByColumn.setCellValueFactory(cellData -> cellData.getValue().handledByProperty());
-        reasonNoteColumn.setCellValueFactory(cellData -> cellData.getValue().reasonNoteProperty());
-        actionColumn.setCellValueFactory(cellData -> new SimpleStringProperty("Action"));
 
-        enableTextWrapping(purposeColumn);
-        enableTextWrapping(timeSlotColumn);
-        enableTextWrapping(requestedAtColumn);
-        enableTextWrapping(equipmentColumn);
-        enableTextWrapping(statusColumn);
-        enableTextWrapping(handledByColumn);
-        enableTextWrapping(reasonNoteColumn);
-    }
-
-    private void addSampleBookings() {
-        ObservableList<Booking> samples = FXCollections.observableArrayList(
-                new Booking("Phòng họp A1", "Nguyễn Văn A", "Họp nhóm",
-                        LocalDateTime.of(2025, 5, 10, 0, 0),
-                        "08:00 - 10:00",
-                        LocalDateTime.of(2025, 5, 8, 14, 30),
-                        "Trưởng phòng Kỹ thuật", "Quản lý CSVC", "Máy chiếu", "false"),
-
-                new Booking("Phòng máy B2", "Trần Thị B", "Thuyết trình đề tài",
-                        LocalDateTime.of(2025, 5, 11, 0, 0),
-                        "13:00 - 15:00",
-                        LocalDateTime.of(2025, 5, 9, 9, 45),
-                        null, null, "Máy chiếu, bảng trắng", "false"),
-
-                new Booking("Phòng hội trường", "Lê Văn C", "Hội thảo chuyên đề",
-                        LocalDateTime.of(2025, 5, 12, 0, 0),
-                        "08:00 - 11:30",
-                        LocalDateTime.of(2025, 5, 10, 10, 0),
-                        "Phó giám đốc đào tạo", null, "Âm thanh, micro không dây", "true") // Đã hủy
-        );
-
-        bookingsTable.setItems(samples);
-    }
-
-
-    private void enableTextWrapping(TableColumn<Booking, String> column) {
-        column.setCellFactory(col -> {
-            TableCell<Booking, String> cell = new TableCell<>() {
-                private final Text text = new Text();
-
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setGraphic(null);
-                    } else {
-                        text.setText(item);
-                        text.wrappingWidthProperty().bind(col.widthProperty().subtract(10)); // trừ padding
-                        setGraphic(text);
-                    }
-                }
-            };
-            return cell;
+        equipmentColumn.setCellValueFactory(cellData -> {
+            List<String> ids = cellData.getValue().getEquipmentItemIds();
+            String display = (ids != null && !ids.isEmpty()) ? String.join(", ", ids) : "";
+            return new SimpleStringProperty(display);
         });
+        actualTimeColumn.setCellValueFactory(cellData -> {
+            LocalDateTime createdAt = cellData.getValue().getCreatedAt();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd yyyy hh:mm a", Locale.ENGLISH);
+            String formatted = createdAt != null ? formatter.format(createdAt) : "";
+            return new SimpleStringProperty(formatted);
+        });
+        statusColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(generateNotification(cellData.getValue())));
+        approvedByColumn.setCellValueFactory(new PropertyValueFactory<>("approvedByUserName"));
+        cancellationReasonColumn.setCellValueFactory(new PropertyValueFactory<>("cancellationReason"));
+        noteColumn.setCellValueFactory(new PropertyValueFactory<>("note"));
+        actionColumn.setCellValueFactory(new PropertyValueFactory<>("action")); // Chưa sử dụng
     }
 
-    // Thiết lập dữ liệu cho các ComboBox
-    private void setupFilters() {
-        ObservableList<String> roomOptions = FXCollections.observableArrayList("Room 1", "Room 2", "Room 3");
-        filterByRoomComboBox.setItems(roomOptions);
-
-        ObservableList<String> monthOptions = FXCollections.observableArrayList("January", "February", "March");
-        filterByMonthComboBox.setItems(monthOptions);
-
-        ObservableList<String> userOptions = FXCollections.observableArrayList("User 1", "User 2", "User 3");
-        filterByUserComboBox.setItems(userOptions);
-
-        ObservableList<String> rowsOptions = FXCollections.observableArrayList("5", "10", "15", "20");
-        rowsPerPageComboBox.setItems(rowsOptions);
+    private String generateNotification(BookingResponse booking) {
+        if ("REJECTED".equals(booking.getStatus())) return "Đã bị từ chối";
+        if ("PENDING_APPROVAL".equals(booking.getStatus())) return "Chờ duyệt";
+        if ("COMPLETED".equals(booking.getStatus())) return "Đã hoàn thành";
+        if ("CONFIRMED".equals(booking.getStatus())) return "Đang sử dụng";
+        if ("CANCELLED".equals(booking.getStatus())) return "Đã hủy";
+        if ("OVERDUE".equals(booking.getStatus())) return "Quá hạn";
+        return "";
     }
 
-    private void populateRoomFilterFromBookings() {
-        ObservableList<Booking> bookings = bookingsTable.getItems();
-
-        Set<String> roomSet = bookings.stream()
-                .map(booking -> {
-                    String full = booking.getTitleFacility(); // VD: "Nguyễn Văn A / Phòng họp A1"
-                    String[] parts = full.split(" / ");
-                    return parts.length == 2 ? parts[1] : full; // Lấy "Phòng họp A1"
-                })
-                .collect(Collectors.toCollection(TreeSet::new)); // Tự động loại trùng và sắp xếp
-
-        filterByRoomComboBox.setItems(FXCollections.observableArrayList(roomSet));
-    }
-
-    // Hàm xử lý xuất dữ liệu (PDF/Excel)
-    @FXML
-    private void handleExportBookings(ActionEvent event) {
-        // Logic xuất dữ liệu (có thể là PDF hoặc Excel)
-        System.out.println("Export bookings...");
-    }
-
-    // Hàm reset bộ lọc
-    @FXML
-    private void handleResetFilters(ActionEvent event) {
-        filterByRoomComboBox.getSelectionModel().clearSelection();
-        filterByMonthComboBox.getSelectionModel().clearSelection();
-        yearTextField.clear();
-        filterByUserComboBox.getSelectionModel().clearSelection();
-    }
-
-    // Hàm xử lý thay đổi số dòng mỗi trang trong TableView
-    @FXML
-    private void handleRowsPerPageChange(ActionEvent event) {
-        String selectedRows = rowsPerPageComboBox.getSelectionModel().getSelectedItem();
-        System.out.println("Rows per page: " + selectedRows);
-        // Logic phân trang
-    }
-
-    // Hàm xử lý quay lại trang trước
-    @FXML
-    private void handlePreviousPage(ActionEvent event) {
-        // Logic quay lại trang trước
-        System.out.println("Previous page");
-    }
-
-    // Hàm xử lý chuyển sang trang kế tiếp
-    @FXML
-    private void handleNextPage(ActionEvent event) {
-        // Logic chuyển sang trang tiếp theo
-        System.out.println("Next page");
-    }
-
-    // Các sự kiện khác có thể cần thiết, ví dụ, cho hành động trong các cột TableView
-    @FXML
-    private void handleTableRowClick(MouseEvent event) {
-        // Logic xử lý khi người dùng nhấp vào một dòng trong TableView
-        Booking selectedBooking = bookingsTable.getSelectionModel().getSelectedItem();
-        if (selectedBooking != null) {
-            System.out.println("Selected booking: " + selectedBooking.getTitleFacility());
+    private void loadBookings() {
+        try {
+            List<BookingResponse> list = bookingService.getAllBookings();
+            enrichWithEquipments(list);
+            bookingsTable.setItems(FXCollections.observableArrayList(list));
+        } catch (IOException e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Không thể tải danh sách đặt phòng: " + e.getMessage()).showAndWait();
         }
     }
+
+    private String formatTimeRange(LocalDateTime start, LocalDateTime end) {
+        if (start == null || end == null) {
+            return "";
+        }
+
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEE MMM dd yyyy", Locale.ENGLISH);
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH);
+
+        String datePart = dateFormatter.format(start);
+        String startTime = timeFormatter.format(start);
+        String endTime = timeFormatter.format(end);
+
+        return datePart + " " + startTime + " - " + endTime;
+    }
+
+    private String formatTimeRange(LocalDateTime createdAt) {
+        if (createdAt == null) {
+            return "";
+        }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd yyyy hh:mm a", Locale.ENGLISH);
+        return formatter.format(createdAt);
+    }
+
+    private void enrichWithEquipments(List<BookingResponse> bookings) {
+        for (BookingResponse booking : bookings) {
+            try {
+                List<EquipmentResponse> equipmentList = bookingService.getEquipmentsByBookingId(booking.getId());
+
+                List<String> itemIds = equipmentList.stream()
+                        .map(EquipmentResponse::getItemId)
+                        .collect(Collectors.toList());
+
+                booking.setEquipmentItemIds(itemIds);
+            } catch (IOException e) {
+                System.err.println("Không thể tải thiết bị cho booking ID: " + booking.getId());
+                e.printStackTrace();
+                booking.setEquipmentItemIds(Collections.singletonList("Lỗi tải thiết bị"));
+            }
+        }
+    }
+
+    @FXML
+    private void handleResetFilters() {
+        filterByRoomComboBox.getSelectionModel().select("Tất cả phòng");
+        filterByMonthComboBox.getSelectionModel().select("Tất cả tháng");
+        filterByUserComboBox.getSelectionModel().select("Tất cả người đặt");
+        updateFilters();
+    }
+
+    @FXML
+    private void handleExportBookingsPDF() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Lưu file PDF");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF files (*.pdf)", "*.pdf"));
+        File file = fileChooser.showSaveDialog(bookingsTable.getScene().getWindow());
+
+        if (file != null) {
+            try {
+                // 1. Tạo writer và document
+                PdfWriter writer = new PdfWriter(file);
+                PdfDocument pdf = new PdfDocument(writer);
+                Document document = new Document(pdf);
+
+                // 2. Load font Unicode từ resources
+                InputStream fontStream = getClass().getResourceAsStream("/com/utc2/facilityui/fonts/Roboto-Regular.ttf");
+                byte[] fontBytes = fontStream.readAllBytes();
+                PdfFont unicodeFont = PdfFontFactory.createFont(fontBytes, PdfEncodings.IDENTITY_H, true);
+                document.setFont(unicodeFont);
+
+                // 3. Thêm tiêu đề
+                Paragraph title = new Paragraph("DANH SÁCH ĐẶT PHÒNG")
+                        .setFont(unicodeFont)
+                        .setBold()
+                        .setFontSize(16)
+                        .setTextAlignment(TextAlignment.CENTER)
+                        .setMarginBottom(15);
+                document.add(title);
+
+                // 4. Tạo bảng
+                float[] columnWidths = {3, 2, 3, 3, 3, 3, 2, 2, 3, 3};
+                Table table = new Table(columnWidths);
+                table.setWidth(UnitValue.createPercentValue(100));
+
+                // 5. Header
+                String[] headers = {
+                        "Người đặt", "Phòng", "Mục đích", "Thời gian dự kiến", "Thiết bị",
+                        "Yêu cầu lúc", "Trạng thái", "Người xử lý", "Lý do hủy", "Ghi chú"
+                };
+                for (String header : headers) {
+                    table.addHeaderCell(new Cell().add(new Paragraph(header).setFont(unicodeFont).setBold()));
+                }
+
+                // 6. Dữ liệu từ TableView
+                for (BookingResponse booking : bookingsTable.getItems()) {
+                    table.addCell(new Cell().add(new Paragraph(safeText(booking.getUserName())).setFont(unicodeFont)));
+                    table.addCell(new Cell().add(new Paragraph(safeText(booking.getRoomName())).setFont(unicodeFont)));
+                    table.addCell(new Cell().add(new Paragraph(safeText(booking.getPurpose())).setFont(unicodeFont)));
+                    table.addCell(new Cell().add(new Paragraph(safeText(formatTimeRange(booking.getPlannedStartTime(), booking.getPlannedEndTime()))).setFont(unicodeFont)));
+                    table.addCell(new Cell().add(new Paragraph(safeText(String.join(", ", booking.getEquipmentItemIds()))).setFont(unicodeFont)));
+                    table.addCell(new Cell().add(new Paragraph(safeText(formatTimeRange(booking.getCreatedAt()))).setFont(unicodeFont)));
+                    table.addCell(new com.itextpdf.layout.element.Cell().add(new Paragraph(safeText(translateStatus(booking.getStatus()))).setFont(unicodeFont)));
+                    table.addCell(new Cell().add(new Paragraph(safeText(booking.getApprovedByUserName())).setFont(unicodeFont)));
+                    table.addCell(new Cell().add(new Paragraph(safeText(booking.getCancellationReason())).setFont(unicodeFont)));
+                    table.addCell(new Cell().add(new Paragraph(safeText(booking.getNote())).setFont(unicodeFont)));
+                }
+
+                // 7. Thêm bảng và đóng tài liệu
+                document.add(table);
+                document.close();
+
+                new Alert(Alert.AlertType.INFORMATION, "Xuất PDF thành công!").showAndWait();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                new Alert(Alert.AlertType.ERROR, "Lỗi khi xuất PDF: " + e.getMessage()).showAndWait();
+            }
+        }
+    }
+
+    private String safeText(String value) {
+        return value != null ? value : "";
+    }
+
+    private String translateStatus(String status) {
+        if (status == null) return "";
+        return switch (status.toUpperCase()) {
+            case "COMPLETED" -> "Đã hoàn thành";
+            case "PENDING_APPROVAL" -> "Chờ duyệt";
+            case "CANCELLED" -> "Đã hủy";
+            case "REJECTED" -> "Đã từ chối";
+            case "CONFIRMED" -> "Đang sử dụng";
+            case "OVERDUE" -> "Quá hạn";
+            default -> status; // giữ nguyên nếu không có trong danh sách
+        };
+    }
+
+    @FXML
+    private void handleExportBookingsExcel() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Lưu file Excel");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Excel files (*.xlsx)", "*.xlsx"));
+        File file = fileChooser.showSaveDialog(bookingsTable.getScene().getWindow());
+
+        if (file != null) {
+            try (Workbook workbook = new XSSFWorkbook()) {
+                Sheet sheet = workbook.createSheet("Bookings");
+                String[] headers = {
+                        "Người đặt", "Phòng", "Mục đích", "Thời gian dự kiến", "Thiết bị",
+                        "Yêu cầu lúc", "Trạng thái", "Người xử lý", "Lý do hủy", "Ghi chú"
+                };
+
+                Row headerRow = sheet.createRow(0);
+                for (int i = 0; i < headers.length; i++) {
+                    org.apache.poi.ss.usermodel.Cell cell = headerRow.createCell(i);
+                    cell.setCellValue(headers[i]);
+                }
+
+                int rowIndex = 1;
+                for (BookingResponse booking : bookingsTable.getItems()) {
+                    Row row = sheet.createRow(rowIndex++);
+                    row.createCell(0).setCellValue(safeText(booking.getUserName()));
+                    row.createCell(1).setCellValue(safeText(booking.getRoomName()));
+                    row.createCell(2).setCellValue(safeText(booking.getPurpose()));
+                    row.createCell(3).setCellValue(safeText(formatTimeRange(booking.getPlannedStartTime(), booking.getPlannedEndTime())));
+                    row.createCell(4).setCellValue(safeText(String.join(", ", booking.getEquipmentItemIds())));
+                    row.createCell(5).setCellValue(safeText(formatTimeRange(booking.getCreatedAt())));
+                    row.createCell(6).setCellValue(safeText(translateStatus(booking.getStatus())));
+                    row.createCell(7).setCellValue(safeText(booking.getCancelledByUserName()));
+                    row.createCell(8).setCellValue(safeText(booking.getCancellationReason()));
+                    row.createCell(9).setCellValue(safeText(booking.getNote()));
+                }
+
+                try (FileOutputStream fos = new FileOutputStream(file)) {
+                    workbook.write(fos);
+                }
+
+                new Alert(Alert.AlertType.INFORMATION, "Xuất Excel thành công!").showAndWait();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                new Alert(Alert.AlertType.ERROR, "Lỗi khi xuất Excel: " + e.getMessage()).showAndWait();
+            }
+        }
+    }
+
+
+    @FXML
+    private void handleRowsPerPageChange() {
+        Integer selected = rowsPerPageComboBox.getValue();
+        if (selected != null) {
+            rowsPerPage = selected;
+            currentPage = 0;
+            updatePagination();
+        }
+    }
+
+    @FXML
+    private void handlePreviousPage() {
+        if (currentPage > 0) {
+            currentPage--;
+            updatePagination();
+        }    }
+
+    @FXML
+    private void handleNextPage() {
+        int totalPages = (int) Math.ceil((double) filteredData.size() / rowsPerPage);
+        if (currentPage < totalPages - 1) {
+            currentPage++;
+            updatePagination();
+        }    }
 }
