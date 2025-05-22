@@ -7,10 +7,7 @@ import com.google.gson.reflect.TypeToken;
 import com.utc2.facilityui.auth.TokenStorage; // Cần implement lớp này
 import com.utc2.facilityui.model.BookingCreationRequest; // Cần nếu dùng createBooking
 import com.utc2.facilityui.model.Result;
-import com.utc2.facilityui.response.ApiErrorResponse; // Cần implement lớp này nếu dùng parseAndThrowError
-import com.utc2.facilityui.response.ApiResponse; // Dùng cho create, get
-import com.utc2.facilityui.response.ApiSingleResponse; // *** CHỈ DÙNG CHO APPROVE/REJECT ***
-import com.utc2.facilityui.response.BookingResponse;
+import com.utc2.facilityui.response.*;
 import com.utc2.facilityui.utils.LocalDateTimeAdapter; // Cần implement lớp này
 import okhttp3.*;
 
@@ -329,5 +326,20 @@ public class BookingService {
             default: throw new IllegalArgumentException("Phương thức HTTP không được hỗ trợ: " + method);
         }
         return builder.build();
+    }
+
+    public List<EquipmentResponse> getEquipmentsByBookingId(String bookingId) throws IOException {
+        String url = BASE_URL + "/booking/" + bookingId + "/equipments";
+        Request request = buildAuthenticatedGetRequest(url);
+
+        try (Response response = client.newCall(request).execute()) {
+            String jsonData = getResponseBody(response);
+            if (!response.isSuccessful()) {
+                parseAndThrowError(response, jsonData, "Lỗi lấy thiết bị theo booking");
+            }
+
+            Type listType = new TypeToken<List<EquipmentResponse>>(){}.getType();
+            return gson.fromJson(jsonData, listType);
+        }
     }
 }

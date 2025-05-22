@@ -1,11 +1,16 @@
 package com.utc2.facilityui.response;
 
+import com.utc2.facilityui.model.Booking;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 // import java.util.List; // Bỏ comment nếu API trả về bookedEquipments
 
 // Nên khớp hoàn toàn với cấu trúc JSON trả về từ API
 public class BookingResponse {
     private String id;
+    private String userId;
     private String userName; // Tên người dùng đặt phòng
     private String roomName; // Tên phòng
     private String purpose; // Mục đích
@@ -20,11 +25,13 @@ public class BookingResponse {
     private LocalDateTime createdAt; // Thời gian tạo yêu cầu
     private LocalDateTime updatedAt; // Thời gian cập nhật cuối (có thể null)
     private String note; // Ghi chú (có thể null)
+    private List<String> equipmentItemIds = new ArrayList<>();
     // private List<SomeEquipmentResponse> bookedEquipments; // Thêm nếu cần
 
     // --- Getters and Setters ---
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
+    public String getUserId() { return userId; }
     public String getUserName() { return userName; }
     public void setUserName(String userName) { this.userName = userName; }
     public String getRoomName() { return roomName; }
@@ -53,6 +60,13 @@ public class BookingResponse {
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     public String getNote() { return note; }
     public void setNote(String note) { this.note = note; }
+    public List<String> getEquipmentItemIds() {
+        return equipmentItemIds;
+    }
+
+    public void setEquipmentItemIds(List<String> equipmentItemIds) {
+        this.equipmentItemIds = equipmentItemIds;
+    }
     // public List<SomeEquipmentResponse> getBookedEquipments() { return bookedEquipments; }
     // public void setBookedEquipments(List<SomeEquipmentResponse> bookedEquipments) { this.bookedEquipments = bookedEquipments; }
 
