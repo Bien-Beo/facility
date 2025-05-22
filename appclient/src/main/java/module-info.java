@@ -14,13 +14,15 @@ module com.utc2.facilityui {
     requires javafx.graphics;
     requires com.gluonhq.attach.util;
     requires com.gluonhq.charm.glisten;
-    requires java.desktop;
     requires kernel; // iText
     requires layout; // iText
     requires java.net.http;
 
     // Thêm dòng này nếu chưa có, để rõ ràng hơn (mặc dù javafx.controls thường đã kéo theo)
     requires javafx.base;
+    requires java.sql;
+    requires io;
+    requires org.apache.poi.ooxml;
 
     // --- Phần Opens ---
     // Giữ lại các opens cho javafx.fxml

@@ -6,7 +6,7 @@ public class User {
     private String username;
     private String email;
     private String avatar;
-//
+    //
     public User(String id, String userId, String username, String email, String avatar) {
         this.id = id;
         this.userId = userId;
@@ -14,6 +14,7 @@ public class User {
         this.email = email;
         this.avatar = avatar;
     }
+
 
     public User() {
     }
