@@ -1,5 +1,5 @@
 import React, { JSX, FC, useEffect, useState } from "react"; 
-import { Box, CircularProgress, Typography } from "@mui/material"; 
+import { MenuItem, Select, FormControl, InputLabel, Box, CircularProgress, Typography, Pagination } from "@mui/material";
 import { useQuery, useQueryClient } from "@tanstack/react-query"; 
 import axios, { AxiosError } from "axios";
 
@@ -9,19 +9,20 @@ import { useAuth } from "../hooks/useAuth";
 
 const MyBookings: FC = (): JSX.Element => {
     const [myBookings, setMyBookings] = useState<BookingEntry[]>([]);
+    const queryClient = useQueryClient();
     const auth: AuthContextType = useAuth(); 
     const userId = auth.user?.id; 
 
     const [page, setPage] = useState(0);
-    const [size, setSize] = useState(20); 
+    const [size, setSize] = useState(5); 
 
-    const { data: apiResponse, isPending, isError, error } = useQuery<PaginatedBookingApiResponse, AxiosError<ErrorMessage>>({
+    const { data: apiResponse, isPending, isError, error } = useQuery<PaginatedBookingApiResponse | undefined, AxiosError<ErrorMessage>>({
         queryKey: ["myBookings", userId, page, size],
-        queryFn: async () => {
+        queryFn: async (): Promise<PaginatedBookingApiResponse> => {
             if (!userId) throw new Error("User not logged in"); 
             const token = localStorage.getItem("token");
             if (!token) throw new Error("No token found");
-
+    
             const response = await axios.get<PaginatedBookingApiResponse>(
                 `${import.meta.env.VITE_APP_SERVER_URL}/booking/my?page=${page}&size=${size}&sort=plannedStartTime,desc`, 
                 { headers: { Authorization: `Bearer ${token}` } }
@@ -80,18 +81,59 @@ const MyBookings: FC = (): JSX.Element => {
             ) : (
                 // Container cho các card booking
                  <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, mt: 2 }}>
-                     {/* SỬA: Mapping và truyền props */}
                      {myBookings.map((booking) => (
                          <MyBookingCard
                              key={booking.id} 
                              booking={booking} 
-                             onCancelSuccess={() => { // Optional: Callback để refresh nếu cần
-                                  // queryClient.invalidateQueries({ queryKey: ["myBookings"] });
+                             onCancelSuccess={() => { 
+                                  queryClient.invalidateQueries({ queryKey: ["myBookings", auth.user?.id] });
                              }}
                          />
                      ))}
-                      {/* TODO: Thêm component phân trang ở đây nếu API trả về nhiều trang */}
-                      {/* Ví dụ: <Pagination count={apiResponse?.result?.page?.totalPages} page={page + 1} onChange={(e, newPage) => setPage(newPage - 1)} /> */}
+                     <Box sx={{ width: '100%', mt: 4 }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: { xs: 'column', sm: 'row' },
+                                justifyContent: 'space-between',
+                                alignItems: { xs: 'flex-start', sm: 'center' },
+                                gap: 2,
+                                mb: 2,
+                            }}
+                        >
+                            <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                                Hiển thị {myBookings.length} trong tổng số {apiResponse?.result?.page?.totalElements ?? 0} yêu cầu
+                            </Typography>
+
+                            <FormControl size="small" sx={{ minWidth: 120 }}>
+                                <InputLabel id="size-label">Mỗi trang</InputLabel>
+                                <Select
+                                    labelId="size-label"
+                                    value={size}
+                                    onChange={(e) => {
+                                        setSize(Number(e.target.value));
+                                        setPage(0);
+                                    }}
+                                    label="Mỗi trang"
+                                >
+                                    {[5, 10, 20, 50].map((s) => (
+                                        <MenuItem key={s} value={s}>{s}</MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Box>
+
+                        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, mb: 2 }}>
+                            <Pagination
+                                count={apiResponse?.result?.page?.totalPages ?? 0}
+                                page={page + 1}
+                                onChange={(e, newPage) => setPage(newPage - 1)}
+                                color="primary"
+                                variant="outlined"
+                                shape="rounded"
+                            />
+                        </Box>
+                    </Box>
                  </Box>
             )}
         </Box>

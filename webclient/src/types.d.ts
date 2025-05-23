@@ -50,6 +50,17 @@ interface RoomDataWithIds extends RoomData {
   facilityManagerId: string | null;
 }
 
+type Notification = {
+  id: string; // ID của thông báo
+  message: string; // Nội dung thông báo
+  createdAt: string; // Thời gian tạo thông báo (ISO DateTime string)
+  isRead: boolean; // Trạng thái đã đọc hay chưa
+  type: string; // Loại thông báo (vd: "booking", "maintenance", ...)
+  bookingId?: string | null; // ID của booking liên quan (nếu có)
+  userId?: string | null; // ID của người dùng liên quan (nếu có)
+  roomId?: string | null; // ID của phòng liên quan (nếu có)
+}
+
 type UserData = {
   id: string; // UUID khóa chính
   userId: string; // Mã nghiệp vụ (NV/SV)
@@ -67,6 +78,12 @@ type BuildingData = {
 };
 
 type RoomTypeData = {
+  id: string;
+  name: string;
+  description?: string | null;
+};
+
+type EquipmentModelData = {
   id: string;
   name: string;
   description?: string | null;
@@ -143,6 +160,8 @@ type PaginatedResult<T> = {
  * Kiểu dữ liệu cho API trả về danh sách Booking có phân trang
  */
 type PaginatedBookingApiResponse = ApiResponse<PaginatedResult<BookingEntry>>;
+
+type PaginatedNotificationApiResponse = ApiResponse<PaginatedResult<Notification>>;
 
 /**
  * Kiểu dữ liệu cho API trả về danh sách Room có phân trang (dùng cho AdminFacilitiesTable)
@@ -243,6 +262,10 @@ type CancelBookingRequest = {
   reason: string;
 };
 interface RejectBookingRequest {
+  reason: string;
+}
+
+interface RecallBookingRequest {
   reason: string;
 }
 
@@ -417,7 +440,7 @@ interface AdminRoomsRowData {
   actions?: JSX.Element;
 }
 
-interface EquipmentRowData {
+interface EquipmentsRowData {
   id: string;
   modelName: string | JSX.Element;
   typeName: string | null;
@@ -460,6 +483,16 @@ interface AdminRoomsTableProps {
   facilityManagers: UserData[];
 }
 
+interface EquipmentsTableProps {
+  equipments: EquipmentItemData[]; 
+  totalEquipmentCount: number; 
+  page: number;
+  rowsPerPage: number; 
+  onPageChange: (event: unknown, newPage: number) => void;
+  onRowsPerPageChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  defaultRoom: RoomData[];
+}
+
 interface AddFacilityModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
@@ -467,13 +500,16 @@ interface AddFacilityModalProps {
   buildings: BuildingData[]; 
   roomTypes: RoomTypeData[];
   facilityManagers: UserData[];
+  onSuccessCallback?: () => void;
 }
 
 interface AddEquipmentModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   setOpenSnackbar: (isOpen: boolean) => void;
-  defaultRoom: string | null; 
+  defaultRoom: RoomData[] | null;
+  models: EquipmentModelData[];
+  onSuccessCallback?: () => void;
 }
 
 interface MaintenanceTicketTableProps {
@@ -497,11 +533,28 @@ interface EditFacilityModalProps {
   onSuccessCallback?: () => void;
 }
 
+interface EditEquipmentModalProps {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+  setOpenSnackbar: (isOpen: boolean) => void;
+  equipmentData: EquipmentDataWithIds; 
+  defaultRoom?: RoomData[] | null;  
+  onSuccessCallback?: () => void;
+}
+
 interface DeleteFacilityModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void; // Hoặc onClose(): void;
   setOpenSnackbar: (isOpen: boolean) => void; // Hoặc onSuccess(): void;
   facilityData: Pick<RoomData, 'id' | 'name'> | null; // Dùng Pick và cho phép null
+  onSuccessCallback?: () => void; // Optional callback khi xóa thành công
+}
+
+interface DeleteEquipmentModalProps {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void; // Hoặc onClose(): void;
+  setOpenSnackbar: (isOpen: boolean) => void; // Hoặc onSuccess(): void;
+  equipmentData: Pick<EquipmentItemData, 'id' | 'modelName'> | null; // Dùng Pick và cho phép null
   onSuccessCallback?: () => void; // Optional callback khi xóa thành công
 }
 

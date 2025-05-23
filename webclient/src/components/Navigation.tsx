@@ -9,12 +9,13 @@ import {
   ListItemIcon,
   Typography,
 } from "@mui/material";
+import ConstructionIcon from '@mui/icons-material/Construction';
+import NotificationImportantIcon from '@mui/icons-material/NotificationImportant';
 import BookmarksIcon from "@mui/icons-material/Bookmarks";
 import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
 import LogoutIcon from "@mui/icons-material/Logout";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
-import BookmarkAddedIcon from '@mui/icons-material/BookmarkAdded';
 import ListItemText from "@mui/material/ListItemText";
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import ApprovalIcon from "@mui/icons-material/Approval";
@@ -72,7 +73,7 @@ const Navigation: FC = (): JSX.Element => {
 
       {/* Facilities */}
       <List component="nav" disablePadding>
-        {role !== "ADMIN" && role !== "TECHNICIAN" && (
+        {role !== "ADMIN" && (
           <>
             <NavLink to="/">
               {({ isActive }) => (
@@ -89,7 +90,7 @@ const Navigation: FC = (): JSX.Element => {
                   }}
                 >
                   <ListItemIcon sx={{ minWidth: "0px" }}>
-                    <WorkspacePremiumIcon
+                    <HomeWorkIcon
                       sx={{ width: "26px", height: "26px", color: "white" }}
                     />
                   </ListItemIcon>
@@ -226,7 +227,7 @@ const Navigation: FC = (): JSX.Element => {
                   }}
                 >
                   <ListItemIcon sx={{ minWidth: "0px" }}>
-                    <WorkspacePremiumIcon
+                    <ConstructionIcon
                       sx={{ width: "26px", height: "26px", color: "white" }}
                     />
                   </ListItemIcon>
@@ -241,41 +242,11 @@ const Navigation: FC = (): JSX.Element => {
               )}
             </NavLink>
             <Divider color="#0c0051" />
-            <NavLink to="/technician/bookings">
-              {({ isActive }) => (
-                <ListItemButton
-                  className="flex gap-3"
-                  sx={{
-                    paddingLeft: "1.4em",
-                    paddingBlock: "1.4em",
-                    borderLeft: isActive ? "4px solid white" : "",
-                    color: "white",
-                    backgroundColor: isActive
-                      ? " rgb(255, 255, 255, 0.02)"
-                      : "",
-                  }}
-                >
-                  <ListItemIcon sx={{ minWidth: "0px" }}>
-                    <BookmarksIcon
-                      sx={{ width: "26px", height: "26px", color: "white" }}
-                    />
-                  </ListItemIcon>
-                  <ListItemText
-                    primaryTypographyProps={{
-                      variant: "body1",
-                      component: "li",
-                    }}
-                    primary="Maintenance"
-                  />
-                </ListItemButton>
-              )}
-            </NavLink>
-            <Divider color="#0c0051" />
           </>
         )}
 
         {/* My bookings */}
-        {role !== "ADMIN" && role !== "TECHNICIAN" && (
+        {role !== "ADMIN" && role !== "FACILITY_MANAGER" && (
           <>
             <NavLink to="/user/mybookings">
               {({ isActive }) => (
@@ -302,6 +273,41 @@ const Navigation: FC = (): JSX.Element => {
                       component: "li",
                     }}
                     primary="Đặt phòng của tôi"
+                  />
+                </ListItemButton>
+              )}
+            </NavLink>
+            <Divider color="#0c0051" />
+          </>
+        )}
+
+        {role !== "ADMIN" && role !== "FACILITY_MANAGER" && (
+          <>
+            <NavLink to="/notification">
+              {({ isActive }) => (
+                <ListItemButton
+                  className="flex gap-3"
+                  sx={{
+                    paddingLeft: "1.4em",
+                    paddingBlock: "1.4em",
+                    borderLeft: isActive ? "4px solid white" : "",
+                    color: "white",
+                    backgroundColor: isActive
+                      ? " rgb(255, 255, 255, 0.02)"
+                      : "",
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: "0px" }}>
+                    <NotificationImportantIcon
+                      sx={{ width: "26px", height: "26px", color: "white" }}
+                    />
+                  </ListItemIcon>
+                  <ListItemText
+                    primaryTypographyProps={{
+                      variant: "body1",
+                      component: "li",
+                    }}
+                    primary="Thông báo"
                   />
                 </ListItemButton>
               )}

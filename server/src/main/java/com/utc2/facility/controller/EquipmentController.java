@@ -37,9 +37,13 @@ public class EquipmentController {
     }
 
     @GetMapping
-    ApiResponse<Page<EquipmentResponse>> getEquipmentItems(Pageable pageable) {
+    ApiResponse<Page<EquipmentResponse>> getEquipmentItems(
+            @RequestParam(required = false) String roomId,
+            @RequestParam(required = false) String equipmentModelId,
+            @RequestParam(required = false) Integer year,
+            Pageable pageable) {
         return ApiResponse.<Page<EquipmentResponse>>builder()
-                .result(equipmentService.getEquipmentItems(pageable))
+                .result(equipmentService.getEquipmentItems(roomId, equipmentModelId, year, pageable))
                 .build();
     }
 

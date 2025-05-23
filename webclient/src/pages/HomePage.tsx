@@ -34,13 +34,14 @@ const HomePage: React.FC = () => {
 
         case "FACILITY_MANAGER":
         case "USER":
+        case "TECHNICIAN":
             // Với FM và User, trang chủ là Dashboard phòng
             console.log("Rendering Room Dashboard for role:", role);
             return <DashboardPage type="room" />; 
 
-        case "TECHNICIAN":
-            console.log("Redirecting TECHNICIAN to /technician/maintenance");
-            return <Navigate to="/technician/maintenance" replace />; 
+        // case "TECHNICIAN":
+        //     console.log("Redirecting TECHNICIAN to /technician/maintenance");
+        //     return <Navigate to="/technician/maintenance" replace />; 
 
         default:
              console.warn("Unknown user role encountered in HomePage:", role);

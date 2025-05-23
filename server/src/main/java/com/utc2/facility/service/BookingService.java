@@ -21,10 +21,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -209,6 +206,20 @@ public class BookingService {
             response.setBookedEquipments(Collections.emptyList());
         }
         return response;
+    }
+
+    public Page<BookingResponse> getBookingsByStatus(String statusStr, int page, int size, String sort) {
+        BookingStatus status;
+        try {
+            status = BookingStatus.valueOf(statusStr);
+        } catch (IllegalArgumentException e) {
+            throw new AppException(ErrorCode.INVALID_INPUT, "Trạng thái không hợp lệ: " + statusStr);
+        }
+
+        Sort sortObj = parseSort(sort);
+        Pageable pageable = PageRequest.of(page, size, sortObj);
+        Page<Booking> bookings = bookingRepository.findByStatus(status, pageable);
+        return bookings.map(bookingMapper::toBookingResponse);
     }
 
     // Get một booking cụ thể, kiểm tra quyền xem
@@ -529,17 +540,66 @@ public class BookingService {
         return buildFullBookingResponse(savedBooking);
     }
 
+    public void revokeBooking(String bookingId, String reason) {
+        Booking booking = findBookingByIdOrThrow(bookingId);
+
+        if (booking.getStatus() != BookingStatus.CONFIRMED &&
+                booking.getStatus() != BookingStatus.OVERDUE) {
+            log.warn("Cannot revoke booking {} with status {}", bookingId, booking.getStatus());
+            throw new AppException(ErrorCode.BOOKING_STATUS_INVALID,
+                    "Chỉ có thể thu hồi booking có trạng thái CONFIRMED hoặc OVERDUE.");
+        }
+
+        // Đặt trạng thái là CANCELLED
+        booking.setStatus(BookingStatus.CANCELLED);
+        booking.setCancelledByUser(getCurrentUser());
+        booking.setCancellationReason(reason);
+
+        bookingRepository.save(booking);
+        log.info("Booking {} revoked.", bookingId);
+    }
+
     // --- Các phương thức Hành động khác (Ví dụ) ---
 
-    @Transactional
-    @PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER', 'TECHNICIAN') or @bookingSecurityService.isOwner(#bookingId, principal.username)")
+    //@Transactional
+    //@PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER', 'TECHNICIAN') or @bookingSecurityService.isOwner(#bookingId, principal.username)")
     public BookingResponse checkOutBooking(String bookingId) {
         log.info("Checking out booking with ID: {}", bookingId);
         Booking booking = findBookingByIdOrThrow(bookingId);
 
-        if (booking.getStatus() != BookingStatus.CONFIRMED) {
+        if (booking.getStatus() != BookingStatus.IN_PROGRESS &&
+                booking.getStatus() != BookingStatus.OVERDUE) {
             log.warn("Cannot check out booking {} with status {}", bookingId, booking.getStatus());
-            throw new AppException(ErrorCode.BOOKING_STATUS_INVALID, "Chỉ có thể check-out booking đã được duyệt (CONFIRMED).");
+            throw new AppException(ErrorCode.BOOKING_STATUS_INVALID, "Chỉ có thể check-out booking đang được sử dụng (IN_PROGRESS) và booking quá hạn (OVERDUE).");
+        }
+
+        if (booking.getStatus() == BookingStatus.IN_PROGRESS) {
+            // Kiểm tra xem đã đến giờ trả chưa?
+            if (LocalDateTime.now().isAfter(booking.getPlannedEndTime())) {
+                throw new AppException(ErrorCode.BOOKING_NOT_YET_ENDED);
+            }
+        }
+
+        booking.setStatus(BookingStatus.COMPLETED);
+        booking.setActualCheckOutTime(LocalDateTime.now());
+
+        if (booking.getStatus() == BookingStatus.OVERDUE) {
+            booking.setNote("Trả phòng không đúng hạn.");
+        }
+
+        Booking savedBooking = bookingRepository.save(booking);
+        log.info("Booking {} checked out.", bookingId);
+        return buildFullBookingResponse(savedBooking);
+    }
+
+    //@PreAuthorize("hasAnyRole('ADMIN', 'FACILITY_MANAGER', 'TECHNICIAN') or @bookingSecurityService.isOwner(#bookingId, principal.username)")
+    public BookingResponse checkInBooking(String bookingId) {
+        log.info("Checking in booking with ID: {}", bookingId);
+        Booking booking = findBookingByIdOrThrow(bookingId);
+
+        if (booking.getStatus() != BookingStatus.CONFIRMED) {
+            log.warn("Cannot check in booking {} with status {}", bookingId, booking.getStatus());
+            throw new AppException(ErrorCode.BOOKING_STATUS_INVALID, "Chỉ có thể check-in booking đã được phê duyệt (CONFIRMED).");
         }
 
         // Kiểm tra xem đã đến giờ mượn chưa?
@@ -548,10 +608,10 @@ public class BookingService {
         }
 
         booking.setStatus(BookingStatus.IN_PROGRESS);
-        booking.setActualCheckOutTime(LocalDateTime.now());
+        booking.setActualCheckInTime(LocalDateTime.now());
 
         Booking savedBooking = bookingRepository.save(booking);
-        log.info("Booking {} checked out.", bookingId);
+        log.info("Booking {} checked in.", bookingId);
         return buildFullBookingResponse(savedBooking);
     }
 
@@ -668,5 +728,17 @@ public class BookingService {
                 .stream()
                 .map(be -> be.getItem().getId())
                 .collect(Collectors.toSet());
+    }
+
+    private Sort parseSort(String sort) {
+        if (!sort.contains(",")) {
+            return Sort.unsorted();
+        }
+        String[] parts = sort.split(",");
+        String field = parts[0];
+        Sort.Direction direction = parts.length > 1 && parts[1].equalsIgnoreCase("desc") ?
+                Sort.Direction.DESC : Sort.Direction.ASC;
+
+        return Sort.by(direction, field);
     }
 }

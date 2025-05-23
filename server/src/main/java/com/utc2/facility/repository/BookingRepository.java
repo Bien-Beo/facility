@@ -40,4 +40,9 @@ public interface BookingRepository extends JpaRepository<Booking, String> {
 
     Page<Booking> findAll(Specification<Booking> and, Pageable pageable);
     List<Booking> findByStatus(BookingStatus status);
+    Page<Booking> findByStatus(BookingStatus status, Pageable pageable);
+    List<Booking> findByPlannedStartTimeAndBorrowNotifiedFalse(LocalDateTime time);
+    List<Booking> findByPlannedEndTimeAndReturnNotifiedFalse(LocalDateTime time);
+    public List<Booking> findByPlannedEndTimeBeforeAndReturnNotifiedFalse(LocalDateTime now);
+    public List<Booking> findByStatusAndApprovedNotifiedFalse(BookingStatus status);
 }

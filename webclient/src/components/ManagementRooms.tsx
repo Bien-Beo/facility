@@ -2,11 +2,11 @@ import React, { JSX, FC, useEffect, useRef, useState, ChangeEvent } from "react"
 import DownloadIcon from "@mui/icons-material/Download";
 import InsertInvitationIcon from "@mui/icons-material/InsertInvitation";
 import {
-    Alert, Box, Button, CircularProgress, Snackbar, Typography
+    Alert, Box, Button, CircularProgress, Snackbar, Typography, Paper, Grid, FormControl, InputLabel, Select, MenuItem, TextField
 } from "@mui/material";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
-import generatePDF, { Options } from "react-to-pdf";
+import { Options } from "react-to-pdf";
 
 import FacilitiesReport from "../reports/FacilitiesReport"; 
 import ErrorComponent from "./Error";                    
@@ -15,9 +15,14 @@ import AdminFacilitiesTable from "./tables/AdminFacilitiesTable";
 
 import html2canvas from 'html2canvas-pro';
 import jsPDF from 'jspdf';
-
-// --- Component AdminFacilities ---
 const ManagementRooms: FC = (): JSX.Element => {
+      // --- State cho Filters ---
+      const [selectedBuildingId, setSelectedBuildingId] = useState<string>(""); 
+      const [selectedRoomTypeId, setSelectedRoomTypeId] = useState<string>(""); 
+      const [selectedYear, setSelectedYear] = useState<string>(
+        String(new Date().getFullYear())
+      ); 
+      const [selectedUserId, setSelectedUserId] = useState<string>("");
 
     // State cho modal, snackbar, print
     const [isAddFacilityModalOpen, setIsAddFacilityModalOpen] = useState<boolean>(false);
@@ -25,38 +30,66 @@ const ManagementRooms: FC = (): JSX.Element => {
     const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
 
     // === STATE CHO PHÂN TRANG ===
-    const [page, setPage] = useState<number>(0); // Trang hiện tại (bắt đầu từ 0)
-    const [rowsPerPage, setRowsPerPage] = useState<number>(10); // Số dòng/trang
+    const [page, setPage] = useState<number>(0); 
+    const [rowsPerPage, setRowsPerPage] = useState<number>(10); 
 
     const targetRef = useRef<HTMLDivElement>(null);
     const queryClient = useQueryClient();
 
-    // === SỬA useQuery ĐỂ LẤY DỮ LIỆU PHÂN TRANG ===
-    const { data: apiResponse, isPending, isLoading, isError, error } = useQuery<PaginatedRoomApiResponse, AxiosError<ErrorMessage>>({
-        // Query key giờ bao gồm cả page và rowsPerPage để React Query tự fetch lại khi chúng thay đổi
-        queryKey: ["adminRooms", page, rowsPerPage], // Đổi key nếu cần
+    const {
+        data: apiResponse,
+        isPending,
+        isError,
+        error,
+      } = useQuery<PaginatedRoomApiResponse, AxiosError<ErrorMessage>>({
+        queryKey: [
+          "adminRooms",
+          page,
+          rowsPerPage,
+          selectedBuildingId,
+          selectedRoomTypeId,
+          selectedYear,
+          selectedUserId,
+        ],
         queryFn: async () => {
-            const token = localStorage.getItem("token");
-            if (!token) throw new Error("No token found");
-            console.log(`Workspaceing admin rooms - Page: ${page}, Size: ${rowsPerPage}`);
-            // Gọi API với tham số phân trang
-            const response = await axios.get<PaginatedRoomApiResponse>(
-                `${import.meta.env.VITE_APP_SERVER_URL}/admin/rooms?page=${page}&size=${rowsPerPage}&sort=createdAt,desc`, // Thêm tham số page/size
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
-             // Kiểm tra response cơ bản
-             if (response.data?.code !== 0 || !response.data?.result?.content || !response.data?.result?.page) {
-                  console.error("Invalid API response structure:", response.data);
-                  throw new Error("Cấu trúc API response không hợp lệ.");
-             }
-            return response.data;
+          const token = localStorage.getItem("token");
+          if (!token) throw new Error("No token found");
+      
+          const params = new URLSearchParams();
+          params.append("page", String(page));
+          params.append("size", String(rowsPerPage));
+          params.append("sort", "createdAt,desc");
+          
+          if (selectedBuildingId) params.append("buildingId", selectedBuildingId);
+          if (selectedRoomTypeId) params.append("roomTypeId", selectedRoomTypeId);
+          if (selectedYear) params.append("year", selectedYear);
+          if (selectedUserId) params.append("userId", selectedUserId);
+      
+          const response = await axios.get<PaginatedRoomApiResponse>(
+            `${import.meta.env.VITE_APP_SERVER_URL}/rooms?${params.toString()}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+      
+          if (
+            response.data?.code !== 0 ||
+            !response.data?.result?.content ||
+            !response.data?.result?.page
+          ) {
+            console.error("Invalid API response structure:", response.data);
+            throw new Error("Cấu trúc API response không hợp lệ.");
+          }
+      
+          return response.data;
         },
-        keepPreviousData: true, 
+        keepPreviousData: true,
         retry: 1,
-    });
+      });
 
     // === Fetch Buildings riêng cho Modal ===
-    // Bạn cần đảm bảo có API endpoint /buildings hoặc cách khác để lấy dữ liệu này
      const { data: buildingsApiResponse } = useQuery<ApiResponse<BuildingData[]>, AxiosError>({
           queryKey: ["allBuildingsList"],
           queryFn: async () => {
@@ -192,7 +225,25 @@ const ManagementRooms: FC = (): JSX.Element => {
          return (<ErrorComponent status={errorData.status!} message={errorData.message}/> );
     }
 
-    // isPending được dùng trực tiếp bên dưới
+    // === Handlers Filter ===
+      const handleFilterChange =
+        (setter: React.Dispatch<React.SetStateAction<string>>) =>
+        (
+          e:
+            | SelectChangeEvent<string>
+            | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+        ) => {
+          setter(e.target.value);
+          setPage(0); // Reset về trang đầu khi filter
+        };
+    
+        const handleResetFilters = () => {
+            setSelectedBuildingId("");
+            setSelectedRoomTypeId("");
+            setSelectedYear(String(new Date().getFullYear()));
+            setSelectedUserId("");
+            setPage(0); 
+          };          
 
     return (
         <Box className="w-full flex flex-col px-6 pt-8 gap-6">
@@ -203,9 +254,9 @@ const ManagementRooms: FC = (): JSX.Element => {
                     setIsOpen={setIsAddFacilityModalOpen}
                     setOpenSnackbar={setOpenSnackbar}
                     buildings={buildingsList} 
-					roomTypes={roomTypesList}
-					facilityManagers={facilityManagersList}
-                    onSuccessCallback={() => { // Thêm callback để refresh bảng
+					          roomTypes={roomTypesList}
+					          facilityManagers={facilityManagersList}
+                    onSuccessCallback={() => { 
                         queryClient.invalidateQueries({ queryKey: ["adminRooms"] });
                     }}
                 />
@@ -218,20 +269,112 @@ const ManagementRooms: FC = (): JSX.Element => {
                  <Button variant="contained" color="primary" startIcon={<InsertInvitationIcon />} sx={{ paddingX: "2em", height: "45px" }} size="large" onClick={() => setIsAddFacilityModalOpen(true)}>
                      Thêm phòng
                  </Button>
-                 {/* <Button variant="contained" color="secondary" endIcon={<DownloadIcon />} sx={{ paddingX: "2em", height: "45px" }} size="large" onClick={handleExportPdf}>
-                     Export PDF
-                 </Button> */}
                  <Button variant="contained" color="secondary" endIcon={<DownloadIcon />} sx={{ paddingX: "2em", height: "45px" }} size="large" onClick={handleExportPdfClick}>
                     Xuất PDF
                 </Button>
              </Box>
+             
+             <Paper sx={{ p: 2, mb: 2 }}>
+                     {" "}
+                     {/* Bọc filter trong Paper */}
+                     <Grid container spacing={2} alignItems="center">
+                       <Grid item xs={12} sm={6} md={2.5}>
+                         <FormControl size="small" fullWidth>
+                           <InputLabel id="building-filter-label">Lọc theo tòa nhà</InputLabel>
+                           <Select
+                             labelId="building-filter-label"
+                             label="Lọc theo tòa nhà"
+                             name="selectedBuildingId"
+                             value={selectedBuildingId}
+                             onChange={handleFilterChange(setSelectedBuildingId)}
+                           >
+                             <MenuItem value="">
+                               <em>Tất cả tòa nhà</em>
+                             </MenuItem>
+                             {buildingsList.map((building) => (
+                               <MenuItem key={building.id} value={building.id}>
+                                 {building.name}
+                               </MenuItem>
+                             ))}
+                           </Select>
+                         </FormControl>
+                       </Grid>
+                       <Grid item xs={12} sm={6} md={2.5}>
+                         <FormControl size="small" fullWidth>
+                           <InputLabel id="roomTypes-filter-label">Lọc theo loại phòng</InputLabel>
+                           <Select
+                             labelId="roomTypes-filter-label"
+                             label="Lọc theo loại phòng"
+                             value={selectedRoomTypeId}
+                             onChange={handleFilterChange(setSelectedRoomTypeId)}
+                           >
+                             <MenuItem value="">
+                               <em>Tất cả loại phòng</em>
+                             </MenuItem>
+                             {roomTypesList.map((roomType) => (
+                               <MenuItem key={roomType.id} value={roomType.id}>
+                                 {roomType.name}
+                               </MenuItem>
+                             ))}
+                           </Select>
+                         </FormControl>
+                       </Grid>
+                       <Grid item xs={6} sm={3} md={2}>
+                         <TextField
+                           fullWidth
+                           size="small"
+                           type="number"
+                           label="Năm xây dựng"
+                           name="selectedYear"
+                           value={selectedYear}
+                           onChange={handleFilterChange(setSelectedYear)}
+                         />
+                       </Grid>
+                       <Grid item xs={12} sm={6} md={3}>
+                         <FormControl size="small" fullWidth>
+                           <InputLabel id="user-filter-label">Lọc theo người quản lý</InputLabel>
+                           <Select
+                             labelId="user-filter-label"
+                             label="Lọc theo người quản lý"
+                             name="selectedUserId"
+                             value={selectedUserId}
+                             onChange={handleFilterChange(setSelectedUserId)}
+                           >
+                             <MenuItem value="">
+                               <em>Tất cả người quản lý</em>
+                             </MenuItem>
+                             {facilityManagersList.map((user) => (
+                               <MenuItem key={user.id} value={user.id}>
+                                 {user.fullName || user.username} 
+                               </MenuItem>
+                             ))}
+                           </Select>
+                         </FormControl>
+                       </Grid>
+                       <Grid
+                         item
+                         xs={12}
+                         sm={6}
+                         md={2}
+                         sx={{ display: "flex", gap: 1, alignItems: "center" }}
+                       >
+                         <Button
+                           variant="outlined"
+                           onClick={handleResetFilters}
+                           size="medium"
+                           sx={{ height: "40px" }}
+                         >
+                           Reset
+                         </Button>
+                       </Grid>
+                     </Grid>
+                   </Paper>
 
             {/* Bảng dữ liệu */}
             <Box sx={{ width: '100%' }}>
-                 {/* Dùng isPending từ useQuery để hiển thị loading */}
                  {isPending ? (
                      <Box sx={{ display: 'flex', justifyContent: 'center', p: 5 }}><CircularProgress /></Box>
-                 ) : roomsForCurrentPage.length === 0 && page === 0 ? ( // Chỉ báo không có nếu ở trang đầu tiên
+                 ) : roomsForCurrentPage.length === 0 && page === 0 ? (
                       <Typography sx={{ textAlign: 'center', p: 5 }}>No rooms found.</Typography>
                  ) : (
                      // === TRUYỀN PROPS PHÂN TRANG XUỐNG TABLE ===
@@ -243,8 +386,8 @@ const ManagementRooms: FC = (): JSX.Element => {
                           onPageChange={handleChangePage} // <<< Handler đổi trang
                           onRowsPerPageChange={handleChangeRowsPerPage} // <<< Handler đổi số dòng
                           buildings={buildingsList} 
-					    roomTypes={roomTypesList}
-					    facilityManagers={facilityManagersList}
+					                roomTypes={roomTypesList}
+					                facilityManagers={facilityManagersList}
                      />
                  )}
             </Box>

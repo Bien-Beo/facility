@@ -11,6 +11,7 @@ import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.UpdateTimestamp; // For automatic updatedAt
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List; // Import List
 
 @Getter
@@ -52,11 +53,11 @@ public class EquipmentModel {
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
+    private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "model", fetch = FetchType.LAZY)
     private List<EquipmentItem> items;
