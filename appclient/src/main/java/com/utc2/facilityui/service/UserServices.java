@@ -11,9 +11,12 @@ import okhttp3.*;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.HashMap; // Import HashMap
-import java.util.Map;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class UserServices { // Hoặc AuthService riêng
@@ -178,5 +181,77 @@ public class UserServices { // Hoặc AuthService riêng
             System.err.println("resetPassword: Network or IO Error - " + e.getMessage());
             throw e;
         }
+    }
+
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/facility";
+    private static final String DB_USER = "root";
+    private static final String DB_PASSWORD = "Tranbien2809@";
+
+    public static List<User> getAllUsers() {
+        List<User> users = new ArrayList<>();
+        String query = "SELECT * FROM user";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement stmt = ((java.sql.Connection) conn).prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                User user = new User();
+                user.setId(rs.getString("id"));
+                user.setUserId(rs.getString("user_id"));
+                user.setUsername(rs.getString("username"));
+                user.setEmail(rs.getString("email"));
+                user.setAvatar(rs.getString("avatar"));
+                users.add(user);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace(); // hoặc log lỗi tùy dự án
+        }
+
+        return users;
+    }
+
+    public User getUserById(String userId) {
+        String sql = "SELECT id, user_id, username, email, avatar FROM user WHERE id = ?";
+        User user = null;
+
+        try (Connection conn = java.sql.DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, userId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                user = new User();
+                user.setId(rs.getString("id"));
+                user.setUserId(rs.getString("user_id"));
+                user.setUsername(rs.getString("username"));
+                user.setEmail(rs.getString("email"));
+                user.setAvatar(rs.getString("avatar"));
+            }
+
+            rs.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return user;
+    }
+    public Map<String, String> getAllUserIdUsernameMap() {
+        Map<String, String> map = new HashMap<>();
+        String sql = "SELECT id, username FROM user";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                map.put(rs.getString("id"), rs.getString("username"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return map;
     }
 }

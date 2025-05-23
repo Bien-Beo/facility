@@ -1,8 +1,13 @@
 package com.utc2.facilityui.response;
 
 import com.utc2.facilityui.model.BookedEquipmentItem;
+import com.utc2.facilityui.model.Booking;
+
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.List;
+// import java.util.List; // Bỏ comment nếu API trả về bookedEquipments
 
 public class BookingResponse {
     private String id;
@@ -21,7 +26,7 @@ public class BookingResponse {
     private LocalDateTime updatedAt;
     private String note;
     private List<BookedEquipmentItem> bookedEquipments; // << ĐÃ THÊM
-
+    private List<String> equipmentItemIds = new ArrayList<>();
     public String getId() {
         return id;
     }
@@ -148,5 +153,13 @@ public class BookingResponse {
 
     public void setBookedEquipments(List<BookedEquipmentItem> bookedEquipments) {
         this.bookedEquipments = bookedEquipments;
+    }
+
+    public List<String> getEquipmentItemIds() {
+        return equipmentItemIds;
+    }
+
+    public void setEquipmentItemIds(List<String> equipmentItemIds) {
+        this.equipmentItemIds = equipmentItemIds;
     }
 }

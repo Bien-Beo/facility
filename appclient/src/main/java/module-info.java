@@ -1,5 +1,6 @@
 module com.utc2.facilityui {
     // --- Phần Requires ---
+    // Giữ lại các requires hiện có của bạn
     requires javafx.fxml;
     requires javafx.web;
     requires org.controlsfx.controls;
@@ -21,8 +22,12 @@ module com.utc2.facilityui {
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.databind;
     requires com.fasterxml.jackson.datatype.jsr310; // Cho việc xử lý Java Time API (LocalDateTime,...)
+    requires java.sql;
+    requires io;
+    requires org.apache.poi.ooxml;
 
     // --- Phần Opens ---
+    // Giữ lại các opens cho javafx.fxml
     opens com.utc2.facilityui.controller to javafx.fxml;
     opens com.utc2.facilityui.chatbot to javafx.fxml;
     opens com.utc2.facilityui.app to javafx.fxml;
