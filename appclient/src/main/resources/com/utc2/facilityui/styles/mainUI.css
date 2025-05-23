@@ -1,14 +1,14 @@
 
 .nav-form{
-    -fx-background-color:  #525eda;
+    -fx-background-color:  #00275e;
 }
 .button1{
-      -fx-background-color: #525eda;;
+      -fx-background-color: #00275e;;
     -fx-cursor: hand;
     -fx-font-size:14px;
     -fx-text-fill: white;
     -fx-font-weight: bold;
-    -fx-border-color: #4c57cc;
+    -fx-border-color: #061151;
 
 }
 .button1:hover{
@@ -55,48 +55,75 @@
 
 }
 .card-booking{
-
-    -fx-border-color: #004eba;
-    -fx-border-width: 0px 0px 0px 10px;
+    -fx-background-color: #d6e8ff;
+    -fx-border-color: transparent transparent transparent #004eba;
+    -fx-border-width: 0 0 0 10px;
+    -fx-border-style: solid;
     -fx-background-radius: 15px;
 }
-.card-booking1{
-    -fx-background-color: #d6e8ff;
-}
+
 .card-booking2{
     -fx-text-fill:gray;
-}
-.card-Acceptbooking{
-
-    -fx-border-color: #2fa536;
-    -fx-border-width: 0px 0px 0px 10px;
-    -fx-background-radius: 10px;
-    -fx-cursor: hand;
 }
 .card-Rejectbooking{
 
     -fx-border-color: #880000;
     -fx-border-width: 0px 0px 0px 10px;
     -fx-background-radius: 10px;
-    -fx-cursor: hand;
 }
 
 .card-Rejectbooking1{
     -fx-background-color: #fae0e0;
 }
+.card-CompleteBooking{
+    -fx-border-color: #a8a8a8;
+    -fx-border-width: 0px 0px 0px 10px;
+    -fx-background-radius: 10px;
+}
+.card-CompleteBooking1{
+    -fx-background-color: #f1f1f1;
+}
 .bntBack{
     -fx-cursor: hand;
 }
-.card-Acceptbooking1{
-    -fx-background-color: #e5ffe6;
-}
+.card-Acceptbooking {
 
+    -fx-background-color: #ecfded;
+
+    /* Viền xanh lá cây bên trái */
+    -fx-border-color: transparent transparent transparent #2e7d32; /* Chỉ vẽ viền trái, thay mã màu nếu cần */
+    -fx-border-width: 0 0 0 10px;
+    -fx-border-style: solid;
+}
+.card-Acceptbooking.card-overdue-style {
+    -fx-background-color: #FFF3E0; /* Màu trắng cam nhẹ (ví dụ: Light Orange - Material Design) */
+    -fx-border-color: transparent transparent transparent #dd4c00;    /* Màu cam đậm cho viền (ví dụ: Orange 900 - Material Design) */
+    -fx-border-width: 0 0 0 10px;
+    -fx-border-style: solid;
+}
+.border-bottom{
+    -fx-border-color: transparent transparent #6adc47 transparent;
+    -fx-border-width: 0 0 5px 0;
+}
 .button-cancel{
     -fx-background-color: #b52828;
     -fx-text-fill: white;
     -fx-font-weight: bold;
+}
+.button-checkIn{
+    -fx-background-color: #f4d65a;
+    -fx-text-fill: #000000;
+    -fx-font-weight: bold;
     -fx-cursor: hand;
 }
+.button-checkOut {
+    -fx-background-color: #30348c;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+
 .shadow{
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 6,0,0,0);
 }
@@ -104,7 +131,10 @@
     -fx-background-color: #fff;
     -fx-background-radius: 8px;
 }
-
+.status-in-progress {
+    -fx-fill: #000000;
+    -fx-font-weight: bold;
+}
 /*
 
 */

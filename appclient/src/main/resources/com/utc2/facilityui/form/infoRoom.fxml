@@ -6,8 +6,10 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
@@ -22,13 +24,13 @@
             <top>
                <AnchorPane prefHeight="58.0" prefWidth="710.0" BorderPane.alignment="CENTER">
                   <children>
-                     <Label fx:id="info" alignment="CENTER" layoutX="1.0" layoutY="-1.0" prefHeight="59.0" prefWidth="803.0" text="Information Room">
+                     <Label fx:id="info" alignment="CENTER" layoutX="1.0" layoutY="-1.0" prefHeight="59.0" prefWidth="803.0" text="Thông tin Phòng">
                         <font>
                            <Font size="24.0" />
                         </font>
                      </Label>
                      <Line endX="447.0" endY="3.0" layoutX="344.0" layoutY="55.0" startX="-333.0" />
-                     <Button fx:id="buttonAddBooking" contentDisplay="RIGHT" layoutX="640.0" layoutY="14.0" mnemonicParsing="false" prefHeight="32.0" prefWidth="121.0" styleClass="bntAddBooking" text="Add Booking ">
+                     <Button fx:id="buttonAddBooking" contentDisplay="RIGHT" layoutX="640.0" layoutY="14.0" mnemonicParsing="false" prefHeight="32.0" prefWidth="121.0" styleClass="bntAddBooking" text="Đặt phòng">
                         <graphic>
                            <ImageView fitHeight="20.0" fitWidth="23.0" pickOnBounds="true" preserveRatio="true">
                               <image>
@@ -54,12 +56,12 @@
             <center>
                <AnchorPane prefHeight="384.0" prefWidth="804.0" BorderPane.alignment="CENTER">
                   <children>
-                     <ImageView fx:id="img" fitHeight="183.0" fitWidth="275.0" layoutX="258.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
+                     <ImageView fx:id="img" fitHeight="183.0" fitWidth="515.0" layoutX="265.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
                         <image>
                            <Image url="@../images/background.jpg" />
                         </image>
                      </ImageView>
-                     <Label fx:id="name" alignment="CENTER" layoutX="-1.0" layoutY="202.0" prefHeight="25.0" prefWidth="803.0" text="Room 305DN">
+                     <Label fx:id="name" alignment="CENTER" layoutX="1.0" layoutY="202.0" prefHeight="25.0" prefWidth="803.0" text="Room 305DN">
                         <font>
                            <Font size="16.0" />
                         </font>
@@ -69,76 +71,130 @@
                            <Font size="14.0" />
                         </font>
                      </Label>
-                     <Label layoutX="98.0" layoutY="260.0" text="Capacity:">
-                        <font>
-                           <Font name="System Bold" size="14.0" />
-                        </font>
-                     </Label>
-                     <Text fx:id="capacity" layoutX="166.0" layoutY="275.0" strokeType="OUTSIDE" strokeWidth="0.0" text="80" wrappingWidth="28.9375">
-                        <font>
-                           <Font size="14.0" />
-                        </font>
-                     </Text>
-                     <Label layoutX="97.0" layoutY="292.0" prefHeight="20.0" prefWidth="62.0" text="Building:">
-                        <font>
-                           <Font name="System Bold" size="14.0" />
-                        </font>
-                     </Label>
-                     <Text fx:id="building" layoutX="166.0" layoutY="307.0" strokeType="OUTSIDE" strokeWidth="0.0" text="DN" wrappingWidth="28.9375">
-                        <font>
-                           <Font size="14.0" />
-                        </font>
-                     </Text>
-                     <Label layoutX="97.0" layoutY="318.0" prefHeight="20.0" prefWidth="82.0" text="Type Room:">
-                        <font>
-                           <Font name="System Bold" size="14.0" />
-                        </font>
-                     </Label>
-                     <Text fx:id="typeRoom" layoutX="185.0" layoutY="333.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Phong hoi thao" wrappingWidth="146.4375">
-                        <font>
-                           <Font size="14.0" />
-                        </font>
-                     </Text>
-                     <Label layoutX="97.0" layoutY="347.0" prefHeight="20.0" prefWidth="51.0" text="Status: ">
-                        <font>
-                           <Font name="System Bold" size="14.0" />
-                        </font>
-                     </Label>
-                     <Text fx:id="status" layoutX="148.0" layoutY="362.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Available" wrappingWidth="102.4375">
-                        <font>
-                           <Font size="14.0" />
-                        </font>
-                     </Text>
-                     <Label fx:id="nameFacilityManager" layoutX="498.0" layoutY="260.0" text="Facility Manager:">
-                        <font>
-                           <Font name="System Bold" size="14.0" />
-                        </font>
-                     </Label>
-                     <Text fx:id="nameFManager" layoutX="621.0" layoutY="275.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Ngoc Bien" wrappingWidth="145.4375">
-                        <font>
-                           <Font size="14.0" />
-                        </font>
-                     </Text>
-                     <Label layoutX="498.0" layoutY="291.0" text="Creation date :">
-                        <font>
-                           <Font name="System Bold" size="14.0" />
-                        </font>
-                     </Label>
-                     <Text fx:id="creationDate" layoutX="605.0" layoutY="307.0" strokeType="OUTSIDE" strokeWidth="0.0" text="2025-03-30" wrappingWidth="145.4375">
-                        <font>
-                           <Font size="14.0" />
-                        </font>
-                     </Text>
-                     <Label layoutX="498.0" layoutY="318.0" text="Update date :">
-                        <font>
-                           <Font name="System Bold" size="14.0" />
-                        </font>
-                     </Label>
-                     <Text fx:id="updateDate" layoutX="595.0" layoutY="332.0" strokeType="OUTSIDE" strokeWidth="0.0" text="2025-03-30" wrappingWidth="145.4375">
-                        <font>
-                           <Font size="14.0" />
-                        </font>
-                     </Text>
+                     <HBox layoutX="85.0" layoutY="251.0" prefHeight="127.0" prefWidth="700.0">
+                        <children>
+                           <VBox prefHeight="127.0" prefWidth="668.0">
+                              <children>
+                                 <HBox prefHeight="28.0" prefWidth="345.0">
+                                    <children>
+                                       <Label prefHeight="21.0" prefWidth="68.0" text="Sức chứa:">
+                                          <font>
+                                             <Font name="System Bold" size="14.0" />
+                                          </font>
+                                       </Label>
+                                       <Text fx:id="capacity" strokeType="OUTSIDE" strokeWidth="0.0" text="80" wrappingWidth="272.9375">
+                                          <font>
+                                             <Font size="14.0" />
+                                          </font>
+                                       </Text>
+                                    </children>
+                                 </HBox>
+                                 <HBox prefHeight="28.0" prefWidth="345.0">
+                                    <children>
+                                       <Label prefHeight="19.0" prefWidth="34.0" text="Tòa:">
+                                          <font>
+                                             <Font name="System Bold" size="14.0" />
+                                          </font>
+                                       </Label>
+                                       <Text fx:id="buildingName" strokeType="OUTSIDE" strokeWidth="0.0" text="DN" wrappingWidth="282.4375">
+                                          <font>
+                                             <Font size="14.0" />
+                                          </font>
+                                       </Text>
+                                    </children>
+                                 </HBox>
+                                 <HBox prefHeight="28.0" prefWidth="349.0">
+                                    <children>
+                                       <Label prefHeight="20.0" prefWidth="82.0" text="Loại phòng">
+                                          <font>
+                                             <Font name="System Bold" size="14.0" />
+                                          </font>
+                                       </Label>
+                                       <Text fx:id="roomTypeName" strokeType="OUTSIDE" strokeWidth="0.0" text="Phong hoi thao" wrappingWidth="146.4375">
+                                          <font>
+                                             <Font size="14.0" />
+                                          </font>
+                                       </Text>
+                                    </children>
+                                 </HBox>
+                                 <HBox prefHeight="28.0" prefWidth="345.0">
+                                    <children>
+                                       <Label prefHeight="20.0" prefWidth="75.0" text="Trạng thái:">
+                                          <font>
+                                             <Font name="System Bold" size="14.0" />
+                                          </font>
+                                       </Label>
+                                       <Text fx:id="status" strokeType="OUTSIDE" strokeWidth="0.0" text="Available" wrappingWidth="102.4375">
+                                          <font>
+                                             <Font size="14.0" />
+                                          </font>
+                                       </Text>
+                                    </children>
+                                 </HBox>
+                              </children>
+                           </VBox>
+                           <VBox prefHeight="127.0" prefWidth="665.0">
+                              <children>
+                                 <HBox prefHeight="28.0" prefWidth="200.0">
+                                    <children>
+                                       <Label prefHeight="20.0" prefWidth="62.0" text="Quản Lý:">
+                                          <font>
+                                             <Font name="System Bold" size="14.0" />
+                                          </font>
+                                       </Label>
+                                       <Text fx:id="nameFacilityManager" strokeType="OUTSIDE" strokeWidth="0.0" text="Ngoc Bien" wrappingWidth="145.4375">
+                                          <font>
+                                             <Font size="14.0" />
+                                          </font>
+                                       </Text>
+                                    </children>
+                                 </HBox>
+                                 <HBox prefHeight="28.0" prefWidth="200.0">
+                                    <children>
+                                       <Label text="Ngày khánh thành: ">
+                                          <font>
+                                             <Font name="System Bold" size="14.0" />
+                                          </font>
+                                       </Label>
+                                       <Text fx:id="createdAt" strokeType="OUTSIDE" strokeWidth="0.0" text="2025-03-30" wrappingWidth="145.4375">
+                                          <font>
+                                             <Font size="14.0" />
+                                          </font>
+                                       </Text>
+                                    </children>
+                                 </HBox>
+                                 <HBox prefHeight="28.0" prefWidth="200.0">
+                                    <children>
+                                       <Label prefHeight="20.0" prefWidth="103.0" text="Ngày cập nhật:">
+                                          <font>
+                                             <Font name="System Bold" size="14.0" />
+                                          </font>
+                                       </Label>
+                                       <Text fx:id="updatedAt" strokeType="OUTSIDE" strokeWidth="0.0" text="2025-03-30" wrappingWidth="145.4375">
+                                          <font>
+                                             <Font size="14.0" />
+                                          </font>
+                                       </Text>
+                                    </children>
+                                 </HBox>
+                                 <HBox prefHeight="28.0" prefWidth="200.0">
+                                    <children>
+                                       <Label prefHeight="13.0" prefWidth="90.0" text="Các thiết bị:">
+                                          <font>
+                                             <Font name="System Bold" size="14.0" />
+                                          </font>
+                                       </Label>
+                                       <Text fx:id="defaultEquipments" strokeType="OUTSIDE" strokeWidth="0.0" text="Loại thiết bị" wrappingWidth="259.37109375">
+                                          <font>
+                                             <Font size="14.0" />
+                                          </font>
+                                       </Text>
+                                    </children>
+                                 </HBox>
+                              </children>
+                           </VBox>
+                        </children>
+                     </HBox>
                   </children>
                </AnchorPane>
             </center>
@@ -146,7 +202,7 @@
             <bottom>
                <AnchorPane prefHeight="188.0" prefWidth="804.0" BorderPane.alignment="CENTER">
                   <children>
-                     <Button fx:id="bntReport" layoutX="348.0" layoutY="14.0" mnemonicParsing="false" prefHeight="33.0" prefWidth="108.0" styleClass="button-cancel" text="Report" />
+                     <Button fx:id="bntReport" layoutX="348.0" layoutY="14.0" mnemonicParsing="false" prefHeight="33.0" prefWidth="108.0" styleClass="button-cancel" text="Báo cáo sự cố" />
                   </children>
                </AnchorPane>
             </bottom>

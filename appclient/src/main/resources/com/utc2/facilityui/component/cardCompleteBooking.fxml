@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="257.0" prefWidth="769.0" stylesheets="@../styles/mainUI.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.booking.CardCompleteBookingController">
+    <children>
+        <HBox layoutX="10.0" prefHeight="257.0" prefWidth="769.0" spacing="10.0" styleClass="card-CompleteBooking1" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <padding>
+                <Insets bottom="10.0" left="15.0" right="10.0" top="10.0" />
+            </padding>
+            <children>
+                <AnchorPane prefHeight="191.0" prefWidth="770.0">
+                    <children>
+                        <VBox layoutX="12.0" layoutY="11.0" prefHeight="218.0" prefWidth="718.0" spacing="4.0">
+                            <children>
+                                <HBox fx:id="purposeContainer" prefHeight="34.0" prefWidth="530.0">
+                                    <children>
+                                        <AnchorPane prefHeight="34.0" prefWidth="531.0">
+                                            <children>
+                                                <Label fx:id="nameBookingLabel" prefHeight="39.0" prefWidth="550.0" text="Tên Phòng"> <font>
+                                                    <Font name="System Bold" size="18.0" />
+                                                </font>
+                                                </Label>
+                                            </children>
+                                        </AnchorPane>
+                                    </children>
+                                </HBox>
+
+                                <HBox fx:id="userContainer" managed="true" prefHeight="19.0" prefWidth="456.0" spacing="5.0" visible="true"> <children>
+                                    <Label minWidth="-Infinity" prefHeight="19.0" prefWidth="69.0" text="Người đặt:">
+                                        <font>
+                                            <Font name="System Bold" size="13.0" />
+                                        </font>
+                                    </Label>
+                                    <Text fx:id="userNameText" strokeType="OUTSIDE" strokeWidth="0.0" text="Tên người đặt" wrappingWidth="301.82958984375">
+                                        <font>
+                                            <Font size="13.0" />
+                                        </font>
+                                    </Text>
+                                </children>
+                                </HBox>
+                                <HBox fx:id="userContainer1" managed="true" prefHeight="19.0" prefWidth="456.0" spacing="5.0" visible="true">
+                                    <children>
+                                        <Label minWidth="-Infinity" prefHeight="19.0" prefWidth="69.0" text="Mục đích:">
+                                            <font>
+                                                <Font name="System Bold" size="13.0" />
+                                            </font>
+                                        </Label>
+                                        <Text fx:id="purposeBookingText" strokeType="OUTSIDE" strokeWidth="0.0" text="Nội dung mục đích" wrappingWidth="412.0">
+                                            <font>
+                                                <Font size="13.0" />
+                                            </font>
+                                        </Text>
+                                    </children>
+                                </HBox>
+
+                                <HBox spacing="5.0">
+                                    <children>
+                                        <Label minWidth="-Infinity" prefHeight="19.0" prefWidth="66.0" text="Thời gian:"> <font>
+                                            <Font name="System Bold" size="13.0" />
+                                        </font>
+                                        </Label>
+                                        <Text fx:id="timeRangeText" strokeType="OUTSIDE" strokeWidth="0.0" text="HH:mm - HH:mm, dd/MM/yyyy" wrappingWidth="433.494140625"> <font>
+                                            <Font size="13.0" />
+                                        </font>
+                                        </Text>
+                                    </children>
+                                </HBox>
+
+                                <HBox fx:id="equipmentContainer" managed="false" spacing="5.0" visible="false">
+                                    <children>
+                                        <Label fx:id="equipmentsStaticLabel" minWidth="-Infinity" prefWidth="135.0" text="Thiết bị kèm theo:">
+                                            <font>
+                                                <Font name="System Bold" size="13.0" />
+                                            </font>
+                                        </Label>
+                                        <Text fx:id="equipmentsListText" strokeType="OUTSIDE" strokeWidth="0.0" text="Danh sách thiết bị..." wrappingWidth="350.0">
+                                            <font>
+                                                <Font size="13.0" />
+                                            </font>
+                                        </Text>
+                                    </children>
+                                </HBox>
+
+                                <HBox alignment="CENTER_LEFT" prefHeight="19.0" prefWidth="492.0" spacing="5.0">
+                                    <VBox.margin>
+                                        <Insets top="3.0" />
+                                    </VBox.margin>
+                                    <children>
+
+                                        <HBox prefHeight="19.0" prefWidth="715.0" spacing="5.0">
+                                            <children>
+                                                <Label minWidth="-Infinity" prefHeight="19.0" prefWidth="76.0" text="Yêu cầu lúc:"> <font>
+                                                    <Font name="System Bold" size="13.0" />
+                                                </font>
+                                                </Label>
+                                                <Text fx:id="requestBookingText" strokeType="OUTSIDE" strokeWidth="0.0" text="HH:mm, dd/MM/yyyy" wrappingWidth="464.50146484375">
+                                                    <font>
+                                                        <Font size="13.0" />
+                                                    </font>
+                                                </Text>
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </HBox>
+                                <HBox alignment="CENTER_LEFT" prefHeight="19.0" prefWidth="492.0" spacing="5.0">
+                                    <children>
+                                        <Label minWidth="-Infinity" prefHeight="19.0" prefWidth="68.0" text="Trạng thái:">
+                                            <font>
+                                                <Font name="System Bold" size="13.0" />
+                                            </font>
+                                        </Label>
+                                        <Text fx:id="statusBookingText" strokeType="OUTSIDE" strokeWidth="0.0" text="Chờ duyệt" wrappingWidth="345.236328125">
+                                            <font>
+                                                <Font name="System Bold" size="13.0" />
+                                            </font>
+                                        </Text>
+                                    </children></HBox>
+                        <HBox alignment="CENTER_LEFT" prefHeight="19.0" prefWidth="492.0" spacing="5.0">
+                           <children>
+                              <Label minWidth="-Infinity" prefHeight="19.0" prefWidth="59.0" text="Check-in:">
+                                 <font>
+                                    <Font name="System Bold" size="13.0" />
+                                 </font>
+                              </Label>
+                              <Text fx:id="actualCheckInTime" strokeType="OUTSIDE" strokeWidth="0.0" text="Chờ duyệt" wrappingWidth="433.236328125">
+                                 <font>
+                                    <Font size="13.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" prefHeight="19.0" prefWidth="492.0" spacing="5.0">
+                           <children>
+                              <Label minWidth="-Infinity" prefHeight="19.0" prefWidth="68.0" text="Check-out:">
+                                 <font>
+                                    <Font name="System Bold" size="13.0" />
+                                 </font>
+                              </Label>
+                              <Text fx:id="actualCheckOutTime" strokeType="OUTSIDE" strokeWidth="0.0" text="Chờ duyệt" wrappingWidth="471.236328125">
+                                 <font>
+                                    <Font size="13.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                            </children>
+                        </VBox>
+                    </children>
+                </AnchorPane>
+            </children>
+        </HBox>
+    </children>
+    <styleClass>
+        <String fx:value="card-CompleteBooking" />
+        <String fx:value="shadow" />
+        <String fx:value="white-bg" />
+    </styleClass>
+</AnchorPane>

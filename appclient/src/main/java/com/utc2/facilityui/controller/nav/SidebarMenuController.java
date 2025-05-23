@@ -1,7 +1,9 @@
-package com.utc2.facilityui.controller;
+package com.utc2.facilityui.controller.nav;
 
-import com.utc2.facilityui.auth.TokenStorage;
+import com.utc2.facilityui.auth.TokenStorage; // Vẫn dùng để đăng xuất
 import com.utc2.facilityui.service.UserServices;
+import com.utc2.facilityui.model.User; // << THÊM IMPORT CHO USER MODEL
+
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -16,27 +18,23 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.text.Text;
+import javafx.scene.text.Text; // Giữ lại Text nếu FXML dùng Text
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Map;
+// Bỏ import java.util.Map; nếu không dùng nữa
 import java.util.ResourceBundle;
 
-public class SidebarMenuController implements Initializable { // Implement Initializable
+public class SidebarMenuController implements Initializable {
 
-    // Tham chiếu đến BorderPane chính
     private BorderPane mainBorderPane;
 
-    // --- Các thành phần FXML được inject ---
-    // Thêm các @FXML cho avatar và text info
     @FXML private ImageView imgAdminAvatar;
-    @FXML private Text txtAdminName;
-    @FXML private Text txtAdminId;
+    @FXML private Text txtAdminName; // Hoặc Label tùy FXML của bạn
+    @FXML private Text txtAdminId;   // Hoặc Label
 
-    // Các Button và Label đã có
     @FXML private Button manageFacilitiesButton;
     @FXML private Button manageBookingsButton;
     @FXML private Button approvalRequestsButton;
@@ -46,64 +44,48 @@ public class SidebarMenuController implements Initializable { // Implement Initi
     @FXML private Button resetPasswordButton;
     @FXML private Button logoutButton;
 
-    // Đường dẫn ảnh mặc định (giống InfoPersonController)
     private static final String DEFAULT_AVATAR_PATH = "/com/utc2/facilityui/images/man.png";
 
-    /**
-     * Phương thức này được gọi bởi MainScreenController.
-     */
     public void setMainBorderPane(BorderPane mainBorderPane) {
         this.mainBorderPane = mainBorderPane;
     }
 
-    /**
-     * Phương thức khởi tạo FXML. Được gọi tự động.
-     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         System.out.println("Initializing SidebarMenuController...");
-        // Đặt trạng thái UI ban đầu
         setUIToLoadingState();
-        // Bắt đầu tải thông tin người dùng admin
         loadUserInfo();
-        // Cập nhật số lượng approval ban đầu (ví dụ)
-        updateApprovalCount(0); // Bắt đầu với 0 hoặc gọi API lấy số thực tế
+        updateApprovalCount(0);
     }
 
-    /**
-     * Đặt UI về trạng thái đang tải dữ liệu ban đầu.
-     */
     private void setUIToLoadingState() {
-        // Kiểm tra null trước khi truy cập FXML elements
-        if (txtAdminName != null) txtAdminName.setText("Loading...");
-        if (txtAdminId != null) txtAdminId.setText("ID: Loading...");
-        setDefaultAvatar(); // Hiển thị avatar mặc định
+        if (txtAdminName != null) txtAdminName.setText("Đang tải...");
+        if (txtAdminId != null) txtAdminId.setText("ID: Đang tải...");
+        setDefaultAvatar();
     }
 
-
-    /**
-     * Tải thông tin người dùng (Admin) từ service và cập nhật UI.
-     * Tương tự như trong InfoPersonController.
-     */
     private void loadUserInfo() {
         System.out.println("Sidebar: Starting to load user info task...");
-        Task<Map<String, Object>> loadUserTask = new Task<>() {
+        // THAY ĐỔI KIỂU CỦA TASK THÀNH User
+        Task<User> loadUserTask = new Task<>() {
             @Override
-            protected Map<String, Object> call() throws Exception {
-                return UserServices.getMyInfo(); // Vẫn dùng service chung
+            protected User call() throws Exception {
+                // Giả định UserServices.getMyInfo() giờ đây trả về User object
+                return UserServices.getMyInfo();
             }
         };
 
         loadUserTask.setOnSucceeded(event -> {
-            Map<String, Object> userMap = loadUserTask.getValue();
+            // THAY ĐỔI KIỂU CỦA BIẾN NHẬN KẾT QUẢ
+            User user = loadUserTask.getValue(); // DÒNG 93 SẼ LÀ ĐÂY (hoặc gần đó)
             System.out.println("Sidebar: User info task succeeded.");
             Platform.runLater(() -> {
-                if (userMap != null && !userMap.isEmpty()) {
-                    System.out.println("Sidebar: Updating UI with user info: " + userMap.keySet());
-                    updateUserInfoUI(userMap);
+                if (user != null && user.getUserId() != null) { // Kiểm tra user và userId
+                    System.out.println("Sidebar: Updating UI with user info for: " + user.getUsername());
+                    updateUserInfoUI(user); // << TRUYỀN ĐỐI TƯỢNG User
                 } else {
-                    System.out.println("Sidebar: User info map is null or empty.");
-                    setUIToDefaultOrError("Admin", "ID: Error", true); // Hiển thị lỗi cụ thể hơn
+                    System.out.println("Sidebar: User object or user ID is null or empty.");
+                    setUIToDefaultOrError("Lỗi Tải User", "ID: Lỗi", true);
                 }
             });
         });
@@ -113,8 +95,8 @@ public class SidebarMenuController implements Initializable { // Implement Initi
             System.err.println("Sidebar: User info task failed: " + exception.getMessage());
             exception.printStackTrace();
             Platform.runLater(() -> {
-                setUIToDefaultOrError("Error", "ID: Error", true);
-                showErrorAlert("Load User Info Error", "Could not load admin information: " + exception.getMessage());
+                setUIToDefaultOrError("Lỗi", "ID: Lỗi", true);
+                showErrorAlert("Lỗi Tải Thông Tin Người Dùng", "Không thể tải thông tin admin: " + exception.getMessage());
             });
         });
 
@@ -125,73 +107,59 @@ public class SidebarMenuController implements Initializable { // Implement Initi
     }
 
     /**
-     * Cập nhật các thành phần UI với dữ liệu từ Map.
-     * @param userMap Map chứa dữ liệu người dùng (đã kiểm tra không rỗng).
+     * Cập nhật các thành phần UI với dữ liệu từ đối tượng User.
+     * @param user Đối tượng User chứa dữ liệu (đã kiểm tra không null).
      */
-    private void updateUserInfoUI(Map<String, Object> userMap) {
-        // Lấy fullName hoặc username nếu fullName null
-        String displayName = getStringValueFromMap(userMap, "fullName", null);
-        if (displayName == null || displayName.trim().isEmpty()) {
-            displayName = getStringValueFromMap(userMap, "username", "Admin"); // Dùng username làm dự phòng
-        }
+    private void updateUserInfoUI(User user) {
+        // Lớp User của bạn có getUsername(). Nếu server trả về fullName và bạn muốn dùng nó,
+        // bạn cần thêm trường fullName vào model User.java client
+        // và đảm bảo UserServices.getMyInfo() parse nó vào User object.
+        // Hiện tại, chúng ta dùng getUsername() vì đó là những gì User.java có.
+        String displayName = user.getUsername() != null ? user.getUsername() : "Admin";
         if (txtAdminName != null) txtAdminName.setText(displayName);
 
-        // Lấy userId
-        String userId = "N/A";
-        if (userMap.containsKey("userId") && userMap.get("userId") != null) {
-            Object userIdObj = userMap.get("userId");
-            if (userIdObj instanceof String) userId = (String) userIdObj;
-            else if (userIdObj instanceof Number) userId = String.format("%.0f", ((Number)userIdObj).doubleValue());
-            else userId = userIdObj.toString();
-        }
-        if (txtAdminId != null) txtAdminId.setText("ID: " + userId);
+        // Lấy userId (hoặc id tùy theo định danh chính bạn dùng)
+        // Model User của bạn có cả getId() và getUserId(). Hãy chọn đúng.
+        // Dựa trên các API khác, có vẻ "userId" là định danh dùng chung.
+        String displayId = user.getUserId() != null ? user.getUserId() : "N/A";
+        if (txtAdminId != null) txtAdminId.setText("ID: " + displayId);
 
         // Lấy avatar
-        String avatarUrl = getStringValueFromMap(userMap, "avatar", null);
+        String avatarUrl = user.getAvatar();
         updateAvatarImage(avatarUrl);
     }
 
-    /**
-     * Cập nhật ImageView với URL ảnh đại diện.
-     * @param avatarUrl URL của ảnh, có thể là null hoặc rỗng.
-     */
     private void updateAvatarImage(String avatarUrl) {
-        if (imgAdminAvatar == null) return; // Kiểm tra null
+        if (imgAdminAvatar == null) return;
         if (avatarUrl != null && !avatarUrl.trim().isEmpty()) {
             System.out.println("Sidebar: Attempting to load avatar from URL: " + avatarUrl);
             try {
-                Image avatarImage = new Image(avatarUrl, true);
+                Image avatarImage = new Image(avatarUrl, true); // true để tải nền
                 avatarImage.errorProperty().addListener((obs, wasError, isError) -> {
                     if (isError) {
-                        System.err.println("Sidebar: Failed to load avatar: " + avatarUrl);
+                        System.err.println("Sidebar: Failed to load avatar image from URL: " + avatarUrl);
                         Platform.runLater(this::setDefaultAvatar);
                     }
                 });
-                imgAdminAvatar.setImage(avatarImage);
-            } catch (Exception e) {
-                System.err.println("Sidebar: Error loading avatar: " + e.getMessage() + " URL: " + avatarUrl);
+                // Kiểm tra nếu ảnh lỗi ngay khi khởi tạo (ví dụ URL không hợp lệ ngay từ đầu)
+                if (avatarImage.isError()) {
+                    System.err.println("Sidebar: Initial error loading avatar: " + avatarUrl);
+                    setDefaultAvatar();
+                } else {
+                    imgAdminAvatar.setImage(avatarImage);
+                }
+            } catch (Exception e) { // Bắt các lỗi như IllegalArgumentException nếu URL sai định dạng
+                System.err.println("Sidebar: Exception loading avatar: " + e.getMessage() + " URL: " + avatarUrl);
                 setDefaultAvatar();
             }
         } else {
-            System.out.println("Sidebar: Avatar URL missing. Setting default.");
+            System.out.println("Sidebar: Avatar URL is missing or empty. Setting default avatar.");
             setDefaultAvatar();
         }
     }
 
-    /**
-     * Helper method để lấy giá trị String từ Map an toàn.
-     */
-    private String getStringValueFromMap(Map<String, Object> map, String key, String defaultValue) {
-        Object value = map.get(key);
-        if (value instanceof String && !((String) value).trim().isEmpty()) { // Thêm kiểm tra rỗng
-            return (String) value;
-        }
-        return defaultValue;
-    }
+    // Bỏ phương thức getStringValueFromMap vì không cần nữa
 
-    /**
-     * Đặt các thành phần UI về trạng thái mặc định hoặc lỗi.
-     */
     private void setUIToDefaultOrError(String nameText, String idText, boolean useDefaultAvatar) {
         if (txtAdminName != null) txtAdminName.setText(nameText);
         if (txtAdminId != null) txtAdminId.setText(idText);
@@ -201,27 +169,23 @@ public class SidebarMenuController implements Initializable { // Implement Initi
         System.out.println("Sidebar UI set to default/error state - Name: " + nameText + ", ID: " + idText);
     }
 
-    /**
-     * Tải và đặt ảnh đại diện mặc định.
-     */
     private void setDefaultAvatar() {
-        if (imgAdminAvatar == null) return; // Kiểm tra null
+        if (imgAdminAvatar == null) return;
         try (InputStream stream = getClass().getResourceAsStream(DEFAULT_AVATAR_PATH)) {
             if (stream == null) {
-                System.err.println("Sidebar CRITICAL: Cannot find default avatar: " + DEFAULT_AVATAR_PATH);
+                System.err.println("Sidebar CRITICAL: Cannot find default avatar resource: " + DEFAULT_AVATAR_PATH);
                 imgAdminAvatar.setImage(null); return;
             }
             Image defaultImage = new Image(stream);
             imgAdminAvatar.setImage(defaultImage);
             System.out.println("Sidebar: Default avatar set.");
         } catch (Exception e) {
-            System.err.println("Sidebar CRITICAL: Failed to load default avatar: " + e.getMessage());
+            System.err.println("Sidebar CRITICAL: Failed to load default avatar resource: " + e.getMessage());
             imgAdminAvatar.setImage(null); e.printStackTrace();
         }
     }
 
-    // --- Các phương thức xử lý sự kiện cho các nút menu (giữ nguyên) ---
-
+    // --- Các phương thức xử lý sự kiện cho các nút menu ---
     @FXML private void handleManageFacilities(ActionEvent event) { System.out.println("Manage Facilities clicked."); loadView("/com/utc2/facilityui/view/manageFacility.fxml"); }
     @FXML private void handleManageBookings(ActionEvent event) { System.out.println("Manage Bookings clicked."); loadView("/com/utc2/facilityui/view/manageBookings.fxml"); }
     @FXML private void handleApprovalRequests(ActionEvent event) { System.out.println("Approval Requests clicked."); loadView("/com/utc2/facilityui/view/approvalRequests.fxml"); }
@@ -232,49 +196,60 @@ public class SidebarMenuController implements Initializable { // Implement Initi
     @FXML
     private void handleLogout(ActionEvent event) {
         System.out.println("Logout button clicked.");
-        TokenStorage.clearToken();
-        System.out.println("Token cleared via TokenStorage.");
+        // Sử dụng TokenStorage đã được cập nhật để xóa cả token và user info
+        TokenStorage.logout(); // Giả sử TokenStorage.logout() xóa cả token và currentUser
+        System.out.println("Session cleared via TokenStorage.logout().");
         try {
             Stage stage = (Stage) logoutButton.getScene().getWindow();
             if (stage == null) { System.err.println("Sidebar: Cannot get stage for logout."); return; }
-            String loginFxmlPath = "/com/utc2/facilityui/view/Login2.fxml"; // *** KIỂM TRA ĐƯỜNG DẪN NÀY ***
+            // Đảm bảo đường dẫn đến FXML đăng nhập là chính xác
+            String loginFxmlPath = "/com/utc2/facilityui/view/login2.fxml";
             FXMLLoader loader = new FXMLLoader(getClass().getResource(loginFxmlPath));
-            if (loader.getLocation() == null) throw new IOException("Cannot find FXML at: " + loginFxmlPath);
+            if (loader.getLocation() == null) { // Kiểm tra resource
+                System.err.println("Sidebar CRITICAL: Cannot find login FXML: " + loginFxmlPath);
+                showErrorAlert("Logout Error", "Cannot find login screen resource.");
+                return;
+            }
             Parent loginRoot = loader.load();
             Scene loginScene = new Scene(loginRoot);
             stage.setScene(loginScene);
-            stage.setTitle("Login");
+            stage.setTitle("Đăng nhập"); // Đổi tiêu đề lại cho phù hợp
             stage.centerOnScreen();
             stage.show();
             System.out.println("Navigated back to Login screen.");
-        } catch (Exception e) { // Bắt Exception chung
+        } catch (Exception e) {
             System.err.println("Sidebar: Error during logout navigation: " + e.getMessage());
             e.printStackTrace();
-            showErrorAlert("Logout Error", "Failed to return to login screen: " + e.getMessage());
+            showErrorAlert("Lỗi Đăng Xuất", "Không thể quay về màn hình đăng nhập: " + e.getMessage());
         }
     }
 
-    // --- Phương thức tiện ích (giữ nguyên) ---
-
     private void loadView(String fxmlPath) {
-        if (mainBorderPane == null) { System.err.println("Sidebar: Main BorderPane is not set."); showErrorAlert("UI Error", "Cannot load view."); return; }
+        if (mainBorderPane == null) {
+            System.err.println("Sidebar: Main BorderPane is not set. Cannot load view: " + fxmlPath);
+            showErrorAlert("Lỗi Giao Diện", "Không thể tải giao diện. Vui lòng thử lại sau.");
+            return;
+        }
         try {
             System.out.println("Loading view: " + fxmlPath);
-            // *** KIỂM TRA CÁC ĐƯỜNG DẪN NÀY ***
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            if (loader.getLocation() == null) throw new IOException("Cannot find FXML at: " + fxmlPath);
+            if (loader.getLocation() == null) { // Kiểm tra resource
+                System.err.println("Sidebar CRITICAL: Cannot find FXML to load into center: " + fxmlPath);
+                showErrorAlert("Lỗi Tải Giao Diện", "Không tìm thấy file giao diện: " + fxmlPath.substring(fxmlPath.lastIndexOf('/') + 1));
+                return;
+            }
             Parent view = loader.load();
             mainBorderPane.setCenter(view);
-            System.out.println("View loaded: " + fxmlPath);
+            System.out.println("View loaded into BorderPane center: " + fxmlPath);
         } catch (IOException e) {
             System.err.println("Sidebar: Failed to load view " + fxmlPath + ": " + e.getMessage());
             e.printStackTrace();
-            showErrorAlert("Load View Error", "Cannot load view: " + fxmlPath.substring(fxmlPath.lastIndexOf('/') + 1) + "\nError: " + e.getMessage());
+            showErrorAlert("Lỗi Tải Giao Diện", "Không thể tải giao diện: " + fxmlPath.substring(fxmlPath.lastIndexOf('/') + 1) + "\nLỗi: " + e.getMessage());
         }
     }
 
     public void updateApprovalCount(int count) {
-        if (approvalCountLabel == null) return; // Kiểm tra null
+        if (approvalCountLabel == null) return;
         if (count > 0) {
             approvalCountLabel.setText(String.valueOf(count));
             approvalCountLabel.setVisible(true);

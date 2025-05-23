@@ -1,29 +1,31 @@
 package com.utc2.facilityui.controller.nav;
 
-import com.utc2.facilityui.auth.TokenStorage; // <- Thêm import này
+import com.utc2.facilityui.auth.TokenStorage; // Import TokenStorage
 import com.utc2.facilityui.model.ButtonNav;
+
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;             // <- Thêm import này
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.stage.Stage;             // <- Thêm import này
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects; // <- Thêm import này nếu dùng Objects.requireNonNull
+import java.util.Objects;
 
 public class ButtonNavController {
-//
+
     @FXML private AnchorPane btn;
     @FXML public Button buttonNav;
     @FXML private ImageView imgButtonNav;
 
     public void setData(ButtonNav bntNav) {
+        // ... (phần set image và text giữ nguyên) ...
         if (bntNav.getImageSrc() != null) {
-            // Sử dụng try-with-resources để đảm bảo InputStream được đóng
             try (InputStream imgStream = getClass().getResourceAsStream(bntNav.getImageSrc())) {
                 if (imgStream != null) {
                     Image image = new Image(imgStream);
@@ -39,77 +41,60 @@ public class ButtonNavController {
             }
         }
         buttonNav.setText(bntNav.getName());
-        // Thêm sự kiện click để chuyển trang hoặc đăng xuất
         buttonNav.setOnAction(event -> loadPage(bntNav.getName()));
     }
 
     private void loadPage(String pageName) {
         try {
-            // --- XỬ LÝ ĐĂNG XUẤT ---
-            if ("Logout".equalsIgnoreCase(pageName)) { // Dùng equalsIgnoreCase để không phân biệt hoa thường
-                // 1. (Optional) Xóa token đã lưu
-                TokenStorage.setToken(null); // Giả sử bạn có phương thức này hoặc setToken(null) để xóa
+            if ("Đăng xuất".equalsIgnoreCase(pageName)) {
+                // SỬ DỤNG PHƯƠNG THỨC LOGOUT MỚI CỦA TokenStorage
+                TokenStorage.logout();
 
-                // 2. Tải FXML của trang login
-                // Đảm bảo đường dẫn chính xác
                 FXMLLoader loader = new FXMLLoader(Objects.requireNonNull(getClass().getResource("/com/utc2/facilityui/view/login2.fxml")));
-                AnchorPane loginRoot = loader.load(); // login2.fxml có root là AnchorPane
-
-                // 3. Tạo Scene mới
+                AnchorPane loginRoot = loader.load();
                 Scene loginScene = new Scene(loginRoot);
-
-                // 4. Lấy Stage hiện tại (cửa sổ) từ button hoặc pane chứa button
                 Stage stage = (Stage) btn.getScene().getWindow();
-
-                // 5. Đặt Scene mới cho Stage
                 stage.setScene(loginScene);
-                stage.setTitle("Login"); // Cập nhật lại tiêu đề cửa sổ
-                // Optional: Điều chỉnh kích thước nếu cần hoặc căn giữa
-                // stage.sizeToScene();
+                stage.setTitle("Login");
+                // stage.sizeToScene(); // Cân nhắc việc thay đổi kích thước cửa sổ
                 // stage.centerOnScreen();
                 stage.show();
-
-            } else { // --- XỬ LÝ CHUYỂN TRANG BÊN TRONG GIAO DIỆN CHÍNH ---
-                // Tìm mainCenter từ scene graph
+            } else {
+                // ... (phần chuyển trang khác giữ nguyên) ...
                 AnchorPane mainCenter = (AnchorPane) btn.getScene().lookup("#mainCenter");
                 if (mainCenter == null) {
                     System.err.println("Không tìm thấy mainCenter");
                     return;
                 }
-
-                // Load trang mới
                 FXMLLoader loader = new FXMLLoader(Objects.requireNonNull(getClass().getResource("/com/utc2/facilityui/view/" + getPageFile(pageName))));
                 AnchorPane newPage = loader.load();
-
-                // Xóa nội dung cũ và thêm trang mới vào mainCenter
                 mainCenter.getChildren().clear();
                 mainCenter.getChildren().add(newPage);
-
-                // Set anchors để trang mới lấp đầy mainCenter
                 AnchorPane.setTopAnchor(newPage, 0.0);
                 AnchorPane.setBottomAnchor(newPage, 0.0);
                 AnchorPane.setLeftAnchor(newPage, 0.0);
                 AnchorPane.setRightAnchor(newPage, 0.0);
             }
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) { // Bắt cả hai ngoại lệ
             e.printStackTrace();
-            System.err.println("Lỗi khi chuyển trang hoặc đăng xuất: " + pageName);
-            // Có thể hiển thị thông báo lỗi cho người dùng ở đây
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-            System.err.println("Lỗi NullPointerException, kiểm tra đường dẫn FXML hoặc lookup #mainCenter: " + pageName);
+            System.err.println("Lỗi khi xử lý trang '" + pageName + "': " + e.getMessage());
+            // Hiển thị lỗi cho người dùng nếu cần
+            Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+            errorAlert.setTitle("Lỗi điều hướng");
+            errorAlert.setHeaderText("Không thể tải trang yêu cầu.");
+            errorAlert.setContentText("Đã xảy ra lỗi khi cố gắng tải trang '" + pageName + "'. Vui lòng thử lại hoặc liên hệ quản trị viên.");
+            errorAlert.showAndWait();
         }
     }
 
-    // Giữ nguyên phương thức getPageFile
     private String getPageFile(String pageName) {
-        // Chuyển về chữ thường để switch hoạt động ổn định
         return switch (pageName.toLowerCase()) {
-            case "rooms" -> "rooms.fxml";
-            case "equipments" -> "equipments.fxml";
-            case "my bookings" -> "myBookings.fxml";
-            case "reset password" -> "resetpassword.fxml";
-            default -> "home.fxml"; // Trang mặc định nếu không khớp
+            case "phòng" -> "rooms.fxml";
+            case "thông báo" -> "myNotification.fxml";
+            case "đặt phòng của tôi" -> "myBookings.fxml";
+            case "đặt lại mật khẩu" -> "resetpassword.fxml";
+            // Thêm các case khác nếu cần
+            default -> "home.fxml"; // Hoặc một trang lỗi/trang không tìm thấy
         };
     }
 }

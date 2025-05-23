@@ -9,57 +9,63 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.paint.LinearGradient?>
-<?import javafx.scene.paint.Stop?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.paint.Stop?>
 
-<BorderPane prefHeight="600.0" prefWidth="950.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.ManageBookingsController">
+<?import javafx.scene.paint.LinearGradient?>
+<BorderPane prefHeight="600.0" prefWidth="850.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.booking.ManageBookingsController">
     <top>
         <VBox alignment="TOP_LEFT" spacing="10.0" style="-fx-background-color: #f9f9f9; -fx-padding: 10;">
             <children>
-                <HBox alignment="CENTER_LEFT" prefHeight="36.0" prefWidth="974.0">
+                <HBox alignment="CENTER_LEFT">
                     <children>
-                  <AnchorPane prefHeight="36.0" prefWidth="974.0">
-                     <children>
-                              <Label prefWidth="288.0" text="Manage Bookings">
-                                  <font>
-                                      <Font name="Arial Bold" size="30.0" />
-                                  </font>
-                                  <textFill>
-                                      <LinearGradient endX="1.0" endY="1.0">
-                                          <stops>
-                                              <Stop color="#1976d2" offset="0.0" />
-                                              <Stop color="#00bcd4" offset="1.0" />
-                                          </stops>
-                                      </LinearGradient>
-                                  </textFill>
-                              </Label>
-                                <Button layoutX="873.0" layoutY="4.0" onAction="#handleExportBookings" prefHeight="28.0" prefWidth="92.0" style="-fx-background-color: #1976d2; -fx-background-radius: 5px; -fx-text-fill: white;" text="EXPORT">
+                        <Label text="Quản lý đặt phòng">
+                            <font>
+                                <Font name="Arial Bold" size="30.0" />
+                            </font>
+                            <textFill>
+                                <LinearGradient endX="1.0" endY="1.0">
+                                    <stops>
+                                        <Stop offset="0.0" color="#1976d2" />
+                                        <Stop offset="1.0" color="#00bcd4" />
+                                    </stops>
+                                </LinearGradient>
+                            </textFill>
+                        </Label>
+                        <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Button onAction="#handleExportBookings" prefHeight="28.0" prefWidth="92.0" style="-fx-background-color: #1976d2; -fx-background-radius: 5px; -fx-text-fill: white;" text="EXPORT">
                                     <font>
                                         <Font name="System Bold" size="12.0" />
                                     </font>
-                           <graphic>
-                              <ImageView fitHeight="20.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
-                                 <image>
-                                    <Image url="@../images/download.png" />
-                                 </image>
-                              </ImageView>
-                           </graphic>
+                                    <graphic>
+                                        <HBox prefHeight="20.0" prefWidth="26.0">
+                                            <children>
+                                                <ImageView fitHeight="20.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                                                    <image>
+                                                        <Image url="@../images/download.png" />
+                                                    </image>
+                                                </ImageView>
+                                            </children>
+                                        </HBox>
+                                    </graphic>
                                 </Button>
-                     </children>
-                  </AnchorPane>
+                            </children>
+                        </HBox>
                     </children>
                 </HBox>
+
                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                     <children>
-                        <ComboBox fx:id="monthComboBox" onAction="#handleFilterChange" promptText="Select Month" style="-fx-background-color: #ffffff; -fx-border-radius: 5px; -fx-padding: 10px;" />
-                        <TextField fx:id="yearTextField" onAction="#handleFilterChange" promptText="Year (e.g. 2025)" style="-fx-background-color: #ffffff; -fx-border-radius: 5px; -fx-padding: 10px;" />
-                        <TextField fx:id="roomSearchField" onKeyReleased="#handleFilterChange" promptText="Search Room Name" style="-fx-background-color: #ffffff; -fx-border-radius: 5px; -fx-padding: 10px;" />
-                        <TextField fx:id="userSearchField" onKeyReleased="#handleFilterChange" promptText="Search User Name" style="-fx-background-color: #ffffff; -fx-border-radius: 5px; -fx-padding: 10px;" />
+                        <Button onAction="#handleShowAllBookings" text="All" style="-fx-background-color: #ffffff; -fx-text-fill: #1976d2; -fx-border-radius: 5px; -fx-padding: 10px;"/>
+                        <Button onAction="#handleShowThisMonthBookings" style="-fx-background-color: #ffffff; -fx-text-fill: #1976d2; -fx-border-radius: 5px; -fx-padding: 10px;" text="This month"/>
+                        <ComboBox fx:id="monthComboBox" onAction="#handleSearchByMonth" promptText="Select month" style="-fx-background-color: #ffffff; -fx-border-radius: 5px; -fx-padding: 10px;"/>
+                        <TextField fx:id="yearTextField" onAction="#handleFilterByYear" promptText="Search year" style="-fx-background-color: #ffffff; -fx-border-radius: 5px; -fx-padding: 10px;"/>
+                        <TextField fx:id="facilityTextField" onKeyReleased="#handleLiveSearchFacility" promptText="Search facility" style="-fx-background-color: #ffffff; -fx-border-radius: 5px; -fx-padding: 10px;"/>
+                        <TextField fx:id="employeeIdTextField" onKeyReleased="#handleLiveSearchByFacilityMan" promptText="Search manager" style="-fx-background-color: #ffffff; -fx-border-radius: 5px; -fx-padding: 10px;"/>
                         <Button onAction="#handleResetFilters" style="-fx-background-color: #1976d2; -fx-background-radius: 5px; -fx-text-fill: white; -fx-padding: 10px;" text="RESET">
                             <font>
                                 <Font name="System Bold" size="12.0" />
@@ -71,20 +77,17 @@
         </VBox>
     </top>
     <center>
-        <TableView fx:id="bookingsTable" prefHeight="429.0" prefWidth="865.0" stylesheets="@../styles/manageBooking.css">
+        <TableView fx:id="bookingsTable" prefHeight="200.0" prefWidth="681.0" stylesheets="@../styles/manageBooking.css">
             <columns>
-                <TableColumn fx:id="roomNameColumn" prefWidth="112.0" text="Room Name" />
-                <TableColumn fx:id="userNameColumn" prefWidth="123.0" text="Requested By" />
-                <TableColumn fx:id="purposeColumn" prefWidth="219.0" text="Purpose" />
-                <TableColumn fx:id="statusColumn" prefWidth="136.5" text="Status" />
-                <TableColumn fx:id="dateColumn" prefWidth="118.5" text="Date" />
-                <TableColumn fx:id="timeSlotColumn" prefWidth="120.0" text="Time Slot" />
-                <TableColumn fx:id="createdAtColumn" minWidth="0.0" prefWidth="190.0" text="Requested At" />
-                <TableColumn fx:id="approvedByColumn" minWidth="0.0" prefWidth="194.5" text="Processed By" />
+                <TableColumn fx:id="titleFacilityColumn" prefWidth="200.0" text="Title / Facility" />
+                <TableColumn fx:id="requestedByColumn" prefWidth="150.0" text="Requested By" />
+                <TableColumn fx:id="purposeColumn" prefWidth="150.0" text="Purpose" />
+                <TableColumn fx:id="dateColumn" prefWidth="150.0" text="Date" />
+                <TableColumn fx:id="timeSlotColumn" prefWidth="150.0" text="Time slot" />
+                <TableColumn fx:id="requestedAtColumn" prefWidth="150.0" text="Requested At" />
+                <TableColumn fx:id="groupDirectorColumn" prefWidth="150.0" text="Group Director" />
+                <TableColumn fx:id="facilityManColumn" prefWidth="160.0" text="Facility Man" />
             </columns>
-            <BorderPane.margin>
-                <Insets top="5.0" />
-            </BorderPane.margin>
         </TableView>
     </center>
     <bottom>
@@ -92,8 +95,9 @@
             <children>
                 <Label text="Rows per page:" />
                 <ComboBox fx:id="rowsPerPageComboBox" onAction="#handleRowsPerPageChange" prefWidth="80.0" style="-fx-background-color: #ffffff; -fx-border-radius: 5px; -fx-padding: 5px;" />
-                <Label fx:id="pageInfoLabel" text="Page 1 of 1 (0 items)" /> <Button fx:id="previousButton" onAction="#handlePreviousPage" style="-fx-background-color: #ffffff; -fx-border-radius: 5px; -fx-padding: 5px;" text="&lt;" />
-                <Button fx:id="nextButton" onAction="#handleNextPage" style="-fx-background-color: #ffffff; -fx-border-radius: 5px; -fx-padding: 5px;" text="&gt;" />
+                <Label fx:id="currentPageLabel" text="1-4 of 4" />
+                <Button onAction="#handlePreviousPage" style="-fx-background-color: #ffffff; -fx-border-radius: 5px; -fx-padding: 5px;" text="&lt;" />
+                <Button onAction="#handleNextPage" style="-fx-background-color: #ffffff; -fx-border-radius: 5px; -fx-padding: 5px;" text="&gt;" />
             </children>
         </HBox>
     </bottom>

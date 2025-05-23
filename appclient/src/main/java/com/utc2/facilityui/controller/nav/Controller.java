@@ -12,17 +12,34 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-
+import javafx.scene.shape.Rectangle;
 import java.io.InputStream; // Cần import InputStream
 
 public class Controller { // Có thể đổi tên thành CardController cho rõ nghĩa
 //
-    @FXML private Label nameManager;
-    @FXML private Label roleManager;
-    @FXML private ImageView roomImg;
-    @FXML private Label nameRoom;
-    @FXML private Button showInfo;
-    @FXML private AnchorPane card; // Root pane của card
+    @FXML
+    private Label capacity;
+
+    @FXML
+    private AnchorPane card;
+
+    @FXML
+    private Label nameManager;
+
+    @FXML
+    private Label nameRoom;
+
+    @FXML
+    private Label roleManager;
+
+    @FXML
+    private ImageView roomImg;
+
+    @FXML
+    private Button showInfo;
+
+    @FXML
+    private Label status;
 
     private String currentView; // Tên của view chứa card này (ví dụ: "RoomsView")
     private CardInfo currentCardInfo; // Lưu lại thông tin card để có thể truyền đi
@@ -34,6 +51,33 @@ public class Controller { // Có thể đổi tên thành CardController cho rõ
     @FXML
     public void initialize() {
         showInfo.setOnAction(event -> showInfoRoom());
+        if (roomImg != null) {
+            // Kích thước của ImageView được định nghĩa trong FXML:
+            // fitHeight="101.0" fitWidth="143.0"
+            double targetWidth = roomImg.getFitWidth();
+            double targetHeight = roomImg.getFitHeight();
+
+            // Nếu fitWidth hoặc fitHeight không được đặt hoặc bằng 0, bạn có thể
+            // cần một chiến lược khác hoặc đợi ảnh được tải để lấy kích thước thực.
+            // Tuy nhiên, trong trường hợp này, FXML đã cung cấp giá trị.
+
+            if (targetWidth > 0 && targetHeight > 0) {
+                Rectangle clip = new Rectangle(targetWidth, targetHeight);
+
+                // Bán kính bo góc mong muốn là 8px.
+                // ArcWidth và ArcHeight là đường kính của góc bo tròn.
+                double borderRadius = 8.0;
+                clip.setArcWidth(borderRadius * 2);
+                clip.setArcHeight(borderRadius * 2);
+
+                roomImg.setClip(clip);
+            } else {
+                // Fallback hoặc xử lý nếu fitWidth/fitHeight không hợp lệ
+                // Có thể thử bind vào bounds sau khi ảnh được load, nhưng sẽ phức tạp hơn.
+                // For now, we assume FXML values are valid.
+                System.err.println("roomImg fitWidth hoặc fitHeight không được đặt hoặc không hợp lệ trong FXML, không thể áp dụng bo góc.");
+            }
+        }
     }
 
     /**Admin
@@ -55,9 +99,22 @@ public class Controller { // Có thể đổi tên thành CardController cho rõ
 
         // Cập nhật các Label từ CardInfo
         nameRoom.setText(cardinfo.getNameCard() != null ? cardinfo.getNameCard() : "N/A");
-        roleManager.setText(cardinfo.getRoleManager() != null ? cardinfo.getRoleManager() : "N/A");
+        roleManager.setText("Quản Lý Phòng");
         nameManager.setText(cardinfo.getNameManager() != null ? cardinfo.getNameManager() : "N/A");
+        // Hiển thị trạng thái phòng
+        if (this.currentRoom.getStatus() != null && !this.currentRoom.getStatus().isEmpty()) {
+            // Bạn có thể muốn định dạng lại status, ví dụ: viết hoa chữ cái đầu hoặc toàn bộ
+            // status.setText(this.currentRoom.getStatus().toUpperCase());
+            status.setText(this.currentRoom.getStatus());
+        } else {
+            status.setText("N/A"); // Hoặc "Không rõ", hoặc để trống
+        }
+
+        // Hiển thị sức chứa phòng với định dạng "Sức chứa: [số] người"
+        // Đảm bảo getCapacity() trả về một số nguyên.
+        capacity.setText("Sức chứa: " + this.currentRoom.getCapacity() + " người");
     }
+
     /**
      * Lưu lại tên của view đã tạo ra card này.
      * Thông tin này dùng để quay lại từ màn hình chi tiết.
@@ -72,6 +129,7 @@ public class Controller { // Có thể đổi tên thành CardController cho rõ
      * Sử dụng ảnh mặc định nếu có lỗi.
      * @param imagePath Đường dẫn resource của ảnh.
      */
+
     private void loadImage(String imagePath) {
         Image image = null;
         // Xác định đường dẫn hiệu lực (dùng ảnh mặc định nếu path gốc null/rỗng)

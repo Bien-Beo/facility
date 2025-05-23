@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<?import java.lang.String?>
+
+<VBox spacing="8.0" styleClass="card-booking, shadow, white-bg" prefWidth="740.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.booking.CardDefaultStatusController">
+    <padding>
+        <Insets top="15.0" right="20.0" bottom="15.0" left="20.0" />
+    </padding>
+    <children>
+        <Label fx:id="nameBookingText" text="Yêu cầu #ID - Tên phòng">
+            <font><Font name="System Bold" size="17.0" /></font>
+            <VBox.margin>
+                <Insets bottom="5.0" />
+            </VBox.margin>
+        </Label>
+        <HBox spacing="5.0">
+            <children>
+                <Label minWidth="-Infinity" prefWidth="130.0" text="Người đặt:" style="-fx-font-weight: bold;" />
+                <Text fx:id="userNameText" text="Tên người đặt" />
+            </children>
+        </HBox>
+        <HBox spacing="5.0">
+            <children>
+                <Label minWidth="-Infinity" prefWidth="130.0" text="Mục đích:" style="-fx-font-weight: bold;" />
+                <Text fx:id="purposeText" text="Mục đích đặt phòng" wrappingWidth="550.0"/>
+            </children>
+        </HBox>
+        <HBox spacing="5.0">
+            <children>
+                <Label minWidth="-Infinity" prefWidth="130.0" text="Thời gian:" style="-fx-font-weight: bold;" />
+                <Text fx:id="timeRangeText" text="HH:mm dd/MM/yyyy - HH:mm dd/MM/yyyy" />
+            </children>
+        </HBox>
+        <HBox spacing="5.0">
+            <children>
+                <Label minWidth="-Infinity" prefWidth="130.0" text="Yêu cầu lúc:" style="-fx-font-weight: bold;" />
+                <Text fx:id="requestBookingText" text="HH:mm dd/MM/yyyy" />
+            </children>
+        </HBox>
+        <HBox fx:id="equipmentContainerDefault" spacing="5.0" visible="false" managed="false">
+            <children>
+                <Label minWidth="-Infinity" prefWidth="130.0" text="Thiết bị:" style="-fx-font-weight: bold;" />
+                <Text fx:id="equipmentsListTextDefault" text="Danh sách thiết bị" wrappingWidth="550.0" />
+            </children>
+        </HBox>
+        <HBox spacing="5.0" alignment="CENTER_LEFT">
+            <children>
+                <Label minWidth="-Infinity" prefWidth="130.0" text="Trạng thái:" style="-fx-font-weight: bold;" />
+                <Text fx:id="statusText" text="Trạng thái">
+                    <font><Font name="System Bold" size="13.0" /></font>
+                </Text>
+            </children>
+            <VBox.margin>
+                <Insets top="3.0" />
+            </VBox.margin>
+        </HBox>
+    </children>
+    <styleClass> <String fx:value="card-default-status"/>
+        <String fx:value="shadow"/>
+        <String fx:value="white-bg"/>
+    </styleClass>
+</VBox>

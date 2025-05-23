@@ -5,343 +5,357 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.utc2.facilityui.auth.TokenStorage;
-import com.utc2.facilityui.model.BookingCreationRequest; // Cần cho createBooking
-// Import các lớp response cần thiết
-import com.utc2.facilityui.response.ApiPageResponse;
+import com.utc2.facilityui.model.BookingCreationRequest;
+import com.utc2.facilityui.model.CancelBookingRequestData;
+import com.utc2.facilityui.response.ApiContainerForPagedData;
+import com.utc2.facilityui.response.ResultWithNestedPage;
+import com.utc2.facilityui.response.PageMetadata;
 import com.utc2.facilityui.response.BookingResponse;
 import com.utc2.facilityui.response.Page;
-import com.utc2.facilityui.response.ApiErrorResponse; // Giữ lại nếu dùng parseAndThrowError
 import com.utc2.facilityui.response.ApiSingleResponse;
-import com.utc2.facilityui.utils.LocalDateTimeAdapter; // Đảm bảo lớp này tồn tại và đúng
+import com.utc2.facilityui.utils.LocalDateTimeAdapter;
 import okhttp3.*;
+
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 public class BookingService {
 
     private final OkHttpClient client;
     private final Gson gson;
-    private static final String BASE_URL = "http://localhost:8080/facility"; // Điều chỉnh nếu cần
+    private static final String BASE_URL = "http://localhost:8080/facility";
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 
     public BookingService() {
-        client = new OkHttpClient();
+        client = new OkHttpClient.Builder().build();
         gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter()) // Đảm bảo adapter này hoạt động đúng
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
                 .create();
     }
 
-    /**
-     * Creates a new booking by sending a request to the backend API.
-     *
-     * @param bookingRequest The booking creation request data.
-     * @return The created BookingResponse object from the backend.
-     * @throws IOException If network error or API returns an error.
-     * @throws IllegalArgumentException If the input request is invalid.
-     */
-    public BookingResponse createBooking(BookingCreationRequest bookingRequest) throws IOException, IllegalArgumentException {
-        if (bookingRequest == null || bookingRequest.getRoomId() == null || bookingRequest.getPlannedStartTime() == null || bookingRequest.getPlannedEndTime() == null) {
-            // Basic validation, more can be added
-            throw new IllegalArgumentException("Invalid booking request data (missing room ID or times).");
+    private Page<BookingResponse> createEmptyPage() {
+        Page<BookingResponse> emptyPage = new Page<>();
+        emptyPage.setContent(Collections.emptyList());
+        emptyPage.setTotalElements(0);
+        emptyPage.setTotalPages(0);
+        emptyPage.setNumber(0);
+        emptyPage.setSize(0);
+        emptyPage.setFirst(true);
+        emptyPage.setLast(true);
+        emptyPage.setEmpty(true);
+        emptyPage.setNumberOfElements(0);
+        return emptyPage;
+    }
+
+    public BookingResponse createBooking(BookingCreationRequest bookingRequest) throws IOException {
+        if (bookingRequest == null) {
+            throw new IllegalArgumentException("Dữ liệu yêu cầu đặt phòng không được để trống.");
+        }
+        if (bookingRequest.getRoomId() == null || bookingRequest.getPlannedStartTime() == null || bookingRequest.getPlannedEndTime() == null) {
+            throw new IllegalArgumentException("Dữ liệu yêu cầu đặt phòng không hợp lệ (thiếu ID phòng hoặc thời gian).");
         }
 
         String url = BASE_URL + "/booking";
-        String jsonBody = gson.toJson(bookingRequest); // Convert request DTO to JSON
+        String jsonBody = gson.toJson(bookingRequest);
         RequestBody body = RequestBody.create(jsonBody, JSON);
-        Request apiRequest = buildAuthenticatedRequestWithBody("POST", url, body); // Use POST
-
-        System.out.println("Sending POST request (Create Booking) to: " + url);
-        System.out.println("Request Body JSON: " + jsonBody); // Log the request body
+        Request apiRequest = buildAuthenticatedRequestWithBody("POST", url, body);
 
         try (Response response = client.newCall(apiRequest).execute()) {
-            System.out.println("Response Code (Create Booking): " + response.code());
             String jsonData = getResponseBody(response);
-            System.out.println("Response Body JSON: " + jsonData.substring(0, Math.min(jsonData.length(), 1000))); // Log response body
-
-
             if (!response.isSuccessful()) {
-                // Error handling using existing helper
-                parseAndThrowError(response, jsonData, "Failed to create booking");
+                parseAndThrowError(response, jsonData, "Tạo đặt phòng thất bại");
             }
-
-            // Parse the successful response
             try {
-                // Backend returns ApiResponse<BookingResponse> which is like ApiSingleResponse<T>
                 Type apiResponseType = new TypeToken<ApiSingleResponse<BookingResponse>>() {}.getType();
                 ApiSingleResponse<BookingResponse> apiResponse = gson.fromJson(jsonData, apiResponseType);
 
                 if (apiResponse != null && apiResponse.getResult() != null) {
-                    // Assuming backend code 0 means success if applicable, otherwise just check result != null
-                    if (apiResponse.getCode() != 0) { // Optional: Check logical code if backend sends one
-                        throw new IOException("API create booking returned logical error code " + apiResponse.getCode() + ": " + apiResponse.getMessage());
+                    if (apiResponse.getCode() != 0 && apiResponse.getMessage() != null) {
+                        throw new IOException("API tạo đặt phòng trả về lỗi logic " + apiResponse.getCode() + ": " + apiResponse.getMessage());
                     }
-                    System.out.println("Successfully created and parsed booking: " + apiResponse.getResult().getId());
-                    return apiResponse.getResult(); // Return the nested BookingResponse
+                    return apiResponse.getResult();
                 } else {
-                    System.err.println("Parsed ApiSingleResponse or its result is null. JSON: " + jsonData.substring(0, Math.min(jsonData.length(), 500)));
-                    throw new IOException("Failed to parse the expected booking structure from API response after creation.");
+                    throw new IOException("Không thể parse cấu trúc booking mong đợi từ phản hồi API sau khi tạo.");
                 }
             } catch (JsonSyntaxException e) {
-                handleJsonParsingError(e, jsonData, "API /booking (POST)");
-                throw new IOException("Failed to parse successful JSON response: " + e.getMessage(), e);
+                handleJsonParsingError(e, jsonData, "API /booking (POST) - createBooking"); // Giữ lại log lỗi parse
+                throw new IOException("Lỗi parse JSON phản hồi thành công khi tạo đặt phòng: " + e.getMessage(), e);
             }
         }
     }
 
+    public Page<BookingResponse> getMyBookingsPaged(int page, int size) throws IOException {
+        HttpUrl.Builder urlBuilder = Objects.requireNonNull(HttpUrl.parse(BASE_URL + "/booking/my")).newBuilder();
+        urlBuilder.addQueryParameter("page", String.valueOf(page));
+        urlBuilder.addQueryParameter("size", String.valueOf(size));
+        String url = urlBuilder.build().toString();
+        Request request = buildAuthenticatedGetRequest(url);
 
-    /**
-     * Fetches a paginated list of bookings from the backend API, applying optional filters.
-     *
-     * @param roomId Optional room ID filter.
-     * @param month Optional month filter (1-12).
-     * @param year Optional year filter.
-     * @param userId Optional user ID filter.
-     * @param page The page number to retrieve (0-indexed).
-     * @param size The number of items per page.
-     * @return A Page object containing the list of bookings and pagination info.
-     * @throws IOException If network error or API returns an error.
-     */
+        try (Response response = client.newCall(request).execute()) {
+            String jsonData = getResponseBody(response);
+            if (!response.isSuccessful()) {
+                parseAndThrowError(response, jsonData, "Lấy danh sách đặt phòng của tôi thất bại");
+            }
+            try {
+                Type apiContainerType = new TypeToken<ApiContainerForPagedData<BookingResponse>>() {}.getType();
+                ApiContainerForPagedData<BookingResponse> parsedContainer = gson.fromJson(jsonData, apiContainerType);
+
+                if (parsedContainer != null && parsedContainer.getResult() != null) {
+                    ResultWithNestedPage<BookingResponse> resultData = parsedContainer.getResult();
+                    if (resultData.getContent() != null && resultData.getPage() != null) {
+                        PageMetadata metadata = resultData.getPage();
+                        List<BookingResponse> content = resultData.getContent();
+
+                        Page<BookingResponse> finalPageObject = new Page<>();
+                        finalPageObject.setContent(content);
+                        finalPageObject.setTotalElements(metadata.getTotalElements());
+                        finalPageObject.setTotalPages(metadata.getTotalPages());
+                        finalPageObject.setNumber(metadata.getNumber());
+                        finalPageObject.setSize(metadata.getSize());
+                        finalPageObject.setNumberOfElements(content.size());
+                        finalPageObject.setFirst(metadata.getNumber() == 0 && metadata.getTotalElements() > 0);
+                        finalPageObject.setLast( (metadata.getTotalElements() > 0 && metadata.getNumber() >= metadata.getTotalPages() - 1) || (metadata.getTotalElements() == 0 && metadata.getTotalPages() <= 1 && metadata.getNumber() == 0) );
+                        finalPageObject.setEmpty(content.isEmpty());
+                        return finalPageObject;
+                    } else {
+                        System.err.println("[CLIENT BookingService] getMyBookingsPaged - LỖI: resultData.getContent() hoặc resultData.getPage() là null."); // Giữ lại log lỗi quan trọng
+                        return createEmptyPage();
+                    }
+                } else {
+                    System.err.println("[CLIENT BookingService] getMyBookingsPaged - LỖI: parsedContainer hoặc parsedContainer.getResult() là null."); // Giữ lại log lỗi quan trọng
+                    return createEmptyPage();
+                }
+            } catch (JsonSyntaxException e) {
+                handleJsonParsingError(e, jsonData, "API /booking/my (paged)"); // Giữ lại log lỗi parse
+                return createEmptyPage();
+            }
+        }
+    }
+
     public Page<BookingResponse> getAllBookings(String roomId, Integer month, Integer year, String userId, int page, int size) throws IOException {
-        HttpUrl.Builder urlBuilder = Objects.requireNonNull(HttpUrl.parse(BASE_URL + "/booking"))
-                .newBuilder();
-
+        HttpUrl.Builder urlBuilder = Objects.requireNonNull(HttpUrl.parse(BASE_URL + "/booking")).newBuilder();
         if (roomId != null && !roomId.trim().isEmpty()) urlBuilder.addQueryParameter("roomId", roomId.trim());
         if (month != null && month >= 1 && month <= 12) urlBuilder.addQueryParameter("month", String.valueOf(month));
         if (year != null && year > 1900) urlBuilder.addQueryParameter("year", String.valueOf(year));
         if (userId != null && !userId.trim().isEmpty()) urlBuilder.addQueryParameter("userId", userId.trim());
         urlBuilder.addQueryParameter("page", String.valueOf(page));
         urlBuilder.addQueryParameter("size", String.valueOf(size));
-
         String url = urlBuilder.build().toString();
         Request request = buildAuthenticatedGetRequest(url);
-        System.out.println("Sending GET request (Paged All Bookings) to: " + url);
 
         try (Response response = client.newCall(request).execute()) {
-            System.out.println("Response Code (Paged All Bookings): " + response.code());
             String jsonData = getResponseBody(response);
-
             if (!response.isSuccessful()) {
-                parseAndThrowError(response, jsonData, "Failed to fetch all bookings");
+                parseAndThrowError(response, jsonData, "Lấy danh sách tất cả đặt phòng thất bại");
             }
-
             try {
-                Type apiResponseType = new TypeToken<ApiPageResponse<BookingResponse>>() {}.getType();
-                ApiPageResponse<BookingResponse> apiResponse = gson.fromJson(jsonData, apiResponseType);
-
-                if (apiResponse != null && apiResponse.getResult() != null) {
-                    System.out.println("Successfully parsed ApiPageResponse (All Bookings). Returning Page object.");
-                    return apiResponse.getResult();
-                } else {
-                    System.err.println("Parsed ApiPageResponse or its result is null (All Bookings). JSON: " + jsonData.substring(0, Math.min(jsonData.length(), 500)));
-                    throw new IOException("Failed to parse expected page structure (All Bookings).");
-                }
-            } catch (JsonSyntaxException e) {
-                handleJsonParsingError(e, jsonData, "API /booking (paged)");
-                throw new IOException("Failed to parse JSON response (All Bookings): " + e.getMessage(), e);
-            }
-        }
-    }
-
-    /**
-     * Fetches a paginated list of the current user's bookings from the backend API.
-     *
-     * @param page The page number to retrieve (0-indexed).
-     * @param size The number of items per page.
-     * @return A Page object containing the list of the user's bookings and pagination info.
-     * @throws IOException If network error or API returns an error.
-     */
-    public Page<BookingResponse> getMyBookingsPaged(int page, int size) throws IOException {
-        HttpUrl.Builder urlBuilder = Objects.requireNonNull(HttpUrl.parse(BASE_URL + "/booking/my"))
-                .newBuilder();
-
-        urlBuilder.addQueryParameter("page", String.valueOf(page));
-        urlBuilder.addQueryParameter("size", String.valueOf(size));
-        // urlBuilder.addQueryParameter("sort", "plannedStartTime,desc"); // Optional sorting
-
-        String url = urlBuilder.build().toString();
-        Request request = buildAuthenticatedGetRequest(url); // GET request
-        System.out.println("Sending GET request (My Paged Bookings) to: " + url);
-
-        try (Response response = client.newCall(request).execute()) {
-            System.out.println("Response Code (My Paged Bookings): " + response.code());
-            String jsonData = getResponseBody(response);
-
-            if (!response.isSuccessful()) {
-                parseAndThrowError(response, jsonData, "Failed to fetch my bookings");
-            }
-
-            try {
-                // Parse using the ApiPageResponse structure
-                Type apiResponseType = new TypeToken<ApiPageResponse<BookingResponse>>() {}.getType();
-                ApiPageResponse<BookingResponse> apiResponse = gson.fromJson(jsonData, apiResponseType);
-
-                if (apiResponse != null && apiResponse.getResult() != null) {
-                    // Check backend's logical code if necessary
-                    // if (apiResponse.getCode() != 0) { ... }
-                    System.out.println("Successfully parsed ApiPageResponse for my bookings. Returning Page object.");
-                    return apiResponse.getResult(); // Return the Page object
-                } else {
-                    System.err.println("Parsed ApiPageResponse or its result is null for my bookings. JSON: " + jsonData.substring(0, Math.min(jsonData.length(), 500)));
-                    throw new IOException("Failed to parse the expected page structure for my bookings from API response.");
-                }
-            } catch (JsonSyntaxException e) {
-                handleJsonParsingError(e, jsonData, "API /booking/my (paged)");
-                throw new IOException("Failed to parse JSON response for my bookings: " + e.getMessage(), e);
-            }
-        }
-    }
-
-    // ========================================================================
-    // CÁC PHƯƠNG THỨC KHÁC (Approve, Reject, ...)
-    // ========================================================================
-    public BookingResponse approveBooking(String bookingId) throws IOException {
-        String url = BASE_URL + "/booking/" + bookingId + "/approve";
-        RequestBody body = RequestBody.create(new byte[0]); // Empty body for PUT often needed
-        Request request = buildAuthenticatedRequestWithBody("PUT", url, body);
-        System.out.println("Sending PUT request (Approve Booking) to: " + url);
-
-        try (Response response = client.newCall(request).execute()) {
-            System.out.println("Response Code (Approve Booking): " + response.code());
-            String jsonData = getResponseBody(response);
-
-            if (!response.isSuccessful()) {
-                parseAndThrowError(response, jsonData, "Failed to approve booking");
-            }
-
-            try {
-                Type apiResponseType = new TypeToken<ApiSingleResponse<BookingResponse>>() {}.getType();
-                ApiSingleResponse<BookingResponse> apiResponse = gson.fromJson(jsonData, apiResponseType);
-
-                if (apiResponse != null && apiResponse.getResult() != null) {
-                    if (apiResponse.getCode() != 0) { // Check logical code
-                        throw new IOException("API approve returned logical error code " + apiResponse.getCode() + ": " + apiResponse.getMessage());
+                Type apiContainerType = new TypeToken<ApiContainerForPagedData<BookingResponse>>() {}.getType();
+                ApiContainerForPagedData<BookingResponse> parsedContainer = gson.fromJson(jsonData, apiContainerType);
+                if (parsedContainer != null && parsedContainer.getResult() != null) {
+                    ResultWithNestedPage<BookingResponse> resultData = parsedContainer.getResult();
+                    if (resultData.getContent() != null && resultData.getPage() != null) {
+                        PageMetadata metadata = resultData.getPage();
+                        List<BookingResponse> content = resultData.getContent();
+                        Page<BookingResponse> finalPageObject = new Page<>();
+                        finalPageObject.setContent(content);
+                        finalPageObject.setTotalElements(metadata.getTotalElements());
+                        finalPageObject.setTotalPages(metadata.getTotalPages());
+                        finalPageObject.setNumber(metadata.getNumber());
+                        finalPageObject.setSize(metadata.getSize());
+                        finalPageObject.setNumberOfElements(content.size());
+                        finalPageObject.setFirst(metadata.getNumber() == 0 && metadata.getTotalElements() > 0);
+                        finalPageObject.setLast( (metadata.getTotalElements() > 0 && metadata.getNumber() >= metadata.getTotalPages() - 1) || (metadata.getTotalElements() == 0 && metadata.getTotalPages() <= 1 && metadata.getNumber() == 0) );
+                        finalPageObject.setEmpty(content.isEmpty());
+                        return finalPageObject;
+                    } else {
+                        System.err.println("[CLIENT BookingService] getAllBookings - LỖI: resultData.getContent() hoặc resultData.getPage() là null."); // Giữ lại
+                        return createEmptyPage();
                     }
-                    return apiResponse.getResult();
                 } else {
-                    int code = (apiResponse != null) ? apiResponse.getCode() : -1;
-                    String message = (apiResponse != null) ? apiResponse.getMessage() : "Unknown error";
-                    System.err.println("API approve response logic error. Code: " + code + ", Message: " + message);
-                    throw new IOException("API approve returned logical error (Code: " + code + ", Message: " + message + ")");
+                    System.err.println("[CLIENT BookingService] getAllBookings - LỖI: parsedContainer hoặc getResult() là null."); // Giữ lại
+                    return createEmptyPage();
                 }
             } catch (JsonSyntaxException e) {
-                handleJsonParsingError(e, jsonData, "API approve");
-                throw e;
+                handleJsonParsingError(e, jsonData, "API /booking (paged getAllBookings)"); // Giữ lại
+                return createEmptyPage();
             }
         }
     }
 
-    /**
-     * Rejects a booking request via the backend API.
-     *
-     * @param bookingId The ID of the booking to reject.
-     * @return The updated BookingResponse object from the backend (usually with REJECTED status).
-     * @throws IOException If network error or API returns an error.
-     */
-    public BookingResponse rejectBooking(String bookingId) throws IOException {
+    private BookingResponse handleSingleBookingResponseAction(String bookingId, String actionPath, String errorMessageBase, String logContextForAction) throws IOException {
         if (bookingId == null || bookingId.trim().isEmpty()) {
-            throw new IllegalArgumentException("Booking ID cannot be null or empty for rejection.");
+            throw new IllegalArgumentException("Booking ID không được để trống cho hành động: " + actionPath);
         }
-
-        String url = BASE_URL + "/booking/" + bookingId + "/reject";
-        // PUT request often requires a body, even if empty.
-        RequestBody body = RequestBody.create(new byte[0], null); // Empty body
-        Request request = buildAuthenticatedRequestWithBody("PUT", url, body); // Use PUT
-
-        System.out.println("Sending PUT request (Reject Booking) to: " + url);
+        String url = BASE_URL + "/booking/" + bookingId + "/" + actionPath;
+        RequestBody body = RequestBody.create(new byte[0]);
+        Request request = buildAuthenticatedRequestWithBody("PUT", url, body);
 
         try (Response response = client.newCall(request).execute()) {
-            System.out.println("Response Code (Reject Booking): " + response.code());
             String jsonData = getResponseBody(response);
-            System.out.println("Response Body JSON (Reject): " + jsonData.substring(0, Math.min(jsonData.length(), 1000))); // Log response body
-
             if (!response.isSuccessful()) {
-                parseAndThrowError(response, jsonData, "Failed to reject booking");
+                parseAndThrowError(response, jsonData, errorMessageBase);
             }
-
-            // Parse the successful response using ApiSingleResponse structure
             try {
-                // Giả sử backend trả về cấu trúc tương tự approve
                 Type apiResponseType = new TypeToken<ApiSingleResponse<BookingResponse>>() {}.getType();
                 ApiSingleResponse<BookingResponse> apiResponse = gson.fromJson(jsonData, apiResponseType);
-
                 if (apiResponse != null && apiResponse.getResult() != null) {
-                    if (apiResponse.getCode() != 0) { // Optional check for logical errors
-                        throw new IOException("API reject booking returned logical error code " + apiResponse.getCode() + ": " + apiResponse.getMessage());
+                    if (apiResponse.getCode() != 0 && apiResponse.getMessage() != null) {
+                        throw new IOException("API " + logContextForAction + " trả về lỗi logic " + apiResponse.getCode() + ": " + apiResponse.getMessage());
                     }
-                    System.out.println("Successfully rejected booking: " + apiResponse.getResult().getId());
-                    return apiResponse.getResult(); // Return the updated BookingResponse
+                    return apiResponse.getResult();
                 } else {
-                    System.err.println("Parsed ApiSingleResponse or its result is null for reject booking. JSON: " + jsonData.substring(0, Math.min(jsonData.length(), 500)));
-                    throw new IOException("Failed to parse the expected booking structure from API response after rejection.");
+                    System.err.println("[CLIENT BookingService] " + logContextForAction + " - LỖI: Phản hồi API không hợp lệ hoặc kết quả null."); // Giữ lại
+                    throw new IOException("Phản hồi API " + logContextForAction + " không hợp lệ hoặc kết quả null.");
                 }
             } catch (JsonSyntaxException e) {
-                handleJsonParsingError(e, jsonData, "API /booking/{id}/reject (PUT)");
-                throw new IOException("Failed to parse successful JSON response for reject booking: " + e.getMessage(), e);
+                handleJsonParsingError(e, jsonData, "API " + actionPath + " cho " + logContextForAction); // Giữ lại
+                throw new IOException("Lỗi parse JSON khi " + actionPath.toLowerCase() + ": " + e.getMessage(), e);
             }
         }
     }
 
-    // ========================================================================
-    // CÁC PHƯƠNG THỨC HELPER (Giữ nguyên)
-    // ========================================================================
+    public BookingResponse checkInBooking(String bookingId) throws IOException {
+        return handleSingleBookingResponseAction(bookingId, "checkin", "Check-in thất bại", "Check-in Booking");
+    }
+
+    public BookingResponse checkOutBooking(String bookingId) throws IOException {
+        return handleSingleBookingResponseAction(bookingId, "checkout", "Check-out thất bại", "Check-out Booking");
+    }
+
+    public BookingResponse approveBooking(String bookingId) throws IOException {
+        return handleSingleBookingResponseAction(bookingId, "approve", "Duyệt đặt phòng thất bại", "Approve Booking");
+    }
+
+    public BookingResponse rejectBooking(String bookingId) throws IOException {
+        return handleSingleBookingResponseAction(bookingId, "reject", "Từ chối đặt phòng thất bại", "Reject Booking");
+    }
+
+    public void cancelBookingByUser(String bookingId, CancelBookingRequestData cancelRequestData) throws IOException {
+        if (bookingId == null || bookingId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Booking ID không được để trống để hủy.");
+        }
+        String url = BASE_URL + "/booking/" + bookingId + "/cancel";
+        String jsonBody = gson.toJson(cancelRequestData != null ? cancelRequestData : new CancelBookingRequestData(null));
+        RequestBody body = RequestBody.create(jsonBody, JSON);
+        Request apiRequest = buildAuthenticatedRequestWithBody("POST", url, body);
+
+        try (Response response = client.newCall(apiRequest).execute()) {
+            String jsonData = getResponseBody(response);
+            if (!response.isSuccessful()) {
+                parseAndThrowError(response, jsonData, "Hủy đặt phòng thất bại");
+            }
+            try {
+                if (jsonData != null && !jsonData.trim().isEmpty() && !jsonData.trim().equals("{}")) {
+                    Type apiResponseType = new TypeToken<ApiSingleResponse<Void>>() {}.getType();
+                    ApiSingleResponse<Void> apiResponse = gson.fromJson(jsonData, apiResponseType);
+                    if (apiResponse != null && apiResponse.getCode() != 0 ) {
+                        String errorMessage = "API hủy đặt phòng trả về lỗi logic " + apiResponse.getCode();
+                        if(apiResponse.getMessage() != null && !apiResponse.getMessage().isEmpty()){
+                            errorMessage += ": " + apiResponse.getMessage();
+                        }
+                        throw new IOException(errorMessage);
+                    }
+                }
+                // Nếu không có lỗi, hoặc body rỗng (HTTP 200/204) thì coi là thành công
+            } catch (JsonSyntaxException e) {
+                // Không làm gì nếu parse lỗi nhưng HTTP thành công, vì có thể body rỗng
+                System.out.println("[CLIENT BookingService] Yêu cầu hủy đặt phòng đã gửi, HTTP: " + response.code() + ". Body không phải JSON chuẩn hoặc rỗng.");
+            }
+        }
+    }
+
+    // --- Helper Methods ---
     private String getResponseBody(Response response) throws IOException {
         try (ResponseBody responseBody = response.body()) {
-            if (responseBody != null) { return responseBody.string(); }
-            else if (!response.isSuccessful()) { throw new IOException("Request failed: " + response.code() + " and response body is null."); }
-            else { System.out.println("API response successful (" + response.code() + ") but body is null."); return ""; }
+            if (responseBody != null) {
+                return responseBody.string();
+            } else if (!response.isSuccessful()) {
+                System.err.println("[CLIENT BookingService GET_RESPONSE_BODY] Yêu cầu thất bại: " + response.code() + " và body phản hồi là null.");
+                throw new IOException("Yêu cầu thất bại: " + response.code() + " và body phản hồi là null.");
+            } else {
+                return "{}";
+            }
         }
     }
 
     private void parseAndThrowError(Response response, String responseData, String baseErrorMessage) throws IOException {
-        String specificErrorMessage = null;
-        if (!responseData.isEmpty()) {
+        // Giữ lại System.err cho lỗi nghiêm trọng này
+        System.err.println("[CLIENT BookingService PARSE_AND_THROW_ERROR] " + baseErrorMessage + ". HTTP Status: " + response.code());
+        if (responseData != null && !responseData.isEmpty()) {
+            System.err.println("[CLIENT BookingService RAW_JSON_ERROR_CONTEXT] JSON (first 700): " + responseData.substring(0, Math.min(responseData.length(), 700)) + (responseData.length() > 700 ? "..." : ""));
+        }
+
+        String specificErrorMessage = "Không có thông tin lỗi chi tiết từ server.";
+        int httpStatusCode = response.code();
+        Integer apiErrorCode = null;
+        String apiMessage = null;
+
+        if (responseData != null && !responseData.isEmpty() && !responseData.trim().equals("{}")) {
             try {
-                // Ưu tiên parse cấu trúc lỗi có trường 'message'
-                ApiSingleResponse<?> errorResponse = gson.fromJson(responseData, ApiSingleResponse.class); // Hoặc ApiErrorResponse
-                if (errorResponse != null && errorResponse.getMessage() != null && !errorResponse.getMessage().isEmpty()) {
-                    specificErrorMessage = errorResponse.getMessage();
+                Type errorResponseType = new TypeToken<ApiSingleResponse<Object>>() {}.getType();
+                ApiSingleResponse<?> errorDetails = gson.fromJson(responseData, errorResponseType);
+                if (errorDetails != null) {
+                    apiMessage = errorDetails.getMessage();
+                    if (errorDetails.getCode() != 0) {
+                        apiErrorCode = errorDetails.getCode();
+                    }
+                    if (apiMessage != null && !apiMessage.isEmpty()) {
+                        specificErrorMessage = apiMessage;
+                    }
                 }
             } catch (JsonSyntaxException ignored) {
-                System.err.println("Could not parse error response body into known error structure: " + responseData.substring(0, Math.min(responseData.length(), 200)));
+                // Đã log ở trên, không cần log lại
             }
         }
-        String finalMessage = baseErrorMessage + ": " + response.code();
-        if (specificErrorMessage != null) {
-            finalMessage += " - " + specificErrorMessage;
-        } else if (!responseData.isEmpty() && !responseData.startsWith("<") && responseData.length() < 1000) { // Avoid adding large HTML bodies
-            finalMessage += ". Body: " + responseData.substring(0, Math.min(responseData.length(), 200)) + "...";
+
+        String finalMessage = baseErrorMessage + ". Mã HTTP: " + httpStatusCode;
+        if (apiErrorCode != null) {
+            finalMessage += ". Mã lỗi API: " + apiErrorCode;
+        }
+        if (!"Không có thông tin lỗi chi tiết từ server.".equals(specificErrorMessage) && !specificErrorMessage.trim().isEmpty()) {
+            finalMessage += ". Chi tiết: " + specificErrorMessage;
+        } else if (response.message() != null && !response.message().isEmpty()){
+            finalMessage += ". Thông điệp HTTP: " + response.message();
         }
         throw new IOException(finalMessage);
     }
 
     private void handleJsonParsingError(JsonSyntaxException e, String jsonData, String apiName) {
-        System.err.println("JSON parsing error from " + apiName + ": " + e.getMessage());
-        System.err.println("Raw JSON causing parsing error: " + jsonData.substring(0, Math.min(jsonData.length(), 500)) + "...");
+        // Giữ lại System.err cho lỗi nghiêm trọng này
+        System.err.println("[CLIENT BookingService JSON_PARSE_ERROR] Lỗi parse JSON từ " + apiName + ": " + e.getMessage());
+        if (jsonData != null) {
+            System.err.println("[CLIENT BookingService JSON_PARSE_ERROR] JSON thô (first 700): " + jsonData.substring(0, Math.min(jsonData.length(), 700)) + (jsonData.length() > 700 ? "..." : ""));
+        }
     }
 
     private Request buildAuthenticatedGetRequest(String url) throws IOException {
         String token = TokenStorage.getToken();
-        if (token == null || token.isEmpty()) { throw new IOException("Authentication token not found. Please login again."); }
+        if (token == null || token.isEmpty()) {
+            System.err.println("[CLIENT BookingService AUTH_GET] Lỗi: Token không tìm thấy hoặc rỗng."); // Giữ lại log lỗi xác thực
+            throw new IOException("Không tìm thấy token xác thực. Vui lòng đăng nhập lại.");
+        }
         return new Request.Builder().url(url).header("Authorization", "Bearer " + token).get().build();
     }
 
     private Request buildAuthenticatedRequestWithBody(String method, String url, RequestBody body) throws IOException {
         String token = TokenStorage.getToken();
-        if (token == null || token.isEmpty()) { throw new IOException("Authentication token not found. Please login again."); }
-        Request.Builder builder = new Request.Builder().url(url).header("Authorization", "Bearer " + token);
-        if ("PUT".equalsIgnoreCase(method) || "POST".equalsIgnoreCase(method) || "PATCH".equalsIgnoreCase(method)) {
-            builder.header("Content-Type", JSON.toString()); // Ensure Content-Type for methods with body
+        if (token == null || token.isEmpty()) {
+            System.err.println("[CLIENT BookingService AUTH_BODY_REQ] Lỗi: Token không tìm thấy hoặc rỗng."); // Giữ lại log lỗi xác thực
+            throw new IOException("Không tìm thấy token xác thực. Vui lòng đăng nhập lại.");
         }
+        Request.Builder builder = new Request.Builder().url(url).header("Authorization", "Bearer " + token);
         switch (method.toUpperCase()) {
             case "POST": builder.post(body); break;
             case "PUT": builder.put(body); break;
             case "PATCH": builder.patch(body); break;
             case "DELETE": if (body != null) builder.delete(body); else builder.delete(); break;
-            default: throw new IllegalArgumentException("Unsupported HTTP method: " + method);
+            default: throw new IllegalArgumentException("Phương thức HTTP không được hỗ trợ: " + method);
         }
         return builder.build();
     }
+
 }
