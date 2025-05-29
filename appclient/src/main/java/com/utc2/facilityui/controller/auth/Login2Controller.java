@@ -145,13 +145,18 @@ public class Login2Controller {
                                     if (scopeOpt.isPresent()) {
                                         String scope = scopeOpt.get();
                                         System.out.println("<<< Login2Controller: Extracted scope: [" + scope + "]");
-                                        if ("ROLE_ADMIN".equals(scope) || "ROLE_FACILITY_MANAGER".equals(scope)) {
+                                        if ("ROLE_ADMIN".equals(scope)) {
                                             fxmlPath = ADMIN_DASHBOARD_FXML;
-                                            windowTitle = "Admin/Manager Dashboard";
-                                        } else {
+                                            windowTitle = "Admin Dashboard";
+                                        } else if ("ROLE_TECHNICIAN".equals(scope) || "ROLE_FACILITY_MANAGER".equals(scope)) {
+                                            // Nếu là TECHNICIAN hoặc FACILITY_MANAGER, chuyển đến USER_DASHBOARD_FXML (home.fxml)
+                                            fxmlPath = USER_DASHBOARD_FXML;
+                                            windowTitle = "User Dashboard"; // Hoặc "Technician/Manager Home" tùy bạn đặt
+                                        } else { // Các role khác (ví dụ: ROLE_USER) cũng vào home.fxml
                                             fxmlPath = USER_DASHBOARD_FXML;
                                             windowTitle = "User Dashboard";
                                         }
+
                                         System.out.println("<<< Login2Controller: Choosing view: " + fxmlPath);
                                     } else {
                                         System.err.println("<<< Login2Controller: Failed to extract scope from token.");

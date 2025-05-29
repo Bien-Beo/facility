@@ -4,248 +4,251 @@ import javafx.beans.property.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import com.google.gson.annotations.SerializedName; // Import cho @SerializedName
-import java.util.Objects; // Import cho equals và hashCode
+import java.util.Locale;
+import java.util.Objects;
+// import com.google.gson.annotations.SerializedName; // Dùng nếu tên trường JSON khác tên trường Java
 
-/**
- * Model đại diện cho Facility (Room) - Đã cập nhật để sử dụng facilityManagerId.
- */
 public class Facility {
 
-    // --- Sử dụng kiểu dữ liệu chuẩn ---
+    // --- Trường dữ liệu chuẩn ---
+    // Các trường này sẽ được Gson điền trực tiếp với dữ liệu thô từ JSON
     private String id;
     private String name;
     private String description;
-    private int capacity; // Giữ nguyên int như model gốc bạn cung cấp
+    private int capacity;
     private String img;
     private String status;
     private String buildingName;
     private String roomTypeName;
+    private String buildingId;
+    private String roomTypeId;
 
-    // Quan trọng: Nếu JSON từ API vẫn gửi "nameFacilityManager", hãy dùng @SerializedName
-    // @SerializedName("nameFacilityManager")
+    // Trường này sẽ được Gson điền trực tiếp từ JSON key "nameFacilityManager"
+    private String nameFacilityManager;
+    // Trường này sẽ được Gson điền trực tiếp từ JSON key "facilityManagerId" (nếu có)
     private String facilityManagerId;
 
-
     private String location;
-    private String createdAt; // Lưu trữ chuỗi gốc hoặc đã được format
-    private String updatedAt; // Lưu trữ chuỗi gốc hoặc đã được format
+    // Các trường này sẽ lưu trữ chuỗi ISO gốc từ server
+    private String createdAt;
+    private String updatedAt;
     private String deletedAt;
-    // private List<Object> defaultEquipments; // Vẫn tạm thời bỏ qua
 
-    // --- Các đối tượng Property (transient để Gson bỏ qua) ---
+    // --- Các đối tượng Property (transient để Gson bỏ qua khi serialize) ---
+    // Các property này sẽ được khởi tạo với giá trị đã được format khi cần
     private transient StringProperty idProperty;
     private transient StringProperty nameProperty;
     private transient StringProperty descriptionProperty;
-    private transient IntegerProperty capacityProperty; // Property vẫn là IntegerProperty
+    private transient IntegerProperty capacityProperty;
     private transient StringProperty imgProperty;
     private transient StringProperty statusProperty;
     private transient StringProperty buildingNameProperty;
     private transient StringProperty roomTypeNameProperty;
-
-
+    private transient StringProperty nameFacilityManagerProperty;
     private transient StringProperty facilityManagerIdProperty;
-
     private transient StringProperty locationProperty;
-    private transient StringProperty createdAtProperty;
-    private transient StringProperty updatedAtProperty;
-    private transient StringProperty deletedAtProperty;
+    private transient StringProperty formattedCreatedAtProperty; // Property cho chuỗi đã format
+    private transient StringProperty formattedUpdatedAtProperty; // Property cho chuỗi đã format
+    private transient StringProperty formattedDeletedAtProperty; // Property cho chuỗi đã format
 
-    // Định dạng ngày giờ mong muốn hiển thị
-    private static final DateTimeFormatter DISPLAY_FORMATTER = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
-    // Các định dạng ISO có thể có từ API
-    private static final DateTimeFormatter ISO_WITH_FRACTIONAL = DateTimeFormatter.ISO_LOCAL_DATE_TIME; // Ví dụ: "2025-04-11T16:54:51.447186"
-    private static final DateTimeFormatter ISO_WITHOUT_FRACTIONAL = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"); // Ví dụ: "2025-04-11T16:54:51"
+    // --- Định dạng ngày giờ ---
+    private static final Locale VIETNAMESE_LOCALE = new Locale("vi", "VN");
+    private static final DateTimeFormatter VNF_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm, dd/MM/yyyy", VIETNAMESE_LOCALE);
+    private static final DateTimeFormatter ISO_PARSER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+    private static final DateTimeFormatter ISO_WITHOUT_FRACTIONAL_FALLBACK = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
-    // Constructor
     public Facility() {}
 
-    // --- Property Getters (dùng cho TableView - Lazy Initialization) ---
-    // Chúng sẽ tạo đối tượng Property khi được gọi lần đầu tiên
+    // --- Helper Method để Format ---
+    private String formatDisplayDateTime(String isoDateTimeString) {
+        // System.out.println("DEBUG FACILITY MODEL: formatDisplayDateTime CALLED with INPUT: '" + isoDateTimeString + "'");
+        if (isoDateTimeString == null || isoDateTimeString.isBlank() || isoDateTimeString.equalsIgnoreCase("null")) {
+            return "N/A";
+        }
+        LocalDateTime dateTime;
+        try {
+            dateTime = LocalDateTime.parse(isoDateTimeString, ISO_PARSER);
+        } catch (DateTimeParseException e1) {
+            try {
+                dateTime = LocalDateTime.parse(isoDateTimeString, ISO_WITHOUT_FRACTIONAL_FALLBACK);
+            } catch (DateTimeParseException e2) {
+                System.err.println("Không thể format ngày giờ (Facility Model): '" + isoDateTimeString + "'. Lỗi: " + e2.getMessage());
+                return isoDateTimeString; // Trả về gốc nếu không parse được
+            }
+        }
+        return dateTime.format(VNF_DATE_TIME_FORMATTER);
+    }
+
+    // --- Property Getters (cho TableView) ---
+    // PropertyValueFactory sẽ gọi các phương thức này (hoặc các getter tương ứng nếu không có property method)
+    // Tên property ("createdAt", "updatedAt", "nameFacilityManager") phải khớp với chuỗi trong PropertyValueFactory
+
     public StringProperty idProperty() {
-        if (idProperty == null) idProperty = new SimpleStringProperty(this, "id", id);
+        if (idProperty == null) idProperty = new SimpleStringProperty(this, "id", this.id);
         return idProperty;
     }
     public StringProperty nameProperty() {
-        if (nameProperty == null) nameProperty = new SimpleStringProperty(this, "name", name);
+        if (nameProperty == null) nameProperty = new SimpleStringProperty(this, "name", this.name);
         return nameProperty;
     }
     public StringProperty descriptionProperty() {
-        if (descriptionProperty == null) descriptionProperty = new SimpleStringProperty(this, "description", description);
+        if (descriptionProperty == null) descriptionProperty = new SimpleStringProperty(this, "description", this.description);
         return descriptionProperty;
     }
     public IntegerProperty capacityProperty() {
-        // Dù trường là int, property thường là IntegerProperty để xử lý null tốt hơn trong UI bindings
-        // (mặc dù trường int này không thể null, nhưng đây là cách làm phổ biến)
-        if (capacityProperty == null) capacityProperty = new SimpleIntegerProperty(this, "capacity", capacity);
+        if (capacityProperty == null) capacityProperty = new SimpleIntegerProperty(this, "capacity", this.capacity);
         return capacityProperty;
     }
     public StringProperty imgProperty() {
-        if (imgProperty == null) imgProperty = new SimpleStringProperty(this, "img", img);
+        if (imgProperty == null) imgProperty = new SimpleStringProperty(this, "img", this.img);
         return imgProperty;
     }
     public StringProperty statusProperty() {
-        if (statusProperty == null) statusProperty = new SimpleStringProperty(this, "status", status);
+        if (statusProperty == null) statusProperty = new SimpleStringProperty(this, "status", this.status);
         return statusProperty;
     }
     public StringProperty buildingNameProperty() {
-        if (buildingNameProperty == null) buildingNameProperty = new SimpleStringProperty(this, "buildingName", buildingName);
+        if (buildingNameProperty == null) buildingNameProperty = new SimpleStringProperty(this, "buildingName", this.buildingName);
         return buildingNameProperty;
     }
     public StringProperty roomTypeNameProperty() {
-        if (roomTypeNameProperty == null) roomTypeNameProperty = new SimpleStringProperty(this, "roomTypeName", roomTypeName);
+        if (roomTypeNameProperty == null) roomTypeNameProperty = new SimpleStringProperty(this, "roomTypeName", this.roomTypeName);
         return roomTypeNameProperty;
     }
-
-    public StringProperty facilityManagerIdProperty() { // Đã đổi tên phương thức
-        // Đổi tên biến và tên trong constructor SimpleStringProperty
-        if (facilityManagerIdProperty == null) {
-            facilityManagerIdProperty = new SimpleStringProperty(this, "facilityManagerId", facilityManagerId);
-        }
+    public StringProperty nameFacilityManagerProperty() {
+        if (nameFacilityManagerProperty == null) nameFacilityManagerProperty = new SimpleStringProperty(this, "nameFacilityManager", this.nameFacilityManager);
+        return nameFacilityManagerProperty;
+    }
+    public StringProperty facilityManagerIdProperty() {
+        if (facilityManagerIdProperty == null) facilityManagerIdProperty = new SimpleStringProperty(this, "facilityManagerId", this.facilityManagerId);
         return facilityManagerIdProperty;
     }
-
-
     public StringProperty locationProperty() {
-        if (locationProperty == null) locationProperty = new SimpleStringProperty(this, "location", location);
+        if (locationProperty == null) locationProperty = new SimpleStringProperty(this, "location", this.location);
         return locationProperty;
     }
+
+    // Property methods cho các trường ngày giờ đã format
+    // Tên property ("createdAt") phải khớp với PropertyValueFactory
     public StringProperty createdAtProperty() {
-        if (createdAtProperty == null) createdAtProperty = new SimpleStringProperty(this, "createdAt", createdAt); // Hiển thị chuỗi đã format
-        return createdAtProperty;
+        if (formattedCreatedAtProperty == null) {
+            // Khởi tạo property với giá trị đã được format thông qua getter
+            formattedCreatedAtProperty = new SimpleStringProperty(this, "createdAt", getCreatedAt());
+        }
+        return formattedCreatedAtProperty;
     }
     public StringProperty updatedAtProperty() {
-        if (updatedAtProperty == null) updatedAtProperty = new SimpleStringProperty(this, "updatedAt", updatedAt); // Hiển thị chuỗi đã format
-        return updatedAtProperty;
+        if (formattedUpdatedAtProperty == null) {
+            formattedUpdatedAtProperty = new SimpleStringProperty(this, "updatedAt", getUpdatedAt());
+        }
+        return formattedUpdatedAtProperty;
     }
     public StringProperty deletedAtProperty() {
-        if (deletedAtProperty == null) deletedAtProperty = new SimpleStringProperty(this, "deletedAt", deletedAt); // Hiển thị chuỗi đã format (nếu có)
-        return deletedAtProperty;
+        if (formattedDeletedAtProperty == null) {
+            formattedDeletedAtProperty = new SimpleStringProperty(this, "deletedAt", getDeletedAt());
+        }
+        return formattedDeletedAtProperty;
     }
 
-    // --- Standard Getters/Setters (dùng cho Gson và logic khác) ---
-    // Cập nhật: Các setter giờ cũng sẽ cập nhật giá trị property nếu property đã được khởi tạo
+    // --- Standard Getters/Setters ---
+    // Setters chỉ gán giá trị thô. Nếu property đã được tạo, chúng sẽ được cập nhật từ getter.
     public String getId() { return id; }
-    public void setId(String id) {
-        this.id = id;
-        // Cập nhật property nếu nó đã được khởi tạo (cho binding UI)
-        if (idProperty != null) idProperty.set(id);
-    }
+    public void setId(String id) { this.id = id; }
 
     public String getName() { return name; }
-    public void setName(String name) {
-        this.name = name;
-        if (nameProperty != null) nameProperty.set(name);
-    }
+    public void setName(String name) { this.name = name; }
 
     public String getDescription() { return description; }
-    public void setDescription(String description) {
-        this.description = description;
-        if (descriptionProperty != null) descriptionProperty.set(description);
-    }
+    public void setDescription(String description) { this.description = description; }
 
-    public int getCapacity() { return capacity; } // Vẫn trả về int
-    public void setCapacity(int capacity) {
-        this.capacity = capacity;
-        if (capacityProperty != null) capacityProperty.set(capacity);
-    }
+    public int getCapacity() { return capacity; }
+    public void setCapacity(int capacity) { this.capacity = capacity; }
 
     public String getImg() { return img; }
-    public void setImg(String img) {
-        this.img = img;
-        if (imgProperty != null) imgProperty.set(img);
-    }
+    public void setImg(String img) { this.img = img; }
 
     public String getStatus() { return status; }
-    public void setStatus(String status) {
-        this.status = status;
-        if (statusProperty != null) statusProperty.set(status);
-    }
+    public void setStatus(String status) { this.status = status; }
 
     public String getBuildingName() { return buildingName; }
-    public void setBuildingName(String buildingName) {
-        this.buildingName = buildingName;
-        if (buildingNameProperty != null) buildingNameProperty.set(buildingName);
-    }
+    public void setBuildingName(String buildingName) { this.buildingName = buildingName; }
 
     public String getRoomTypeName() { return roomTypeName; }
-    public void setRoomTypeName(String roomTypeName) {
-        this.roomTypeName = roomTypeName;
-        if (roomTypeNameProperty != null) roomTypeNameProperty.set(roomTypeName);
+    public void setRoomTypeName(String roomTypeName) { this.roomTypeName = roomTypeName; }
+
+    public String getNameFacilityManager() { return nameFacilityManager; }
+    public void setNameFacilityManager(String nameFacilityManager) {
+        // System.out.println("DEBUG FACILITY MODEL: setNameFacilityManager (raw) CALLED with: '" + nameFacilityManager + "'");
+        this.nameFacilityManager = nameFacilityManager;
+        // Nếu property đã được tạo, cập nhật nó
+        if (nameFacilityManagerProperty != null) nameFacilityManagerProperty.set(this.nameFacilityManager);
     }
 
-    public String getFacilityManagerId() { // Đã đổi tên getter
-        return facilityManagerId;
-    }
-    public void setFacilityManagerId(String facilityManagerId) { // Đã đổi tên setter và tham số
+    public String getFacilityManagerId() { return facilityManagerId; }
+    public void setFacilityManagerId(String facilityManagerId) {
         this.facilityManagerId = facilityManagerId;
-        if (facilityManagerIdProperty != null) facilityManagerIdProperty.set(facilityManagerId); // Cập nhật property
+        if (facilityManagerIdProperty != null) facilityManagerIdProperty.set(this.facilityManagerId);
     }
 
     public String getLocation() { return location; }
-    public void setLocation(String location) {
-        this.location = location;
-        if (locationProperty != null) locationProperty.set(location);
+    public void setLocation(String location) { this.location = location; }
+
+    // Getters cho ngày giờ sẽ thực hiện format khi được gọi
+    public String getCreatedAt() {
+        // System.out.println("DEBUG FACILITY MODEL: getCreatedAt CALLED. Raw value is: '" + this.createdAt + "'");
+        return formatDisplayDateTime(this.createdAt);
+    }
+    // Setter cho ngày giờ chỉ lưu giá trị thô từ JSON
+    public void setCreatedAt(String createdAtRaw) {
+        // System.out.println("DEBUG FACILITY MODEL: setCreatedAt (raw) CALLED with: '" + createdAtRaw + "'");
+        this.createdAt = createdAtRaw;
+        // Nếu property đã được tạo, cập nhật nó với giá trị đã format
+        if (formattedCreatedAtProperty != null) formattedCreatedAtProperty.set(getCreatedAt());
     }
 
-    public String getCreatedAt() { return createdAt; }
-    public void setCreatedAt(String createdAt) {
-        // Format ngày giờ ngay khi nhận từ Gson và lưu chuỗi đã format
-        this.createdAt = formatDisplayDateTime(createdAt);
-        if (createdAtProperty != null) createdAtProperty.set(this.createdAt);
+    public String getUpdatedAt() {
+        return formatDisplayDateTime(this.updatedAt);
+    }
+    public void setUpdatedAt(String updatedAtRaw) {
+        this.updatedAt = updatedAtRaw;
+        if (formattedUpdatedAtProperty != null) formattedUpdatedAtProperty.set(getUpdatedAt());
     }
 
-    public String getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(String updatedAt) {
-        // Format ngày giờ ngay khi nhận từ Gson và lưu chuỗi đã format
-        this.updatedAt = formatDisplayDateTime(updatedAt);
-        if (updatedAtProperty != null) updatedAtProperty.set(this.updatedAt);
+    public String getDeletedAt() {
+        return formatDisplayDateTime(this.deletedAt);
+    }
+    public void setDeletedAt(String deletedAtRaw) {
+        this.deletedAt = deletedAtRaw;
+        if (formattedDeletedAtProperty != null) formattedDeletedAtProperty.set(getDeletedAt());
     }
 
-    public String getDeletedAt() { return deletedAt; }
-    public void setDeletedAt(String deletedAt) {
-        // Format ngày giờ ngay khi nhận từ Gson và lưu chuỗi đã format (hoặc xử lý null)
-        this.deletedAt = formatDisplayDateTime(deletedAt); // Áp dụng format tương tự nếu cần
-        if (deletedAtProperty != null) deletedAtProperty.set(this.deletedAt);
-    }
-    // public List<Object> getDefaultEquipments() { return defaultEquipments; }
-    // public void setDefaultEquipments(List<Object> defaultEquipments) { this.defaultEquipments = defaultEquipments; }
-
-    // Helper format ngày giờ từ ISO String sang định dạng hiển thị
-    private String formatDisplayDateTime(String isoDateTime) {
-        if (isoDateTime == null || isoDateTime.isBlank() || isoDateTime.equalsIgnoreCase("null")) {
-            return "N/A"; // Hoặc trả về null/rỗng tùy ý nếu muốn phân biệt trạng thái "chưa có"
-        }
-        LocalDateTime dateTime = null;
-        try {
-            // Thử parse với định dạng có phần thập phân giây trước
-            dateTime = LocalDateTime.parse(isoDateTime, ISO_WITH_FRACTIONAL);
-        } catch (DateTimeParseException e1) {
-            try {
-                // Nếu lỗi, thử parse với định dạng không có phần thập phân giây
-                dateTime = LocalDateTime.parse(isoDateTime, ISO_WITHOUT_FRACTIONAL);
-            } catch (DateTimeParseException e2) {
-                System.err.println("Không thể format ngày giờ (Facility Model): " + isoDateTime + " - " + e2.getMessage());
-                return isoDateTime; // Trả về chuỗi gốc nếu không parse được bằng cả 2 cách
-            }
-        }
-        // Nếu parse thành công bằng 1 trong 2 cách
-        return dateTime.format(DISPLAY_FORMATTER);
+    public String getBuildingId() {
+        return buildingId;
     }
 
-    // Override equals() và hashCode() để dùng trong Collection hoặc so sánh đối tượng
-    // Thường dựa trên ID nếu nó là duy nhất và không thay đổi
+    public void setBuildingId(String buildingId) {
+        this.buildingId = buildingId;
+    }
+
+    public String getRoomTypeId() {
+        return roomTypeId;
+    }
+
+    public void setRoomTypeId(String roomTypeId) {
+        this.roomTypeId = roomTypeId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Facility facility = (Facility) o;
-        return Objects.equals(id, facility.id); // So sánh dựa trên ID
+        return Objects.equals(id, facility.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id); // Hash dựa trên ID
+        return Objects.hash(id);
     }
 
     @Override
@@ -253,13 +256,18 @@ public class Facility {
         return "Facility{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
                 ", capacity=" + capacity +
+                // ", img='" + img + '\'' + // Thường không cần img trong toString
                 ", status='" + status + '\'' +
                 ", buildingName='" + buildingName + '\'' +
                 ", roomTypeName='" + roomTypeName + '\'' +
-                ", facilityManagerId='" + facilityManagerId + '\'' + // Đã đổi tên
+                ", facilityManagerId='" + facilityManagerId + '\'' + // Giữ ID nếu cần
+                ", nameFacilityManager='" + nameFacilityManager + '\'' + // Tên người quản lý
                 ", location='" + location + '\'' +
-                // Thêm các trường khác nếu cần
+                ", createdAt='" + createdAt + '\'' +
+                ", updatedAt='" + updatedAt + '\'' +
+                ", deletedAt='" + (deletedAt != null ? deletedAt : "N/A") + '\'' +
                 '}';
     }
 }

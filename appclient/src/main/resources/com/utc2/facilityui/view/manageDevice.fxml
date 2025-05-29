@@ -43,9 +43,9 @@
                         <image>
                             <Image url="@../images/calendar.png" />
                         </image>
-                  <HBox.margin>
-                     <Insets left="10.0" />
-                  </HBox.margin>
+                        <HBox.margin>
+                            <Insets left="10.0" />
+                        </HBox.margin>
                     </ImageView>
                 </HBox>
             </graphic>
@@ -59,9 +59,9 @@
                         <image>
                             <Image url="@../images/download.png" />
                         </image>
-                  <HBox.margin>
-                     <Insets left="5.0" />
-                  </HBox.margin>
+                        <HBox.margin>
+                            <Insets left="5.0" />
+                        </HBox.margin>
                     </ImageView>
                 </HBox>
             </graphic>
@@ -73,9 +73,9 @@
         <ComboBox fx:id="filterByRoomComboBox" prefWidth="160" promptText="Lọc theo phòng" style="-fx-background-color: #ffffff; -fx-border-radius: 5px; -fx-padding: 8;" />
         <ComboBox fx:id="filterByModelComboBox" prefHeight="42.0" prefWidth="169.0" promptText="Lọc theo loại model" style="-fx-background-color: #ffffff; -fx-border-radius: 5px; -fx-padding: 8;" />
         <Button style="-fx-background-color: #1976d2; -fx-background-radius: 5px; -fx-text-fill: white; -fx-padding: 10px;" text="RESET">
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font></Button>
+            <font>
+                <Font name="System Bold" size="12.0" />
+            </font></Button>
     </HBox>
 
     <!-- Table or placeholder -->

@@ -1,34 +1,38 @@
-// --- File: src/main/java/com/utc2/facilityui/controller/ApprovalRequestController.java ---
 package com.utc2.facilityui.controller;
 
 import com.utc2.facilityui.model.ApprovalRequest;
-// *** THÊM IMPORT CHO Page ***
 import com.utc2.facilityui.response.Page;
 import com.utc2.facilityui.response.BookingResponse;
 import com.utc2.facilityui.service.BookingService;
 
-import javafx.application.Platform; // Import Platform
+import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Button;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.TextArea; // Dùng cho Alert
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.VBox;
-import javafx.scene.Parent;
+import javafx.stage.Window;
 
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections; // Thêm import này
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
+// import java.util.stream.Collectors; // Không cần nữa
 
 public class ApprovalRequestController implements Initializable {
 
@@ -36,250 +40,329 @@ public class ApprovalRequestController implements Initializable {
     @FXML private Label mainTitleLabel;
     @FXML private ProgressIndicator loadingIndicator;
 
-    private final BookingService bookingService = new BookingService();
-    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+    @FXML private Button btnPreviousPending;
+    @FXML private Button btnNextPending;
+    @FXML private Label pendingPageInfoLabel;
+    // @FXML private ComboBox<Integer> pendingRowsPerPageComboBox; // Nếu bạn muốn thêm
 
-    // --- THÊM BIẾN PHÂN TRANG (NẾU CHƯA CÓ) ---
-    private int currentPage = 0; // Trang bắt đầu (0-based)
-    private int pageSize = 10; // Kích thước trang (ví dụ)
-    // Bạn có thể thêm các nút Previous/Next và ComboBox page size vào FXML nếu muốn phân trang đầy đủ
+    private final BookingService bookingService = new BookingService();
+
+    // Định dạng ngày giờ dùng chung
+    private static final DateTimeFormatter VNF_DATE_FORMATTER = DateTimeFormatter.ofPattern("EEE, dd/MM/yyyy", new Locale("vi", "VN"));
+    private static final DateTimeFormatter VNF_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm", new Locale("vi", "VN"));
+    private static final DateTimeFormatter VNF_DATE_TIME_SHORT_FOR_RANGE_FORMATTER = DateTimeFormatter.ofPattern("HH:mm dd/MM", new Locale("vi", "VN"));
+    private static final DateTimeFormatter VNF_FULL_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm, EEE dd/MM/yyyy", new Locale("vi", "VN"));
+    private int currentPage = 0;
+    private int pageSize = 10;
+    private int totalPages = 0;
+    private long totalElements = 0;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        if (mainTitleLabel != null) mainTitleLabel.setText("Pending Booking Approvals");
+        if (mainTitleLabel != null) mainTitleLabel.setText("Yêu cầu Chờ Duyệt");
         if (loadingIndicator != null) loadingIndicator.setVisible(false);
-        System.out.println("ApprovalRequestController Initialized. Loading requests..."); // DEBUG
+
+        if (btnPreviousPending != null) {
+            btnPreviousPending.setOnAction(event -> handlePreviousApprovalPage());
+        }
+        if (btnNextPending != null) {
+            btnNextPending.setOnAction(event -> handleNextApprovalPage());
+        }
+        // Khởi tạo ComboBox pageSize nếu có
+        // if (pendingRowsPerPageComboBox != null) {
+        //     pendingRowsPerPageComboBox.setItems(FXCollections.observableArrayList(5, 10, 15, 20));
+        //     pendingRowsPerPageComboBox.setValue(pageSize);
+        //     pendingRowsPerPageComboBox.setOnAction(e -> {
+        //         pageSize = pendingRowsPerPageComboBox.getValue();
+        //         currentPage = 0;
+        //         loadPendingRequestsFromServer();
+        //     });
+        // }
+        System.out.println("ApprovalRequestController Initialized. Loading requests...");
         loadPendingRequestsFromServer();
     }
 
     private void loadPendingRequestsFromServer() {
         if (loadingIndicator != null) loadingIndicator.setVisible(true);
-        requestContainer.getChildren().clear(); // Xóa card cũ trước khi tải mới
+        requestContainer.getChildren().clear();
 
-        // *** THAY ĐỔI KIỂU DỮ LIỆU CỦA TASK ***
         Task<Page<BookingResponse>> loadTask = new Task<>() {
             @Override
             protected Page<BookingResponse> call() throws Exception {
-                System.out.println("[Task] Calling bookingService.getAllBookings() with pagination...");
-
-                // --- THAY THẾ DÒNG NÀY ---
-                // List<BookingResponse> result = bookingService.getAllBookings(); // <<< DÒNG CŨ BỊ LỖI
-
-                // +++ BẰNG DÒNG NÀY +++
-                // Gọi với null filters và trạng thái phân trang hiện tại
-                Page<BookingResponse> resultPage = bookingService.getAllBookings(
-                        null, // roomId
-                        null, // month
-                        null, // year
-                        null, // userId
-                        currentPage, // page (0-based)
-                        pageSize     // size
-                );
-                // +++ KẾT THÚC THAY THẾ +++
-
-                System.out.println("[Task] bookingService.getAllBookings() returned page.");
-                return resultPage; // Trả về đối tượng Page
+                return bookingService.getPendingApprovalBookings(currentPage, pageSize);
             }
 
             @Override
             protected void succeeded() {
-                Page<BookingResponse> resultPage = getValue(); // Lấy đối tượng Page
-                List<BookingResponse> allBookingsOnPage = (resultPage != null) ? resultPage.getContent() : null;
-
-                System.out.println("[UI Thread] Fetched bookings page count (before filter): " + (allBookingsOnPage != null ? allBookingsOnPage.size() : "null list"));
-
+                Page<BookingResponse> resultPage = getValue();
                 Platform.runLater(() -> {
-                    // Xóa nội dung cũ (quan trọng khi tải lại trang hoặc refresh)
                     requestContainer.getChildren().clear();
+                    if (resultPage != null && resultPage.getContent() != null && !resultPage.getContent().isEmpty()) {
+                        List<BookingResponse> pendingBookings = resultPage.getContent();
+                        pendingBookings.forEach(ApprovalRequestController.this::createAndAddRequestCardUI);
 
-                    if (allBookingsOnPage != null && !allBookingsOnPage.isEmpty()) {
-                        // Lọc các booking có trạng thái PENDING_APPROVAL (client-side)
-                        List<BookingResponse> pendingBookings = allBookingsOnPage.stream()
-                                .filter(booking -> "PENDING_APPROVAL".equalsIgnoreCase(booking.getStatus()))
-                                .collect(Collectors.toList());
-
-                        System.out.println("[UI Thread] Pending bookings count on this page (after filter): " + pendingBookings.size());
-
-                        if (!pendingBookings.isEmpty()) {
-                            pendingBookings.forEach(ApprovalRequestController.this::createAndAddRequestCardUI);
-                        } else {
-                            System.out.println("[UI Thread] No pending approvals found on this page after filtering.");
-                            requestContainer.getChildren().add(new Label("No pending approvals found on this page."));
-                        }
-                        // TODO: Cập nhật các control phân trang (nút Previous/Next) dựa vào resultPage.isFirst(), resultPage.isLast(), resultPage.getTotalPages()
+                        totalPages = resultPage.getTotalPages();
+                        totalElements = resultPage.getTotalElements();
+                        currentPage = resultPage.getNumber();
                     } else {
-                        System.out.println("[UI Thread] No bookings found on this page or list was null/empty.");
-                        // Kiểm tra xem tổng số phần tử có phải là 0 không
-                        boolean trulyEmpty = (resultPage != null && resultPage.getTotalElements() == 0);
-                        requestContainer.getChildren().add(new Label(trulyEmpty ? "No pending approvals found." : "No bookings found or failed to load."));
-                        // TODO: Cập nhật các control phân trang (vô hiệu hóa hết)
+                        requestContainer.getChildren().add(new Label("Hiện không có yêu cầu nào chờ duyệt."));
+                        totalPages = 0;
+                        totalElements = 0;
+                        // currentPage có thể giữ nguyên hoặc reset về 0
                     }
-                    if (loadingIndicator != null) {
-                        System.out.println("[UI Thread] Hiding loading indicator (success)."); // DEBUG
-                        loadingIndicator.setVisible(false);
-                    }
+                    updatePendingPaginationControls();
+                    if (loadingIndicator != null) loadingIndicator.setVisible(false);
                 });
             }
 
             @Override
             protected void failed() {
                 Throwable exc = getException();
-                System.err.println("[Task] Failed to load bookings!"); // DEBUG
-                if (exc != null) {
-                    exc.printStackTrace(); // In lỗi đầy đủ ra console
-                }
+                exc.printStackTrace();
                 Platform.runLater(() -> {
-                    requestContainer.getChildren().clear(); // Xóa card cũ
-                    showError("Load Failed", "Could not load bookings: " + (exc != null ? exc.getMessage() : "Unknown error"));
-                    requestContainer.getChildren().add(new Label("Error loading requests. Check console for details."));
-                    if (loadingIndicator != null) {
-                        System.out.println("[UI Thread] Hiding loading indicator (failure)."); // DEBUG
-                        loadingIndicator.setVisible(false);
-                    }
-                    // TODO: Cập nhật các control phân trang (vô hiệu hóa hết)
+                    requestContainer.getChildren().clear();
+                    showError("Tải Thất Bại", "Không thể tải danh sách yêu cầu: " + exc.getMessage());
+                    requestContainer.getChildren().add(new Label("Lỗi khi tải yêu cầu."));
+                    if (loadingIndicator != null) loadingIndicator.setVisible(false);
+                    totalPages = 0;
+                    totalElements = 0;
+                    updatePendingPaginationControls();
                 });
             }
         };
-        new Thread(loadTask).start(); // Bắt đầu chạy task nền
+        new Thread(loadTask).start();
     }
 
-    // ... (Các phương thức còn lại: createAndAddRequestCardUI, mapToApprovalRequest, handleAccept, handleReject, ...)
-    // Bạn cũng cần thêm các phương thức xử lý sự kiện cho nút Previous/Next nếu bạn thêm chúng vào FXML
-    // Ví dụ:
-    // @FXML private void handlePreviousApprovalPage(ActionEvent event) {
-    //     if (currentPage > 0) {
-    //         currentPage--;
-    //         loadPendingRequestsFromServer();
-    //     }
-    // }
-    // @FXML private void handleNextApprovalPage(ActionEvent event) {
-    //     // Cần biết tổng số trang (totalPages) từ resultPage
-    //     // if (currentPage < totalPages - 1) {
-    //     //    currentPage++;
-    //     //    loadPendingRequestsFromServer();
-    //     // }
-    // }
+    private void updatePendingPaginationControls() {
+        if (pendingPageInfoLabel != null) {
+            if (totalElements == 0) {
+                pendingPageInfoLabel.setText("Không có dữ liệu");
+            } else if (totalPages > 0) {
+                pendingPageInfoLabel.setText("Trang " + (currentPage + 1) + " / " + totalPages + " (Tổng: " + totalElements + ")");
+            } else { // totalPages = 0 nhưng totalElements > 0 (chỉ 1 trang)
+                pendingPageInfoLabel.setText("Trang " + (currentPage + 1));
+            }
+        }
+        if (btnPreviousPending != null) {
+            btnPreviousPending.setDisable(currentPage == 0 || totalElements == 0);
+        }
+        if (btnNextPending != null) {
+            btnNextPending.setDisable(currentPage >= totalPages - 1 || totalElements == 0);
+        }
+    }
 
-    // mapToApprovalRequest (Giữ nguyên như trước)
+    @FXML
+    private void handlePreviousApprovalPage() {
+        if (currentPage > 0) {
+            currentPage--;
+            loadPendingRequestsFromServer();
+        }
+    }
+    @FXML
+    private void handleNextApprovalPage() {
+        if (currentPage < totalPages - 1) {
+            currentPage++;
+            loadPendingRequestsFromServer();
+        }
+    }
+
     private ApprovalRequest mapToApprovalRequest(BookingResponse apiResponse) {
-        System.out.println("  Mapping BookingResponse ID: " + apiResponse.getId()
-                + ", Status: " + apiResponse.getStatus()
-                + ", User: '" + apiResponse.getUserName() + "'"
-                + ", Room: '" + apiResponse.getRoomName() + "'"
-                + ", Start: " + apiResponse.getPlannedStartTime()
-                + ", End: " + apiResponse.getPlannedEndTime()
-                + ", Purpose: '" + apiResponse.getPurpose() + "'"
-                + ", CreatedAt: " + apiResponse.getCreatedAt());
+        String bookingId = apiResponse.getId();
+        String facilityName = Objects.requireNonNullElse(apiResponse.getRoomName(), "N/A");
+        String requestedBy = Objects.requireNonNullElse(apiResponse.getUserName(), "N/A");
+        String purpose = Objects.requireNonNullElse(apiResponse.getPurpose(), "N/A");
 
-        String facilityName = apiResponse.getRoomName(); if (facilityName == null || facilityName.trim().isEmpty()) facilityName = "Thiết bị (không có phòng)";
-        String requestedBy = apiResponse.getUserName(); if (requestedBy == null || requestedBy.trim().isEmpty()) requestedBy = "Người dùng ẩn danh";
+        LocalDateTime startTime = apiResponse.getPlannedStartTime();
+        LocalDateTime endTime = apiResponse.getPlannedEndTime();
+        LocalDateTime requestedAtTime = apiResponse.getCreatedAt();
 
-        String timeRange = "N/A"; LocalDateTime startTime = apiResponse.getPlannedStartTime(); LocalDateTime endTime = apiResponse.getPlannedEndTime();
-        if (startTime != null && endTime != null) { timeRange = startTime.format(TIME_FORMATTER) + " - " + endTime.format(TIME_FORMATTER); }
-        else if (startTime != null) { timeRange = startTime.format(TIME_FORMATTER) + " - ?"; } else if (endTime != null) { timeRange = "? - " + endTime.format(TIME_FORMATTER); }
+        String finalFormattedDate = "N/A";
+        String finalTimeRange = "N/A";
 
-        ApprovalRequest mappedRequest = new ApprovalRequest( apiResponse.getId(), facilityName, apiResponse.getPurpose(), startTime, timeRange, requestedBy, apiResponse.getCreatedAt() );
-        System.out.println("  Mapped to ApprovalRequest: " + mappedRequest);
-        return mappedRequest;
+        if (startTime != null) {
+            finalFormattedDate = startTime.format(VNF_DATE_FORMATTER);
+            if (endTime != null) {
+                if (startTime.toLocalDate().equals(endTime.toLocalDate())) {
+                    finalTimeRange = startTime.format(VNF_TIME_FORMATTER) + " - " + endTime.format(VNF_TIME_FORMATTER);
+                } else {
+                    finalTimeRange = startTime.format(VNF_DATE_TIME_SHORT_FOR_RANGE_FORMATTER) + " " + startTime.getYear() +
+                            " đến " +
+                            endTime.format(VNF_DATE_TIME_SHORT_FOR_RANGE_FORMATTER) + " " + endTime.getYear();
+                    finalFormattedDate = ""; // Ngày đã bao gồm trong timeRange
+                }
+            } else {
+                finalTimeRange = startTime.format(VNF_TIME_FORMATTER) + " - (Chưa rõ)";
+            }
+        } else if (endTime != null) {
+            finalTimeRange = "(Chưa rõ) - " + endTime.format(VNF_TIME_FORMATTER);
+            finalFormattedDate = endTime.format(VNF_DATE_FORMATTER);
+        }
+
+        String formattedRequestedAt = (requestedAtTime != null) ? requestedAtTime.format(VNF_FULL_DATE_TIME_FORMATTER) : "N/A";
+        String statusDisplay = translateBookingStatus(apiResponse.getStatus());
+        String statusKey = apiResponse.getStatus();
+
+        return new ApprovalRequest(
+                bookingId, facilityName, purpose,
+                finalFormattedDate, finalTimeRange, requestedBy,
+                formattedRequestedAt, statusDisplay, statusKey,
+                startTime, requestedAtTime
+        );
     }
-    // ... (Các phương thức handleAccept, handleReject, disableCardButtons, showInfo, showError giữ nguyên) ...
+
+    private String translateBookingStatus(String statusKey) {
+        if (statusKey == null) return "N/A";
+        return switch (statusKey.toUpperCase()) {
+            case "PENDING_APPROVAL" -> "Chờ duyệt";
+            case "CONFIRMED" -> "Đã duyệt";
+            // ... (các trạng thái khác)
+            default -> statusKey;
+        };
+    }
+
     private void createAndAddRequestCardUI(BookingResponse booking) {
-        System.out.println("[UI Thread] Creating card for Booking ID: " + booking.getId()); // DEBUG
         try {
-            // Đảm bảo đường dẫn đúng
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/utc2/facilityui/component/cardApprovalRequest.fxml"));
             Node cardNode = loader.load();
             ApprovalRequestCardController cardController = loader.getController();
 
-            // DEBUG: Kiểm tra controller card có lấy được không
             if (cardController == null) {
-                System.err.println("!!! CRITICAL: Failed to get ApprovalRequestCardController for booking ID: " + booking.getId());
-                return; // Không thể tiếp tục nếu controller null
+                System.err.println("CRITICAL: Không thể lấy ApprovalRequestCardController cho booking ID: " + booking.getId());
+                return;
             }
 
-            ApprovalRequest uiRequest = mapToApprovalRequest(booking); // Gọi hàm map
+            cardNode.setUserData(cardController); // Quan trọng: Lưu controller vào cardNode
 
-            // *** THAY ĐỔI: Thêm card vào container TRƯỚC khi gọi setData ***
-            requestContainer.getChildren().add(cardNode);
-            System.out.println("[UI Thread] Added card node to container for Booking ID: " + booking.getId());
-
-            // Gọi setData SAU KHI đã thêm vào scene graph
+            ApprovalRequest uiRequest = mapToApprovalRequest(booking);
             cardController.setData(uiRequest);
 
-            // Gán sự kiện (giữ nguyên)
-            cardController.setOnAcceptAction(event -> handleAccept(uiRequest.getBookingId(), cardNode));
-            cardController.setOnRejectAction(event -> handleReject(uiRequest.getBookingId(), cardNode));
+            cardController.setOnAcceptAction(event -> handleAccept(booking.getId(), cardNode));
+            cardController.setOnRejectAction(event -> {
+                String reason = cardController.getRejectReason();
+                handleReject(booking.getId(), reason, cardNode);
+            });
 
-            System.out.println("[UI Thread] Successfully processed card for Booking ID: " + booking.getId()); // DEBUG
-        } catch (Exception e) { // Bắt lỗi rộng hơn
-            System.err.println("[UI Thread] Error creating/loading/setting card for booking " + booking.getId() + ": " + e.getMessage());
+            requestContainer.getChildren().add(cardNode);
+        } catch (Exception e) {
+            System.err.println("Lỗi khi tạo card cho booking " + booking.getId() + ": " + e.getMessage());
             e.printStackTrace();
-            showError("UI Error", "Could not display card for booking " + booking.getId());
+            showError("Lỗi Giao Diện", "Không thể hiển thị card cho yêu cầu " + booking.getId());
         }
     }
 
     private void handleAccept(String bookingId, Node cardNode) {
-        System.out.println("[Action] handleAccept triggered for Booking ID: " + bookingId); // DEBUG
         disableCardButtons(cardNode, true);
         Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmation.setTitle("Confirm Accept"); confirmation.setHeaderText("Approve Booking ID: " + bookingId); confirmation.setContentText("Are you sure you want to approve this request?");
+        confirmation.setTitle("Xác nhận Duyệt");
+        confirmation.setHeaderText("Duyệt Yêu Cầu ID: " + bookingId);
+        confirmation.setContentText("Bạn có chắc chắn muốn duyệt yêu cầu này không?");
+        getAlertOwner().ifPresent(confirmation::initOwner);
+
         confirmation.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
-                System.out.println("[Action] User confirmed ACCEPT for Booking ID: " + bookingId + ". Starting task..."); // DEBUG
-                Task<Void> approveTask = new Task<>() {
-                    @Override protected Void call() throws Exception { System.out.println("  [Task] Calling bookingService.approveBooking(" + bookingId + ")"); bookingService.approveBooking(bookingId); System.out.println("  [Task] bookingService.approveBooking(" + bookingId + ") completed."); return null; } // DEBUG
-                    @Override protected void succeeded() { System.out.println("  [Task] Approve Task Succeeded for Booking ID: " + bookingId); Platform.runLater(() -> { requestContainer.getChildren().remove(cardNode); if (requestContainer.getChildren().isEmpty()) requestContainer.getChildren().add(new Label("No pending approvals remaining.")); showInfo("Success", "Booking " + bookingId + " approved."); }); } // DEBUG
-                    @Override protected void failed() { Throwable exc = getException(); System.err.println("  [Task] Approve Task Failed for Booking ID: " + bookingId); if(exc != null) exc.printStackTrace(); Platform.runLater(() -> { showError("Approval Failed", "Could not approve booking " + bookingId + ".\nError: " + (exc != null ? exc.getMessage() : "Unknown error")); disableCardButtons(cardNode, false); }); } // DEBUG
-                }; new Thread(approveTask).start();
+                Task<Boolean> approveTask = createTaskForBookingAction(
+                        () -> bookingService.approveBooking(bookingId),
+                        "Đã duyệt thành công yêu cầu ID: " + bookingId,
+                        "Duyệt Thất Bại",
+                        cardNode, true
+                );
+                new Thread(approveTask).start();
             } else {
-                System.out.println("[Action] User cancelled ACCEPT for Booking ID: " + bookingId); // DEBUG
                 disableCardButtons(cardNode, false);
             }
         });
     }
 
-    // handleReject (Thêm log chi tiết hơn)
-    private void handleReject(String bookingId, Node cardNode) {
-        System.out.println("[Action] handleReject triggered for Booking ID: " + bookingId); // DEBUG
+    private void handleReject(String bookingId, String reason, Node cardNode) {
         disableCardButtons(cardNode, true);
+
+        System.out.println("Sẽ từ chối booking ID: " + bookingId + (reason != null && !reason.isEmpty() ? " với lý do: '" + reason + "'" : " (không có lý do)."));
+
         Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmation.setTitle("Confirm Reject"); confirmation.setHeaderText("Reject Booking ID: " + bookingId); confirmation.setContentText("Are you sure you want to reject this request?");
-        confirmation.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
-                System.out.println("[Action] User confirmed REJECT for Booking ID: " + bookingId + ". Starting task..."); // DEBUG
-                Task<Void> rejectTask = new Task<>() {
-                    @Override protected Void call() throws Exception { System.out.println("  [Task] Calling bookingService.rejectBooking(" + bookingId + ")"); bookingService.rejectBooking(bookingId); System.out.println("  [Task] bookingService.rejectBooking(" + bookingId + ") completed."); return null; } // DEBUG
-                    @Override protected void succeeded() { System.out.println("  [Task] Reject Task Succeeded for Booking ID: " + bookingId); Platform.runLater(() -> { requestContainer.getChildren().remove(cardNode); if (requestContainer.getChildren().isEmpty()) requestContainer.getChildren().add(new Label("No pending approvals remaining.")); showInfo("Success", "Booking " + bookingId + " rejected."); }); } // DEBUG
-                    @Override protected void failed() { Throwable exc = getException(); System.err.println("  [Task] Reject Task Failed for Booking ID: " + bookingId); if(exc != null) exc.printStackTrace(); Platform.runLater(() -> { showError("Rejection Failed", "Could not reject booking " + bookingId + ".\nError: " + (exc != null ? exc.getMessage() : "Unknown error")); disableCardButtons(cardNode, false); }); } // DEBUG
-                }; new Thread(rejectTask).start();
+        confirmation.setTitle("Xác nhận Từ Chối");
+        confirmation.setHeaderText("Từ Chối Yêu Cầu ID: " + bookingId);
+        confirmation.setContentText("Bạn có chắc chắn muốn từ chối yêu cầu này?");
+        getAlertOwner().ifPresent(confirmation::initOwner);
+
+        confirmation.showAndWait().ifPresent(confirmResponse -> {
+            if (confirmResponse == ButtonType.OK) {
+                Task<Boolean> rejectTask = createTaskForBookingAction(
+                        // Nếu server của bạn đã cập nhật để nhận reason cho /reject:
+                        // () -> bookingService.rejectBookingWithReason(bookingId, reason),
+                        // Nếu server chưa cập nhật (chỉ nhận bookingId cho /reject):
+                        () -> bookingService.rejectBooking(bookingId,reason),
+                        "Đã từ chối thành công yêu cầu ID: " + bookingId,
+                        "Từ Chối Thất Bại",
+                        cardNode, true
+                );
+                new Thread(rejectTask).start();
             } else {
-                System.out.println("[Action] User cancelled REJECT for Booking ID: " + bookingId); // DEBUG
                 disableCardButtons(cardNode, false);
             }
         });
     }
+
+    private interface BookingAction { void execute() throws IOException; }
+
+    private Task<Boolean> createTaskForBookingAction(BookingAction action, String successMessage, String failureTitle, Node cardNode, boolean removeCardOnSuccess) {
+        return new Task<>() {
+            @Override protected Boolean call() throws Exception { action.execute(); return true; }
+            @Override protected void succeeded() {
+                Platform.runLater(() -> {
+                    if (removeCardOnSuccess) {
+                        requestContainer.getChildren().remove(cardNode);
+                        if (requestContainer.getChildren().isEmpty()) {
+                            requestContainer.getChildren().add(new Label("Không còn yêu cầu nào chờ duyệt."));
+                        }
+                    }
+                    showInfo("Thành công", successMessage);
+                    // Sau khi duyệt/từ chối, có thể tải lại để cập nhật số lượng/phân trang
+                    // loadPendingRequestsFromServer(); // Cân nhắc việc này
+                });
+            }
+            @Override protected void failed() {
+                Throwable exc = getException(); exc.printStackTrace();
+                Platform.runLater(() -> {
+                    showError(failureTitle, "Lỗi: " + exc.getMessage());
+                    disableCardButtons(cardNode, false);
+                });
+            }
+        };
+    }
+
     private void disableCardButtons(Node cardNode, boolean disable) {
-        Object userData = cardNode.getUserData();
-        // Try finding controller via UserData first (best practice)
-        if (userData instanceof ApprovalRequestCardController) {
-            ApprovalRequestCardController controller = (ApprovalRequestCardController) userData;
-            if(controller.getAcceptButton()!=null) controller.getAcceptButton().setDisable(disable);
-            if(controller.getRejectButton()!=null) controller.getRejectButton().setDisable(disable);
-            System.out.println("Disabled buttons via UserData controller for card.");
-        }
-        // Fallback to lookup if UserData is not set correctly
-        else if (cardNode instanceof Parent) {
-            System.out.println("Attempting button disable via lookup...");
-            Node acceptBtn = cardNode.lookup("#acceptButton"); // Use correct fx:id from card FXML
-            Node rejectBtn = cardNode.lookup("#rejectButton"); // Use correct fx:id from card FXML
-            if (acceptBtn instanceof Button) { acceptBtn.setDisable(disable); System.out.println("  -> Accept button found via lookup & disabled."); } else { System.err.println("  -> Accept button not found or not a Button via lookup.");}
-            if (rejectBtn instanceof Button) { rejectBtn.setDisable(disable); System.out.println("  -> Reject button found via lookup & disabled."); } else { System.err.println("  -> Reject button not found or not a Button via lookup.");}
+        if (cardNode == null) return;
+        Object controller = cardNode.getUserData();
+        if (controller instanceof ApprovalRequestCardController) {
+            ApprovalRequestCardController cardCtrl = (ApprovalRequestCardController) controller;
+            if(cardCtrl.getAcceptButton()!=null) cardCtrl.getAcceptButton().setDisable(disable);
+            if(cardCtrl.getRejectButton()!=null) cardCtrl.getRejectButton().setDisable(disable);
         } else {
-            System.err.println("Warning: Cannot disable buttons. Card node is not Parent or missing Controller in UserData.");
+            System.err.println("Không thể disable nút: Controller không tìm thấy trong UserData của card. Thử lookup...");
+            // Fallback nếu UserData không được set đúng cách
+            Node acceptBtnNode = cardNode.lookup("#btnApprove");
+            Node rejectBtnNode = cardNode.lookup("#btnReject");
+            if (acceptBtnNode instanceof Button) ((Button) acceptBtnNode).setDisable(disable); else System.err.println("btnApprove not found by lookup");
+            if (rejectBtnNode instanceof Button) ((Button) rejectBtnNode).setDisable(disable); else System.err.println("btnReject not found by lookup");
         }
     }
 
-    private void showInfo(String title, String message) { Alert alert = new Alert(Alert.AlertType.INFORMATION); alert.setTitle(title); alert.setHeaderText(null); alert.setContentText(message); alert.showAndWait(); }
-    private void showError(String title, String message) { Alert alert = new Alert(Alert.AlertType.ERROR); alert.setTitle(title); alert.setHeaderText(null); alert.setContentText(message); alert.showAndWait(); }
+    private Optional<Window> getAlertOwner() {
+        if (requestContainer != null && requestContainer.getScene() != null && requestContainer.getScene().getWindow() != null) {
+            return Optional.of(requestContainer.getScene().getWindow());
+        }
+        return Optional.empty();
+    }
 
+    private void showInfo(String title, String message) { showAlert(Alert.AlertType.INFORMATION, title, message); }
+    private void showError(String title, String message) { showAlert(Alert.AlertType.ERROR, title, message); }
+
+    private void showAlert(Alert.AlertType alertType, String title, String message) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        getAlertOwner().ifPresent(alert::initOwner);
+        alert.showAndWait();
+    }
 }

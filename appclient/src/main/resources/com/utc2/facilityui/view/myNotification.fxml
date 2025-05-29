@@ -7,7 +7,7 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.paint.LinearGradient?>
 <?import javafx.scene.paint.Stop?>
@@ -23,22 +23,25 @@
                 <HBox alignment="CENTER_LEFT" prefHeight="45.0" spacing="10.0">
                     <children>
                         <Label fx:id="unreadCountLabel" style="-fx-font-size: 1em; -fx-text-fill: #d32f2f; -fx-font-weight: bold;" />
-                        <Pane HBox.hgrow="ALWAYS">
-                     <children>
-                              <Label fx:id="mainTitleLabel" alignment="CENTER" layoutX="340.0" layoutY="3.0" style="-fx-font-weight: bold;" text="Thông báo">
-                                  <font>
-                                      <Font name="System Bold" size="28.0" />
-                                  </font>
-                                  <textFill>
-                                      <LinearGradient endX="1.0" endY="1.0">
-                                          <stops>
-                                              <Stop color="#1976d2" offset="0.0" />
-                                              <Stop color="#00bcd4" offset="1.0" />
-                                          </stops>
-                                      </LinearGradient>
-                                  </textFill>
-                              </Label>
-                     </children></Pane> <Button fx:id="reloadButton" onAction="#handleReloadNotifications" style="-fx-background-color: #2196F3; -fx-text-fill: white;" text="Tải lại" />
+
+                        <StackPane HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label fx:id="mainTitleLabel" alignment="CENTER" style="-fx-font-weight: bold;" text="Thông báo" translateX="40.0"> <font>
+                                    <Font name="System Bold" size="30.0" />
+                                </font>
+                                    <textFill>
+                                        <LinearGradient endX="1.0" endY="1.0">
+                                            <stops>
+                                                <Stop color="#1976d2" offset="0.0" />
+                                                <Stop color="#00bcd4" offset="1.0" />
+                                            </stops>
+                                        </LinearGradient>
+                                    </textFill>
+                                </Label>
+                            </children>
+                        </StackPane>
+
+                        <Button fx:id="reloadButton" onAction="#handleReloadNotifications" style="-fx-background-color: #2196F3; -fx-text-fill: white;" text="Tải lại" />
                         <Button fx:id="markAllAsReadButton" onAction="#handleMarkAllAsRead" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" text="Đánh dấu tất cả đã đọc" />
                     </children>
                 </HBox>

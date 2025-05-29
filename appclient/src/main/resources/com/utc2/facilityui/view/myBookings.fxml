@@ -21,15 +21,15 @@
          <children>
             <HBox alignment="CENTER" prefHeight="49.0">
                <children>
-                  <Label alignment="CENTER" prefHeight="45.0" text="My Bookings">
+                  <Label alignment="CENTER" prefHeight="61.0" prefWidth="332.0" text="Lịch sử Đặt chỗ của tôi">
                      <font>
                         <Font name="Arial Bold" size="30.0" />
                      </font>
                      <textFill>
                         <LinearGradient endX="1.0" endY="1.0">
                            <stops>
-                              <Stop offset="0.0" color="#1976d2" />
-                              <Stop offset="1.0" color="#00bcd4" />
+                              <Stop color="#1976d2" offset="0.0" />
+                              <Stop color="#00bcd4" offset="1.0" />
                            </stops>
                         </LinearGradient>
                      </textFill>
@@ -38,7 +38,7 @@
             </HBox>
 
             <Label fx:id="statusLabel" text="" />
-            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+            <ScrollPane fitToWidth="true" prefHeight="422.0" prefWidth="830.0" VBox.vgrow="ALWAYS">
                <content>
                   <VBox fx:id="cardsContainerVBox" spacing="15.0">
                      <padding>
@@ -54,10 +54,10 @@
                </padding>
                <children>
                   <Label text="Số dòng/trang:" />
-                  <ComboBox fx:id="myRowsPerPageComboBox" prefWidth="70.0" onAction="#handleMyRowsPerPageChange" />
-                  <Button fx:id="myPreviousButton" mnemonicParsing="false" text="Trước" onAction="#handleMyPreviousPage" />
+                  <ComboBox fx:id="myRowsPerPageComboBox" onAction="#handleMyRowsPerPageChange" prefWidth="70.0" />
+                  <Button fx:id="myPreviousButton" mnemonicParsing="false" onAction="#handleMyPreviousPage" text="Trước" />
                   <Label fx:id="myPageInfoLabel" text="Trang X / Y (Z mục)" />
-                  <Button fx:id="myNextButton" mnemonicParsing="false" text="Sau" onAction="#handleMyNextPage" />
+                  <Button fx:id="myNextButton" mnemonicParsing="false" onAction="#handleMyNextPage" text="Sau" />
                </children>
             </HBox>
          </children>

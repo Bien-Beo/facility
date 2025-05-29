@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
@@ -14,12 +17,11 @@
 <?import javafx.scene.paint.Stop?>
 <?import javafx.scene.text.Font?>
 
-<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="818.0" prefWidth="1270.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.FacilityController">
+<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="898.0" prefWidth="1288.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.FacilityController">
     <children>
-        <VBox prefHeight="618.0" prefWidth="1200.0" spacing="10.0">
+        <VBox prefHeight="877.0" prefWidth="1258.0" spacing="10.0" HBox.hgrow="ALWAYS">
             <children>
-                <!-- Title with improved style -->
-                <Label fx:id="titleLabel" maxHeight="93.0" prefHeight="50.0" prefWidth="353.0" text="Quản lý cơ sở vật chất">
+                <Label fx:id="titleLabel" maxHeight="93.0" prefHeight="51.0" prefWidth="1202.0" text="Quản lý cơ sở vật chất">
                     <font>
                         <Font name="Arial Bold" size="30.0" />
                     </font>
@@ -36,17 +38,15 @@
                     </padding>
                 </Label>
 
-                <!-- Button row with hover effects and nice color scheme -->
-                <HBox prefHeight="55.0" prefWidth="764.0" spacing="10.0">
+                <HBox prefHeight="43.0" prefWidth="1258.0" spacing="10.0">
                     <children>
                         <Button fx:id="btnAddFacility" mnemonicParsing="false" onAction="#handleAddFacility" prefHeight="40.0" prefWidth="160.0" style="-fx-background-color: #1976d2; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5px; -fx-effect: dropshadow( three-pass-box, rgba(0, 0, 0, 0.2), 5, 0.0, 0, 1 );">
                             <graphic>
-                                <HBox alignment="CENTER">
+                                <HBox alignment="CENTER" styleClass="shadow" stylesheets="@../styles/mainUI.css">
                                     <Label style="-fx-text-fill: white; -fx-font-size: 13px;" text="Thêm phòng" />
                                     <ImageView fitHeight="16.0" fitWidth="16.0">
                                         <image>
-                                            <Image url="@../images/calendar.png" />
-                                        </image>
+                                            <Image url="@../images/calendar.png" /> </image>
                                         <HBox.margin>
                                             <Insets left="8.0" />
                                         </HBox.margin>
@@ -54,48 +54,71 @@
                                 </HBox>
                             </graphic>
                         </Button>
-                        <Pane prefHeight="55.0" prefWidth="850.0" />
-                        <Button fx:id="btnExport"  onAction="#handleExportToPdf" mnemonicParsing="false" prefHeight="40.0" prefWidth="110.0" style="-fx-background-color: #1976d2; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5px; -fx-effect: dropshadow( three-pass-box, rgba(0, 0, 0, 0.2), 5, 0.0, 0, 1 );">
-                            <graphic>
-                                <HBox alignment="CENTER">
-                                    <Label style="-fx-text-fill: white; -fx-font-size: 13px;" text="Xuất file" />
-                                    <ImageView fitHeight="16.0" fitWidth="16.0">
-                                        <image>
-                                            <Image url="@../images/download.png" />
-                                        </image>
-                                        <HBox.margin>
-                                            <Insets left="8.0" />
-                                        </HBox.margin>
-                                    </ImageView>
-                                </HBox>
-                            </graphic>
-                        </Button>
+                  <Pane prefHeight="43.0" prefWidth="935.0" /> <Button fx:id="btnExport" mnemonicParsing="false" onAction="#handleExportToPdf" prefHeight="40.0" prefWidth="110.0" style="-fx-background-color: #1976d2; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5px; -fx-effect: dropshadow( three-pass-box, rgba(0, 0, 0, 0.2), 5, 0.0, 0, 1 );" styleClass="shadow" translateX="-70.0">
+                        <graphic>
+                            <HBox alignment="CENTER">
+                                <Label style="-fx-text-fill: white; -fx-font-size: 13px;" text="Xuất file" />
+                                <ImageView fitHeight="16.0" fitWidth="16.0">
+                                    <image>
+                                        <Image url="@../images/download.png" /> </image>
+                                    <HBox.margin>
+                                        <Insets left="8.0" />
+                                    </HBox.margin>
+                                </ImageView>
+                            </HBox>
+                        </graphic>
+                     <stylesheets>
+                        <URL value="@../styles/menuAdmin.css" />
+                        <URL value="@../styles/mainUI.css" />
+                     </stylesheets>
+                    </Button>
                     </children>
                     <padding>
-                        <Insets left="15.0" />
-                    </padding>
+                        <Insets left="15.0" right="15.0" /> </padding>
                 </HBox>
+            <HBox fx:id="filterBarHBox" alignment="CENTER_LEFT" prefHeight="55.0" prefWidth="1257.0" spacing="10.0">
+               <children>
+                  <ComboBox fx:id="filterBuildingComboBox" prefHeight="40.0" prefWidth="181.0" promptText="Lọc theo tòa nhà" style="-fx-background-color: #ffffff; -fx-padding: 8px;" stylesheets="@../styles/mainUI.css" />
+                  <ComboBox fx:id="filterRoomTypeComboBox" prefHeight="40.0" prefWidth="178.0" promptText="Lọc theo loại phòng" style="-fx-background-color: #ffffff; -fx-padding: 8px;" stylesheets="@../styles/mainUI.css" />
+                  <Label text="Năm xây dựng:" />
+                  <TextField fx:id="filterYearTextField" prefHeight="40.0" prefWidth="100.0" promptText="VD: 2025" />
+                  <ComboBox fx:id="filterManagerComboBox" prefHeight="40.0" prefWidth="180.0" promptText="Lọc theo người quản lý" style="-fx-background-color: #ffffff; -fx-padding: 8px;" stylesheets="@../styles/mainUI.css" />
+                  <Button fx:id="btnResetFilters" onAction="#handleResetFilters" prefHeight="40.0" prefWidth="74.0" style="-fx-background-color: #ffc107; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5px;" styleClass="shadow" stylesheets="@../styles/mainUI.css" text="RESET" />
+               </children>
+               <padding>
+                  <Insets left="15.0" right="15.0" />
+               </padding>
+            </HBox>
 
-                <!-- TableView with rounded corners and better style -->
-                <TableView fx:id="facilityTable" maxWidth="1200.0" prefHeight="670.0" prefWidth="1200.0" stylesheets="@../styles/manageFacility.css">
+                <TableView fx:id="facilityTable" maxWidth="1.7976931348623157E308" prefHeight="638.0" prefWidth="1234.0" stylesheets="@../styles/manageFacility.css" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="nameColumn" prefWidth="200.79998797178268" text="Tên/Tòa nhà" />
-                        <TableColumn fx:id="descriptionColumn" prefWidth="120.99996948242188" text="Mô tả" />
-                        <TableColumn fx:id="statusColumn" prefWidth="100.79998779296875" text="Trạng thái" />
-                        <TableColumn fx:id="createdAtColumn" prefWidth="150.39996337890625" text="Ngày tạo" />
-                        <TableColumn fx:id="updatedAtColumn" minWidth="0.0" prefWidth="150.39996337890625" text="Ngày cập nhật" />
-                        <TableColumn fx:id="deletedAtColumn" minWidth="0.0" prefWidth="130.0" text="Ngày xóa" />
-                        <TableColumn fx:id="managerColumn" prefWidth="170.99993896484375" text="Quản lý" />
-                        <TableColumn fx:id="operationsColumn" prefWidth="161.5999755859375" text="Hoạt động" />
+                        <TableColumn fx:id="nameColumn" prefWidth="200.0" text="Tên/Tòa nhà" />
+                        <TableColumn fx:id="descriptionColumn" prefWidth="163.5" text="Mô tả" />
+                        <TableColumn fx:id="statusColumn" prefWidth="145.0" text="Trạng thái" />
+                        <TableColumn fx:id="createdAtColumn" prefWidth="175.0" text="Ngày tạo" />
+                        <TableColumn fx:id="updatedAtColumn" prefWidth="157.0" text="Ngày cập nhật" />
+                        <TableColumn fx:id="managerColumn" prefWidth="208.0" text="Quản lý" />
+                        <TableColumn fx:id="operationsColumn" prefWidth="184.5" text="Hoạt động" />
                     </columns>
                     <VBox.margin>
-                        <Insets left="12.0" />
-                    </VBox.margin>
+                        <Insets left="12.0" right="12.0" /> </VBox.margin>
                 </TableView>
+
+                <HBox alignment="CENTER" prefHeight="16.0" prefWidth="1246.0" spacing="10.0">
+                    <children>
+                        <Pane HBox.hgrow="ALWAYS" />
+                        <Label text="Số dòng/trang:" translateX="-65.0" translateY="-10.0" />
+                        <ComboBox fx:id="rowsPerPageComboBox" prefWidth="70.0" translateX="-70.0" translateY="-10.0" /> <Button fx:id="prevPageButton" onAction="#handlePrevPage" text="&lt; Trước" translateX="-70.0" translateY="-10.0" />
+                        <Label fx:id="pageInfoLabel" alignment="CENTER" minWidth="80.0" text="Trang 1 / 1" translateX="-70.0" translateY="-10.0" />
+                        <Button fx:id="nextPageButton" onAction="#handleNextPage" text="Sau &gt;" translateX="-70.0" translateY="-10.0" />
+                    </children>
+                    <padding>
+                        <Insets bottom="10.0" left="15.0" right="15.0" top="5.0" />
+                    </padding>
+                </HBox>
             </children>
         </VBox>
     </children>
     <padding>
-        <Insets left="15.0" />
-    </padding>
+        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" /> </padding>
 </HBox>

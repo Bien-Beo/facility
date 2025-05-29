@@ -9,12 +9,12 @@
 <?import javafx.scene.paint.Stop?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="TOP_CENTER" prefHeight="400.0" prefWidth="600.0" spacing="15.0" stylesheets="/com/utc2/facilityui/styles/approvalcards.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.ApprovalRequestController">
+<VBox alignment="TOP_CENTER" prefHeight="400.0" prefWidth="600.0" spacing="15.0" stylesheets="/com/utc2/facilityui/styles/approvalcards.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.OverdueRequestsController">
    <padding>
       <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
    </padding>
    <children>
-      <Label fx:id="mainTitleLabel" text="Yêu cầu Chờ duyệt">
+      <Label fx:id="mainTitleLabel" text="Yêu cầu Quá hạn">
          <font>
             <Font name="Arial Bold" size="24.0" />
          </font>

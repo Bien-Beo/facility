@@ -68,16 +68,41 @@
 .card-Rejectbooking{
 
     -fx-border-color: #880000;
-    -fx-border-width: 0px 0px 0px 10px;
+    -fx-border-width: 0px 0px 0px 5px;
     -fx-background-radius: 10px;
 }
-
+.bnt-save{
+    -fx-cursor: hand;
+    -fx-background-color: #f3d42b;
+    -fx-text-fill: black;
+    -fx-border-radius: 2px;
+}
+.bnt-save:hover{
+    -fx-cursor: hand;
+    -fx-background-color: #c5a514;
+    -fx-text-fill: black;
+    -fx-border-radius: 2px;
+}
+.bnt-cancel{
+    -fx-text-fill: black;
+    -fx-border-radius: 2px;
+    -fx-background-color: white;
+    -fx-cursor: hand;
+    -fx-border-width: 1px;
+    -fx-border-color: gray;
+}
+.bnt-cancel:hover {
+    -fx-text-fill: black;
+    -fx-border-radius: 2px;
+    -fx-background-color: #d3d3d3;
+    -fx-cursor: hand;
+}
 .card-Rejectbooking1{
     -fx-background-color: #fae0e0;
 }
 .card-CompleteBooking{
     -fx-border-color: #a8a8a8;
-    -fx-border-width: 0px 0px 0px 10px;
+    -fx-border-width: 0px 0px 0px 5px;
     -fx-background-radius: 10px;
 }
 .card-CompleteBooking1{
@@ -92,13 +117,13 @@
 
     /* Viền xanh lá cây bên trái */
     -fx-border-color: transparent transparent transparent #2e7d32; /* Chỉ vẽ viền trái, thay mã màu nếu cần */
-    -fx-border-width: 0 0 0 10px;
+    -fx-border-width: 0 0 0 5px;
     -fx-border-style: solid;
 }
 .card-Acceptbooking.card-overdue-style {
     -fx-background-color: #FFF3E0; /* Màu trắng cam nhẹ (ví dụ: Light Orange - Material Design) */
     -fx-border-color: transparent transparent transparent #dd4c00;    /* Màu cam đậm cho viền (ví dụ: Orange 900 - Material Design) */
-    -fx-border-width: 0 0 0 10px;
+    -fx-border-width: 0 0 0 5px;
     -fx-border-style: solid;
 }
 .border-bottom{
