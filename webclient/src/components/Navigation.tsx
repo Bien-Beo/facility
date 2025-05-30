@@ -11,8 +11,8 @@ import {
 } from "@mui/material";
 import ConstructionIcon from '@mui/icons-material/Construction';
 import NotificationImportantIcon from '@mui/icons-material/NotificationImportant';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import BookmarksIcon from "@mui/icons-material/Bookmarks";
-import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
 import LogoutIcon from "@mui/icons-material/Logout";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -141,6 +141,7 @@ const Navigation: FC = (): JSX.Element => {
               )}
             </NavLink>
             <Divider color="#0c0051" />
+
             <NavLink to="/admin/bookings">
               {({ isActive }) => (
                 <ListItemButton
@@ -166,6 +167,37 @@ const Navigation: FC = (): JSX.Element => {
                       component: "li",
                     }}
                     primary="Quản lý đặt phòng"
+                  />
+                </ListItemButton>
+              )}
+            </NavLink>
+            <Divider color="#0c0051" />
+
+            <NavLink to="/admin/accounts">
+              {({ isActive }) => (
+                <ListItemButton
+                  className="flex gap-3"
+                  sx={{
+                    paddingLeft: "1.4em",
+                    paddingBlock: "1.4em",
+                    borderLeft: isActive ? "4px solid white" : "",
+                    color: "white",
+                    backgroundColor: isActive
+                      ? " rgb(255, 255, 255, 0.02)"
+                      : "",
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: "0px" }}>
+                    <ManageAccountsIcon
+                      sx={{ width: "26px", height: "26px", color: "white" }}
+                    />
+                  </ListItemIcon>
+                  <ListItemText
+                    primaryTypographyProps={{
+                      variant: "body1",
+                      component: "li",
+                    }}
+                    primary="Quản lý tài khoản"
                   />
                 </ListItemButton>
               )}

@@ -69,7 +69,14 @@ type UserData = {
   email: string;
   avatar: string | null;
   roleName: UserRoleType; // Tên vai trò
+  createdAt: string; // ISO DateTime string
+  updatedAt: string | null; // ISO DateTime string
 };
+
+type RoleData = {
+  name: UserRoleType; // Tên vai trò
+  description: string | null; // Mô tả vai trò
+}
 
 type BuildingData = {
   id: string;
@@ -163,21 +170,19 @@ type PaginatedBookingApiResponse = ApiResponse<PaginatedResult<BookingEntry>>;
 
 type PaginatedNotificationApiResponse = ApiResponse<PaginatedResult<Notification>>;
 
-/**
- * Kiểu dữ liệu cho API trả về danh sách Room có phân trang (dùng cho AdminFacilitiesTable)
- */
+
+// Kiểu dữ liệu cho API trả về danh sách Room có phân trang (dùng cho AdminFacilitiesTable)
 type PaginatedRoomApiResponse = ApiResponse<PaginatedResult<RoomData>>;
 
 type PaginatedUserApiResponse = ApiResponse<PaginatedResult<UserData>>;
 
 type PaginatedMaintenanceTicketApiResponse = ApiResponse<PaginatedResult<MaintenanceTicketData>>;
 
-/**
- * Kiểu dữ liệu cho API trả về chi tiết một Room
- */
+
+// Kiểu dữ liệu cho API trả về chi tiết một Room
 type RoomDetailApiResponse = ApiResponse<RoomData>; // Result là một RoomData object
 
-//Kiểu dữ liệu cho API trả về chi tiết User 
+// Kiểu dữ liệu cho API trả về chi tiết User 
 type UserDetailApiResponse = ApiResponse<UserData>;
 
 type CreatedBookingEquipmentInfo = {
@@ -269,6 +274,15 @@ interface RecallBookingRequest {
   reason: string;
 }
 
+// --- User ---
+type UserCreationRequest = {
+  userId: string; // Mã nghiệp vụ (NV/SV)
+  username: string;
+  fullName?: string | null;
+  email: string;
+  roleName: UserRoleType; // Dùng Union Type
+};
+
 // --- Room ---
 type RoomCreationRequest = {
   name: string;
@@ -292,6 +306,16 @@ type RoomUpdateRequest = {
   status?: RoomStatusType; // Chỉ AVAILABLE/UNDER_MAINTENANCE
   img?: string | null;
   note?: string | null;
+};
+
+// --- User Update ---
+type UserUpdateRequest = {
+  userId?: string; // Mã nghiệp vụ (NV/SV)
+  username?: string;
+  fullName?: string | null;
+  email?: string;
+  roleName?: UserRoleType; // Dùng Union Type
+  avatar?: string | null; // URL ảnh đại diện
 };
 
 // --- Equipment Item ---
@@ -440,6 +464,20 @@ interface AdminRoomsRowData {
   actions?: JSX.Element;
 }
 
+// Kiểu dữ liệu cho một dòng trong bảng Admin Users
+interface AdminUsersRowData {
+  id: string; // Thêm id để làm key
+  userId: string;
+  username: string;
+  fullName: string | null;
+  email: string;
+  avatar: string | null;
+  roleName: UserRoleType; // Dùng Union Type
+  createdAt: JSX.Element | string;
+  updatedAt: JSX.Element | string;
+  actions?: JSX.Element;
+}
+
 interface EquipmentsRowData {
   id: string;
   modelName: string | JSX.Element;
@@ -458,6 +496,13 @@ interface EquipmentsRowData {
 // Kiểu dữ liệu định nghĩa cột cho bảng Admin Room
 interface AdminRoomsColumnData {
   id: keyof AdminRoomsRowData | 'actions'; // Key của row data hoặc 'actions'
+  label: string;
+  minWidth?: number;
+  align?: 'left' | 'right' | 'center'; // Thêm align nếu cần
+}
+
+interface AdminUsersColumnData {
+  id: keyof AdminUsersRowData | 'actions'; // Key của row data hoặc 'actions'
   label: string;
   minWidth?: number;
   align?: 'left' | 'right' | 'center'; // Thêm align nếu cần
@@ -483,6 +528,15 @@ interface AdminRoomsTableProps {
   facilityManagers: UserData[];
 }
 
+interface AdminUsersTableProps {
+  users: UserData[]; // Mảng UserData cho trang hiện tại
+  totalUserCount: number; // Tổng số lượng user
+  page: number; // Index trang hiện tại (0-based)
+  rowsPerPage: number; // Số dòng/trang
+  onPageChange: (event: unknown, newPage: number) => void;
+  onRowsPerPageChange: (event: ChangeEvent<HTMLInputElement>) => void;
+}
+
 interface EquipmentsTableProps {
   equipments: EquipmentItemData[]; 
   totalEquipmentCount: number; 
@@ -501,6 +555,13 @@ interface AddFacilityModalProps {
   roomTypes: RoomTypeData[];
   facilityManagers: UserData[];
   onSuccessCallback?: () => void;
+}
+
+interface AddAccountModalProps {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+  setOpenSnackbar: (isOpen: boolean) => void;
+  onSuccessCallback?: () => void; // Callback khi thêm thành công
 }
 
 interface AddEquipmentModalProps {
@@ -533,6 +594,14 @@ interface EditFacilityModalProps {
   onSuccessCallback?: () => void;
 }
 
+interface EditUserModalProps {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+  setOpenSnackbar: (isOpen: boolean) => void;
+  userData: UserData; // Dữ liệu người dùng cần sửa
+  onSuccessCallback?: () => void; // Callback khi sửa thành công
+}
+
 interface EditEquipmentModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
@@ -547,6 +616,14 @@ interface DeleteFacilityModalProps {
   setIsOpen: (isOpen: boolean) => void; // Hoặc onClose(): void;
   setOpenSnackbar: (isOpen: boolean) => void; // Hoặc onSuccess(): void;
   facilityData: Pick<RoomData, 'id' | 'name'> | null; // Dùng Pick và cho phép null
+  onSuccessCallback?: () => void; // Optional callback khi xóa thành công
+}
+
+interface DeleteUserModalProps {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void; // Hoặc onClose(): void;
+  setOpenSnackbar: (isOpen: boolean) => void; // Hoặc onSuccess(): void;
+  userData: Pick<UserData, 'userId' | 'username'> | null; // Dùng Pick và cho phép null
   onSuccessCallback?: () => void; // Optional callback khi xóa thành công
 }
 

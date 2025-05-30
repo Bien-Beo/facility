@@ -14,7 +14,8 @@ import { RequireAuth } from "./components/RequireAuth";
 import RouteError from "./components/RouteError";
 import HomePage from "./pages/HomePage";
 import AdminBookingsPage from "./pages/AdminBookingsPage";
-import AdminFacilitiesPage from "./pages/ManagementRoomsPage";
+import ManagementRoomsPage from "./pages/ManagementRoomsPage";
+import ManagementAccountsPage from "./pages/ManagementAccountsPage";
 import TechnicianMaintenancePage from "./pages/TechnicianMaintenancePage";
 import ManagementEquipmentsPage from "./pages/ManagementEquipmentsPage";
 import ApprovalsPage from "./pages/ApprovalsPage";
@@ -155,7 +156,7 @@ const router = createBrowserRouter(
               errorElement={<RouteError />} />
         </Route>
 
-         {/* Trang Quản lý của Admin */}
+        {/* Trang Quản lý của Admin */}
         <Route path="admin">
           <Route
             path="bookings"
@@ -165,14 +166,25 @@ const router = createBrowserRouter(
               </RequireAuth>
             }
             errorElement={<RouteError />}
-          />
+        />
 
           {/* Trang Quản lý Phòng/Thiết bị của Admin */}
           <Route
             path="rooms"
             element={
               <RequireAuth allowedRoles={["ADMIN"]}>
-                <AdminFacilitiesPage />
+                <ManagementRoomsPage />
+              </RequireAuth>
+            }
+            errorElement={<RouteError />}
+          />
+
+          {/* Trang Quản lý Account của Admin */}
+          <Route
+            path="accounts"
+            element={
+              <RequireAuth allowedRoles={["ADMIN"]}>
+                <ManagementAccountsPage />
               </RequireAuth>
             }
             errorElement={<RouteError />}
@@ -196,7 +208,7 @@ const router = createBrowserRouter(
             path="rooms"
             element={
               <RequireAuth allowedRoles={["ADMIN"]}>
-                <AdminFacilitiesPage />
+                <ManagementRoomsPage />
               </RequireAuth>
             }
             errorElement={<RouteError />}

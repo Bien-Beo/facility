@@ -45,7 +45,7 @@ public class UserService {
     public UserResponse createUser(UserCreationRequest request) {
         // 1. Kiểm tra trùng lặp các trường unique
         if (userRepository.existsByUserId(request.getUserId())) {
-            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+            throw new AppException(ErrorCode.USER_EXISTED);
         }
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new AppException(ErrorCode.EMAIL_EXISTED);
@@ -59,7 +59,7 @@ public class UserService {
         user.setRole(userRole);
 
         // 4. Mã hóa mật khẩu
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setPassword(passwordEncoder.encode(request.getUserId()));
 
         // 5. Lưu user
         User savedUser = userRepository.save(user);
@@ -84,6 +84,14 @@ public class UserService {
     public UserResponse updateUser(String userId, UserUpdateRequest request) {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        if (request.getRoleName() != null) {
+            Role role = roleRepository.findByName(com.utc2.facility.enums.Role.valueOf(request.getRoleName()));
+            if (role == null) {
+                throw new AppException(ErrorCode.ROLE_NOT_EXISTED);
+            }
+            user.setRole(role);
+        }
 
         userMapper.updateUser(user, request);
 
