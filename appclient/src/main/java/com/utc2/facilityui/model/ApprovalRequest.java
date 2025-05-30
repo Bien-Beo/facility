@@ -1,102 +1,48 @@
 package com.utc2.facilityui.model;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class ApprovalRequest {
     private String bookingId;
     private String facilityName;
     private String purpose;
-    private LocalDateTime date;
-    private String timeRange;
+    private String formattedDate;        // Ví dụ: "Thứ Tư, 07/05/2025"
+    private String timeRange;            // Ví dụ: "07:00 - 11:30"
     private String requestedBy;
-    private LocalDateTime requestedAt;
-    public ApprovalRequest( String bookingId, String facilityName, String purpose, LocalDateTime date, String timeRange, String requestedBy, LocalDateTime requestedAt) {
+    private String formattedRequestedAt; // Ví dụ: "12:00, Thứ Ba 06/05/2025"
+    private String statusDisplay;        // Ví dụ: "Chờ duyệt"
+    private String statusKey;            // Ví dụ: "PENDING_APPROVAL"
+
+    private LocalDateTime plannedStartTimeOriginal;
+    private LocalDateTime requestedAtOriginal;
+
+    public ApprovalRequest(String bookingId, String facilityName, String purpose,
+                           String formattedDate, String timeRange, String requestedBy,
+                           String formattedRequestedAt, String statusDisplay, String statusKey,
+                           LocalDateTime plannedStartTimeOriginal, LocalDateTime requestedAtOriginal) {
         this.bookingId = bookingId;
         this.facilityName = facilityName;
         this.purpose = purpose;
-        this.date = date;
+        this.formattedDate = formattedDate;
         this.timeRange = timeRange;
         this.requestedBy = requestedBy;
-        this.requestedAt = requestedAt;
-
-    }
-    public String getBookingId() {
-        return bookingId;
-    }
-
-    public String getFacilityName() {
-        return facilityName;
+        this.formattedRequestedAt = formattedRequestedAt;
+        this.statusDisplay = statusDisplay;
+        this.statusKey = statusKey;
+        this.plannedStartTimeOriginal = plannedStartTimeOriginal;
+        this.requestedAtOriginal = requestedAtOriginal;
     }
 
-    public void setFacilityName(String facilityName) {
-        this.facilityName = facilityName;
-    }
-
-    public String getPurpose() {
-        return purpose;
-    }
-
-    public void setPurpose(String purpose) {
-        this.purpose = purpose;
-    }
-
-    public LocalDateTime getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDateTime date) {
-        this.date = date;
-    }
-
-    public String getTimeRange() {
-        return timeRange;
-    }
-
-    public void setTimeRange(String timeRange) {
-        this.timeRange = timeRange;
-    }
-
-    public String getRequestedBy() {
-        return requestedBy;
-    }
-
-    public void setRequestedBy(String requestedBy) {
-        this.requestedBy = requestedBy;
-    }
-
-    public LocalDateTime getRequestedAt() {
-        return requestedAt;
-    }
-
-    public void setRequestedAt(LocalDateTime requestedAt) {
-        this.requestedAt = requestedAt;
-    }
-
-    public String getFormattedDate() {
-        if (date != null) {
-            return date.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"));
-        }
-        return "";
-    }
-
-    public String getFormattedRequestedAt() {
-        if (requestedAt != null) {
-            return requestedAt.format(DateTimeFormatter.ofPattern("MMM dd, yyyy hh:mm a"));
-        }
-        return "";
-    }
-
-    @Override
-    public String toString() {
-        return "ApprovalRequest{" +
-                "bookingId='" + bookingId + '\'' +
-                ", facilityName='" + facilityName + '\'' +
-                ", purpose='" + purpose + '\'' +
-                ", date=" + date +
-                ", timeRange='" + timeRange + '\'' +
-                ", requestedBy='" + requestedBy + '\'' +
-                ", requestedAt=" + requestedAt +
-                '}';
-    }
+    // Getters
+    public String getBookingId() { return bookingId; }
+    public String getFacilityName() { return facilityName; }
+    public String getPurpose() { return purpose; }
+    public String getFormattedDate() { return formattedDate; }
+    public String getTimeRange() { return timeRange; }
+    public String getRequestedBy() { return requestedBy; }
+    public String getFormattedRequestedAt() { return formattedRequestedAt; }
+    public String getStatusDisplay() { return statusDisplay; }
+    public String getStatusKey() { return statusKey; }
+    public LocalDateTime getPlannedStartTimeOriginal() { return plannedStartTimeOriginal; }
+    public LocalDateTime getRequestedAtOriginal() { return requestedAtOriginal; }
 }

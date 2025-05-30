@@ -1,122 +1,237 @@
 package com.utc2.facilityui.controller.booking;
 
+import com.utc2.facilityui.model.CancelBookingRequestData;
 import com.utc2.facilityui.model.CardBooking;
-// import com.utc2.facilityui.service.BookingService; // Import nếu cần gọi service khi hủy
+import com.utc2.facilityui.service.BookingService;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
+
+import java.io.IOException;
+import java.util.Optional;
 
 public class CardBookingController {
 
-    // --- Khai báo @FXML khớp với CardBooking.fxml ---
-    @FXML private Label nameBooking;        // Label hiển thị tên phòng/booking
-    @FXML private Text purposeBooking;      // Text hiển thị mục đích
-    @FXML private Text plannedStartTime;    // Text hiển thị thời gian bắt đầu
-    @FXML private Text plannedEndTime;      // Text hiển thị thời gian kết thúc
-    @FXML private Text requestBooking;      // Text hiển thị thời gian yêu cầu
-    @FXML private Text statusBooking;       // Text hiển thị trạng thái
-    @FXML private Button btnCancel;         // Button hủy
+    @FXML
+    private Button btnCancel;
 
-    // Có thể thêm các @FXML khác nếu cần hiển thị thêm thông tin từ FXML
-    // Ví dụ: @FXML private Label approvedByLabel;
-    //        @FXML private Text approvedByText;
+    @FXML
+    private TextArea cancellationReason; // Ô nhập lý do hủy
 
-    private CardBooking booking; // Model chứa dữ liệu cho card này
-    // private BookingService bookingService; // Khởi tạo nếu cần gọi khi hủy
+    @FXML
+    private HBox equipmentContainer;
+
+    @FXML
+    private Text equipmentsListText;
+
+    @FXML
+    private Label equipmentsStaticLabel;
+
+    @FXML
+    private Label nameBookingLabel;
+
+    @FXML
+    private Text purposeBookingText;
+
+    @FXML
+    private HBox purposeContainer;
+
+    @FXML
+    private Text requestBookingText;
+
+    @FXML
+    private Text statusBookingText;
+
+    @FXML
+    private Text timeRangeText;
+
+    @FXML
+    private HBox userContainer;
+
+    @FXML
+    private HBox userContainer1;
+
+    @FXML
+    private Text userNameText;
+
+    private CardBooking booking;
+    private BookingService bookingService;
+    private MyBookingsController myBookingsController; // Tham chiếu đến MyBookingsController
+
+    // Phương thức để MyBookingsController truyền instance của nó vào
+    public void setMyBookingsController(MyBookingsController myBookingsController) {
+        this.myBookingsController = myBookingsController;
+    }
 
     public void setBooking(CardBooking booking) {
         this.booking = booking;
-        // this.bookingService = new BookingService(); // Khởi tạo service nếu cần
+        if (this.bookingService == null) { // Khởi tạo BookingService nếu chưa có
+            this.bookingService = new BookingService();
+        }
         updateCard();
     }
 
-    /**
-     * Cập nhật các thành phần UI trên card với dữ liệu từ model `booking`.
-     */
     private void updateCard() {
         if (booking != null) {
-            // Cập nhật các Text và Label với dữ liệu từ CardBooking model
-            // Thêm tiền tố để rõ ràng hơn cho người dùng
-            nameBooking.setText(booking.getNameBooking() != null ? booking.getNameBooking() : "Chưa có tên");
-            purposeBooking.setText(booking.getPurposeBooking() != null ? booking.getPurposeBooking() : "Không có mục đích");
-            plannedStartTime.setText(booking.getPlannedStartTimeDisplay() != null ? booking.getPlannedStartTimeDisplay() : "N/A");
-            plannedEndTime.setText(booking.getPlannedEndTimeDisplay() != null ? booking.getPlannedEndTimeDisplay() : "N/A");
-            requestBooking.setText(booking.getRequestBooking() != null ? booking.getRequestBooking() : "N/A");
-            statusBooking.setText(booking.getStatusBooking() != null ? booking.getStatusBooking() : "N/A");
+            nameBookingLabel.setText(booking.getNameBooking() != null ? booking.getNameBooking() : "Chưa có tên phòng");
+            userNameText.setText(booking.getUserName() != null ? booking.getUserName() : "Không rõ");
 
-            // --- (Tùy chọn) Ẩn/hiện nút Hủy dựa trên trạng thái ---
-            // Ví dụ: Chỉ cho phép hủy nếu trạng thái là "Chờ duyệt" (PENDING)
-            boolean canCancel = "Chờ duyệt".equalsIgnoreCase(booking.getStatusBooking()) || "Đã duyệt".equalsIgnoreCase(booking.getStatusBooking()); // Hoặc các trạng thái khác cho phép hủy
-            btnCancel.setVisible(canCancel);
-            btnCancel.setManaged(canCancel); // Đảm bảo không chiếm không gian nếu ẩn
+            if (booking.getPurposeBooking() != null && !booking.getPurposeBooking().isEmpty()) {
+                purposeBookingText.setText(booking.getPurposeBooking());
+                purposeContainer.setVisible(true);
+                purposeContainer.setManaged(true);
+            } else {
+                purposeBookingText.setText("");
+                purposeContainer.setVisible(false);
+                purposeContainer.setManaged(false);
+            }
+
+            timeRangeText.setText(booking.getTimeRangeDisplay() != null ? booking.getTimeRangeDisplay() : "N/A");
+            requestBookingText.setText(booking.getRequestBooking() != null ? booking.getRequestBooking() : "N/A");
+
+            if (booking.getEquipmentsDisplay() != null && !booking.getEquipmentsDisplay().isEmpty()) {
+                equipmentsListText.setText(booking.getEquipmentsDisplay());
+                equipmentContainer.setVisible(true);
+                equipmentContainer.setManaged(true);
+            } else {
+                equipmentsListText.setText("");
+                equipmentContainer.setVisible(false);
+                equipmentContainer.setManaged(false);
+            }
+
+            // Chỉ đặt là "Chờ duyệt" nếu trạng thái thực sự là PENDING_APPROVAL hoặc tương tự
+            // Nếu không, trạng thái này sẽ được cập nhật bởi MyBookingsController khi tải lại
+            if (booking.getStatusBooking() != null && booking.getStatusBooking().equalsIgnoreCase("PENDING_APPROVAL")) {
+                statusBookingText.setText("Chờ duyệt");
+                statusBookingText.getStyleClass().clear();
+                statusBookingText.getStyleClass().add("status-pending");
+            } else {
+                // Nếu trạng thái khác, có thể để trống hoặc hiển thị trạng thái từ model
+                // Tuy nhiên, card này chủ yếu dành cho PENDING_APPROVAL
+                statusBookingText.setText(booking.getStatusBooking() != null ? booking.getStatusBooking() : "Chờ duyệt");
+            }
+
+
+            // Đảm bảo các control được kích hoạt khi card được cập nhật/tải lại
+            btnCancel.setDisable(false);
+            cancellationReason.setDisable(false);
+
+            btnCancel.setVisible(true);
+            btnCancel.setManaged(true);
+            cancellationReason.setVisible(true);
+            cancellationReason.setManaged(true);
+            cancellationReason.clear();
 
         } else {
-            // Xử lý trường hợp booking là null (dù không nên xảy ra nếu logic đúng)
-            nameBooking.setText("Lỗi dữ liệu");
-            purposeBooking.setText("");
-            plannedStartTime.setText("");
-            plannedEndTime.setText("");
-            requestBooking.setText("");
-            statusBooking.setText("");
-            btnCancel.setVisible(false);
-            btnCancel.setManaged(false);
+            nameBookingLabel.setText("Lỗi dữ liệu");
+            userNameText.setText("N/A");
+            purposeContainer.setVisible(false); purposeContainer.setManaged(false);
+            timeRangeText.setText("N/A");
+            requestBookingText.setText("N/A");
+            equipmentContainer.setVisible(false); equipmentContainer.setManaged(false);
+            statusBookingText.setText("N/A");
+            btnCancel.setVisible(false); btnCancel.setManaged(false);
+            cancellationReason.setVisible(false); cancellationReason.setManaged(false);
         }
     }
 
-    /**
-     * Xử lý sự kiện khi người dùng nhấn nút "Cancel".
-     */
     @FXML
     private void handleCancelBooking() {
-        if (booking != null && booking.getBookingId() != null) {
-            System.out.println("Yêu cầu hủy booking với ID: " + booking.getBookingId());
-
-            // --- (Triển khai logic hủy) ---
-            // 1. Hiển thị hộp thoại xác nhận hỏi người dùng có chắc chắn muốn hủy không.
-            //    Ví dụ dùng Alert:
-            //    Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
-            //    confirmation.setTitle("Xác nhận hủy");
-            //    confirmation.setHeaderText("Bạn có chắc chắn muốn hủy yêu cầu đặt phòng này?");
-            //    confirmation.setContentText("Phòng: " + booking.getNameBooking() + "\nThời gian: " + booking.getPlannedStartTimeDisplay());
-            //    Optional<ButtonType> result = confirmation.showAndWait();
-
-            //    if (result.isPresent() && result.get() == ButtonType.OK) {
-            //        // 2. Gọi BookingService để thực hiện hủy trên backend
-            //        // new Thread(() -> {
-            //        //     try {
-            //        //         boolean success = bookingService.cancelBooking(booking.getBookingId(), "Lý do hủy từ người dùng..."); // Cần có ô nhập lý do hoặc lý do mặc định
-            //        //         Platform.runLater(() -> {
-            //        //             if (success) {
-            //        //                 // 3. Cập nhật lại giao diện (ví dụ: đổi trạng thái, làm mờ card, hoặc tải lại toàn bộ danh sách)
-            //        //                 statusBooking.setText("Đã hủy");
-            //        //                 btnCancel.setVisible(false);
-            //        //                 btnCancel.setManaged(false);
-            //        //                 // Hoặc gọi phương thức trong MyBookingsController để tải lại:
-            //        //                 // ((MyBookingsController) nameBooking.getScene().lookup("#myBookingsControllerRootNodeId")).loadMyBookings(); // Cần có ID cho node gốc của MyBookings
-            //        //                 System.out.println("Hủy thành công booking ID: " + booking.getBookingId());
-            //        //             } else {
-            //        //                 // Hiển thị thông báo lỗi hủy
-            //        //                 Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-            //        //                 errorAlert.setTitle("Lỗi hủy");
-            //        //                 errorAlert.setHeaderText("Không thể hủy yêu cầu đặt phòng.");
-            //        //                 errorAlert.setContentText("Vui lòng thử lại sau hoặc liên hệ quản trị viên.");
-            //        //                 errorAlert.showAndWait();
-            //        //             }
-            //        //         });
-            //        //     } catch (IOException e) {
-            //        //         Platform.runLater(() -> { /* Hiển thị lỗi kết nối */ });
-            //        //         e.printStackTrace();
-            //        //     }
-            //        // }).start();
-            //    }
-            // --- (Kết thúc triển khai logic hủy) ---
-
-            // Tạm thời chỉ in ra console
-            System.out.println("-> Logic hủy cho booking ID " + booking.getBookingId() + " cần được triển khai.");
-
-        } else {
-            System.err.println("Không thể hủy: Thông tin booking không hợp lệ.");
+        String reason = cancellationReason.getText();
+        if (reason == null || reason.trim().isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Thiếu thông tin");
+            alert.setHeaderText(null);
+            alert.setContentText("Vui lòng nhập lý do hủy đặt phòng.");
+            alert.showAndWait();
+            cancellationReason.requestFocus();
+            return;
         }
+
+        if (booking != null && booking.getBookingId() != null) {
+            String finalReason = reason.trim();
+
+            System.out.println("Yêu cầu hủy booking với ID: " + booking.getBookingId() + " với lý do: " + finalReason);
+
+            Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmation.setTitle("Xác nhận hủy");
+            confirmation.setHeaderText("Bạn có chắc chắn muốn hủy yêu cầu đặt phòng này không?");
+            confirmation.setContentText("Phòng: " + booking.getNameBooking() +
+                    "\nThời gian: " + booking.getTimeRangeDisplay() +
+                    "\nLý do: " + finalReason);
+            Optional<ButtonType> result = confirmation.showAndWait();
+
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                btnCancel.setDisable(true);
+                cancellationReason.setDisable(true);
+
+                if (this.bookingService == null) {
+                    this.bookingService = new BookingService();
+                }
+
+                CancelBookingRequestData cancelPayload = new CancelBookingRequestData(finalReason);
+
+                new Thread(() -> {
+                    try {
+                        // Gọi service để hủy
+                        bookingService.cancelBookingByUser(booking.getBookingId(), cancelPayload);
+                        Platform.runLater(() -> {
+                            // Không cần cập nhật UI cục bộ nữa vì MyBookingsController sẽ làm mới toàn bộ
+                            // statusBookingText.setText("Đã hủy");
+                            // statusBookingText.getStyleClass().clear();
+                            // statusBookingText.getStyleClass().add("status-cancelled");
+                            // btnCancel.setVisible(false);
+                            // btnCancel.setManaged(false);
+                            // cancellationReason.setVisible(false);
+                            // cancellationReason.setManaged(false);
+
+                            showSuccessAlert("Hủy thành công", "Yêu cầu đặt phòng ID: " + booking.getBookingId() + " đã được hủy. Danh sách sẽ được làm mới.");
+
+                            // Gọi MyBookingsController để làm mới danh sách
+                            // Đây là điểm mấu chốt để card được "biến đổi"
+                            if (myBookingsController != null) {
+                                System.out.println("CardBookingController: Gọi refreshBookingsListPublic() từ MyBookingsController.");
+                                myBookingsController.refreshBookingsListPublic();
+                            } else {
+                                System.err.println("CardBookingController: MyBookingsController instance is null, không thể làm mới danh sách.");
+                            }
+                        });
+                    } catch (IOException e) {
+                        Platform.runLater(() -> {
+                            showErrorAlert("Lỗi Hủy Đặt Phòng", "Không thể hủy yêu cầu: " + e.getMessage());
+                            btnCancel.setDisable(false);
+                            cancellationReason.setDisable(false);
+                        });
+                        e.printStackTrace();
+                    }
+                }).start();
+            }
+        } else {
+            showErrorAlert("Lỗi", "Thông tin đặt phòng không hợp lệ để thực hiện hủy.");
+            btnCancel.setDisable(false);
+            cancellationReason.setDisable(false);
+        }
+    }
+
+    private void showErrorAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Lỗi");
+        alert.setHeaderText(title);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void showSuccessAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Thông báo");
+        alert.setHeaderText(title);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

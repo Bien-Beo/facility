@@ -6,6 +6,7 @@ public class User {
     private String username;
     private String email;
     private String avatar;
+    private String roleName;
     //
     public User(String id, String userId, String username, String email, String avatar) {
         this.id = id;
@@ -57,5 +58,13 @@ public class User {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    public String getRoleName() {
+        return roleName;
+    }
+
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
     }
 }

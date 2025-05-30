@@ -22,7 +22,7 @@ public class CancellationRequestCard extends VBox {
     @FXML private Button rejectButton;
 
     public CancellationRequestCard(CancellationRequest request) {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/utc2/facilityui/component/cardCancellationRequest.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/utc2/facilityui/component/cardOverdueRequest.fxml"));
         fxmlLoader.setRoot(this);
         fxmlLoader.setController(this);
 

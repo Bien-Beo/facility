@@ -1,43 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.String?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.VBox?>
-
-<?import javafx.scene.paint.Stop?>
 <?import javafx.scene.paint.LinearGradient?>
+<?import javafx.scene.paint.Stop?>
 <?import javafx.scene.text.Font?>
-<VBox alignment="TOP_CENTER" prefWidth="600.0" spacing="15.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.ApprovalRequestController">
-    <stylesheets>
-        <String fx:value="/com/utc2/facilityui/styles/approvalcards.css" />
-    </stylesheets>
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-    </padding>
-    <children>
-        <Label fx:id="mainTitleLabel" text="Trạng thái phê duyệt">
-            <font>
-                <Font name="Arial Bold" size="24.0" />
-            </font>
-            <textFill>
-                <LinearGradient endX="1.0" endY="1.0">
-                    <stops>
-                        <Stop offset="0.0" color="#1976d2" />
-                        <Stop offset="1.0" color="#00bcd4" />
-                    </stops>
-                </LinearGradient>
-            </textFill>
-        </Label>
 
-        <ProgressIndicator fx:id="loadingIndicator" visible="false" maxWidth="50.0" maxHeight="50.0"/>
-
-        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" style="-fx-background-color: transparent; -fx-background: transparent;">
-            <content>
-                <VBox fx:id="requestContainer" spacing="10.0" />
-            </content>
-        </ScrollPane>
-    </children>
+<VBox alignment="TOP_CENTER" prefHeight="400.0" prefWidth="600.0" spacing="15.0" stylesheets="/com/utc2/facilityui/styles/approvalcards.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.ApprovalRequestController">
+   <padding>
+      <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+   </padding>
+   <children>
+      <Label fx:id="mainTitleLabel" text="Yêu cầu Chờ duyệt">
+         <font>
+            <Font name="Arial Bold" size="24.0" />
+         </font>
+         <textFill>
+            <LinearGradient endX="1.0" endY="1.0">
+               <stops>
+                  <Stop color="#1976d2" offset="0.0" />
+                  <Stop color="#00bcd4" offset="1.0" />
+               </stops>
+            </LinearGradient>
+         </textFill>
+      </Label>
+      <ProgressIndicator fx:id="loadingIndicator" maxHeight="50.0" maxWidth="50.0" visible="false" />
+      <ScrollPane fitToWidth="true" hbarPolicy="NEVER" style="-fx-background-color: transparent; -fx-background: transparent;" vbarPolicy="AS_NEEDED">
+         <content>
+            <VBox fx:id="requestContainer" spacing="10.0" />
+         </content>
+      </ScrollPane>
+   </children>
 </VBox>

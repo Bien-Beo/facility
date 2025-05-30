@@ -1,5 +1,6 @@
 package com.utc2.facilityui.controller;
 
+import com.utc2.facilityui.controller.nav.SidebarMenuController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
