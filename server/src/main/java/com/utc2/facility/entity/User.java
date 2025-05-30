@@ -1,5 +1,6 @@
 package com.utc2.facility.entity;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 import jakarta.persistence.*;
@@ -60,9 +61,9 @@ public class User {
 
      @CreationTimestamp
      @Column(name = "created_at", nullable = false, updatable = false)
-     private Instant createdAt;
+     private LocalDateTime createdAt;
 
      @UpdateTimestamp
      @Column(name = "updated_at", nullable = false)
-     private Instant updatedAt;
+     private LocalDateTime updatedAt;
 }

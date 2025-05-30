@@ -4,6 +4,8 @@ import com.utc2.facility.entity.User;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -25,6 +27,9 @@ public class UserResponse {
 
      String roleName;
 
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
+
     public static UserResponse fromEntity(User user) {
         if (user == null) {
             return null;
@@ -36,6 +41,8 @@ public class UserResponse {
                 .fullName(user.getFullName())
                 .email(user.getEmail())
                 .avatar(user.getAvatar())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
                 .roleName(user.getRole() != null ? user.getRole().getName().toString() : null)
                 .build();
     }

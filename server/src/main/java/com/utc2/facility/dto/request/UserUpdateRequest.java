@@ -18,4 +18,6 @@ public class UserUpdateRequest { // Cập nhật Hồ sơ cá nhân
      String fullName;
 
      String avatar;
+
+     String roleName;
 }

@@ -18,8 +18,6 @@ public class UserCreationRequest {
     @NotBlank String userId;
     @NotBlank String username;
     @NotBlank @Email String email;
-    @NotBlank String password;
     @NotBlank String fullName;
-    String avatar;
     @NotBlank String roleName;
 }

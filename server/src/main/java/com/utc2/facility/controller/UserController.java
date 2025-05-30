@@ -66,7 +66,7 @@ public class UserController {
                 .build();
     }
 
-    @PutMapping("/{userId}")
+    @PatchMapping("/{userId}")
     ApiResponse<UserResponse> updateUser(
             @PathVariable String userId,
             @RequestBody @Valid UserUpdateRequest request
