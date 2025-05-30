@@ -1,7 +1,7 @@
 package com.utc2.facilityui.controller.nav;
 
 import com.utc2.facilityui.model.ButtonNav;
-import com.utc2.facilityui.controller.nav.ButtonNavController;
+import com.utc2.facilityui.model.User;
 import com.utc2.facilityui.service.UserServices;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -13,6 +13,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 
 import java.io.IOException;
@@ -20,214 +21,311 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 public class InfoPersonController implements Initializable {
 
-    @FXML private VBox putbtn;
-    @FXML private ImageView imgPerson;
+    @FXML private VBox putbtn; // Container cho các nút điều hướng
+    @FXML private ImageView avatar;
     @FXML private Text namePerson;
     @FXML private Text idPerson;
 
-    private List<ButtonNav> navigationButtonModels;
     private static final String DEFAULT_AVATAR_PATH = "/com/utc2/facilityui/images/man.png";
     private static final String BUTTON_NAV_FXML_PATH = "/com/utc2/facilityui/component/buttonNav.fxml";
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         System.out.println("Initializing InfoPersonController...");
+
+        if (avatar != null) {
+            double fitWidth = avatar.getFitWidth();
+            double fitHeight = avatar.getFitHeight();
+
+            if (fitWidth <= 0) fitWidth = 70.0; // Kích thước vuông mặc định nếu FXML không set
+            if (fitHeight <= 0) fitHeight = 70.0;
+
+            // Ép ImageView thành hình vuông nếu kích thước không bằng nhau, lấy cạnh nhỏ hơn
+            // Điều này quan trọng để clip tròn luôn đẹp. Đảm bảo FXML cũng đặt kích thước vuông.
+            if (Math.abs(fitWidth - fitHeight) > 0.1) { // Cho phép sai số nhỏ
+                System.out.println("InfoPersonController: Avatar ImageView in FXML is not square. Adjusting for clip. Original: " + fitWidth + "x" + fitHeight);
+                fitWidth = Math.min(fitWidth, fitHeight);
+                fitHeight = fitWidth;
+                avatar.setFitWidth(fitWidth);
+                avatar.setFitHeight(fitHeight);
+            }
+
+            double radius = fitWidth / 2.0; // Vì đã đảm bảo fitWidth (hoặc kích thước đã điều chỉnh) là cạnh của hình vuông
+            double centerX = fitWidth / 2.0;
+            double centerY = fitHeight / 2.0; // Tâm Y mặc định
+
+            // Điều chỉnh để tập trung khuôn mặt (dịch tâm Y của clip lên trên)
+            // Bạn có thể thử nghiệm với giá trị verticalOffsetFactor này (0.0 đến ~0.3)
+            double verticalOffsetFactor = 0.10; // Ví dụ: dịch tâm clip lên 15% bán kính
+            centerY = centerY - (radius * verticalOffsetFactor);
+
+            Circle clip = new Circle(centerX, centerY, radius);
+            avatar.setClip(clip);
+            System.out.println("InfoPersonController: Avatar clip set. Effective size=" + fitWidth +
+                    ", Clip CenterX=" + centerX + ", Adjusted CenterY=" + centerY +
+                    ", Radius=" + radius);
+        } else {
+            System.err.println("InfoPersonController: ImageView 'avatar' is null. Check FXML fx:id.");
+        }
+
         setUIToLoadingState();
-        loadNavigationButtons();
-        loadUserInfo();
+        loadUserInfo(); // loadUserInfo sẽ gọi loadNavigationButtons sau khi có roleName
     }
 
     private void setUIToLoadingState() {
-        namePerson.setText("Loading...");
-        idPerson.setText("ID: Loading...");
-        setDefaultAvatar();
+        if (namePerson != null) namePerson.setText("Đang tải...");
+        if (idPerson != null) idPerson.setText("ID: Đang tải...");
+        if (putbtn != null) putbtn.getChildren().clear(); // Xóa các nút cũ
+        updateAvatarImage(null); // Tải avatar mặc định (sẽ được clip nếu clip đã set)
     }
 
     private void loadUserInfo() {
-        System.out.println("Starting to load user info task...");
-        Task<Map<String, Object>> loadUserTask = new Task<>() {
+        System.out.println("InfoPersonController: Starting to load user info task...");
+        Task<User> loadUserTask = new Task<>() {
             @Override
-            protected Map<String, Object> call() throws Exception {
-                // Service trả về Map rỗng nếu lỗi logic/token/API-biz-error,
-                // ném IOException nếu lỗi mạng/parse JSON
+            protected User call() throws Exception {
                 return UserServices.getMyInfo();
             }
         };
 
         loadUserTask.setOnSucceeded(event -> {
-            Map<String, Object> userMap = loadUserTask.getValue();
-            System.out.println("User info task succeeded.");
+            User user = loadUserTask.getValue();
+            System.out.println("InfoPersonController: User info task succeeded.");
             Platform.runLater(() -> {
-                if (userMap != null && !userMap.isEmpty()) {
-                    System.out.println("Updating UI with user info: " + userMap.keySet());
-                    updateUserInfoUI(userMap);
+                if (user != null && user.getUserId() != null && !user.getUserId().trim().isEmpty()) {
+                    System.out.println("InfoPersonController: Updating UI with user: " + user.getUsername() + ", Role: " + user.getRoleName() + ", FullName: " + user.getUsername());
+                    updateUserInfoUI(user);
+                    loadNavigationButtons(user.getRoleName()); // Tải nút dựa trên vai trò
                 } else {
-                    // Service đã trả về map rỗng, không cần báo lỗi lớn ở đây
-                    System.out.println("User info map is null or empty after task completion (check previous logs for reason).");
-                    setUIToDefaultOrError("No Data", "ID: N/A", true);
+                    System.out.println("InfoPersonController: User object or critical fields (like userId or roleName) are null or empty.");
+                    setUIToDefaultOrError("Không có dữ liệu", "ID: Lỗi", true);
+                    loadNavigationButtons(null); // Tải nút mặc định khi lỗi user
                 }
             });
         });
 
         loadUserTask.setOnFailed(event -> {
-            Throwable exception = loadUserTask.getException(); // Lỗi IOException từ service
-            System.err.println("User info task failed with exception: " + exception.getMessage());
+            Throwable exception = loadUserTask.getException();
+            System.err.println("InfoPersonController: User info task failed: " + exception.getMessage());
             exception.printStackTrace();
             Platform.runLater(() -> {
-                setUIToDefaultOrError("Error", "ID: Error", true);
-                // Hiển thị lỗi rõ ràng hơn cho người dùng
-                String errorType = (exception instanceof java.net.ConnectException) ? "Cannot connect to server." :
-                        (exception.getMessage().contains("parse")) ? "Invalid data from server." :
-                                "Network or system error.";
-                showErrorAlert("Load User Info Error", errorType + "\nDetails: " + exception.getMessage());
+                setUIToDefaultOrError("Lỗi tải dữ liệu", "ID: Lỗi", true);
+                String errorType = (exception instanceof java.net.ConnectException) ? "Không thể kết nối server." :
+                        (exception.getMessage() != null && exception.getMessage().toLowerCase().contains("parse")) ? "Dữ liệu không hợp lệ từ server." :
+                                "Lỗi mạng hoặc hệ thống.";
+                showErrorAlert("Lỗi Tải Thông Tin Người Dùng", errorType + "\nChi tiết: " + exception.getMessage());
+                loadNavigationButtons(null); // Tải nút mặc định khi lỗi user
             });
         });
 
-        System.out.println("Starting user info loading thread...");
+        System.out.println("InfoPersonController: Starting user info loading thread...");
         Thread backgroundThread = new Thread(loadUserTask);
         backgroundThread.setDaemon(true);
         backgroundThread.start();
     }
 
-    private void updateUserInfoUI(Map<String, Object> userMap) {
-        String fullName = getStringValueFromMap(userMap, "fullName", "N/A");
-        namePerson.setText(fullName);
+    private void updateUserInfoUI(User user) {
+        String displayName = (user.getUsername() != null && !user.getUsername().trim().isEmpty()) ? user.getUsername() :
+                (user.getUsername() != null && !user.getUsername().trim().isEmpty() ? user.getUsername() : "N/A");
+        if (namePerson != null) namePerson.setText(displayName);
 
-        String userId = "N/A";
-        if (userMap.containsKey("userId") && userMap.get("userId") != null) {
-            Object userIdObj = userMap.get("userId");
-            if (userIdObj instanceof String) {
-                userId = (String) userIdObj;
-            } else if (userIdObj instanceof Number) {
-                userId = String.format("%.0f", ((Number)userIdObj).doubleValue());
+        String displayId = user.getUserId() != null ? user.getUserId() : "N/A";
+        if (idPerson != null) idPerson.setText("ID: " + displayId);
+
+        String avatarIdentifier = user.getAvatar();
+        System.out.println("InfoPersonController: Định danh avatar nhận được từ User object: " + avatarIdentifier);
+        updateAvatarImage(avatarIdentifier);
+    }
+
+    private void updateAvatarImage(String avatarIdentifier) {
+        if (avatar == null) {
+            System.err.println("InfoPersonController: ImageView 'avatar' is null in updateAvatarImage.");
+            return;
+        }
+        Image imageToSet = null;
+        if (avatarIdentifier != null && !avatarIdentifier.trim().isEmpty()) {
+            String path = avatarIdentifier.trim();
+            if (path.toLowerCase().startsWith("http://") || path.toLowerCase().startsWith("https://")) {
+                System.out.println("InfoPersonController: Avatar is an HTTP URL: " + path + ". Loading from network.");
+                loadAvatarFromHttpURL_Internal(path); // Phương thức này sẽ tự set image hoặc default
+                return; // Việc set image sẽ được xử lý bởi loadAvatarFromHttpURL_Internal
             } else {
-                userId = userIdObj.toString();
-                System.out.println("WARN: updateUserInfoUI - 'userId' was not String or Number, used toString().");
+                String classpathResourcePath = path.startsWith("/") ? path : "/com/utc2/facilityui/images/" + path;
+                System.out.println("InfoPersonController: Attempting to load avatar from classpath: " + classpathResourcePath);
+                imageToSet = loadImageFromClasspath(classpathResourcePath);
+                if (imageToSet != null) {
+                    System.out.println("InfoPersonController: Successfully loaded avatar from classpath: " + classpathResourcePath);
+                } else {
+                    System.err.println("InfoPersonController: Failed to load avatar from classpath: " + classpathResourcePath);
+                }
             }
-        } else {
-            System.out.println("WARN: updateUserInfoUI - 'userId' key missing or null.");
         }
-        idPerson.setText("ID: " + userId);
 
-        String avatarUrl = getStringValueFromMap(userMap, "avatar", null);
-        updateAvatarImage(avatarUrl);
-    }
-
-    private void updateAvatarImage(String avatarUrl) {
-        if (avatarUrl != null && !avatarUrl.trim().isEmpty()) {
-            System.out.println("Attempting to load avatar from URL: " + avatarUrl);
-            try {
-                Image avatarImage = new Image(avatarUrl, true);
-                avatarImage.errorProperty().addListener((obs, wasError, isError) -> {
-                    if (isError) {
-                        System.err.println("Failed to load avatar image from URL: " + avatarUrl + ". Reason: " + avatarImage.getException());
-                        Platform.runLater(this::setDefaultAvatar);
-                    }
-                });
-                avatarImage.progressProperty().addListener((obs, oldProgress, newProgress) -> {
-                    if (newProgress.doubleValue() == 1.0 && !avatarImage.isError()) {
-                        System.out.println("Avatar loaded successfully: " + avatarUrl);
-                    }
-                });
-                imgPerson.setImage(avatarImage);
-            } catch (Exception e) {
-                System.err.println("Error loading avatar image: " + e.getMessage() + " URL: " + avatarUrl);
-                setDefaultAvatar();
+        if (imageToSet == null) { // Nếu không tải được từ avatarIdentifier (hoặc nó null/empty)
+            System.out.println("InfoPersonController: Avatar from API/classpath failed or not provided. Loading default avatar.");
+            imageToSet = loadImageFromClasspath(DEFAULT_AVATAR_PATH);
+            if (imageToSet != null) {
+                System.out.println("InfoPersonController: Successfully loaded default avatar: " + DEFAULT_AVATAR_PATH);
+            } else {
+                System.err.println("InfoPersonController CRITICAL: Failed to load default avatar from: " + DEFAULT_AVATAR_PATH);
             }
-        } else {
-            System.out.println("Avatar URL is missing or empty, setting default avatar.");
-            setDefaultAvatar();
+        }
+
+        avatar.setImage(imageToSet); // Set ảnh (có thể là null nếu cả hai đều thất bại)
+        if (imageToSet == null) {
+            System.err.println("InfoPersonController: Could not load any avatar (API or default). ImageView will be empty.");
         }
     }
 
-    private String getStringValueFromMap(Map<String, Object> map, String key, String defaultValue) {
-        Object value = map.get(key);
-        if (value instanceof String) {
-            return (String) value;
+    private Image loadImageFromClasspath(String classpathPath) {
+        if (classpathPath == null || classpathPath.trim().isEmpty()) {
+            System.err.println("InfoPersonController: Classpath for image is null or empty.");
+            return null;
         }
-        if (value != null) {
-            System.out.println("WARN: getStringValueFromMap - Key '" + key + "' exists but is not a String (Type: " + value.getClass().getName() + ").");
-        }
-        return defaultValue;
-    }
-
-    private void setUIToDefaultOrError(String nameText, String idText, boolean useDefaultAvatar) {
-        namePerson.setText(nameText);
-        idPerson.setText(idText);
-        if (useDefaultAvatar) {
-            setDefaultAvatar();
-        }
-        System.out.println("UI set to default/error state - Name: " + nameText + ", ID: " + idText);
-    }
-
-    private void setDefaultAvatar() {
-        try (InputStream stream = getClass().getResourceAsStream(DEFAULT_AVATAR_PATH)) {
-            if (stream == null) {
-                System.err.println("CRITICAL: Cannot find default avatar resource: " + DEFAULT_AVATAR_PATH);
-                imgPerson.setImage(null); return;
+        try (InputStream imageStream = getClass().getResourceAsStream(classpathPath)) {
+            if (imageStream != null) {
+                Image image = new Image(imageStream);
+                if (image.isError()) {
+                    System.err.println("InfoPersonController: Error creating Image object from classpath: " + classpathPath + (image.getException() != null ? " - " + image.getException().getMessage() : ""));
+                    return null;
+                }
+                return image;
+            } else {
+                System.err.println("InfoPersonController: Cannot find resource on classpath: " + classpathPath);
+                return null;
             }
-            Image defaultImage = new Image(stream);
-            imgPerson.setImage(defaultImage);
-            System.out.println("Default avatar set.");
         } catch (Exception e) {
-            System.err.println("CRITICAL: Failed to load default avatar image: " + e.getMessage());
-            imgPerson.setImage(null); e.printStackTrace();
+            System.err.println("InfoPersonController: Exception while loading image from classpath: " + classpathPath + " - " + e.getMessage());
+            e.printStackTrace();
+            return null;
         }
+    }
+
+    private void loadAvatarFromHttpURL_Internal(String avatarUrl) {
+        if (avatar == null) return;
+        try {
+            Image networkImage = new Image(avatarUrl, true); // true để tải nền
+            avatar.setImage(networkImage); // Set ngay, Image sẽ tự cập nhật
+
+            networkImage.errorProperty().addListener((obs, wasError, isError) -> {
+                if (isError) {
+                    System.err.println("InfoPersonController: Error loading avatar from HTTP URL: " + avatarUrl +
+                            (networkImage.getException() != null ? ". Reason: " + networkImage.getException().getMessage() : ". Unknown error."));
+                    Platform.runLater(() -> updateAvatarImage(null)); // Thử tải lại default avatar nếu lỗi
+                }
+            });
+
+            if (networkImage.isError()) { // Kiểm tra lỗi tức thì
+                System.err.println("InfoPersonController: Immediate error after creating Image from HTTP URL: " + avatarUrl +
+                        (networkImage.getException() != null ? ". Reason: " + networkImage.getException().getMessage() : ". Unknown error."));
+                Platform.runLater(() -> updateAvatarImage(null)); // Gọi updateAvatarImage(null) để nó load default
+            }
+        } catch (IllegalArgumentException e) {
+            System.err.println("InfoPersonController: Invalid HTTP URL format for avatar: " + avatarUrl + " - " + e.getMessage());
+            Platform.runLater(() -> updateAvatarImage(null));
+        } catch (Exception e) {
+            System.err.println("InfoPersonController: Unexpected error creating Image from HTTP URL: " + avatarUrl + " - " + e.getMessage());
+            e.printStackTrace();
+            Platform.runLater(() -> updateAvatarImage(null));
+        }
+    }
+
+    private void setUIToDefaultOrError(String nameText, String idText, boolean tryLoadDefaultAvatar) {
+        if (namePerson != null) namePerson.setText(nameText);
+        if (idPerson != null) idPerson.setText(idText);
+        if (tryLoadDefaultAvatar) {
+            updateAvatarImage(null); // Sẽ tự động tải default avatar
+        }
+        System.out.println("InfoPersonController: UI set to default/error state - Name: " + nameText + ", ID: " + idText);
+    }
+
+    private void loadNavigationButtons(String roleName) {
+        System.out.println("InfoPersonController: Loading navigation buttons for role: " + roleName);
+        List<ButtonNav> buttonsToDisplay = createNavigationButtonModels(roleName);
+
+        if (putbtn == null) {
+            System.err.println("InfoPersonController CRITICAL: VBox 'putbtn' is null. Cannot add navigation buttons.");
+            return;
+        }
+        putbtn.getChildren().clear();
+        try {
+            for (ButtonNav btnModel : buttonsToDisplay) {
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(BUTTON_NAV_FXML_PATH));
+                if (fxmlLoader.getLocation() == null) {
+                    System.err.println("InfoPersonController CRITICAL: Cannot find FXML for navigation button: " + BUTTON_NAV_FXML_PATH);
+                    continue;
+                }
+                AnchorPane buttonPane = fxmlLoader.load();
+                ButtonNavController controller = fxmlLoader.getController();
+                if (controller != null) {
+                    controller.setData(btnModel);
+                    putbtn.getChildren().add(buttonPane);
+                } else {
+                    System.err.println("InfoPersonController CRITICAL: ButtonNavController is null for FXML: " + BUTTON_NAV_FXML_PATH);
+                }
+            }
+            System.out.println("InfoPersonController: Navigation buttons loaded for role " + roleName + " count: " + buttonsToDisplay.size());
+        } catch (Exception e) {
+            System.err.println("InfoPersonController: Unexpected error during navigation button loading: " + e.getMessage());
+            e.printStackTrace();
+            showErrorAlert("Lỗi Giao Diện Nghiêm Trọng", "Không thể tải các thành phần điều hướng.");
+        }
+    }
+
+    private List<ButtonNav> createNavigationButtonModels(String roleName) {
+        List<ButtonNav> ls = new ArrayList<>();
+
+        if (roleName != null) {
+            switch (roleName.toUpperCase()) {
+                case "FACILITY_MANAGER":
+                    ls.add(new ButtonNav("Phòng", "/com/utc2/facilityui/images/medal.png"));
+                    ls.add(new ButtonNav("Quản lý thiết bị", "/com/utc2/facilityui/images/device.png"));
+                    ls.add(new ButtonNav("Yêu cầu phê duyệt", "/com/utc2/facilityui/images/stamp.png"));
+                    ls.add(new ButtonNav("Yêu cầu quá hạn", "/com/utc2/facilityui/images/cancel.png"));
+                    ls.add(new ButtonNav("Đặt lại mật khẩu", "/com/utc2/facilityui/images/password.png"));
+                    ls.add(new ButtonNav("Đăng xuất", "/com/utc2/facilityui/images/logout.png"));
+                    break;
+                case "TECHNICIAN": // Technician có thể có quyền hạn chế hơn
+                    ls.add(new ButtonNav("Phòng", "/com/utc2/facilityui/images/medal.png")); // Để xem thông tin phòng/thiết bị được giao
+                    ls.add(new ButtonNav("Đặt phòng của tôi", "/com/utc2/facilityui/images/calendar.png")); // Nếu họ cần đặt thiết bị/phòng cho công việc
+                    ls.add(new ButtonNav("Thông báo", "/com/utc2/facilityui/images/notificationWhite.png"));
+                    ls.add(new ButtonNav("Đặt lại mật khẩu", "/com/utc2/facilityui/images/password.png"));
+                    ls.add(new ButtonNav("Đăng xuất", "/com/utc2/facilityui/images/logout.png"));
+                    break;
+                case "USER":
+                default: // Mặc định cho USER và các role không xác định
+                    ls.add(new ButtonNav("Phòng", "/com/utc2/facilityui/images/medal-outline-icon.png"));
+                    ls.add(new ButtonNav("Đặt phòng của tôi", "/com/utc2/facilityui/images/List-Check-icon.png"));
+                    ls.add(new ButtonNav("Thông báo", "/com/utc2/facilityui/images/notification.png"));
+                    ls.add(new ButtonNav("Đặt lại mật khẩu", "/com/utc2/facilityui/images/rotation-lock.png"));
+                    ls.add(new ButtonNav("Đăng xuất", "/com/utc2/facilityui/images/logout-icon.png"));
+                    break;
+            }
+        } else {
+            // Fallback nếu roleName là null (lỗi tải thông tin user)
+            ls.add(new ButtonNav("Phòng", "/com/utc2/facilityui/images/medal-outline-icon.png"));
+            System.out.println("InfoPersonController: roleName is null, loading default minimal navigation buttons.");
+        }
+
+
+
+        return ls;
     }
 
     private void showErrorAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
-    }
-
-    private void loadNavigationButtons() {
-        System.out.println("Loading navigation buttons...");
-        navigationButtonModels = createNavigationButtonModels();
-        putbtn.getChildren().clear();
-        try {
-            for (ButtonNav btnModel : navigationButtonModels) {
-                FXMLLoader fxmlLoader = new FXMLLoader();
-                URL buttonFxmlUrl = getClass().getResource(BUTTON_NAV_FXML_PATH);
-                if (buttonFxmlUrl == null) {
-                    System.err.println("CRITICAL: Cannot find FXML for navigation button: " + BUTTON_NAV_FXML_PATH); continue;
-                }
-                fxmlLoader.setLocation(buttonFxmlUrl);
-                try {
-                    AnchorPane buttonPane = fxmlLoader.load();
-                    ButtonNavController controller = fxmlLoader.getController();
-                    if (controller != null) {
-                        controller.setData(btnModel);
-                        putbtn.getChildren().add(buttonPane);
-                    } else {
-                        System.err.println("CRITICAL: ButtonNavController is null for FXML: " + BUTTON_NAV_FXML_PATH);
-                    }
-                } catch (IOException e) {
-                    System.err.println("Error loading FXML for button '" + btnModel.getName() + "': " + e.getMessage());
-                }
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setContentText(content);
+            if (putbtn != null && putbtn.getScene() != null && putbtn.getScene().getWindow() != null) {
+                alert.initOwner(putbtn.getScene().getWindow());
             }
-            System.out.println("Navigation buttons loaded.");
-        } catch (Exception e) {
-            System.err.println("Unexpected error during navigation button loading: " + e.getMessage());
-            e.printStackTrace();
-            showErrorAlert("Critical UI Error", "Failed to load navigation components.");
-        }
-    }
-
-    private List<ButtonNav> createNavigationButtonModels() {
-        List<ButtonNav> ls = new ArrayList<>();
-        ls.add(new ButtonNav("Rooms", "/com/utc2/facilityui/images/medal-outline-icon.png"));
-        ls.add(new ButtonNav("Equipments", "/com/utc2/facilityui/images/light-bulb.png"));
-        ls.add(new ButtonNav("My Bookings", "/com/utc2/facilityui/images/List-Check-icon.png"));
-        ls.add(new ButtonNav("Reset Password", "/com/utc2/facilityui/images/rotation-lock.png"));
-        ls.add(new ButtonNav("Logout", "/com/utc2/facilityui/images/logout-icon.png"));
-        return ls;
+            alert.showAndWait();
+        });
     }
 }

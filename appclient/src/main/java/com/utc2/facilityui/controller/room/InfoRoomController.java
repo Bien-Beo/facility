@@ -2,6 +2,9 @@ package com.utc2.facilityui.controller.room;
 
 import com.utc2.facilityui.controller.booking.AddBookingController;
 import com.utc2.facilityui.model.Room;
+// Đảm bảo bạn có ReportRoomController và nó được import đúng nếu được sử dụng
+// import com.utc2.facilityui.controller.room.ReportRoomController;
+
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -14,15 +17,25 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class InfoRoomController {
+    // --- Các trường @FXML được cập nhật theo yêu cầu ---
     @FXML
     private Button bntReport;
 
     @FXML
-    private Text building;
+    private Text buildingName;
 
     @FXML
     private Button buttonAddBooking;
@@ -34,34 +47,45 @@ public class InfoRoomController {
     private Text capacity;
 
     @FXML
-    private Text date;
-
-    @FXML
     private Label description;
 
     @FXML
     private ImageView img;
 
     @FXML
-    private Label info;
+    private Label info; // Label tiêu đề "Information Room"
 
     @FXML
-    private Label name;
+    private Label name; // Label tên phòng
 
     @FXML
-    private Text nameFManager;
-
-    @FXML
-    private Label nameFacilityManager;
+    private Text nameFacilityManager; // Khớp FXML Text fx:id="nameFacilityManager"
 
     @FXML
     private Text status;
 
     @FXML
-    private Text typeRoom;
+    private Text roomTypeName;
 
-    private String sourceView; // Lưu trang nguồn
+    @FXML
+    private Text createdAt;
+
+    @FXML
+    private Text updatedAt;
+
+    @FXML
+    private Text defaultEquipments;
+
+    private String sourceView;
     private Room currentRoomData;
+
+    // Locale cho định dạng ngày giờ Việt Nam
+    private final Locale vietnameseLocale = new Locale("vi", "VN");
+    // Đã cập nhật định dạng có dấu phẩy
+    private final DateTimeFormatter vietnameseDateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", vietnameseLocale);
+
+
+    // --- CÁC PHƯƠNG THỨC SAU ĐƯỢC GIỮ NGUYÊN TỪ CODE GỐC BẠN CUNG CẤP ---
     public void setSourceView(String source) {
         this.sourceView = source;
     }
@@ -72,43 +96,107 @@ public class InfoRoomController {
         buttonAddBooking.setOnAction(event -> showAddBookingDialog());
         bntReport.setOnAction(event -> showReportRooomDialog());
     }
+
+    // --- PHƯƠNG THỨC LOADROOMDETAILS ĐƯỢC CẬP NHẬT ---
     public void loadRoomDetails(Room roomData) {
         if (roomData == null) {
             System.err.println("InfoRoomController nhận được roomData null!");
-            // Hiển thị thông báo lỗi hoặc trạng thái không có dữ liệu
-            name.setText("Không có dữ liệu phòng");
-            description.setText("");
-            // ... xóa hoặc ẩn các thông tin khác ...
+            if (name != null) name.setText("Không có dữ liệu phòng");
+            if (description != null) description.setText("");
+            if (roomTypeName != null) roomTypeName.setText("N/A");
+            if (buildingName != null) buildingName.setText("N/A");
+            if (capacity != null) capacity.setText("N/A");
+            if (status != null) status.setText("N/A");
+            if (nameFacilityManager != null) nameFacilityManager.setText("N/A");
+            if (createdAt != null) createdAt.setText("N/A");
+            if (updatedAt != null) updatedAt.setText("N/A");
+            if (defaultEquipments != null) defaultEquipments.setText("");
+            if (img != null) img.setImage(null);
             return;
         }
 
-        this.currentRoomData = roomData; // Lưu lại để có thể dùng ở chỗ khác nếu cần
+        this.currentRoomData = roomData;
 
-        // --- Cập nhật UI với dữ liệu từ roomData ---
-        name.setText(roomData.getName() != null ? roomData.getName() : "N/A");
-        description.setText(roomData.getDescription() != null ? roomData.getDescription() : "Không có mô tả");
-        typeRoom.setText(roomData.getRoomTypeName() != null ? roomData.getRoomTypeName() : "N/A");
-        building.setText(roomData.getBuildingName() != null ? roomData.getBuildingName() : "N/A");
-        capacity.setText(String.valueOf(roomData.getCapacity())); // Chuyển int sang String
-        status.setText(roomData.getStatus() != null ? roomData.getStatus() : "N/A");
-        nameFManager.setText(roomData.getNameFacilityManager() != null ? roomData.getNameFacilityManager() : "Chưa có");
-        // nameFacilityManager.setText(...); // Nếu Label này khác với nameFManager
+        if (name != null) name.setText(roomData.getName() != null ? roomData.getName() : "N/A");
+        if (description != null) description.setText(roomData.getDescription() != null ? roomData.getDescription() : "Không có mô tả");
 
-        // date.setText(...); // Cần xác định ngày gì? Ví dụ: roomData.getCreatedAt() hoặc updatedAt?
-        // info.setText(...); // Cần xác định thông tin gì?
+        if (roomTypeName != null) {
+            roomTypeName.setText(roomData.getRoomTypeName() != null ? roomData.getRoomTypeName() : "N/A");
+        }
+        if (buildingName != null) {
+            buildingName.setText(roomData.getBuildingName() != null ? roomData.getBuildingName() : "N/A");
+        }
+        if (capacity != null) {
+            capacity.setText(String.valueOf(roomData.getCapacity()) + " người");
+        }
+        if (status != null) {
+            status.setText(roomData.getStatus() != null ? roomData.getStatus() : "N/A");
+        }
+        if (nameFacilityManager != null) {
+            nameFacilityManager.setText(roomData.getNameFacilityManager() != null ? roomData.getNameFacilityManager() : "Chưa có");
+        }
 
-        // Tải ảnh
-        loadImage(roomData.getImg());
+        if (createdAt != null) {
+            createdAt.setText(formatToVietnameseDateTime(roomData.getCreatedAt()));
+        }
+        if (updatedAt != null) {
+            updatedAt.setText(formatToVietnameseDateTime(roomData.getUpdatedAt()));
+        }
+
+        // Hiển thị defaultEquipments - LẤY THEO 'modelName'
+        if (defaultEquipments != null) {
+            if (roomData.getDefaultEquipments() != null && !roomData.getDefaultEquipments().isEmpty()) {
+                List<Object> eqs = roomData.getDefaultEquipments();
+                String equipmentModelNames = eqs.stream()
+                        .map(obj -> {
+                            if (obj instanceof Map) {
+                                Map<?, ?> map = (Map<?, ?>) obj;
+                                // Lấy 'modelName' thay vì 'name'
+                                Object modelNameObj = map.get("modelName");
+                                return modelNameObj != null ? modelNameObj.toString() : "Model không xác định";
+                            }
+                            return obj.toString(); // Fallback nếu đối tượng không phải là Map
+                        })
+                        .collect(Collectors.joining(", "));
+                defaultEquipments.setText(equipmentModelNames);
+            } else {
+                defaultEquipments.setText(""); // Để trống nếu không có thiết bị
+            }
+        }
+
+        if (img != null) {
+            loadImage(roomData.getImg());
+        }
     }
-    // Hàm tải ảnh (tương tự như trong Card Controller, có thể tạo lớp tiện ích dùng chung)
+
+    private String formatToVietnameseDateTime(String isoDateTimeString) {
+        if (isoDateTimeString == null || isoDateTimeString.isEmpty() || isoDateTimeString.equalsIgnoreCase("N/A")) {
+            return "N/A";
+        }
+        try {
+            LocalDateTime dateTime = LocalDateTime.parse(isoDateTimeString);
+            return dateTime.format(vietnameseDateFormatter); // Sử dụng formatter đã cập nhật
+        } catch (DateTimeParseException e1) {
+            try {
+                LocalDate date = LocalDate.parse(isoDateTimeString);
+                return date.format(vietnameseDateFormatter);
+            } catch (DateTimeParseException e2) {
+                System.err.println("Không thể phân tích cú pháp ngày giờ hoặc ngày: " + isoDateTimeString + " - " + e2.getMessage());
+                return isoDateTimeString;
+            }
+        }
+    }
+    // --- KẾT THÚC PHƯƠNG THỨC LOADROOMDETAILS CẬP NHẬT ---
+
+
+    // --- CÁC PHƯƠNG THỨC SAU ĐƯỢC GIỮ NGUYÊN ---
     private void loadImage(String imagePath) {
         Image image = null;
         String effectivePath = (imagePath != null && !imagePath.trim().isEmpty()) ? imagePath : getDefaultImagePath();
         InputStream imageStream = null;
         try {
-            // Ưu tiên load từ resources nếu đường dẫn là tương đối
             if (!effectivePath.startsWith("/") && !effectivePath.startsWith("http")) {
-                effectivePath = "/com/utc2/facilityui/images/" + effectivePath; // Giả sử ảnh nằm trong thư mục này
+                effectivePath = "/com/utc2/facilityui/images/" + effectivePath;
             }
             imageStream = getClass().getResourceAsStream(effectivePath);
             if (imageStream != null) {
@@ -126,7 +214,6 @@ public class InfoRoomController {
             if (imageStream != null) { try { imageStream.close(); } catch (IOException e) { /* ignore */ } }
         }
 
-        // Thử ảnh mặc định nếu lỗi
         if (image == null) {
             InputStream defaultStream = null;
             try {
@@ -139,32 +226,28 @@ public class InfoRoomController {
                 if (defaultStream != null) { try { defaultStream.close(); } catch (IOException e) { /* ignore */ } }
             }
         }
-        img.setImage(image); // Đặt ảnh (có thể là null nếu cả 2 lỗi)
+        if (img != null) {
+            img.setImage(image);
+        } else {
+            System.err.println("ImageView 'img' chưa được inject!");
+        }
     }
+
     private String getDefaultImagePath() {
         return "/com/utc2/facilityui/images/default_room.png";
     }
+
     private void goBack() {
         try {
-            // Tìm mainCenter
             AnchorPane mainCenter = (AnchorPane) buttonBack.getScene().lookup("#mainCenter");
             if (mainCenter == null) return;
-
-            // Xác định đường dẫn trang cần quay về
             String viewPath = "/com/utc2/facilityui/view/" +
-                            (sourceView != null ? sourceView : "rooms") + ".fxml";
-
-            System.out.println("Quay về trang: " + viewPath); // Debug log
-
-            // Load trang tương ứng
+                    (sourceView != null ? sourceView : "rooms") + ".fxml";
+            System.out.println("Quay về trang: " + viewPath);
             FXMLLoader loader = new FXMLLoader(getClass().getResource(viewPath));
             AnchorPane page = loader.load();
-
-            // Thay thế nội dung hiện tại
             mainCenter.getChildren().clear();
             mainCenter.getChildren().add(page);
-
-            // Set anchors
             AnchorPane.setTopAnchor(page, 0.0);
             AnchorPane.setBottomAnchor(page, 0.0);
             AnchorPane.setLeftAnchor(page, 0.0);
@@ -175,40 +258,23 @@ public class InfoRoomController {
     }
 
     private void showAddBookingDialog() {
-        // Giả định this.currentRoomData chứa thông tin phòng đã chọn và không null
         if (this.currentRoomData == null) {
             System.err.println("Lỗi: Dữ liệu phòng hiện tại (currentRoomData) là null.");
-            // Có thể hiển thị Alert cho người dùng ở đây
-            // showAlert(Alert.AlertType.ERROR, "Lỗi", "Chưa chọn phòng để đặt.");
             return;
         }
-
         try {
-            // 1. Load FXML
-            // Đảm bảo đường dẫn FXML là chính xác
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/utc2/facilityui/form/addBooking.fxml"));
-            Parent root = loader.load(); // Dùng Parent thay vì AnchorPane để linh hoạt hơn
-
-            // 2. Lấy Controller SAU KHI load FXML
+            Parent root = loader.load();
             AddBookingController addBookingController = loader.getController();
-
-            // 3. !! BƯỚC QUAN TRỌNG: Gọi setTargetInfo để truyền ID và Tên phòng !!
-            // Lấy ID và Tên từ dữ liệu phòng đã chọn (this.currentRoomData)
-            String selectedRoomId = this.currentRoomData.getId(); // Giả định có phương thức getId()
-            String selectedRoomName = this.currentRoomData.getName(); // Giả định có phương thức getName()
-
-            // Kiểm tra lại ID trước khi truyền
+            String selectedRoomId = this.currentRoomData.getId();
+            String selectedRoomName = this.currentRoomData.getName();
             if (selectedRoomId == null || selectedRoomId.trim().isEmpty()) {
                 System.err.println("Lỗi: ID phòng từ currentRoomData là null hoặc rỗng.");
-                // showAlert(Alert.AlertType.ERROR, "Lỗi Dữ Liệu", "Không thể lấy ID phòng hợp lệ.");
                 return;
             }
             addBookingController.setTargetInfo(selectedRoomId, selectedRoomName);
-
-            // 4. Tạo và cấu hình Stage (Cửa sổ mới)
             Stage stage = new Stage();
-            stage.setTitle("Add New Booking for " + selectedRoomName); // Hiển thị tên phòng trên tiêu đề
-            // Cấu hình icon nếu cần
+            stage.setTitle("Add New Booking for " + selectedRoomName);
             try {
                 Image icon = new Image(getClass().getResourceAsStream("/com/utc2/facilityui/images/logo-icon-UTC2.png"));
                 stage.getIcons().add(icon);
@@ -216,66 +282,60 @@ public class InfoRoomController {
                 System.err.println("Không thể load icon: " + e.getMessage());
             }
             stage.setScene(new Scene(root));
-            stage.initModality(Modality.APPLICATION_MODAL); // Chặn tương tác với cửa sổ cha
-            stage.setResizable(false); // Có thể không cho thay đổi kích thước
-
-            // 5. !! KHÔNG GHI ĐÈ setOnAction ở đây !!
-            // Để FXML tự động liên kết nút bấm với các phương thức handleAddBooking và handleCancel
-            // trong AddBookingController thông qua thuộc tính onAction="#methodName"
-
-            // 6. Hiển thị cửa sổ và đợi người dùng tương tác
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setResizable(false);
             stage.showAndWait();
-
-            // Code ở đây sẽ chạy sau khi cửa sổ Add Booking đóng lại
             System.out.println("Cửa sổ Add Booking đã đóng.");
-            // TODO: Có thể cần làm mới (refresh) danh sách booking hoặc trạng thái phòng ở đây
-
         } catch (IOException e) {
             e.printStackTrace();
-            // Hiển thị lỗi load FXML cho người dùng
-            // showAlert(Alert.AlertType.ERROR, "Lỗi Giao Diện", "Không thể mở cửa sổ đặt phòng: " + e.getMessage());
         } catch (NullPointerException e) {
             e.printStackTrace();
-            // Lỗi này có thể xảy ra nếu currentRoomData hoặc các phương thức getId/getName trả về null
-            // showAlert(Alert.AlertType.ERROR, "Lỗi Dữ Liệu", "Dữ liệu phòng không hợp lệ: " + e.getMessage());
-        } catch (Exception e) { // Bắt các lỗi khác
+        } catch (Exception e) {
             e.printStackTrace();
-            // showAlert(Alert.AlertType.ERROR, "Lỗi Không Mong Muốn", "Đã xảy ra lỗi: " + e.getMessage());
         }
     }
 
-    // InfoRoomController.java
     private void showReportRooomDialog() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/utc2/facilityui/form/reportRoom.fxml"));
             AnchorPane reportPane = loader.load();
             Scene scene = new Scene(reportPane);
             Stage stage = new Stage();
-            // ... (set title, icon, modality) ...
             stage.setTitle("Report Room");
             stage.setScene(scene);
             Image icon = new Image(getClass().getResourceAsStream("/com/utc2/facilityui/images/logo-icon-UTC2.png"));
             stage.getIcons().add(icon);
             stage.initModality(Modality.APPLICATION_MODAL);
 
+            com.utc2.facilityui.controller.room.ReportRoomController controller = loader.getController();
 
-            ReportRoomController controller = loader.getController();
-            // Lấy tên phòng từ dữ liệu đã lưu thay vì từ Label
-            if (this.currentRoomData != null) {
-                controller.getName().setText(this.currentRoomData.getName());
-                // Truyền thêm ID phòng nếu ReportRoomController cần để gửi report
-                // controller.setRoomId(this.currentRoomData.getId());
+            if (controller != null) {
+                if (this.currentRoomData != null) {
+                    if (controller.getName() != null) {
+                        controller.getName().setText(this.currentRoomData.getName());
+                    }
+                } else {
+                    if (controller.getName() != null) {
+                        controller.getName().setText("N/A");
+                    }
+                }
+                if (controller.getBntCancel() != null) {
+                    controller.getBntCancel().setOnAction(e -> stage.close());
+                }
+                if (controller.getBntAdd() != null) {
+                    controller.getBntAdd().setOnAction(e -> {
+                        controller.handleAdd();
+                        stage.close();
+                    });
+                }
             } else {
-                controller.getName().setText("N/A"); // Hoặc xử lý lỗi
+                System.err.println("ReportRoomController không được tải từ FXML!");
             }
-
-            controller.getBntCancel().setOnAction(e -> stage.close());
-            controller.getBntAdd().setOnAction(e -> {
-                controller.handleAdd(); // Gọi hàm xử lý logic add report
-                stage.close(); // Đóng sau khi xử lý xong
-            });
             stage.showAndWait();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.err.println("Lỗi không mong muốn trong showReportRooomDialog: " + e.getMessage());
             e.printStackTrace();
         }
     }

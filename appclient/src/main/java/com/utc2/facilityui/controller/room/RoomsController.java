@@ -21,7 +21,8 @@ import java.util.ResourceBundle;
 public class RoomsController implements Initializable {
     @FXML private HBox cardClassRoom;
     @FXML private HBox cardLabRoom;
-    @FXML private HBox cardMeetingRoom;
+    @FXML private HBox cardHall;
+    @FXML private HBox cardOfficeRoom;
     @FXML private VBox mainContainer; // Container chính để có thể thêm thông báo lỗi
 
     private RoomService roomService;
@@ -40,7 +41,8 @@ public class RoomsController implements Initializable {
         // Xóa các card cũ trước khi tải mới
         cardClassRoom.getChildren().clear();
         cardLabRoom.getChildren().clear();
-        cardMeetingRoom.getChildren().clear();
+        cardHall.getChildren().clear();
+        cardOfficeRoom.getChildren().clear();
         // Xóa các thông báo lỗi cũ (nếu có)
         mainContainer.getChildren().removeIf(node -> node.getStyleClass().contains("error-label"));
 
@@ -72,9 +74,7 @@ public class RoomsController implements Initializable {
                         // 3. Lấy controller của card và set data
                         Controller cardController = fxmlLoader.getController(); // Dùng tên Controller.java
                         if (cardController != null) {
-                            // <<<--- TRUYỀN CẢ cardInfo VÀ room VÀO setData --->>>
                             cardController.setData(cardInfo, room);
-                            // <<<--- Đừng quên gọi setCurrentView nếu cần --->>>
                             cardController.setCurrentView("rooms"); // Hoặc tên view hiện tại của bạn
                         } else {
                             System.err.println("Không thể lấy được controller cho card.fxml");
@@ -163,12 +163,10 @@ public class RoomsController implements Initializable {
             cardClassRoom.getChildren().add(cardNode);
         } else if (type.contains("lab") || type.contains("thí nghiệm") || type.contains("phòng thực hành")) {
             cardLabRoom.getChildren().add(cardNode);
-        } else if (type.contains("họp") || type.contains("meeting") || type.contains("hội trường")) {
-            cardMeetingRoom.getChildren().add(cardNode);
+        } else if ( type.contains("meeting") || type.contains("hội trường")) {
+            cardHall.getChildren().add(cardNode);
         } else {
-            // Nếu không khớp loại nào, có thể thêm vào một HBox "Khác" hoặc mặc định vào phòng học
-            System.out.println("Loại phòng không xác định: '" + roomTypeName + "'. Thêm vào Phòng học.");
-            cardClassRoom.getChildren().add(cardNode);
+            cardOfficeRoom.getChildren().add(cardNode);
         }
     }
 

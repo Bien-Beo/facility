@@ -1,301 +1,451 @@
 package com.utc2.facilityui.controller;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 import com.utc2.facilityui.auth.TokenStorage;
+import com.utc2.facilityui.helper.Config;
+import com.utc2.facilityui.model.BuildingItem;
 import com.utc2.facilityui.model.Facility;
-import javafx.application.Platform; // Import Platform nếu chưa có
+import com.utc2.facilityui.model.RoomTypeItem;
+import com.utc2.facilityui.model.UserItem;
+import com.utc2.facilityui.service.BuildingClientService;
+import com.utc2.facilityui.service.RoomTypeClientService;
+import com.utc2.facilityui.service.UserClientService;
+
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import javafx.stage.Window;
+import javafx.util.StringConverter;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.ResourceBundle;
 
-public class EditFacilityController {
+public class EditFacilityController implements Initializable {
 
-    // Các @FXML fields khớp với fx:id trong FXML (đã đổi tên locationTextField)
+    @FXML private Label id;
     @FXML private TextField name;
     @FXML private TextField description;
-    @FXML private Spinner<Integer> capacity;
-    @FXML private TextField locationTextField; // Đã đổi tên
-    @FXML private TextField buildingName;
-    @FXML private TextField roomTypeName;
-    @FXML private TextField facilityManagerId;
-    @FXML private ComboBox<String> status;
+    @FXML private TextField capacity;
+    @FXML private TextField locationTextField;
     @FXML private TextField img;
+    @FXML private ComboBox<String> status;
+
+    @FXML private ComboBox<BuildingItem> building;
+    @FXML private ComboBox<RoomTypeItem> typeRoom;
+    @FXML private ComboBox<UserItem> facilityManager;
 
     @FXML private Button saveButton;
     @FXML private Button cancelButton;
 
     private Facility currentFacility;
     private ObservableList<Facility> facilityList;
-    private final Gson gson = new Gson();
+
+    private final Gson gson = new GsonBuilder().create();
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .build();
 
-    // Phương thức này cần được gọi từ FacilityController
-    public void setFacilityList(ObservableList<Facility> facilityList) {
-        this.facilityList = facilityList;
-        // Thêm debug để xác nhận facilityList đã được nhận
-        System.out.println("DEBUG (EditFacilityController): facilityList " + (this.facilityList != null ? "đã được set." : "là null."));
+    private BuildingClientService buildingClientService;
+    private RoomTypeClientService roomTypeClientService;
+    private UserClientService userClientService;
+
+    public EditFacilityController() {
+        this.buildingClientService = new BuildingClientService();
+        this.roomTypeClientService = new RoomTypeClientService();
+        this.userClientService = new UserClientService();
     }
 
-    public void setFacility(Facility facility) {
-        this.currentFacility = facility;
-        if (facility == null) {
-            System.err.println("Error: Facility object is null in EditFacilityController.");
-            clearFields();
-            return;
-        }
-        System.out.println("DEBUG: Bắt đầu setFacility cho Facility ID: " + facility.getId());
-
-        // Populate fields with existing data
-        name.setText(facility.getName());
-        description.setText(facility.getDescription());
-        capacity.getValueFactory().setValue(facility.getCapacity() > 0 ? facility.getCapacity() : 1);
-        locationTextField.setText(facility.getLocation());
-        buildingName.setText(facility.getBuildingName());
-        roomTypeName.setText(facility.getRoomTypeName());
-        facilityManagerId.setText(facility.getFacilityManagerId());
-        img.setText(facility.getImg());
-
-        // Populate Status ComboBox với các String cố định khớp Enum backend
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
         ObservableList<String> statusOptions = FXCollections.observableArrayList(
                 "AVAILABLE",
                 "UNDER_MAINTENANCE"
         );
+        status.setItems(statusOptions);
 
-        // Debug và set Items cho ComboBox status
-        if (status == null) {
-            System.err.println("LỖI DEBUG: ComboBox status BỊ NULL trong setFacility!");
-            return;
-        } else {
-            // System.out.println("DEBUG: ComboBox status không null."); // Có thể bỏ bớt debug này
-        }
-
-        try {
-            status.setItems(statusOptions);
-            // System.out.println("DEBUG: Đã gọi status.setItems. Số lượng items: " + (status.getItems() != null ? status.getItems().size() : "null"));
-            // if (status.getItems() != null && !status.getItems().isEmpty()) {
-            // System.out.println("DEBUG: Item đầu tiên trong ComboBox: '" + status.getItems().get(0) + "'");
-            // System.out.println("DEBUG: Danh sách items trong ComboBox: " + status.getItems());
-            // } else {
-            // System.out.println("DEBUG: ComboBox không có items sau khi setItems.");
-            // }
-        } catch (Exception e) {
-            System.err.println("LỖI DEBUG: Exception khi gọi status.setItems:");
-            e.printStackTrace();
-        }
-
-        // Set the current status
-        String currentStatusValue = facility.getStatus();
-        // System.out.println("DEBUG: Trạng thái đọc từ Facility Model: '" + currentStatusValue + "'");
-
-        ObservableList<String> currentOptionsInComboBox = status.getItems();
-        if (currentOptionsInComboBox == null) {
-            // System.err.println("LỖI DEBUG: status.getItems() trả về null sau khi setItems!");
-            currentOptionsInComboBox = FXCollections.observableArrayList();
-        }
-
-        if (currentStatusValue != null && currentOptionsInComboBox.contains(currentStatusValue)) {
-            // System.out.println("DEBUG: Tìm thấy trạng thái '" + currentStatusValue + "' trong options. Đang đặt giá trị...");
-            try {
-                status.setValue(currentStatusValue);
-                // System.out.println("DEBUG: Đã gọi status.setValue('" + currentStatusValue + "'). Giá trị hiện tại của ComboBox: '" + status.getValue() + "'");
-            } catch (Exception e) {
-                System.err.println("LỖI DEBUG: Exception khi gọi status.setValue:");
-                e.printStackTrace();
+        capacity.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                capacity.setText(newValue.replaceAll("[^\\d]", ""));
             }
-        } else {
-            // if (currentStatusValue == null) {
-            // System.out.println("DEBUG: Trạng thái từ Model là null.");
-            // } else {
-            // System.out.println("DEBUG: Trạng thái '" + currentStatusValue + "' không có trong options: " + currentOptionsInComboBox);
-            // }
-            // System.out.println("DEBUG: Đang clear selection.");
-            try {
-                status.getSelectionModel().clearSelection();
-                // System.out.println("DEBUG: Đã gọi clearSelection. Giá trị hiện tại của ComboBox: '" + status.getValue() + "'");
-            } catch (Exception e) {
-                System.err.println("LỖI DEBUG: Exception khi gọi status.getSelectionModel().clearSelection():");
-                e.printStackTrace();
-            }
-        }
-        // System.out.println("DEBUG: Kết thúc setFacility cho Facility ID: " + facility.getId());
+        });
+
+        setupBuildingComboBox();
+        setupRoomTypeComboBox();
+        setupFacilityManagerComboBox();
     }
 
-    private void clearFields() {
-        name.clear();
-        description.clear();
-        capacity.getValueFactory().setValue(1);
-        locationTextField.clear();
-        buildingName.clear();
-        roomTypeName.clear();
-        facilityManagerId.clear();
-        img.clear();
-        if (status != null) {
-            status.getSelectionModel().clearSelection();
-            status.setItems(FXCollections.observableArrayList());
+    public void setFacilityToEdit(Facility facility) {
+        this.currentFacility = facility;
+        if (facility == null) {
+            showErrorAlert("Lỗi Dữ Liệu", "Không có thông tin phòng để chỉnh sửa.");
+            closeDialog();
+            return;
         }
+        displayFacilityData();
+    }
+
+    public void setFacilityObservableList(ObservableList<Facility> facilityList) {
+        this.facilityList = facilityList;
+    }
+
+    private void displayFacilityData() {
+        if (currentFacility == null) return;
+
+        id.setText("ID: " + getStringOrEmpty(currentFacility.getId()));
+        name.setText(getStringOrEmpty(currentFacility.getName()));
+        description.setText(getStringOrEmpty(currentFacility.getDescription()));
+        capacity.setText(String.valueOf(currentFacility.getCapacity() > 0 ? currentFacility.getCapacity() : ""));
+        locationTextField.setText(getStringOrEmpty(currentFacility.getLocation()));
+        img.setText(getStringOrEmpty(currentFacility.getImg()));
+
+        if (currentFacility.getStatus() != null && status.getItems().contains(currentFacility.getStatus())) {
+            status.setValue(currentFacility.getStatus());
+        } else {
+            status.getSelectionModel().clearSelection();
+            status.setPromptText("Chọn trạng thái");
+        }
+    }
+
+    private void setupBuildingComboBox() {
+        // Mục placeholder/hướng dẫn cho ComboBox Tòa nhà
+        final BuildingItem placeholderBuilding = new BuildingItem(null, "Chọn Tòa nhà");
+
+        building.setConverter(new StringConverter<BuildingItem>() {
+            @Override public String toString(BuildingItem object) {
+                // Nếu là đối tượng placeholder và ID là null, hiển thị tên của nó (ví dụ "Chọn Tòa nhà")
+                // Ngược lại, hiển thị tên thật của tòa nhà
+                return object == null ? null : object.getName();
+            }
+            @Override public BuildingItem fromString(String string) { return null; }
+        });
+        building.setPlaceholder(new Label("Đang tải tòa nhà...")); // Hiển thị trong khi tải
+
+        new Thread(() -> {
+            try {
+                List<BuildingItem> buildingsData = buildingClientService.getAllBuildings();
+                Platform.runLater(() -> {
+                    ObservableList<BuildingItem> buildingItems = FXCollections.observableArrayList();
+                    buildingItems.add(placeholderBuilding); // Thêm mục placeholder vào đầu danh sách
+                    buildingItems.addAll(buildingsData);
+                    building.setItems(buildingItems);
+
+                    if (buildingsData.isEmpty()) {
+                        // Nếu không có dữ liệu thật, vẫn giữ placeholder "Chọn Tòa nhà" làm mục duy nhất có thể chọn
+                        building.getSelectionModel().select(placeholderBuilding);
+                        // Hoặc có thể đặt prompt text lại nếu muốn
+                        // building.setPromptText("Không có tòa nhà");
+                    }
+
+                    // Chọn tòa nhà hiện tại của facility
+                    if (currentFacility != null && currentFacility.getBuildingName() != null) {
+                        Optional<BuildingItem> currentBuildingOpt = buildingItems.stream()
+                                // So sánh bằng ID nếu bạn lưu ID của building trong Facility model,
+                                // hoặc bằng tên nếu bạn lưu tên. Ưu tiên ID để chính xác.
+                                // Giả sử Facility model có getBuildingId() hoặc getBuildingName()
+                                .filter(b -> b.getId() != null && b.getId().equals(currentFacility.getBuildingId())) // Giả sử có getBuildingId()
+                                .findFirst();
+                        if (currentBuildingOpt.isPresent()) {
+                            building.setValue(currentBuildingOpt.get());
+                        } else {
+                            // Nếu không tìm thấy, chọn placeholder
+                            building.getSelectionModel().select(placeholderBuilding);
+                        }
+                    } else {
+                        // Nếu facility không có building nào, chọn placeholder
+                        building.getSelectionModel().select(placeholderBuilding);
+                    }
+                });
+            } catch (IOException e) {
+                Platform.runLater(() -> {
+                    building.setPlaceholder(new Label("Lỗi tải tòa nhà"));
+                    building.setItems(FXCollections.observableArrayList(placeholderBuilding)); // Vẫn hiển thị placeholder
+                    building.getSelectionModel().select(placeholderBuilding);
+                    showErrorAlert("Lỗi Dữ Liệu", "Không thể tải danh sách tòa nhà: " + e.getMessage());
+                });
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    private void setupRoomTypeComboBox() {
+        // Mục placeholder/hướng dẫn cho ComboBox Loại phòng
+        final RoomTypeItem placeholderRoomType = new RoomTypeItem(null, "Chọn Loại phòng");
+
+        typeRoom.setConverter(new StringConverter<RoomTypeItem>() {
+            @Override public String toString(RoomTypeItem object) {
+                return object == null ? null : object.getName();
+            }
+            @Override public RoomTypeItem fromString(String string) { return null; }
+        });
+        typeRoom.setPlaceholder(new Label("Tải loại phòng..."));
+        new Thread(() -> {
+            try {
+                List<RoomTypeItem> roomTypesData = roomTypeClientService.getAllRoomTypes();
+                Platform.runLater(() -> {
+                    ObservableList<RoomTypeItem> roomTypeItems = FXCollections.observableArrayList();
+                    roomTypeItems.add(placeholderRoomType); // Thêm mục placeholder
+                    roomTypeItems.addAll(roomTypesData);
+                    typeRoom.setItems(roomTypeItems);
+
+                    if (roomTypesData.isEmpty()) {
+                        typeRoom.getSelectionModel().select(placeholderRoomType);
+                    }
+                    // Chọn loại phòng hiện tại
+                    if (currentFacility != null && currentFacility.getRoomTypeName() != null) {
+                        Optional<RoomTypeItem> currentRoomTypeOpt = roomTypeItems.stream()
+                                // Giả sử Facility model có getRoomTypeId()
+                                .filter(rt -> rt.getId() != null && rt.getId().equals(currentFacility.getRoomTypeId()))
+                                .findFirst();
+                        if (currentRoomTypeOpt.isPresent()) {
+                            typeRoom.setValue(currentRoomTypeOpt.get());
+                        } else {
+                            typeRoom.getSelectionModel().select(placeholderRoomType);
+                        }
+                    } else {
+                        typeRoom.getSelectionModel().select(placeholderRoomType);
+                    }
+                });
+            } catch (IOException e) {
+                Platform.runLater(() -> {
+                    typeRoom.setPlaceholder(new Label("Lỗi tải loại phòng"));
+                    typeRoom.setItems(FXCollections.observableArrayList(placeholderRoomType));
+                    typeRoom.getSelectionModel().select(placeholderRoomType);
+                    showErrorAlert("Lỗi Dữ Liệu", "Không thể tải danh sách loại phòng: " + e.getMessage());
+                });
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    private void setupFacilityManagerComboBox() {
+        // Mục placeholder/hướng dẫn cho ComboBox Người quản lý
+        final UserItem placeholderManager = new UserItem(null, "Chọn Người quản lý (Tùy chọn)", null);
+
+        facilityManager.setConverter(new StringConverter<UserItem>() {
+            @Override public String toString(UserItem object) {
+                return object == null ? null : object.getDisplayName();
+            }
+            @Override public UserItem fromString(String string) { return null; }
+        });
+        facilityManager.setPlaceholder(new Label("Tải người quản lý..."));
+        new Thread(() -> {
+            try {
+                List<UserItem> managersData = userClientService.getAllFacilityManagers();
+                Platform.runLater(() -> {
+                    ObservableList<UserItem> managerItems = FXCollections.observableArrayList();
+                    managerItems.add(placeholderManager); // Thêm mục placeholder
+                    managerItems.addAll(managersData);
+                    facilityManager.setItems(managerItems);
+
+                    if (managersData.isEmpty()) {
+                        facilityManager.getSelectionModel().select(placeholderManager);
+                    }
+                    // Chọn người quản lý hiện tại
+                    if (currentFacility != null && currentFacility.getFacilityManagerId() != null) {
+                        Optional<UserItem> currentManagerOpt = managerItems.stream()
+                                .filter(user -> user.getId() != null && user.getId().equals(currentFacility.getFacilityManagerId()))
+                                .findFirst();
+                        if (currentManagerOpt.isPresent()) {
+                            facilityManager.setValue(currentManagerOpt.get());
+                        } else {
+                            // Nếu ID người quản lý hiện tại không có trong danh sách (hoặc không hợp lệ)
+                            facilityManager.getSelectionModel().select(placeholderManager);
+                        }
+                    } else {
+                        // Nếu facility không có manager hoặc ID là null, chọn placeholder "Không chọn" / "Chọn..."
+                        facilityManager.getSelectionModel().select(placeholderManager);
+                    }
+                });
+            } catch (IOException e) {
+                Platform.runLater(() -> {
+                    facilityManager.setPlaceholder(new Label("Lỗi tải quản lý"));
+                    facilityManager.setItems(FXCollections.observableArrayList(placeholderManager));
+                    facilityManager.getSelectionModel().select(placeholderManager);
+                    showErrorAlert("Lỗi Dữ Liệu", "Không thể tải danh sách người quản lý: " + e.getMessage());
+                });
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     @FXML
     private void handleSave() {
-        System.out.println("DEBUG: handleSave() method entered!"); // Giữ lại dòng debug này
-
         if (currentFacility == null || currentFacility.getId() == null) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Cannot save: No facility selected or facility has no ID.");
+            showErrorAlert("Lỗi", "Không có phòng để lưu hoặc thiếu ID phòng.");
             return;
         }
         String token = TokenStorage.getToken();
         if (token == null || token.isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Authentication Error", "User not logged in or token is missing.");
+            showErrorAlert("Lỗi Xác Thực", "Chưa đăng nhập hoặc token không hợp lệ.");
             return;
         }
 
-        // 1. Tạo Map
-        Map<String, Object> updateRequestData = new HashMap<>();
-        updateRequestData.put("name", name.getText());
-        updateRequestData.put("description", description.getText());
-        updateRequestData.put("capacity", capacity.getValue());
-        updateRequestData.put("location", locationTextField.getText());
-        updateRequestData.put("buildingName", buildingName.getText());
-        updateRequestData.put("roomTypeName", roomTypeName.getText());
-        updateRequestData.put("facilityManagerId", facilityManagerId.getText());
-        updateRequestData.put("img", img.getText());
-        String selectedStatus = null;
-        if (status != null) {
-            selectedStatus = status.getValue();
+        String nameText = name.getText().trim();
+        String capacityText = capacity.getText().trim();
+
+        if (nameText.isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Thiếu thông tin", "Tên phòng không được để trống.");
+            name.requestFocus(); return;
         }
-        updateRequestData.put("status", selectedStatus);
+        if (capacityText.isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Thiếu thông tin", "Sức chứa không được để trống.");
+            capacity.requestFocus(); return;
+        }
 
-        // 2. Convert Map to JSON
+        int capacityValue;
+        try {
+            capacityValue = Integer.parseInt(capacityText);
+            if (capacityValue < 1) {
+                showAlert(Alert.AlertType.ERROR, "Lỗi nhập liệu", "Sức chứa phải ít nhất là 1.");
+                capacity.requestFocus(); return;
+            }
+        } catch (NumberFormatException e) {
+            showAlert(Alert.AlertType.ERROR, "Lỗi nhập liệu", "Sức chứa phải là một số nguyên hợp lệ.");
+            capacity.requestFocus(); return;
+        }
+
+        BuildingItem selectedBuilding = building.getSelectionModel().getSelectedItem();
+        // Kiểm tra xem có phải là mục placeholder không (ID là null)
+        if (selectedBuilding == null || selectedBuilding.getId() == null) {
+            showAlert(Alert.AlertType.ERROR, "Thiếu thông tin", "Vui lòng chọn tòa nhà hợp lệ.");
+            building.requestFocus(); return;
+        }
+        RoomTypeItem selectedRoomType = typeRoom.getSelectionModel().getSelectedItem();
+        if (selectedRoomType == null || selectedRoomType.getId() == null) {
+            showAlert(Alert.AlertType.ERROR, "Thiếu thông tin", "Vui lòng chọn loại phòng hợp lệ.");
+            typeRoom.requestFocus(); return;
+        }
+        if (status.getValue() == null || status.getValue().trim().isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Thiếu thông tin", "Vui lòng chọn trạng thái phòng.");
+            status.requestFocus(); return;
+        }
+
+        Map<String, Object> updateRequestData = new HashMap<>();
+        updateRequestData.put("name", nameText);
+        updateRequestData.put("description", description.getText().trim());
+        updateRequestData.put("capacity", capacityValue);
+        updateRequestData.put("location", locationTextField.getText().trim());
+        updateRequestData.put("img", img.getText().trim());
+        updateRequestData.put("status", status.getValue());
+        updateRequestData.put("buildingId", selectedBuilding.getId());
+        updateRequestData.put("roomTypeId", selectedRoomType.getId());
+
+        UserItem selectedManager = facilityManager.getSelectionModel().getSelectedItem();
+        // Chỉ gửi facilityManagerId nếu người dùng chọn một người quản lý hợp lệ (không phải mục placeholder)
+        if (selectedManager != null && selectedManager.getId() != null) {
+            updateRequestData.put("facilityManagerId", selectedManager.getId());
+        } else {
+            updateRequestData.put("facilityManagerId", null); // Gửi null nếu "Không chọn"
+        }
+
         String requestBody = gson.toJson(updateRequestData);
-        System.out.println("Sending JSON for PATCH: " + requestBody);
+        System.out.println("Sending JSON for PATCH update: " + requestBody);
 
-        // 3. Build và gửi HTTP Request
-        String apiBaseUrl = "http://localhost:8080"; // Port 8080
-        String contextPath = "/facility";             // Context path
-        // --- ĐÃ SỬA LẠI API URL ĐỂ BỎ /api/v1 ---
-        String apiUrl = apiBaseUrl + contextPath + "/rooms/" + currentFacility.getId();
-        System.out.println("API URL (PATCH - Corrected): " + apiUrl); // URL đúng
-        // --- KẾT THÚC SỬA ---
+        String apiUrl = Config.getOrDefault("BASE_URL", "http://localhost:8080/facility") + "/rooms/" + currentFacility.getId();
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(apiUrl)) // Sử dụng apiUrl đã sửa
+                .uri(URI.create(apiUrl))
                 .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer " + token)
-                .method("PATCH", HttpRequest.BodyPublishers.ofString(requestBody)) // Dùng PATCH
+                .method("PATCH", HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
 
-        // 4. Send the request asynchronously và xử lý response (Có debug client)
+        saveButton.setDisable(true);
+        cancelButton.setDisable(true);
+
         httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenApply(response -> {
-                    System.out.println("DEBUG CLIENT: Received response! Status Code: " + response.statusCode());
-                    // System.out.println("DEBUG CLIENT: Response Body: " + response.body()); // Bật nếu cần xem body
-                    return response.statusCode();
+                    System.out.println("EditFacilityController: Update Response Status Code: " + response.statusCode());
+                    return response;
                 })
-                .thenAccept(statusCode -> {
-                    System.out.println("DEBUG CLIENT: Entering thenAccept block. Status Code: " + statusCode);
-                    Platform.runLater(() -> { // Luôn dùng Platform.runLater cho các tác vụ UI
-                        System.out.println("DEBUG CLIENT: Executing Platform.runLater in thenAccept.");
-                        // Các mã thành công cho PATCH có thể là 200 hoặc 204
-                        if (statusCode == 200 || statusCode == 204) {
-                            System.out.println("DEBUG CLIENT: Success condition met.");
-                            showAlert(Alert.AlertType.INFORMATION, "Success", "Facility updated successfully!");
-                            // Chỉ gọi update nếu facilityList không null
+                .thenAccept(response -> {
+                    Platform.runLater(() -> {
+                        if (response.statusCode() == 200) {
+                            showInfoAlert("Thành công", "Thông tin phòng đã được cập nhật!");
+
+                            if (currentFacility != null) {
+                                currentFacility.setName(name.getText().trim());
+                                currentFacility.setDescription(description.getText().trim());
+                                currentFacility.setCapacity(capacityValue);
+                                currentFacility.setLocation(locationTextField.getText().trim());
+                                currentFacility.setImg(img.getText().trim());
+                                currentFacility.setStatus(status.getValue());
+                                if (selectedBuilding != null) currentFacility.setBuildingName(selectedBuilding.getName()); // Cập nhật tên
+                                if (selectedRoomType != null) currentFacility.setRoomTypeName(selectedRoomType.getName()); // Cập nhật tên
+
+                                // Cập nhật facilityManagerId và nameFacilityManager
+                                if (selectedManager != null && selectedManager.getId() != null) {
+                                    currentFacility.setNameFacilityManager(selectedManager.getDisplayName());
+                                    currentFacility.setFacilityManagerId(selectedManager.getId());
+                                } else {
+                                    currentFacility.setNameFacilityManager(null); // Hoặc tên hiển thị của placeholder nếu muốn
+                                    currentFacility.setFacilityManagerId(null);
+                                }
+                                // Cập nhật các trường khác nếu cần, ví dụ updatedAt từ response nếu server trả về
+                            }
                             if (facilityList != null) {
-                                updateFacilityInListFromMap(updateRequestData);
-                            } else {
-                                System.err.println("WARN: facilityList is null in handleSave, cannot update table directly.");
-                                // Có thể thông báo người dùng cần làm mới bảng thủ công
+                                int index = -1;
+                                for(int i=0; i< facilityList.size(); i++){
+                                    Facility item = facilityList.get(i);
+                                    if(item != null && item.getId() != null && item.getId().equals(currentFacility.getId())){
+                                        index = i;
+                                        break;
+                                    }
+                                }
+                                if (index != -1) {
+                                    facilityList.set(index, currentFacility); // Kích hoạt TableView update
+                                }
                             }
                             closeDialog();
                         } else {
-                            System.out.println("DEBUG CLIENT: Failure condition met.");
-                            // Có thể thêm xử lý chi tiết hơn cho các mã lỗi khác (400, 401, 403, 404...)
-                            showAlert(Alert.AlertType.ERROR, "Update Failed", "Failed to update facility. Status code: " + statusCode);
+                            String errorMsg = "Cập nhật thất bại. Mã lỗi: " + response.statusCode();
+                            String responseBodyString = response.body(); // Lấy body một lần
+                            if (responseBodyString != null && !responseBodyString.isEmpty()) {
+                                try {
+                                    Map<String, Object> errorResponseMap = gson.fromJson(responseBodyString, new TypeToken<Map<String, Object>>(){}.getType());
+                                    if (errorResponseMap != null && errorResponseMap.containsKey("message")) {
+                                        errorMsg += "\nChi tiết: " + errorResponseMap.get("message");
+                                    } else {
+                                        errorMsg += "\nPhản hồi: " + responseBodyString;
+                                    }
+                                } catch (JsonSyntaxException parseEx) {
+                                    errorMsg += "\nPhản hồi không thể đọc: " + responseBodyString;
+                                }
+                            }
+                            showErrorAlert("Cập nhật Thất Bại", errorMsg);
                         }
+                        saveButton.setDisable(false);
+                        cancelButton.setDisable(false);
                     });
                 })
                 .exceptionally(e -> {
-                    System.err.println("DEBUG CLIENT: Entering exceptionally block.");
                     Throwable cause = (e instanceof java.util.concurrent.CompletionException) ? e.getCause() : e;
-                    System.err.println("DEBUG CLIENT: Exception type: " + cause.getClass().getName());
-                    System.err.println("DEBUG CLIENT: Exception message: " + cause.getMessage());
-                    Platform.runLater(() -> { // Luôn dùng Platform.runLater cho các tác vụ UI
-                        System.out.println("DEBUG CLIENT: Executing Platform.runLater in exceptionally.");
-                        showAlert(Alert.AlertType.ERROR, "Request Error", "Error sending update request: " + cause.getMessage());
-                        // cause.printStackTrace(); // In full stack trace nếu cần debug sâu
+                    Platform.runLater(() -> {
+                        showErrorAlert("Lỗi Yêu Cầu", "Lỗi khi gửi yêu cầu cập nhật: " + cause.getMessage());
+                        saveButton.setDisable(false);
+                        cancelButton.setDisable(false);
                     });
-                    return null; // exceptionally phải trả về một giá trị (có thể là null)
+                    cause.printStackTrace();
+                    return null;
                 });
     }
-
-    // Phương thức cập nhật Facility trong ObservableList từ dữ liệu trong Map
-    private void updateFacilityInListFromMap(Map<String, Object> dataMap) {
-        // Thêm kiểm tra null cho facilityList ngay đầu
-        if (facilityList == null) {
-            System.err.println("ERROR in updateFacilityInListFromMap: facilityList is null.");
-            return;
-        }
-        if (currentFacility == null) {
-            System.err.println("ERROR in updateFacilityInListFromMap: currentFacility is null.");
-            return;
-        }
-
-        int index = -1;
-        for(int i=0; i< facilityList.size(); i++){
-            // Đảm bảo facilityList.get(i) và getId() không null trước khi gọi equals
-            Facility item = facilityList.get(i);
-            if(item != null && item.getId() != null && item.getId().equals(currentFacility.getId())){
-                index = i;
-                break;
-            }
-        }
-
-        if(index != -1){
-            Facility facilityToUpdate = facilityList.get(index);
-            if (facilityToUpdate == null) {
-                System.err.println("ERROR in updateFacilityInListFromMap: facilityToUpdate at index " + index + " is null.");
-                return;
-            }
-            try {
-                // Cập nhật các trường của facilityToUpdate từ dataMap
-                facilityToUpdate.setName((String)dataMap.getOrDefault("name", facilityToUpdate.getName()));
-                facilityToUpdate.setDescription((String)dataMap.getOrDefault("description", facilityToUpdate.getDescription()));
-                Object capacityObj = dataMap.get("capacity");
-                if (capacityObj instanceof Number) {
-                    facilityToUpdate.setCapacity(((Number) capacityObj).intValue());
-                }
-                facilityToUpdate.setLocation((String)dataMap.getOrDefault("location", facilityToUpdate.getLocation()));
-                facilityToUpdate.setBuildingName((String)dataMap.getOrDefault("buildingName", facilityToUpdate.getBuildingName()));
-                facilityToUpdate.setRoomTypeName((String)dataMap.getOrDefault("roomTypeName", facilityToUpdate.getRoomTypeName()));
-                // Sử dụng setter đã đổi tên trong Facility model
-                facilityToUpdate.setFacilityManagerId((String)dataMap.getOrDefault("facilityManagerId", facilityToUpdate.getFacilityManagerId()));
-                facilityToUpdate.setImg((String)dataMap.getOrDefault("img", facilityToUpdate.getImg()));
-                facilityToUpdate.setStatus((String)dataMap.getOrDefault("status", facilityToUpdate.getStatus()));
-
-                // Thay thế phần tử cũ bằng phần tử đã cập nhật để kích hoạt cập nhật TableView
-                facilityList.set(index, facilityToUpdate);
-                System.out.println("DEBUG: Updated facility in list at index: " + index);
-            } catch (ClassCastException e) {
-                System.err.println("Error updating facility from map due to ClassCastException: " + e.getMessage());
-            }
-        } else {
-            System.err.println("Could not find the facility with ID " + currentFacility.getId() + " in the list to update.");
-        }
-    }
-
 
     @FXML
     private void handleCancel() {
@@ -309,37 +459,44 @@ public class EditFacilityController {
         }
     }
 
+    private void showErrorAlert(String title, String message) {
+        showAlert(Alert.AlertType.ERROR, title, message);
+    }
+
+    private void showInfoAlert(String title, String message) {
+        showAlert(Alert.AlertType.INFORMATION, title, message);
+    }
+
     private void showAlert(Alert.AlertType alertType, String title, String message) {
-        // Đảm bảo alert hiển thị trên UI thread
         if (Platform.isFxApplicationThread()) {
             Alert alert = new Alert(alertType);
             alert.setTitle(title);
             alert.setHeaderText(null);
-            alert.setContentText(message);
-            // Cố gắng đặt owner cho Alert để nó hiển thị đúng vị trí
-            try {
-                if (cancelButton != null && cancelButton.getScene() != null && cancelButton.getScene().getWindow() != null) {
-                    alert.initOwner(cancelButton.getScene().getWindow());
-                }
-            } catch (Exception e) {
-                // Bỏ qua nếu không lấy được owner
-            }
+            TextArea textArea = new TextArea(message);
+            textArea.setEditable(false);
+            textArea.setWrapText(true);
+            alert.getDialogPane().setContent(textArea);
+            alert.setResizable(true);
+            Window owner = getWindow();
+            if (owner != null) alert.initOwner(owner);
             alert.showAndWait();
         } else {
-            Platform.runLater(() -> {
-                Alert alert = new Alert(alertType);
-                alert.setTitle(title);
-                alert.setHeaderText(null);
-                alert.setContentText(message);
-                try {
-                    if (cancelButton != null && cancelButton.getScene() != null && cancelButton.getScene().getWindow() != null) {
-                        alert.initOwner(cancelButton.getScene().getWindow());
-                    }
-                } catch (Exception e) {
-                    // Bỏ qua nếu không lấy được owner
-                }
-                alert.showAndWait();
-            });
+            Platform.runLater(() -> showAlert(alertType, title, message));
         }
+    }
+
+    private Window getWindow() {
+        try {
+            if (cancelButton != null && cancelButton.getScene() != null && cancelButton.getScene().getWindow() != null) {
+                return cancelButton.getScene().getWindow();
+            }
+        } catch (Exception e) {
+            System.err.println("Không thể xác định cửa sổ chủ cho Alert: " + e.getMessage());
+        }
+        return null;
+    }
+
+    private String getStringOrEmpty(String str) {
+        return str != null ? str : "";
     }
 }

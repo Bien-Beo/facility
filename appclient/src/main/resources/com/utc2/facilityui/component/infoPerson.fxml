@@ -11,7 +11,7 @@
    <children>
       <AnchorPane prefHeight="499.0" prefWidth="196.0" styleClass="nav-form" VBox.vgrow="ALWAYS">
          <children>
-            <ImageView fx:id="imgPerson" fitHeight="73.0" fitWidth="80.0" layoutX="80.0" layoutY="22.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="avatar" fitHeight="73.0" fitWidth="80.0" layoutX="80.0" layoutY="22.0" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@../images/man.png" />
                </image>

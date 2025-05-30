@@ -22,7 +22,7 @@ public class ReportRoomController extends BaseReportController {
         // Thêm sự kiện click cho các TextField
         description.setOnMouseClicked(this::handleTextAreaClick);
         // Xử lý sự kiện cho nút Cancel
-        bntCancel.setOnAction(e -> closeDialog());
+
         
         // Xử lý sự kiện cho nút Add
         bntAdd.setOnAction(e -> {

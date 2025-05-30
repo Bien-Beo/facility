@@ -28,34 +28,79 @@ public class UserServices { // Hoặc AuthService riêng
             .build();
     private static final Gson gson = new Gson();
 
-    // --- Phương thức getMyInfo() giữ nguyên ---
-    public static Map<String, Object> getMyInfo() throws IOException {
-        // ... code getMyInfo như trước ...
-        if (!TokenStorage.hasToken()) { /* ... */ return Collections.emptyMap();}
-        String token = TokenStorage.getToken();
+    public static User getMyInfo() throws IOException { // << THAY ĐỔI KIỂU TRẢ VỀ THÀNH User
+        String token = TokenStorage.getToken(); // Giả sử TokenStorage đã được cập nhật để lấy token
+        if (token == null || token.isEmpty()) {
+            System.err.println("UserServices.getMyInfo: Token is missing.");
+            throw new IOException("Authentication token is required to get user info.");
+        }
+
         String url = (BASE_URL.endsWith("/") ? BASE_URL : BASE_URL + "/") + "users/myInfo";
-        Request request = new Request.Builder().url(url).addHeader("Authorization", "Bearer " + token).get().build();
-        System.out.println("Requesting User Info (expecting single object) from: " + url);
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer " + token)
+                .get()
+                .build();
+
+        System.out.println("UserServices.getMyInfo: Requesting User Info from: " + url);
+
         try (Response response = client.newCall(request).execute()) {
             ResponseBody responseBody = response.body();
             String responseData = (responseBody != null) ? responseBody.string() : null;
-            System.out.println("Received Response: Code=" + response.code() + ", Body Length=" + (responseData != null ? responseData.length() : "null"));
-            if (!response.isSuccessful()) { /* ... */ return Collections.emptyMap(); }
-            if (responseData == null || responseData.isEmpty()) { /* ... */ return Collections.emptyMap(); }
+            System.out.println("UserServices.getMyInfo: Received Response: Code=" + response.code() + ", Body: " + (responseData != null && responseData.length() > 100 ? responseData.substring(0, 100) + "..." : responseData));
+
+
+            if (!response.isSuccessful()) {
+                System.err.println("UserServices.getMyInfo: API Call Failed. HTTP Status: " + response.code() + ". Body: " + responseData);
+                throw new IOException("Failed to get user info with HTTP status: " + response.code() + ". Response: " + responseData);
+            }
+            if (responseData == null || responseData.isEmpty()) {
+                System.err.println("UserServices.getMyInfo: Empty response body from server.");
+                throw new IOException("Empty response body received from server for user info.");
+            }
+
             try {
-                Type apiResponseType = new TypeToken<ApiSingleResponse<Map<String, Object>>>() {}.getType();
-                ApiSingleResponse<Map<String, Object>> apiResponse = gson.fromJson(responseData, apiResponseType);
-                if (apiResponse == null) { /* ... */ return Collections.emptyMap(); }
-                final int SUCCESS_CODE = 0; // Hoặc 200 - Xác nhận lại
-                if (apiResponse.getCode() != SUCCESS_CODE) { /* ... */ return Collections.emptyMap(); }
-                Map<String, Object> resultData = apiResponse.getResult();
-                if (resultData == null) { /* ... */ return Collections.emptyMap();}
-                System.out.println("getMyInfo: Successfully parsed single user info.");
-                return resultData;
-            } catch (com.google.gson.JsonSyntaxException e) { /* ... */ throw new IOException("Failed to parse API response JSON for myInfo: " + e.getMessage(), e); }
-        } catch (IOException e) { /* ... */ throw e; }
+                // Parse response thành ApiSingleResponse<User>
+                // Điều này yêu cầu JSON response từ server có trường "result" chứa object User
+                // và các trường trong object User đó khớp với model User.java của client
+                // (ví dụ: "id", "userId", "username", "email", "avatar")
+                Type apiUserResponseType = new TypeToken<ApiSingleResponse<User>>() {}.getType();
+                ApiSingleResponse<User> apiResponse = gson.fromJson(responseData, apiUserResponseType);
+
+                if (apiResponse == null) {
+                    System.err.println("UserServices.getMyInfo: Failed to parse main API response structure.");
+                    throw new IOException("Could not parse the API response structure for user info.");
+                }
+
+                // QUAN TRỌNG: Xác nhận lại SUCCESS_CODE này với backend của bạn
+
+                final int SUCCESS_CODE = 0;// Hoặc mã thành công thực tế của bạn
+                if (apiResponse.getCode() != SUCCESS_CODE) {
+                    String errorMessage = "Failed to get user info: " +
+                            (apiResponse.getMessage() != null ? apiResponse.getMessage() : "Unknown API error") +
+                            " (API Code: " + apiResponse.getCode() + ")";
+                    System.err.println("UserServices.getMyInfo: API returned business error. " + errorMessage);
+                    throw new IOException(errorMessage);
+                }
+
+                User user = apiResponse.getResult();
+                if (user == null) {
+                    System.err.println("UserServices.getMyInfo: User data (result) is null in API response.");
+                    throw new IOException("User data (result) was null in the API response.");
+                }
+
+                System.out.println("UserServices.getMyInfo: Successfully parsed user info for user: " + user.getUsername());
+                return user; // << TRẢ VỀ ĐỐI TƯỢNG User
+
+            } catch (com.google.gson.JsonSyntaxException e) {
+                System.err.println("UserServices.getMyInfo: JSON Parsing Error - " + e.getMessage() + ". Response data: " + responseData);
+                throw new IOException("Invalid JSON response format from server for user info: " + e.getMessage(), e);
+            }
+        } catch (IOException e) { // Lỗi mạng hoặc IO từ client.newCall
+            System.err.println("UserServices.getMyInfo: Network or IO Error - " + e.getMessage());
+            throw e; // Ném lại để LoginController xử lý
+        }
     }
-    // --- HẾT getMyInfo() ---
 
     /**
      * Gửi yêu cầu thay đổi mật khẩu đến API backend.
