@@ -4,16 +4,15 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="610.0" prefWidth="600.0" style="-fx-background-color: #f4f6f8;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.AddUserController">
+<AnchorPane prefHeight="572.0" prefWidth="600.0" style="-fx-background-color: #f4f6f8;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.AddUserController">
     <children>
-        <VBox layoutX="27.0" layoutY="14.0" prefHeight="526.0" prefWidth="546.0" spacing="12.0" style="-fx-background-color: white; -fx-background-radius: 10px; -fx-padding: 20px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 4);" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="27.0" AnchorPane.rightAnchor="27.0" AnchorPane.topAnchor="14.0">
+        <VBox layoutX="27.0" layoutY="14.0" prefHeight="607.0" prefWidth="546.0" spacing="12.0" style="-fx-background-color: white; -fx-background-radius: 10px; -fx-padding: 20px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 4);" AnchorPane.bottomAnchor="21.0" AnchorPane.leftAnchor="27.0" AnchorPane.rightAnchor="27.0" AnchorPane.topAnchor="14.0">
             <children>
                 <Label style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #1976d2;" text="➕ Thêm Tài khoản mới" />
 
@@ -31,16 +30,6 @@
                             <Font size="14.0" />
                         </font></Label>
                     <TextField fx:id="userNameTextField" minHeight="40.0" promptText="Tên đăng nhập duy nhất" />
-                </VBox>
-                <VBox spacing="4.0">
-                    <children>
-                        <Label style="-fx-font-weight: bold;" text="Mật khẩu (*)">
-                            <font>
-                                <Font size="14.0" />
-                            </font>
-                        </Label>
-                        <PasswordField fx:id="passwordField" minHeight="40.0" promptText="Ít nhất 6 ký tự" />
-                    </children>
                 </VBox>
 
                 <VBox spacing="4.0">
