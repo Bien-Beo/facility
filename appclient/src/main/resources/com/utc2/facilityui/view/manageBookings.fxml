@@ -6,7 +6,6 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
@@ -15,6 +14,7 @@
 <?import javafx.scene.paint.LinearGradient?>
 <?import javafx.scene.paint.Stop?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
 <BorderPane prefHeight="600.0" prefWidth="850.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.utc2.facilityui.controller.ManageBookingsController">
     <top>
@@ -34,6 +34,9 @@
                                     </stops>
                                 </LinearGradient>
                             </textFill>
+                     <padding>
+                        <Insets bottom="15.0" />
+                     </padding>
                         </Label>
                         <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
                             <children>
@@ -73,22 +76,37 @@
                            </graphic>
                         </Button>
                             </children>
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
                         </HBox>
                     </children>
                 </HBox>
+                <VBox alignment="TOP_LEFT" prefWidth="814" spacing="8">
 
-                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                    <children>
-                        <ComboBox fx:id="filterByRoomComboBox" promptText="Lọc theo phòng" style="-fx-background-color: #ffffff; -fx-border-radius: 5px; -fx-padding: 8;" />
-                        <ComboBox fx:id="filterByMonthComboBox" promptText="Lọc theo tháng" style="-fx-background-color: #ffffff; -fx-border-radius: 5px; -fx-padding: 8;" />
-                        <ComboBox fx:id="filterByUserComboBox" promptText="Lọc theo người đặt" style="-fx-background-color: #ffffff; -fx-border-radius: 5px; -fx-padding: 8;" />
-                        <Button onAction="#handleResetFilters" style="-fx-background-color: #1976d2; -fx-background-radius: 5px; -fx-text-fill: white; -fx-padding: 10px;" text="RESET">
-                            <font>
-                                <Font name="System Bold" size="12.0" />
-                            </font>
-                        </Button>
-                    </children>
-                </HBox>
+                    <!-- Hàng nhãn (label) -->
+                    <HBox alignment="CENTER_LEFT" spacing="120.0">
+                        <Text style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Phòng:" />
+                        <Text style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Tháng:" />
+                        <Text style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Người đặt:">
+                     <HBox.margin>
+                        <Insets left="9.0" />
+                     </HBox.margin></Text>
+                    </HBox>
+
+                    <!-- Hàng combobox và nút reset -->
+                    <HBox alignment="CENTER_LEFT" spacing="20">
+                        <ComboBox fx:id="filterByRoomComboBox" prefWidth="150" promptText="Tất cả" style="-fx-background-color: #ffffff; -fx-border-color: #ccc; -fx-border-radius: 5px; -fx-padding: 6;" />
+
+                        <ComboBox fx:id="filterByMonthComboBox" prefWidth="150" promptText="Tất cả" style="-fx-background-color: #ffffff; -fx-border-color: #ccc; -fx-border-radius: 5px; -fx-padding: 6;" />
+
+                        <ComboBox fx:id="filterByUserComboBox" prefWidth="150" promptText="Tất cả" style="-fx-background-color: #ffffff; -fx-border-color: #ccc; -fx-border-radius: 5px; -fx-padding: 6;" />
+
+                        <Button fx:id="resetButton" onAction="#handleResetFilters" style="-fx-background-color: #1976d2; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5px; -fx-padding: 8 16;" text="RESET" />
+                    </HBox>
+
+                </VBox>
+
             </children>
         </VBox>
     </top>

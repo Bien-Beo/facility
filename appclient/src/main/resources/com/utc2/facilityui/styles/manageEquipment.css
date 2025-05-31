@@ -1,11 +1,11 @@
-#bookingsTable .column-header {
+#equipmentTable .column-header {
     -fx-background-color:#646464;
     -fx-font-weight: bold;
     -fx-min-height: 30px;
     -fx-pref-height: 40px;
     -fx-max-height: 50px;
 }
-#bookingsTable .column-header .label {
+#equipmentTable .column-header .label {
     -fx-text-fill: #f3f5f5;
 }
 .table-row-cell {
@@ -24,13 +24,8 @@
 .combo-box {
     -fx-font-size: 13px;
 }
+
 .button {
     -fx-cursor: hand;
     -fx-font-size: 13px;
 }
-
-.text {
-    -fx-font-smoothing-type: lcd;
-}
-
-

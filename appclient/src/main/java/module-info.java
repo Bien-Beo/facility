@@ -20,9 +20,11 @@ module com.utc2.facilityui {
 
     // Thêm dòng này nếu chưa có, để rõ ràng hơn (mặc dù javafx.controls thường đã kéo theo)
     requires javafx.base;
-    requires java.sql;
     requires io;
     requires org.apache.poi.ooxml;
+    requires com.fasterxml.jackson.databind;
+    requires java.sql;
+    requires java.desktop;
 
     // --- Phần Opens ---
     // Giữ lại các opens cho javafx.fxml
@@ -53,6 +55,7 @@ module com.utc2.facilityui {
     exports com.utc2.facilityui.controller.equipment;
     exports com.utc2.facilityui.controller.room;
     exports com.utc2.facilityui.controller.nav;
+    exports com.utc2.facilityui.model;
 
     // Bạn có thể cần export cả response và model nếu các module khác cần dùng trực tiếp
     // exports com.utc2.facilityui.response;

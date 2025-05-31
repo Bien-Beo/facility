@@ -48,3 +48,4 @@ public class Room {
     public List<Object> getDefaultEquipments() { return defaultEquipments; }
     public void setDefaultEquipments(List<Object> defaultEquipments) { this.defaultEquipments = defaultEquipments; }
 }
+

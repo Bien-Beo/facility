@@ -101,7 +101,7 @@ public class ManageBookingsController implements Initializable {
                 .map(BookingResponse::getRoomName)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toCollection(TreeSet::new));
-        filterByRoomComboBox.getItems().add("Tất cả phòng");
+        filterByRoomComboBox.getItems().add("Tất cả");
         filterByRoomComboBox.getItems().addAll(uniqueRooms);
         filterByRoomComboBox.getSelectionModel().selectFirst();
 
@@ -111,7 +111,7 @@ public class ManageBookingsController implements Initializable {
         List<String> monthNames = Arrays.stream(Month.values())
                 .map(m -> m.getDisplayName(TextStyle.FULL, Locale.ENGLISH))
                 .collect(Collectors.toList());
-        filterByMonthComboBox.getItems().add("Tất cả tháng");
+        filterByMonthComboBox.getItems().add("Tất cả");
         filterByMonthComboBox.getItems().addAll(monthNames);
         filterByMonthComboBox.getSelectionModel().selectFirst();
         filterByMonthComboBox.valueProperty().addListener((obs, oldVal, newVal) -> updateFilters());
@@ -121,7 +121,7 @@ public class ManageBookingsController implements Initializable {
                 .map(BookingResponse::getUserName)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toCollection(TreeSet::new));
-        filterByUserComboBox.getItems().add("Tất cả người đặt");
+        filterByUserComboBox.getItems().add("Tất cả");
         filterByUserComboBox.getItems().addAll(uniqueUsers);
         filterByUserComboBox.getSelectionModel().selectFirst();
         filterByUserComboBox.valueProperty().addListener((obs, oldVal, newVal) -> updateFilters());
@@ -166,12 +166,12 @@ public class ManageBookingsController implements Initializable {
 
         filteredData.setPredicate(booking -> {
             // Lọc theo phòng
-            if (selectedRoom != null && !selectedRoom.equals("Tất cả phòng") &&
+            if (selectedRoom != null && !selectedRoom.equals("Tất cả") &&
                     (booking.getRoomName() == null || !booking.getRoomName().equals(selectedRoom))) {
                 return false;
             }
             // Lọc theo tháng (theo plannedStartTime)
-            if (selectedMonth != null && !selectedMonth.equals("Tất cả tháng")) {
+            if (selectedMonth != null && !selectedMonth.equals("Tất cả")) {
                 if (booking.getPlannedStartTime() == null) return false;
                 Month bookingMonth = booking.getPlannedStartTime().getMonth();
                 if (!bookingMonth.getDisplayName(TextStyle.FULL, Locale.ENGLISH).equals(selectedMonth)) {
@@ -179,7 +179,7 @@ public class ManageBookingsController implements Initializable {
                 }
             }
             // Lọc theo người đặt
-            if (selectedUser != null && !selectedUser.equals("Tất cả người đặt") && !selectedUser.equals(booking.getUserName())) {
+            if (selectedUser != null && !selectedUser.equals("Tất cả") && !selectedUser.equals(booking.getUserName())) {
                 return false;
             }
             return true;
@@ -332,9 +332,9 @@ public class ManageBookingsController implements Initializable {
 
     @FXML
     private void handleResetFilters() {
-        filterByRoomComboBox.getSelectionModel().select("Tất cả phòng");
-        filterByMonthComboBox.getSelectionModel().select("Tất cả tháng");
-        filterByUserComboBox.getSelectionModel().select("Tất cả người đặt");
+        filterByRoomComboBox.getSelectionModel().select("Tất cả");
+        filterByMonthComboBox.getSelectionModel().select("Tất cả");
+        filterByUserComboBox.getSelectionModel().select("Tất cả");
         updateFilters();
     }
 
