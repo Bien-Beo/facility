@@ -5,7 +5,8 @@ import com.google.gson.reflect.TypeToken;
 import com.utc2.facilityui.auth.TokenStorage;
 import com.utc2.facilityui.helper.Config;
 import com.utc2.facilityui.model.User;
-import com.utc2.facilityui.response.ApiSingleResponse;
+import com.utc2.facilityui.model.UserUpdateRequest;
+import com.utc2.facilityui.response.*;
 // Bỏ import DTO request: import com.utc2.facilityui.dto.request.PasswordResetRequest;
 import okhttp3.*;
 
@@ -27,7 +28,7 @@ public class UserServices { // Hoặc AuthService riêng
             .readTimeout(30, TimeUnit.SECONDS)
             .build();
     private static final Gson gson = new Gson();
-
+    private static final int API_SUCCESS_CODE = 0;
     public static User getMyInfo() throws IOException { // << THAY ĐỔI KIỂU TRẢ VỀ THÀNH User
         String token = TokenStorage.getToken(); // Giả sử TokenStorage đã được cập nhật để lấy token
         if (token == null || token.isEmpty()) {
@@ -183,6 +184,181 @@ public class UserServices { // Hoặc AuthService riêng
         }
     }
 
+    /**
+     * Lấy danh sách người dùng có phân trang, sử dụng cấu trúc ApiContainerForPagedData.
+     * Phương thức này sẽ trả về một đối tượng PaginatedUsers (một lớp tùy chỉnh)
+     * chứa danh sách UserResponse và PageMetadata.
+     */
+    public static PaginatedUsers getUsers(int page, int size) throws IOException {
+        String token = TokenStorage.getToken();
+        if (token == null || token.isEmpty()) {
+            throw new IOException("Cần token xác thực.");
+        }
+
+        HttpUrl.Builder urlBuilder = HttpUrl.parse((BASE_URL.endsWith("/") ? BASE_URL : BASE_URL + "/") + "users").newBuilder();
+        urlBuilder.addQueryParameter("page", String.valueOf(page));
+        urlBuilder.addQueryParameter("size", String.valueOf(size));
+
+        Request request = new Request.Builder()
+                .url(urlBuilder.build())
+                .addHeader("Authorization", "Bearer " + token)
+                .get()
+                .build();
+
+        System.out.println("UserServices.getUsers (ApiContainer): Đang yêu cầu từ: " + urlBuilder.build().toString());
+
+        try (Response response = client.newCall(request).execute()) {
+            String responseData = response.body() != null ? response.body().string() : null;
+            System.out.println("UserServices.getUsers (ApiContainer): ResponseData Raw: " + responseData);
+
+
+            if (!response.isSuccessful() || responseData == null) {
+                throw new IOException("Lấy danh sách người dùng thất bại: " + response.code() + (responseData != null ? " - " + responseData : ""));
+            }
+
+            // Sử dụng ApiContainerForPagedData<UserResponse>
+            Type apiResponseType = new TypeToken<ApiContainerForPagedData<UserResponse>>() {}.getType();
+            ApiContainerForPagedData<UserResponse> apiContainer = gson.fromJson(responseData, apiResponseType);
+
+            if (apiContainer == null || apiContainer.getCode() != API_SUCCESS_CODE || apiContainer.getResult() == null || apiContainer.getResult().getPage() == null) {
+                String message = apiContainer != null && apiContainer.getMessage() != null ? apiContainer.getMessage() : "Phản hồi không hợp lệ hoặc thiếu thông tin phân trang.";
+                throw new IOException("Lấy danh sách thất bại: " + message + " (Code: " + (apiContainer != null ? apiContainer.getCode() : "N/A") + ")");
+            }
+
+            // Trả về một đối tượng tùy chỉnh chứa cả content và metadata
+            return new PaginatedUsers(apiContainer.getResult().getContent(), apiContainer.getResult().getPage());
+        }
+    }
+
+    // Lớp nội bộ hoặc lớp riêng để chứa kết quả phân trang từ cấu trúc mới
+    public static class PaginatedUsers {
+        private final List<UserResponse> content;
+        private final PageMetadata pageMetadata;
+
+        public PaginatedUsers(List<UserResponse> content, PageMetadata pageMetadata) {
+            this.content = content;
+            this.pageMetadata = pageMetadata;
+        }
+
+        public List<UserResponse> getContent() {
+            return content;
+        }
+
+        public PageMetadata getPageMetadata() {
+            return pageMetadata;
+        }
+    }
+
+    /**
+     * Tạo người dùng mới.
+     * Bạn cần tạo một DTO phía client (ví dụ: UserCreationRequest) để gửi đi.
+     * Hoặc truyền một Map<String, Object> chứa dữ liệu.
+     */
+    public static UserResponse createUser(Object userCreationRequestDto /* Thay bằng DTO cụ thể */) throws IOException {
+        String token = TokenStorage.getToken();
+        if (token == null || token.isEmpty()) {
+            throw new IOException("Cần token xác thực.");
+        }
+
+        String url = (BASE_URL.endsWith("/") ? BASE_URL : BASE_URL + "/") + "users";
+        RequestBody body = RequestBody.create(gson.toJson(userCreationRequestDto), MediaType.get("application/json; charset=utf-8"));
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer " + token)
+                .post(body)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            String responseData = response.body() != null ? response.body().string() : null;
+            if (!response.isSuccessful() || responseData == null) {
+                throw new IOException("Tạo người dùng thất bại: " + response.code() + (responseData != null ? " - " + responseData : ""));
+            }
+
+            Type apiResponseType = new TypeToken<ApiSingleResponse<UserResponse>>() {}.getType();
+            ApiSingleResponse<UserResponse> apiResponse = gson.fromJson(responseData, apiResponseType);
+
+            if (apiResponse == null || apiResponse.getCode() != API_SUCCESS_CODE || apiResponse.getResult() == null) {
+                String message = apiResponse != null && apiResponse.getMessage() != null ? apiResponse.getMessage() : "Phản hồi không hợp lệ.";
+                throw new IOException("Tạo người dùng thất bại: " + message + " (Code: " + (apiResponse != null ? apiResponse.getCode() : "N/A") + ")");
+            }
+            return apiResponse.getResult();
+        }
+    }
+
+    /**
+     * Cập nhật thông tin người dùng.
+     * Bạn cần tạo một DTO phía client (ví dụ: UserUpdateRequest) để gửi đi.
+     */
+    public static UserResponse updateUser(String userIdToUpdate, UserUpdateRequest userUpdateRequestDto /* Thay bằng DTO cụ thể */) throws IOException {
+        String token = TokenStorage.getToken();
+        if (token == null || token.isEmpty()) {
+            throw new IOException("Cần token xác thực.");
+        }
+
+        String url = (BASE_URL.endsWith("/") ? BASE_URL : BASE_URL + "/") + "users/" + userIdToUpdate;
+        RequestBody body = RequestBody.create(gson.toJson(userUpdateRequestDto), MediaType.get("application/json; charset=utf-8"));
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer " + token)
+                .put(body)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            String responseData = response.body() != null ? response.body().string() : null;
+            if (!response.isSuccessful() || responseData == null) {
+                throw new IOException("Cập nhật người dùng thất bại: " + response.code() + (responseData != null ? " - " + responseData : ""));
+            }
+
+            Type apiResponseType = new TypeToken<ApiSingleResponse<UserResponse>>() {}.getType();
+            ApiSingleResponse<UserResponse> apiResponse = gson.fromJson(responseData, apiResponseType);
+
+            if (apiResponse == null || apiResponse.getCode() != API_SUCCESS_CODE || apiResponse.getResult() == null) {
+                String message = apiResponse != null && apiResponse.getMessage() != null ? apiResponse.getMessage() : "Phản hồi không hợp lệ.";
+                throw new IOException("Cập nhật người dùng thất bại: " + message + " (Code: " + (apiResponse != null ? apiResponse.getCode() : "N/A") + ")");
+            }
+            return apiResponse.getResult();
+        }
+    }
+
+    /**
+     * Xóa người dùng.
+     */
+    public static void deleteUser(String userIdToDelete) throws IOException { // Thay đổi kiểu trả về thành void hoặc boolean
+        String token = TokenStorage.getToken();
+        if (token == null || token.isEmpty()) {
+            throw new IOException("Cần token xác thực.");
+        }
+
+        String url = (BASE_URL.endsWith("/") ? BASE_URL : BASE_URL + "/") + "users/" + userIdToDelete;
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer " + token)
+                .delete()
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            String responseData = response.body() != null ? response.body().string() : null;
+            // API Xóa có thể trả về HTTP 204 No Content (responseData sẽ là null hoặc trống)
+            // hoặc một JSON xác nhận.
+            if (!response.isSuccessful()) {
+                throw new IOException("Xóa người dùng thất bại: " + response.code() + (responseData != null ? " - " + responseData : ""));
+            }
+
+            // Nếu API trả về JSON (ví dụ: ApiSingleResponse<Void> hoặc tương tự)
+            if (responseData != null && !responseData.isEmpty()) {
+                Type apiResponseType = new TypeToken<ApiSingleResponse<Void>>() {}.getType(); // Hoặc ApiSingleResponse<Object>
+                ApiSingleResponse<Void> apiResponse = gson.fromJson(responseData, apiResponseType);
+
+                if (apiResponse == null || apiResponse.getCode() != API_SUCCESS_CODE) {
+                    String message = apiResponse != null && apiResponse.getMessage() != null ? apiResponse.getMessage() : "Phản hồi không hợp lệ.";
+                    throw new IOException("Xóa người dùng thất bại: " + message + " (Code: " + (apiResponse != null ? apiResponse.getCode() : "N/A") + ")");
+                }
+            }
+            // Nếu HTTP 200/204 và không có lỗi parse ở trên, coi như thành công.
+        }
+    }
     private static final String DB_URL = "jdbc:mysql://localhost:3306/facility";
     private static final String DB_USER = "root";
     private static final String DB_PASSWORD = "Tranbien2809@";
