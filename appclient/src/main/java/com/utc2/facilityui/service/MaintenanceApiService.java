@@ -11,10 +11,12 @@ import com.utc2.facilityui.response.ApiSingleResponse;
 import com.utc2.facilityui.response.MaintenanceResponse;
 
 
+import com.utc2.facilityui.response.Page;
 import okhttp3.*;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.List;
 
 public class MaintenanceApiService {
     private final OkHttpClient client;
@@ -94,6 +96,89 @@ public class MaintenanceApiService {
                 System.err.println("Lỗi parse JSON phản hồi từ server: " + e.getMessage() + ". JSON: " + responseBodyString);
                 throw new IOException("Lỗi xử lý dữ liệu trả về từ server: " + e.getMessage(), e);
             }
+        }
+    }
+    public Page<MaintenanceResponse> getMaintenanceTickets(int page, int size, List<String> statuses) throws IOException {
+        System.out.println("[ApiService] getMaintenanceTickets - Called with: page=" + page + ", size=" + size + ", statuses=" + statuses);
+
+        String token = TokenStorage.getToken();
+        if (token == null || token.isEmpty()) {
+            System.err.println("[ApiService] getMaintenanceTickets - Error: Auth token is missing.");
+            throw new IOException("Token xác thực không tồn tại.");
+        }
+        System.out.println("[ApiService] getMaintenanceTickets - Token: " + token.substring(0, Math.min(token.length(), 10)) + "..."); // In một phần token
+
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(BASE_URL + "/maintenance").newBuilder();
+        urlBuilder.addQueryParameter("page", String.valueOf(page));
+        urlBuilder.addQueryParameter("size", String.valueOf(size));
+        if (statuses != null && !statuses.isEmpty()) {
+            for (String status : statuses) {
+                urlBuilder.addQueryParameter("status", status);
+            }
+        }
+
+        String url = urlBuilder.build().toString();
+        System.out.println("[ApiService] getMaintenanceTickets - Calling API URL: " + url);
+
+        Request request = new Request.Builder()
+                .url(url)
+                .header("Authorization", "Bearer " + token)
+                .get()
+                .build();
+
+        System.out.println("[ApiService] getMaintenanceTickets - Executing request...");
+        try (Response response = client.newCall(request).execute()) {
+            System.out.println("[ApiService] getMaintenanceTickets - Response Code: " + response.code());
+            ResponseBody responseBody = response.body();
+            String responseBodyString = (responseBody != null) ? responseBody.string() : null;
+
+            System.out.println("[ApiService] getMaintenanceTickets - Raw API Response Body: " + responseBodyString);
+
+            if (!response.isSuccessful()) {
+                System.err.println("[ApiService] getMaintenanceTickets - API call failed. Code: " + response.code() + ", Body: " + responseBodyString);
+                throw new IOException("Lấy danh sách bảo trì thất bại. Mã lỗi: " + response.code() +
+                        (responseBodyString != null ? ". Phản hồi: " + responseBodyString : ""));
+            }
+
+            if (responseBodyString == null || responseBodyString.isEmpty()) {
+                System.err.println("[ApiService] getMaintenanceTickets - Error: Empty response body from server.");
+                throw new IOException("Phản hồi rỗng từ server.");
+            }
+
+            Type apiResponseType = new TypeToken<ApiSingleResponse<Page<MaintenanceResponse>>>() {}.getType();
+            try {
+                ApiSingleResponse<Page<MaintenanceResponse>> apiResponse = gson.fromJson(responseBodyString, apiResponseType);
+                System.out.println("[ApiService] getMaintenanceTickets - Parsed apiResponse object: " + apiResponse);
+
+
+                if (apiResponse != null && apiResponse.getResult() != null) {
+                    System.out.println("[ApiService] getMaintenanceTickets - Successfully parsed. Result content size: " + (apiResponse.getResult().getContent() != null ? apiResponse.getResult().getContent().size() : "null content"));
+                    return apiResponse.getResult();
+                } else {
+                    System.err.println("[ApiService] getMaintenanceTickets - Error: Parsed apiResponse or its result is null. JSON: " + responseBodyString);
+                    // Thử parse trực tiếp sang Page<MaintenanceResponse> nếu wrapper không đúng
+                    try {
+                        System.out.println("[ApiService] getMaintenanceTickets - Attempting direct parse to Page<MaintenanceResponse>...");
+                        Type pageType = new TypeToken<Page<MaintenanceResponse>>() {}.getType();
+                        Page<MaintenanceResponse> directPageResponse = gson.fromJson(responseBodyString, pageType);
+                        if (directPageResponse != null && directPageResponse.getContent() != null) {
+                            System.out.println("[ApiService] getMaintenanceTickets - Direct parse to Page successful. Content size: " + directPageResponse.getContent().size());
+                            return directPageResponse;
+                        } else {
+                            System.err.println("[ApiService] getMaintenanceTickets - Direct parse to Page also failed or content is null.");
+                        }
+                    } catch (JsonSyntaxException eDirect) {
+                        System.err.println("[ApiService] getMaintenanceTickets - JsonSyntaxException during direct Page parse: " + eDirect.getMessage());
+                    }
+                    throw new IOException("Không thể xử lý phản hồi từ server (Page). Dữ liệu trả về có thể không đúng định dạng hoặc kết quả null.");
+                }
+            } catch (JsonSyntaxException e) {
+                System.err.println("[ApiService] getMaintenanceTickets - JsonSyntaxException during ApiSingleResponse<Page> parse: " + e.getMessage() + ". JSON: " + responseBodyString);
+                throw new IOException("Lỗi xử lý dữ liệu (Page) trả về từ server: " + e.getMessage(), e);
+            }
+        } catch (IOException e) {
+            System.err.println("[ApiService] getMaintenanceTickets - IOException during API call: " + e.getMessage());
+            throw e; // Ném lại lỗi để controller xử lý
         }
     }
 }

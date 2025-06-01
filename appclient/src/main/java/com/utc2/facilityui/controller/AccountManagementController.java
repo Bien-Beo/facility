@@ -134,7 +134,7 @@ public class AccountManagementController implements Initializable {
                                 btnEdit.setGraphic(ivEdit);
                                 btnEdit.setTooltip(new Tooltip("Sửa tài khoản"));
                                 // Style để nút chỉ hiển thị icon và có padding nhỏ
-                                btnEdit.setStyle("-fx-background-color: transparent; -fx-padding: 3;");
+                                btnEdit.setStyle("-fx-background-color: transparent; -fx-padding: 3;-fx-cursor: hand;");
                             } catch (Exception e) {
                                 System.err.println("Không thể tải icon sửa: " + e.getMessage());
                                 btnEdit.setText("Sửa"); // Hiển thị chữ nếu không tải được icon
@@ -148,7 +148,7 @@ public class AccountManagementController implements Initializable {
                                 ivDelete.setFitWidth(16);
                                 btnDelete.setGraphic(ivDelete);
                                 btnDelete.setTooltip(new Tooltip("Xóa tài khoản"));
-                                btnDelete.setStyle("-fx-background-color: transparent; -fx-padding: 3;");
+                                btnDelete.setStyle("-fx-background-color: transparent; -fx-padding: 3;-fx-cursor: hand;");
                             } catch (Exception e) {
                                 System.err.println("Không thể tải icon xóa: " + e.getMessage());
                                 btnDelete.setText("Xóa"); // Hiển thị chữ nếu không tải được icon
